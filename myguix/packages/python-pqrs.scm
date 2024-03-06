@@ -38,6 +38,7 @@
   #:use-module (guix search-paths)
   #:use-module (guix utils)
   #:use-module (myguix packages bazel)
+  #:use-module (myguix packages video)
   #:use-module (ice-9 match))
 
 (define-public python-pele
