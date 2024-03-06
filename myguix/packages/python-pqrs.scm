@@ -25,6 +25,7 @@
   #:use-module (gnu packages certs)
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages machine-learning)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
