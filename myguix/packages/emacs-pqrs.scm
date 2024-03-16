@@ -95,3 +95,22 @@ Citar note support:
 @item ``live'' updating of Citar UI for presence of notes
 @end itemize")
     (license license:gpl3+)))
+
+(define-public emacs-mjolnir-mode
+  (package
+    (name "emacs-mjolnir-mode")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/mjolnir-mode")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1jjpsx9amdcnm5pk1fymgyr6c786hb7yc6kqxks8494dqpr6ahyp"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/b-vitamins/mjolnir-mode")
+    (synopsis "Whosoever holds this hammer, if he be worthy, shall possess the power of Thor.")
+    (description "mjolnir-mode is an Emacs minor mode that bestows upon you the might of Thor! When wielding Mjölnir, nothing shall come in the way of your buffers as they thunder through the windows. However, not all buffers are deemed worthy - the unworthy shall remain immobile, having collapsed under the weight of the mighty Mjölnir.")
+    (license license:gpl3+)))
