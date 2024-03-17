@@ -99,7 +99,7 @@ Citar note support:
 (define-public emacs-mjolnir-mode
   (package
     (name "emacs-mjolnir-mode")
-    (version "0.1.0")
+    (version "0.2.0")
     (source
      (origin
        (method git-fetch)
@@ -108,9 +108,11 @@ Citar note support:
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1jjpsx9amdcnm5pk1fymgyr6c786hb7yc6kqxks8494dqpr6ahyp"))))
+        (base32 "19s6l04kk9sgix23gggx8kmh8rl82lxiany9w9zmmsy96zjii8hq"))))
     (build-system emacs-build-system)
     (home-page "https://github.com/b-vitamins/mjolnir-mode")
-    (synopsis "Whosoever holds this hammer, if he be worthy, shall possess the power of Thor.")
-    (description "mjolnir-mode is an Emacs minor mode that bestows upon you the might of Thor! When wielding Mjölnir, nothing shall come in the way of your buffers as they thunder through the windows. However, not all buffers are deemed worthy - the unworthy shall remain immobile, having collapsed under the weight of the mighty Mjölnir.")
+    (synopsis
+     "Whosoever holds this hammer, if he be worthy, shall possess the power of Thor.")
+    (description
+     "When wielding Mjölnir, nothing shall come in the way of your buffers as they thunder through your windows. Instead of moving over to the window holding the buffer worthy of your attention, summon it into the window you're already in. However, you deem not all buffers as worthy - let be them smitten under the might of Mjölnir - and they shall stay their ground.")
     (license license:gpl3+)))
