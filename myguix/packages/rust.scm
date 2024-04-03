@@ -356,7 +356,7 @@ exec -a \"$0\" \"~a\" \"$@\""
                             `("cmake" ,cmake)
                             (package-native-inputs base-rust))))))
 
-(define-public rust-next
+(define-public rust
   (let ((base-rust (rust-bootstrapped-package rust-1.76 "1.77.0"
                                               "11rda8d8qj24a5mkjzj1x6x9pkvaq0zlhkgdp5b39zj5m0gwsv0d")))
     (package
