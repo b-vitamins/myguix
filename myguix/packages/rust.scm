@@ -5,9 +5,13 @@
   #:use-module (guix download)
   #:use-module (gnu packages rust)
   #:use-module (gnu packages curl)
+  #:use-module (gnu packages compression)
+  #:use-module (gnu packages commencement)
+  #:use-module (gnu packages web)
   #:use-module (gnu packages llvm-meta)
   #:use-module (gnu packages gdb)
   #:use-module (gnu packages linux)
+  #:use-module (gnu packages jemalloc)
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages ninja)
   #:use-module (gnu packages cmake)
@@ -48,15 +52,6 @@
                                               "08f06shp6l72qrv5fwg1is7yzr6kwj8av0l9h5k243bz781zyp4y")))
     (package
       (inherit base-rust)
-      (source
-       (origin
-         (inherit (package-source base-rust))
-         (patches '()))))))
-
-(define-public rust-next
-  (let ((base-rust rust-1.76))
-    (package
-      (inherit base-rust)
       (properties (append
                     (alist-delete 'hidden? (package-properties base-rust))
                     (clang-compiler-cpu-architectures "17")))
@@ -68,8 +63,7 @@
           '(begin
              (for-each delete-file-recursively
                        '("vendor/openssl-src/openssl"
-                         ;; "src/llvm-project"
-                         "vendor/tikv-jemalloc-sys/jemalloc"
+                         ;; "vendor/tikv-jemalloc-sys/jemalloc"
                          ;; These are referenced by the cargo output
                          ;; so we unbundle them.
                          "vendor/curl-sys/curl"
@@ -202,6 +196,10 @@
                  (substitute* "tests/ui/command/command-uid-gid.rs"
                    (("/bin/sh") (which "sh"))
                    (("/bin/ls") (which "ls")))))
+             (add-after 'unpack 'patch-jemalloc-sys
+               (lambda _
+                 (substitute* "vendor/jemalloc-sys/jemalloc/Makefile.in"
+                   (("/bin/sh") (which "sh")))))
              (add-after 'unpack 'skip-shebang-tests
                ;; This test make sure that the parser behaves properly when a
                ;; source file starts with a shebang. Unfortunately, the
@@ -242,24 +240,41 @@
                (lambda* (#:key outputs #:allow-other-keys)
                  (let ((out (assoc-ref outputs "out")))
                    (substitute* "src/bootstrap/src/core/builder.rs"
-                      ((" = rpath.*" all)
-                       (string-append all
-                                      "                "
-                                      "rustflags.arg(\"-Clink-args=-Wl,-rpath="
-                                      out "/lib\");\n"))))))
+                     ((" = rpath.*" all)
+                      (string-append all
+                                     "                "
+                                     "rustflags.arg(\"-Clink-args=-Wl,-rpath="
+                                     out "/lib\");\n"))))))
              (add-after 'configure 'customize-config
-               (lambda* (#:key inputs #:allow-other-keys)
-                 ;; Assuming `gdb` is part of your inputs and you want to keep the gdb example
-                 (let ((gdb (assoc-ref inputs "gdb")))
-                   (substitute* "config.toml"
-                     (("^python =.*$" all)
-                      (string-append all 
-                                     "gdb = \"" gdb "/bin/gdb\"\n"))
-                     (("^\\[build\\].*$" all)
-                      (string-append all "profiler = true\n"))
-                     (("docs = false") "docs = true")
-                     (("^\\[build\\].*$" all)
-                      (string-append all "extended = true\n"))))))
+                        (lambda* (#:key inputs #:allow-other-keys)
+                          ;; Assuming `gdb` is part of your inputs and you want to keep the gdb example
+                          (let ((gdb (assoc-ref inputs "gdb"))
+                                (clang (assoc-ref inputs "clang"))
+                                (llvm (assoc-ref inputs "llvm")))
+                            (substitute* "config.toml"
+                                         (("^python =.*$" all)
+                                          (string-append all 
+                                                         "gdb = \"" gdb "/bin/gdb\"\n"))
+                                         (("^\\[llvm\\].*$" all)
+                                          (string-append all "thin-lto = true\n"))
+                                         (("^\\[llvm\\].*$" all)
+                                          (string-append all "plugins = true\n"))
+                                         (("^\\[llvm\\].*$" all)
+                                          (string-append all "polly = true\n"))
+                                         (("^\\[build\\].*$" all)
+                                          (string-append all "profiler = true\n"))
+                                         (("^\\[build\\].*$" all)
+                                          (string-append all "extended = true\n"))
+                                         (("docs = false") "docs = true")
+                                         (("jemalloc=false") "jemalloc = true")
+                                         (("^cc =.*$" all)
+                                          (string-append "cc = \"" clang "/bin/clang\"\n"))
+                                         (("^cxx =.*$" all)
+                                          (string-append "cxx = \"" clang "/bin/clang++\"\n"))
+                                         (("^ar =.*$" all)
+                                          (string-append "ar = \"" llvm "/bin/llvm-ar\"\n"))
+                                         (("^ar =.*$" all)
+                                          (string-append all "ranlib = \"" llvm "/bin/llvm-ranlib\"\n"))))))
              (replace 'build
                ;; Phase overridden to also build more tools.
                (lambda* (#:key parallel-build? #:allow-other-keys)
@@ -333,8 +348,37 @@ exec -a \"$0\" \"~a\" \"$@\""
                                (string-append bin "/.rust-analyzer-real"))))
                    (chmod (string-append bin "/rust-analyzer") #o755))))))))
       (inputs (modify-inputs (package-inputs base-rust)
-                             (replace "llvm" llvm-with-bolt-17)))
+                             (replace "llvm" llvm-with-bolt-17)
+                             (prepend curl libffi `(,nghttp2 "lib") zlib jemalloc ninja)))
       (native-inputs (cons* `("gdb" ,gdb/pinned)
                             `("procps" ,procps)
-                            `("libcurl" ,curl)
+                            `("clang" ,clang-17)
+                            `("cmake" ,cmake)
                             (package-native-inputs base-rust))))))
+
+(define-public rust-next
+  (let ((base-rust (rust-bootstrapped-package rust-1.76 "1.77.0"
+                                              "11rda8d8qj24a5mkjzj1x6x9pkvaq0zlhkgdp5b39zj5m0gwsv0d")))
+    (package
+      (inherit base-rust)
+      (source
+       (origin
+         (inherit (package-source base-rust))
+         (patches '())))
+      (arguments
+       (substitute-keyword-arguments (package-arguments base-rust)
+         ((#:phases phases)
+          `(modify-phases ,phases
+               (replace 'patch-process-tests
+               (lambda* (#:key inputs #:allow-other-keys)
+                 (let ((bash (assoc-ref inputs "bash")))
+                   (with-directory-excursion "library/std/src"
+                     (substitute* "process/tests.rs"
+                       (("\"/bin/sh\"")
+                        (string-append "\"" bash "/bin/sh\"")))
+                     (substitute* "sys/pal/unix/process/process_common/tests.rs"
+                       ;; We can't use make-ignore-test-list because we will get
+                       ;; build errors due to the double [ignore] block.
+                       (("target_arch = \"arm\"" arm)
+                        (string-append "target_os = \"linux\",\n"
+                                       "        " arm))))))))))))))
