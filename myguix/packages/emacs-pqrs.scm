@@ -166,28 +166,6 @@ Citar note support:
     (description "")
     (license license:gpl3+)))
 
-(define-public emacs-treemacs-nerd-icons
-  (package
-    (name "emacs-treemacs-nerd-icons")
-    (version "9876cb4")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/rainstormstudio/treemacs-nerd-icons")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1xphhxdibjhp27z2lj1nxlxf7cfm8vpi44fr01fk9krqy9vaz0q0"))))
-    (build-system emacs-build-system)
-    (inputs (list emacs-nerd-icons))
-    (home-page "https://github.com/rainstormstudio/treemacs-nerd-icons")
-    (synopsis
-     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
-    (description"")
-    (license license:gpl3+)))
-
-
 (define-public emacs-nerd-icons-ibuffer
   (package
     (name "emacs-nerd-icons-ibuffer")
