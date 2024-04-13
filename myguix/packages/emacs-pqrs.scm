@@ -228,3 +228,23 @@ Citar note support:
      "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
     (description"")
     (license license:gpl3+)))
+
+(define-public emacs-flycheck-inline
+  (package
+    (name "emacs-flycheck-inline")
+    (version "8e00b4c")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/flycheck/flycheck-inline")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1s505lk5rdc3p40w5g4cpzviaksclvfdisl457gpwjpjv0m7fwd4"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-flycheck))
+    (home-page "https://github.com/flycheck/flycheck-inline")
+    (synopsis "Flycheck errors using overlays.")
+    (description "An extension for Flycheck. It implements a minor-mode for displaying errors from Flycheck right below their reporting location, using overlays.")
+    (license license:gpl3+)))
