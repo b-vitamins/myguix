@@ -2,10 +2,38 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
+  #:use-module (gnu packages emacs)
+  #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix gexp)
+  #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module (guix build-system emacs)
+  #:use-module (gnu packages llvm-meta)
+  #:use-module (gnu packages llvm)
   #:use-module (gnu packages emacs-xyz))
+
+(define-public my-emacs
+  (package
+    (inherit emacs)
+    (name "my-emacs")
+    (synopsis "Emacs text editor with @code{xwidgets} and @code{pgtk} support")
+    (arguments
+     (substitute-keyword-arguments (package-arguments emacs-next)
+       ((#:configure-flags flags #~'())
+        #~(cons* "--with-tree-sitter" "--with-json" "--with-threads" #$flags))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'optimize-flags
+             (lambda* (#:key inputs #:allow-other-keys)
+               (let ((clang (assoc-ref inputs "clang"))
+                     (llvm (assoc-ref inputs "llvm")))
+                 (setenv "CC" (string-append clang "/bin/clang"))
+                 (setenv "CXX" (string-append clang "/bin/clang++"))
+                 (setenv "CFLAGS" "-O3 -march=native -mtune=native")
+                 (setenv "CXXFLAGS" "-O3 -march=native -mtune=native"))))))))
+    (inputs
+     (modify-inputs (package-inputs emacs-next)
+       (prepend clang-17)))))
 
 (define-public emacs-citar-1.3
   (package
@@ -116,3 +144,111 @@ Citar note support:
     (description
      "When wielding Mjölnir, nothing shall come in the way of your buffers as they thunder through your windows. Instead of moving over to the window holding the buffer worthy of your attention, summon it into the window you're already in. However, you deem not all buffers as worthy - let be them smitten under the might of Mjölnir - and they shall stay their ground.")
     (license license:gpl3+)))
+
+(define-public emacs-nerd-icons-dired
+  (package
+    (name "emacs-nerd-icons-dired")
+    (version "c1c7348")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/rainstormstudio/nerd-icons-dired")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ln73ii7c3chl4lvarwiwrdmx49q528wc0h6a7xbl68pc2pyyvq2"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-nerd-icons))
+    (home-page "https://github.com/rainstormstudio/nerd-icons-dired")
+    (synopsis
+     "nerd-icons-dired is inspired by all-the-icons-dired.")
+    (description "")
+    (license license:gpl3+)))
+
+(define-public emacs-treemacs-nerd-icons
+  (package
+    (name "emacs-treemacs-nerd-icons")
+    (version "9876cb4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/rainstormstudio/treemacs-nerd-icons")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1xphhxdibjhp27z2lj1nxlxf7cfm8vpi44fr01fk9krqy9vaz0q0"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-nerd-icons))
+    (home-page "https://github.com/rainstormstudio/treemacs-nerd-icons")
+    (synopsis
+     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
+    (description"")
+    (license license:gpl3+)))
+
+
+(define-public emacs-nerd-icons-ibuffer
+  (package
+    (name "emacs-nerd-icons-ibuffer")
+    (version "1.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/seagle0128/nerd-icons-ibuffer")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1wj6kcgvh700maj9i5pmgzc48lbj0dbxx849a8w519m4anr7b23s"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-nerd-icons))
+    (home-page "https://github.com/seagle0128/nerd-icons-ibuffer")
+    (synopsis
+     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
+    (description"")
+    (license license:gpl3+)))
+
+(define-public emacs-nerd-icons-completion
+  (package
+    (name "emacs-nerd-icons-completion")
+    (version "c2db855")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/rainstormstudio/nerd-icons-completion")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "10ll0dj6ym5prrkv6smj0ac2ail4b3rqcrh1lyr61y3cj422vn9z"))))
+    (inputs (list emacs-nerd-icons))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/rainstormstudio/nerd-icons-completion")
+    (synopsis
+     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
+    (description"")
+    (license license:gpl3+)))
+
+(define-public emacs-nerd-icons-corfu
+  (package
+    (name "emacs-nerd-icons-corfu")
+    (version "0.3.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/LuigiPiucco/nerd-icons-corfu")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "05hnq6yv0xcisk5vkdzjz2sdzn4cayirf3zyz40xj1pzf33lra4r"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-nerd-icons))
+    (home-page "https://github.com/LuigiPiucco/nerd-icons-corfu")
+    (synopsis
+     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
+    (description"")
+    (license license:gpl3+)))
+
+emacs-treemacs-nerd-icons
