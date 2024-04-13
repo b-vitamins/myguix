@@ -248,3 +248,55 @@ Citar note support:
     (synopsis "Flycheck errors using overlays.")
     (description "An extension for Flycheck. It implements a minor-mode for displaying errors from Flycheck right below their reporting location, using overlays.")
     (license license:gpl3+)))
+
+(define-public emacs-lsp-jedi
+  (package
+   (name "emacs-lsp-jedi")
+   (version "1.2.2")
+   (source
+    (origin
+     (method git-fetch)
+     (uri (git-reference
+           (url "https://github.com/fredcamps/lsp-jedi")
+           (commit version)))
+     (file-name (git-file-name name version))
+     (sha256
+      (base32 "0kax988drrzsx103v71bz4vczh4bg0n80arrzm4r6sgrk01219j0"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-lsp-mode))
+    (home-page "https://github.com/fredcamps/lsp-jedi")
+    (synopsis "A Emacs client for Python Jedi Language Server (LSP client plugin for lsp-mode Emacs extension).")
+    (description "A Emacs client for Python Jedi Language Server. Supported features:
+@itemize
+@item Renaming/Refactoring
+@item Auto-completion
+@item Definitions
+@item References
+@item Document Highlight
+@item Document Symbols
+@item Hover Request
+@item Publish Diagnostics
+@item Signature Help
+@item Symbols
+@end itemize")
+    (license license:gpl3+)))
+
+(define-public emacs-lsp-haskell
+  (package
+   (name "emacs-lsp-haskell")
+   (version "47a1878")
+   (source
+    (origin
+     (method git-fetch)
+     (uri (git-reference
+           (url "https://github.com/emacs-lsp/lsp-haskell")
+           (commit version)))
+     (file-name (git-file-name name version))
+     (sha256
+      (base32 "13b4ikn392dm0d1f4i3lzb0gibljww2npvsbyxdkrn58gf1q4qfy"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-lsp-mode emacs-haskell-mode))
+    (home-page "https://github.com/emacs-lsp/lsp-haskell")
+    (synopsis "A Emacs client for @code{haskell-language-server}.")
+    (description "An Emacs Lisp library for interacting with a Haskell language server such as @code{haskell-language-server} using Microsoft's Language Server Protocol. The library acts as a client for @code{lsp-mode}.")
+    (license license:gpl3+)))
