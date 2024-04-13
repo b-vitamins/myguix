@@ -228,5 +228,3 @@ Citar note support:
      "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
     (description"")
     (license license:gpl3+)))
-
-emacs-treemacs-nerd-icons
