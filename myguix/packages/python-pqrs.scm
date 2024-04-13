@@ -41,44 +41,6 @@
   #:use-module (myguix packages video)
   #:use-module (ice-9 match))
 
-(define-public python-pele
-  (package
-    (name "python-pele")
-    (version "0.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/pele-python/pele")
-             (commit "7da72ba")))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1b8s182w3i6dzjgwzgj9pb927fd3yqypma9hys86r4c7ij4kbmpb"))))
-    (build-system python-build-system)
-    (arguments
-     '(#:phases (modify-phases %standard-phases
-                  (replace 'build
-                    (lambda _
-                      (invoke "python" "setup.py" "build")))
-                  (replace 'install
-                    (lambda _
-                      (invoke "python" "setup.py" "install"))))))
-    (inputs (list python
-                  gfortran-toolchain
-                  python-numpy
-                  python-scipy
-                  python-cython
-                  python-networkx
-                  python-matplotlib
-                  python-pyro4
-                  python-sqlalchemy))
-    (propagated-inputs (list python-decorator))
-    (native-inputs (list python-pytest))
-    (home-page "https://github.com/pele-python/")
-    (synopsis "Energy landscapes.")
-    (description "TBA.")
-    (license license:bsd-3)))
-
 (define-public eigen-for-python-ml-dtypes
   (let ((commit "7bf2968fed5f246c0589e1111004cb420fcd7c71")
         (revision "1"))
@@ -712,23 +674,6 @@ arbitrarily to any order.")
     (description "Simple python client for GROBID REST services")
     (license license:asl2.0)))
 
-(define-public python-grobid-client-python
-  (package
-    (name "python-grobid-client-python")
-    (version "0.0.7")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "grobid_client_python" version))
-       (sha256
-        (base32 "1qxwkp0brqrfxwm853f48jzraff8934b89nm0h0vb7mpsgv1p0xw"))))
-    (build-system pyproject-build-system)
-    (propagated-inputs (list python-requests))
-    (home-page "https://github.com/kermitt2/grobid_client_python")
-    (synopsis "Simple python client for GROBID REST services")
-    (description "Simple python client for GROBID REST services")
-    (license license:asl2.0)))
-
 (define-public python-openalexapi
   (package
     (name "python-openalexapi")
@@ -824,3 +769,57 @@ spectral analysis utilities are also implemented, such as computation of
 spectral density and spectral ergodicity for complexity of deep learning
 architectures.")
    (license license:asl2.0)))
+
+(define-public python-pele
+  (package
+    (name "python-pele")
+    (version "0.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pele-python/pele")
+             (commit "7da72ba")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1b8s182w3i6dzjgwzgj9pb927fd3yqypma9hys86r4c7ij4kbmpb"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:phases (modify-phases %standard-phases
+                  (replace 'build
+                    (lambda _
+                      (invoke "python" "setup.py" "build")))
+                  (replace 'install
+                    (lambda _
+                      (invoke "python" "setup.py" "install"))))))
+    (inputs (list python
+                  gfortran-toolchain
+                  python-numpy
+                  python-scipy
+                  python-cython
+                  python-networkx
+                  python-matplotlib
+                  python-pyro4
+                  python-sqlalchemy))
+    (propagated-inputs (list python-decorator))
+    (native-inputs (list python-pytest))
+    (home-page "https://github.com/pele-python/")
+    (synopsis "Energy landscapes.")
+    (description "TBA.")
+    (license license:bsd-3)))
+
+(define-public python-jedi-language-server
+  (package
+    (name "python-jedi-language-server")
+    (version "0.41.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "jedi_language_server" version))
+       (sha256
+        (base32 "12lzgb4yqxg3dc15kpifp2bd5gl4acv5yjvhpgpwxnpsjlmw4ghi"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/pappasam/jedi-language-server")
+    (synopsis "A language server for Jedi!")
+    (description "This package provides a language server for Jedi!")
+    (license license:expat)))
