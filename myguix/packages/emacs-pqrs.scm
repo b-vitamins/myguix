@@ -14,11 +14,11 @@
 
 (define-public my-emacs
   (package
-    (inherit emacs)
+    (inherit emacs-pgtk)
     (name "my-emacs")
-    (synopsis "Emacs text editor with @code{xwidgets} and @code{pgtk} support")
+    (synopsis "Emacs text editor with and @code{pgtk} support")
     (arguments
-     (substitute-keyword-arguments (package-arguments emacs-next)
+     (substitute-keyword-arguments (package-arguments emacs-pgtk)
        ((#:configure-flags flags #~'())
         #~(cons* "--with-tree-sitter" "--with-json" "--with-threads" #$flags))
        ((#:phases phases)
@@ -32,7 +32,7 @@
                  (setenv "CFLAGS" "-O3 -march=native -mtune=native")
                  (setenv "CXXFLAGS" "-O3 -march=native -mtune=native"))))))))
     (inputs
-     (modify-inputs (package-inputs emacs-next)
+     (modify-inputs (package-inputs emacs-pgtk)
        (prepend clang-17)))))
 
 (define-public emacs-citar-1.3
@@ -300,3 +300,5 @@ Citar note support:
     (synopsis "A Emacs client for @code{haskell-language-server}.")
     (description "An Emacs Lisp library for interacting with a Haskell language server such as @code{haskell-language-server} using Microsoft's Language Server Protocol. The library acts as a client for @code{lsp-mode}.")
     (license license:gpl3+)))
+    
+my-emacs
