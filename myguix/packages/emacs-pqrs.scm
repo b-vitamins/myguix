@@ -16,7 +16,7 @@
   (package
     (inherit emacs-pgtk)
     (name "my-emacs")
-    (synopsis "Emacs text editor with and @code{pgtk} support")
+    (synopsis "Emacs text editor with @code{pgtk} support")
     (arguments
      (substitute-keyword-arguments (package-arguments emacs-pgtk)
        ((#:configure-flags flags
@@ -164,8 +164,9 @@ Citar note support:
     (build-system emacs-build-system)
     (inputs (list emacs-nerd-icons))
     (home-page "https://github.com/rainstormstudio/nerd-icons-dired")
-    (synopsis "nerd-icons-dired is inspired by all-the-icons-dired.")
-    (description "")
+    (synopsis "Icon enhancements for Dired using Nerd Fonts")
+    (description
+     "This package provides Nerd Font icon enhancements for Emacs' Dired mode, offering visually distinct file icons to improve navigation and aesthetics.")
     (license license:gpl3+)))
 
 (define-public emacs-nerd-icons-ibuffer
@@ -184,9 +185,9 @@ Citar note support:
     (build-system emacs-build-system)
     (inputs (list emacs-nerd-icons))
     (home-page "https://github.com/seagle0128/nerd-icons-ibuffer")
-    (synopsis
-     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
-    (description "")
+    (synopsis "Nerd Fonts icon theme for Emacs iBuffer")
+    (description
+     "Integrates Nerd Fonts into Emacs iBuffer, enhancing its interface by displaying appropriate icons for different file types and buffers.")
     (license license:gpl3+)))
 
 (define-public emacs-nerd-icons-completion
@@ -205,9 +206,9 @@ Citar note support:
     (inputs (list emacs-nerd-icons))
     (build-system emacs-build-system)
     (home-page "https://github.com/rainstormstudio/nerd-icons-completion")
-    (synopsis
-     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
-    (description "")
+    (synopsis "Icon completion using Nerd Fonts in Emacs")
+    (description
+     "This package uses Nerd Fonts to provide icon completion features within Emacs, helping users visually identify file types and other items quickly.")
     (license license:gpl3+)))
 
 (define-public emacs-nerd-icons-corfu
@@ -223,12 +224,11 @@ Citar note support:
        (file-name (git-file-name name version))
        (sha256
         (base32 "05hnq6yv0xcisk5vkdzjz2sdzn4cayirf3zyz40xj1pzf33lra4r"))))
-    (build-system emacs-build-system)
     (inputs (list emacs-nerd-icons))
     (home-page "https://github.com/LuigiPiucco/nerd-icons-corfu")
-    (synopsis
-     "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
-    (description "")
+    (synopsis "Nerd Fonts integration with Emacs Corfu completion framework")
+    (description
+     "Adds Nerd Font icons to the Corfu completion framework in Emacs, enhancing the visual experience by decorating completions with contextually relevant icons.")
     (license license:gpl3+)))
 
 (define-public emacs-flycheck-inline
@@ -306,5 +306,3 @@ Citar note support:
     (description
      "An Emacs Lisp library for interacting with a Haskell language server such as @code{haskell-language-server} using Microsoft's Language Server Protocol. The library acts as a client for @code{lsp-mode}.")
     (license license:gpl3+)))
-
-my-emacs
