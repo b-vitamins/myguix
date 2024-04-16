@@ -19,21 +19,24 @@
     (synopsis "Emacs text editor with and @code{pgtk} support")
     (arguments
      (substitute-keyword-arguments (package-arguments emacs-pgtk)
-       ((#:configure-flags flags #~'())
-        #~(cons* "--with-tree-sitter" "--with-json" "--with-threads" #$flags))
+       ((#:configure-flags flags
+         #~'())
+        #~(cons* "--with-tree-sitter" "--with-json" "--with-threads"
+                 #$flags))
        ((#:phases phases)
         #~(modify-phases #$phases
             (add-after 'unpack 'optimize-flags
-             (lambda* (#:key inputs #:allow-other-keys)
-               (let ((clang (assoc-ref inputs "clang"))
-                     (llvm (assoc-ref inputs "llvm")))
-                 (setenv "CC" (string-append clang "/bin/clang"))
-                 (setenv "CXX" (string-append clang "/bin/clang++"))
-                 (setenv "CFLAGS" "-O3 -march=native -mtune=native")
-                 (setenv "CXXFLAGS" "-O3 -march=native -mtune=native"))))))))
-    (inputs
-     (modify-inputs (package-inputs emacs-pgtk)
-       (prepend clang-17)))))
+              (lambda* (#:key inputs #:allow-other-keys)
+                (let ((clang (assoc-ref inputs "clang"))
+                      (llvm (assoc-ref inputs "llvm")))
+                  (setenv "CC"
+                          (string-append clang "/bin/clang"))
+                  (setenv "CXX"
+                          (string-append clang "/bin/clang++"))
+                  (setenv "CFLAGS" "-O3 -march=native -mtune=native")
+                  (setenv "CXXFLAGS" "-O3 -march=native -mtune=native"))))))))
+    (inputs (modify-inputs (package-inputs emacs-pgtk)
+              (prepend clang-17)))))
 
 (define-public emacs-citar-1.3
   (package
@@ -161,8 +164,7 @@ Citar note support:
     (build-system emacs-build-system)
     (inputs (list emacs-nerd-icons))
     (home-page "https://github.com/rainstormstudio/nerd-icons-dired")
-    (synopsis
-     "nerd-icons-dired is inspired by all-the-icons-dired.")
+    (synopsis "nerd-icons-dired is inspired by all-the-icons-dired.")
     (description "")
     (license license:gpl3+)))
 
@@ -184,7 +186,7 @@ Citar note support:
     (home-page "https://github.com/seagle0128/nerd-icons-ibuffer")
     (synopsis
      "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
-    (description"")
+    (description "")
     (license license:gpl3+)))
 
 (define-public emacs-nerd-icons-completion
@@ -205,7 +207,7 @@ Citar note support:
     (home-page "https://github.com/rainstormstudio/nerd-icons-completion")
     (synopsis
      "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
-    (description"")
+    (description "")
     (license license:gpl3+)))
 
 (define-public emacs-nerd-icons-corfu
@@ -226,7 +228,7 @@ Citar note support:
     (home-page "https://github.com/LuigiPiucco/nerd-icons-corfu")
     (synopsis
      "nerd-icons theme for treemacs. It is inspired by treemacs-all-the-icons, vim-devicons and nvim-web-devicons. It can be used inside GUI or terminal.")
-    (description"")
+    (description "")
     (license license:gpl3+)))
 
 (define-public emacs-flycheck-inline
@@ -246,27 +248,30 @@ Citar note support:
     (inputs (list emacs-flycheck))
     (home-page "https://github.com/flycheck/flycheck-inline")
     (synopsis "Flycheck errors using overlays.")
-    (description "An extension for Flycheck. It implements a minor-mode for displaying errors from Flycheck right below their reporting location, using overlays.")
+    (description
+     "An extension for Flycheck. It implements a minor-mode for displaying errors from Flycheck right below their reporting location, using overlays.")
     (license license:gpl3+)))
 
 (define-public emacs-lsp-jedi
   (package
-   (name "emacs-lsp-jedi")
-   (version "1.2.2")
-   (source
-    (origin
-     (method git-fetch)
-     (uri (git-reference
-           (url "https://github.com/fredcamps/lsp-jedi")
-           (commit version)))
-     (file-name (git-file-name name version))
-     (sha256
-      (base32 "0kax988drrzsx103v71bz4vczh4bg0n80arrzm4r6sgrk01219j0"))))
+    (name "emacs-lsp-jedi")
+    (version "1.2.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/fredcamps/lsp-jedi")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0kax988drrzsx103v71bz4vczh4bg0n80arrzm4r6sgrk01219j0"))))
     (build-system emacs-build-system)
     (inputs (list emacs-lsp-mode))
     (home-page "https://github.com/fredcamps/lsp-jedi")
-    (synopsis "A Emacs client for Python Jedi Language Server (LSP client plugin for lsp-mode Emacs extension).")
-    (description "A Emacs client for Python Jedi Language Server. Supported features:
+    (synopsis
+     "A Emacs client for Python Jedi Language Server (LSP client plugin for lsp-mode Emacs extension).")
+    (description
+     "A Emacs client for Python Jedi Language Server. Supported features:
 @itemize
 @item Renaming/Refactoring
 @item Auto-completion
@@ -283,22 +288,23 @@ Citar note support:
 
 (define-public emacs-lsp-haskell
   (package
-   (name "emacs-lsp-haskell")
-   (version "47a1878")
-   (source
-    (origin
-     (method git-fetch)
-     (uri (git-reference
-           (url "https://github.com/emacs-lsp/lsp-haskell")
-           (commit version)))
-     (file-name (git-file-name name version))
-     (sha256
-      (base32 "13b4ikn392dm0d1f4i3lzb0gibljww2npvsbyxdkrn58gf1q4qfy"))))
+    (name "emacs-lsp-haskell")
+    (version "47a1878")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/emacs-lsp/lsp-haskell")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "13b4ikn392dm0d1f4i3lzb0gibljww2npvsbyxdkrn58gf1q4qfy"))))
     (build-system emacs-build-system)
     (inputs (list emacs-lsp-mode emacs-haskell-mode))
     (home-page "https://github.com/emacs-lsp/lsp-haskell")
     (synopsis "A Emacs client for @code{haskell-language-server}.")
-    (description "An Emacs Lisp library for interacting with a Haskell language server such as @code{haskell-language-server} using Microsoft's Language Server Protocol. The library acts as a client for @code{lsp-mode}.")
+    (description
+     "An Emacs Lisp library for interacting with a Haskell language server such as @code{haskell-language-server} using Microsoft's Language Server Protocol. The library acts as a client for @code{lsp-mode}.")
     (license license:gpl3+)))
-    
+
 my-emacs
