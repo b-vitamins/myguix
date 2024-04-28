@@ -136,6 +136,7 @@
        (sha256
         (base32 "05hnq6yv0xcisk5vkdzjz2sdzn4cayirf3zyz40xj1pzf33lra4r"))))
     (inputs (list emacs-nerd-icons))
+    (build-system emacs-build-system)
     (home-page "https://github.com/LuigiPiucco/nerd-icons-corfu")
     (synopsis "Nerd Fonts integration with Emacs Corfu completion framework")
     (description
