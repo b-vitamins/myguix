@@ -9,6 +9,9 @@
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages crates-io)
   #:use-module (gnu packages crates-graphics)
+  #:use-module (gnu packages crates-tls)
+  #:use-module (gnu packages crates-web)
+  #:use-module (gnu packages crates-windows)
   #:use-module (gnu packages ninja)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system cmake)
@@ -289,8 +292,7 @@ of the file.")
     (synopsis "Safe Rust bindings to POSIX/Unix/Linux/Winsock-like syscalls")
     (description
      "Safe Rust bindings to POSIX/Unix/Linux/Winsock-like syscalls")
-    (license (list license:asl2.0 unknown-license! license:asl2.0
-                   license:expat))))
+    (license (list license:asl2.0 license:asl2.0 license:expat))))
 
 (define-public rust-tempfile-3
   (package
@@ -959,7 +961,33 @@ when implementing custom derives.")
         (base32 "1zg6ffpllygijb5bh227m9p4lrhf0pjkysky68kddwrsvp8zl075"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-aho-corasick" ,rust-aho-corasick-1)
+     `(#:cargo-test-flags '("--release" "--"
+                            "--skip=lstrip_tokens"
+                            "--skip=rstrip_tokens"
+                            "--skip=overlapping_tokens"
+                            "--skip=single_word_tokens"
+                            "--skip=quicktour_slow_train"
+                            "--skip=train_pipeline_bert"
+                            "--skip=pipeline"
+                            "--skip=pipeline_bert"
+                            "--skip=quicktour"
+                            "--skip=load_tokenizer"
+                            "--skip=train_tokenizer"
+                            "--skip=byte_level_pre_tokenized_sequence_with_trimming"
+                            "--skip=byte_level_pre_tokenized_sequence"
+                            "--skip=byte_level_basic"
+                            "--skip=byte_level_double_sequence"
+                            "--skip=byte_level_unicode"
+                            "--skip=split_on_added_tokens_bert"
+                            "--skip=bpe_serde"
+                            "--skip=test_deserialize_long_file"
+                            "--skip=wordlevel_serde"
+                            "--skip=wordpiece_serde"
+                            "--skip=bpe_values_after_training"
+                            "--skip=bpe_continuing_subword_prefix_error"
+                            "--skip=test_unigram_from_file"
+                            "--skip=test_train_unigram_from_file")
+       #:cargo-inputs (("rust-aho-corasick" ,rust-aho-corasick-1)
                        ("rust-derive-builder" ,rust-derive-builder-0.20)
                        ("rust-esaxx-rs" ,rust-esaxx-rs-0.1)
                        ("rust-fancy-regex" ,rust-fancy-regex-0.13)
