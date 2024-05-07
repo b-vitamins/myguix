@@ -42,61 +42,47 @@
   #:use-module (ice-9 format)
   #:use-module (ice-9 match)
 
-  #:export (docker-configuration
-            docker-service-type
-            singularity-service-type
-            oci-container-configuration
-            oci-container-configuration?
-            oci-container-configuration-fields
-            oci-container-configuration-user
-            oci-container-configuration-group
-            oci-container-configuration-command
-            oci-container-configuration-entrypoint
-            oci-container-configuration-environment
-            oci-container-configuration-ulimit
-            oci-container-configuration-image
-            oci-container-configuration-provision
-            oci-container-configuration-network
-            oci-container-configuration-ports
-            oci-container-configuration-volumes
-            oci-container-service-type
-            oci-container-shepherd-service))
+  #:export (docker-configuration docker-service-type
+                                 singularity-service-type
+                                 oci-container-configuration
+                                 oci-container-configuration?
+                                 oci-container-configuration-fields
+                                 oci-container-configuration-user
+                                 oci-container-configuration-group
+                                 oci-container-configuration-command
+                                 oci-container-configuration-entrypoint
+                                 oci-container-configuration-environment
+                                 oci-container-configuration-ulimit
+                                 oci-container-configuration-image
+                                 oci-container-configuration-provision
+                                 oci-container-configuration-network
+                                 oci-container-configuration-ports
+                                 oci-container-configuration-volumes
+                                 oci-container-service-type
+                                 oci-container-shepherd-service))
 
 (define-maybe file-like)
 
 (define-configuration docker-configuration
-  (docker
-   (file-like docker)
-   "Docker daemon package.")
-  (docker-cli
-   (file-like docker-cli)
-   "Docker client package.")
-  (containerd
-   (file-like containerd)
-   "containerd package.")
-  (proxy
-   (file-like docker-libnetwork-cmd-proxy)
-   "The proxy package to support inter-container and outside-container
+  (docker (file-like docker) "Docker daemon package.")
+  (docker-cli (file-like docker-cli) "Docker client package.")
+  (containerd (file-like containerd) "containerd package.")
+  (proxy (file-like docker-libnetwork-cmd-proxy)
+         "The proxy package to support inter-container and outside-container
 loop-back communications.")
-  (enable-proxy?
-   (boolean #t)
+  (enable-proxy? (boolean #t)
    "Enable or disable the user-land proxy (enabled by default).")
-  (debug?
-   (boolean #f)
-   "Enable or disable debug output.")
-  (enable-iptables?
-   (boolean #t)
-   "Enable addition of iptables rules (enabled by default).")
-  (environment-variables
-   (list '())
-   "Environment variables to set for dockerd")
-  (config-file
-   (maybe-file-like)
-   "JSON configuration file to pass to dockerd")
+  (debug? (boolean #f) "Enable or disable debug output.")
+  (enable-iptables? (boolean #t)
+                    "Enable addition of iptables rules (enabled by default).")
+  (environment-variables (list '()) "Environment variables to set for dockerd")
+  (config-file (maybe-file-like) "JSON configuration file to pass to dockerd")
   (no-serialization))
 
 (define %docker-accounts
-  (list (user-group (name "docker") (system? #t))))
+  (list (user-group
+          (name "docker")
+          (system? #t))))
 
 (define (%containerd-activation config)
   (let ((state-dir "/var/lib/containerd"))
@@ -112,84 +98,94 @@ loop-back communications.")
         (mkdir-p #$state-dir))))
 
 (define (containerd-shepherd-service config)
-  (let* ((package (docker-configuration-containerd config))
+  (let* ((package
+           (docker-configuration-containerd config))
          (debug? (docker-configuration-debug? config))
          (containerd (docker-configuration-containerd config)))
-    (shepherd-service
-           (documentation "containerd daemon.")
-           (provision '(containerd))
-           (start #~(make-forkexec-constructor
-                     (list (string-append #$package "/bin/containerd")
-                           #$@(if debug?
-                                  '("--log-level=debug")
-                                  '()))
-                     ;; For finding containerd-shim binary.
-                     #:environment-variables
-                     (list (string-append "PATH=" #$containerd "/bin"))
-                     #:pid-file "/run/containerd/containerd.pid"
-                     #:pid-file-timeout 300
-                     #:log-file "/var/log/containerd.log"))
-           (stop #~(make-kill-destructor)))))
+    (shepherd-service (documentation "containerd daemon.")
+                      (provision '(containerd))
+                      (start #~(make-forkexec-constructor (list (string-append #$package
+                                                                 "/bin/containerd")
+                                                                #$@(if debug?
+                                                                       '("--log-level=debug")
+                                                                       '()))
+                                ;; For finding containerd-shim binary.
+                                #:environment-variables (list (string-append
+                                                               "PATH="
+                                                               #$containerd
+                                                               "/bin"))
+                                #:pid-file "/run/containerd/containerd.pid"
+                                #:pid-file-timeout 300
+                                #:log-file "/var/log/containerd.log"))
+                      (stop #~(make-kill-destructor)))))
 
 (define (docker-shepherd-service config)
   (let* ((docker (docker-configuration-docker config))
          (enable-proxy? (docker-configuration-enable-proxy? config))
          (enable-iptables? (docker-configuration-enable-iptables? config))
-         (environment-variables (docker-configuration-environment-variables config))
+         (environment-variables (docker-configuration-environment-variables
+                                 config))
          (proxy (docker-configuration-proxy config))
          (debug? (docker-configuration-debug? config))
          (config-file (docker-configuration-config-file config)))
-    (shepherd-service
-           (documentation "Docker daemon.")
-           (provision '(dockerd))
-           (requirement '(containerd
-                          dbus-system
-                          elogind
-                          file-system-/sys/fs/cgroup
-                          networking
-                          udev))
-           (start #~(make-forkexec-constructor
-                     (list (string-append #$docker "/bin/dockerd")
-                           "-p" "/var/run/docker.pid"
-                           #$@(if (not (eq? config-file %unset-value))
-                                  (list #~(string-append
-                                           "--config-file=" #$config-file))
-                                  '())
-                           #$@(if debug?
-                                  '("--debug" "--log-level=debug")
-                                  '())
-                           #$@(if enable-proxy?
-                                  (list "--userland-proxy=true"
-                                        #~(string-append
-                                           "--userland-proxy-path=" #$proxy "/bin/proxy"))
-                                  '("--userland-proxy=false"))
-                           (if #$enable-iptables?
-                               "--iptables"
-                               "--iptables=false")
-                           "--containerd" "/run/containerd/containerd.sock")
-                     #:environment-variables
-                     (list #$@environment-variables)
-                     #:pid-file "/var/run/docker.pid"
-                     #:log-file "/var/log/docker.log"))
-           (stop #~(make-kill-destructor)))))
+    (shepherd-service (documentation "Docker daemon.")
+                      (provision '(dockerd))
+                      (requirement '(containerd dbus-system elogind
+                                                file-system-/sys/fs/cgroup
+                                                networking udev))
+                      (start #~(make-forkexec-constructor (list (string-append #$docker
+                                                                 "/bin/dockerd")
+                                                           "-p"
+                                                           "/var/run/docker.pid"
+                                                           #$@(if (not (eq?
+                                                                        config-file
+                                                                        %unset-value))
+                                                                  (list #~(string-append
+                                                                           "--config-file="
+                                                                           #$config-file))
+                                                                  '())
+                                                           #$@(if debug?
+                                                                  '("--debug"
+                                                                    "--log-level=debug")
+                                                                  '())
+                                                           #$@(if
+                                                               enable-proxy?
+                                                               (list
+                                                                "--userland-proxy=true"
+                                                                #~(string-append
+                                                                   "--userland-proxy-path="
+                                                                   #$proxy
+                                                                   "/bin/proxy"))
+                                                               '("--userland-proxy=false"))
+                                                           (if #$enable-iptables?
+                                                            "--iptables"
+                                                            "--iptables=false")
+                                                           "--containerd"
+                                                           "/run/containerd/containerd.sock")
+                                #:environment-variables (list #$@environment-variables)
+                                #:pid-file "/var/run/docker.pid"
+                                #:log-file "/var/log/docker.log"))
+                      (stop #~(make-kill-destructor)))))
 
 (define docker-service-type
   (service-type (name 'docker)
                 (description "Provide capability to run Docker application
 bundles in Docker containers.")
-                (extensions
-                 (list
-                  ;; Make sure the 'docker' command is available.
-                  (service-extension profile-service-type
-                                     (compose list docker-configuration-docker-cli))
-                  (service-extension activation-service-type
-                                     %docker-activation)
-                  (service-extension shepherd-root-service-type
-                                     (lambda (config)
-                                       (list (containerd-shepherd-service config)
-                                             (docker-shepherd-service config))))
-                  (service-extension account-service-type
-                                     (const %docker-accounts))))
+                (extensions (list
+                             ;; Make sure the 'docker' command is available.
+                             (service-extension profile-service-type
+                                                (compose list
+                                                 docker-configuration-docker-cli))
+                             (service-extension activation-service-type
+                                                %docker-activation)
+                             (service-extension shepherd-root-service-type
+                                                (lambda (config)
+                                                  (list (containerd-shepherd-service
+                                                         config)
+                                                        (docker-shepherd-service
+                                                         config))))
+                             (service-extension account-service-type
+                                                (const %docker-accounts))))
                 (default-value (docker-configuration))))
 
 
@@ -203,27 +199,27 @@ bundles in Docker containers.")
         (gexp? member)
         (file-like? member)))
   (match pair
-    (((? valid? key) . (? valid? value))
-     #~(string-append #$key #$delimiter #$value))
-    (_
-     (raise
-      (formatted-message
-       (G_ "pair members must contain only strings, gexps or file-like objects
+    (((? valid? key)
+      ? valid? value)
+     #~(string-append #$key
+                      #$delimiter
+                      #$value))
+    (_ (raise (formatted-message (G_
+                                  "pair members must contain only strings, gexps or file-like objects
 but ~a was found")
-       pair)))))
+                                 pair)))))
 
 (define (oci-sanitize-mixed-list name value delimiter)
-  (map
-   (lambda (el)
-     (cond ((string? el) el)
-           ((pair? el) (oci-sanitize-pair el delimiter))
-           (else
-            (raise
-             (formatted-message
-              (G_ "~a members must be either a string or a pair but ~a was
+  (map (lambda (el)
+         (cond
+           ((string? el)
+            el)
+           ((pair? el)
+            (oci-sanitize-pair el delimiter))
+           (else (raise (formatted-message (G_
+                                            "~a members must be either a string or a pair but ~a was
 found!")
-              name el)))))
-   value))
+                                           name el))))) value))
 
 (define (oci-sanitize-environment value)
   ;; Expected spec format:
@@ -243,15 +239,12 @@ found!")
 (define-maybe/no-serialization string)
 
 (define-configuration/no-serialization oci-container-configuration
-  (user
-   (string "oci-container")
-   "The user under whose authority docker commands will be run.")
-  (group
-   (string "docker")
-   "The group under whose authority docker commands will be run.")
-  (ulimit
-   (list-of-strings '())
-   "Set the Ulimit options. This must be a list of strings:
+                                       (user (string "oci-container")
+                                        "The user under whose authority docker commands will be run.")
+                                       (group (string "docker")
+                                        "The group under whose authority docker commands will be run.")
+                                       (ulimit (list-of-strings '())
+                                        "Set the Ulimit options. This must be a list of strings:
 
 @lisp
 (list \"nofile=65565:65565\"
@@ -259,15 +252,12 @@ found!")
 @end lisp
 
 String are passed directly to the Docker CLI.")
-  (command
-   (list-of-strings '())
-   "Overwrite the default command (@code{CMD}) of the image.")
-  (entrypoint
-   (maybe-string)
-   "Overwrite the default entrypoint (@code{ENTRYPOINT}) of the image.")
-  (environment
-   (list '())
-   "Set environment variables.  This can be a list of pairs or strings, even
+                                       (command (list-of-strings '())
+                                        "Overwrite the default command (@code{CMD}) of the image.")
+                                       (entrypoint (maybe-string)
+                                        "Overwrite the default entrypoint (@code{ENTRYPOINT}) of the image.")
+                                       (environment (list '())
+                                        "Set environment variables.  This can be a list of pairs or strings, even
 mixed:
 
 @lisp
@@ -278,21 +268,17 @@ mixed:
 String are passed directly to the Docker CLI.  You can refer to the
 @url{https://docs.docker.com/engine/reference/commandline/run/#env,upstream}
 documentation for semantics."
-   (sanitizer oci-sanitize-environment))
-  (image
-   (string)
-   "The image used to build the container.  Images are resolved by the Docker
+                                        (sanitizer oci-sanitize-environment))
+                                       (image (string)
+                                        "The image used to build the container.  Images are resolved by the Docker
 Engine, and follow the usual format
 @code{myregistry.local:5000/testing/test-image:tag}.")
-  (provision
-   (maybe-string)
-   "Set the name of the provisioned Shepherd service.")
-  (network
-   (maybe-string)
-   "Set a Docker network for the spawned container.")
-  (ports
-   (list '())
-   "Set the port or port ranges to expose from the spawned container.  This can
+                                       (provision (maybe-string)
+                                        "Set the name of the provisioned Shepherd service.")
+                                       (network (maybe-string)
+                                        "Set a Docker network for the spawned container.")
+                                       (ports (list '())
+                                        "Set the port or port ranges to expose from the spawned container.  This can
 be a list of pairs or strings, even mixed:
 
 @lisp
@@ -303,10 +289,9 @@ be a list of pairs or strings, even mixed:
 String are passed directly to the Docker CLI.  You can refer to the
 @url{https://docs.docker.com/engine/reference/commandline/run/#publish,upstream}
 documentation for semantics."
-   (sanitizer oci-sanitize-ports))
-  (volumes
-   (list '())
-   "Set volume mappings for the spawned container.  This can be a
+                                        (sanitizer oci-sanitize-ports))
+                                       (volumes (list '())
+                                        "Set volume mappings for the spawned container.  This can be a
 list of pairs or strings, even mixed:
 
 @lisp
@@ -317,42 +302,34 @@ list of pairs or strings, even mixed:
 String are passed directly to the Docker CLI.  You can refer to the
 @url{https://docs.docker.com/engine/reference/commandline/run/#volume,upstream}
 documentation for semantics."
-   (sanitizer oci-sanitize-volumes))
-  (container-user
-   (maybe-string)
-   "Set the current user inside the spawned container.  You can refer to the
+                                        (sanitizer oci-sanitize-volumes))
+                                       (container-user (maybe-string)
+                                        "Set the current user inside the spawned container.  You can refer to the
 @url{https://docs.docker.com/engine/reference/run/#user,upstream}
 documentation for semantics.")
-  (workdir
-   (maybe-string)
-   "Set the current working for the spawned Shepherd service.
+                                       (workdir (maybe-string)
+                                        "Set the current working for the spawned Shepherd service.
 You can refer to the
 @url{https://docs.docker.com/engine/reference/run/#workdir,upstream}
 documentation for semantics."))
 
 (define oci-container-configuration->options
   (lambda (config)
-    (let ((entrypoint
-           (oci-container-configuration-entrypoint config))
-          (network
-           (oci-container-configuration-network config))
-          (user
-           (oci-container-configuration-container-user config))
-          (workdir
-           (oci-container-configuration-workdir config)))
+    (let ((entrypoint (oci-container-configuration-entrypoint config))
+          (network (oci-container-configuration-network config))
+          (user (oci-container-configuration-container-user config))
+          (workdir (oci-container-configuration-workdir config)))
       (apply append
              (filter (compose not unspecified?)
                      `(,(if (maybe-value-set? entrypoint)
                             `("--entrypoint" ,entrypoint)
-                            '())
-                       ,(append-map
-                         (lambda (spec)
-                           (list "--env" spec))
-                         (oci-container-configuration-environment config))
-                       ,(append-map
-                         (lambda (spec)
-                           (list "--ulimit" spec))
-                         (oci-container-configuration-ulimit config))
+                            '()) ,(append-map (lambda (spec)
+                                                (list "--env" spec))
+                                              (oci-container-configuration-environment
+                                               config))
+                       ,(append-map (lambda (spec)
+                                      (list "--ulimit" spec))
+                                    (oci-container-configuration-ulimit config))
                        ,(if (maybe-value-set? network)
                             `("--network" ,network)
                             '())
@@ -362,19 +339,17 @@ documentation for semantics."))
                        ,(if (maybe-value-set? workdir)
                             `("--workdir" ,workdir)
                             '())
-                       ,(append-map
-                         (lambda (spec)
-                           (list "-p" spec))
-                         (oci-container-configuration-ports config))
-                       ,(append-map
-                         (lambda (spec)
-                           (list "-v" spec))
-                         (oci-container-configuration-volumes config))))))))
+                       ,(append-map (lambda (spec)
+                                      (list "-p" spec))
+                                    (oci-container-configuration-ports config))
+                       ,(append-map (lambda (spec)
+                                      (list "-v" spec))
+                                    (oci-container-configuration-volumes
+                                     config))))))))
 
 (define (oci-container-shepherd-service config)
   (define (guess-name name image)
-    (if (maybe-value-set? name)
-        name
+    (if (maybe-value-set? name) name
         (string-append "docker-"
                        (basename (car (string-split image #\:))))))
 
@@ -386,43 +361,47 @@ documentation for semantics."))
          (image (oci-container-configuration-image config))
          (options (oci-container-configuration->options config))
          (name (guess-name provision image)))
-
+    
     (shepherd-service (provision `(,(string->symbol name)))
                       (requirement '(dockerd user-processes))
                       (respawn? #f)
-                      (documentation
-                       (string-append
-                        "Docker backed Shepherd service for image: " image))
-                      (start
-                       #~(make-forkexec-constructor
-                          ;; docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
-                          (list #$docker-command "run" "--rm"
-                                "--name" #$name
-                                #$@options #$image #$@command)
-                          #:user #$user
-                          #:group #$group))
-                      (stop
-                       #~(lambda _
-                           (invoke #$docker-command "rm" "-f" #$name)))
-                      (actions
-                       (list
-                        (shepherd-action
-                         (name 'pull)
-                         (documentation
-                          (format #f "Pull ~a's image (~a)."
-                                  name image))
-                         (procedure
-                          #~(lambda _
-                              (invoke #$docker-command "pull" #$image)))))))))
+                      (documentation (string-append
+                                      "Docker backed Shepherd service for image: "
+                                      image))
+                      (start #~(make-forkexec-constructor
+                                ;; docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+                                (list #$docker-command
+                                      "run"
+                                      "--rm"
+                                      "--name"
+                                      #$name
+                                      #$@options
+                                      #$image
+                                      #$@command)
+                                #:user #$user
+                                #:group #$group))
+                      (stop #~(lambda _
+                                (invoke #$docker-command "rm" "-f"
+                                        #$name)))
+                      (actions (list (shepherd-action (name 'pull)
+                                                      (documentation (format
+                                                                             #f
+                                                                             "Pull ~a's image (~a)."
+                                                                             name
+                                                                             image))
+                                                      (procedure #~(lambda _
+                                                                     (invoke #$docker-command
+                                                                      "pull"
+                                                                      #$image)))))))))
 
 (define %oci-container-accounts
   (list (user-account
-         (name "oci-container")
-         (comment "OCI services account")
-         (group "docker")
-         (system? #t)
-         (home-directory "/var/empty")
-         (shell (file-append shadow "/sbin/nologin")))))
+          (name "oci-container")
+          (comment "OCI services account")
+          (group "docker")
+          (system? #t)
+          (home-directory "/var/empty")
+          (shell (file-append shadow "/sbin/nologin")))))
 
 (define (configs->shepherd-services configs)
   (map oci-container-shepherd-service configs))
@@ -430,11 +409,14 @@ documentation for semantics."))
 (define oci-container-service-type
   (service-type (name 'oci-container)
                 (extensions (list (service-extension profile-service-type
-                                                     (lambda _ (list docker-cli)))
+                                                     (lambda _
+                                                       (list docker-cli)))
                                   (service-extension account-service-type
-                                                     (const %oci-container-accounts))
-                                  (service-extension shepherd-root-service-type
-                                                     configs->shepherd-services)))
+                                                     (const
+                                                      %oci-container-accounts))
+                                  (service-extension
+                                   shepherd-root-service-type
+                                   configs->shepherd-services)))
                 (default-value '())
                 (extend append)
                 (compose concatenate)

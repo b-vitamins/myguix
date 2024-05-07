@@ -41,9 +41,11 @@
                                                      (authorized-keys (append (list
                                                                                (local-file
                                                                                 "keys/ci.guix.gnu.org.pub")
+
                                                                                
                                                                                (local-file
                                                                                 "keys/substitutes.nonguix.org.pub")
+
                                                                                
                                                                                (local-file
                                                                                 "keys/bordeaux.guix.gnu.org.pub"))
