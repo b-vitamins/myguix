@@ -12,6 +12,7 @@
   #:use-module (gnu packages crates-tls)
   #:use-module (gnu packages crates-web)
   #:use-module (gnu packages crates-windows)
+  #:use-module (gnu packages crates-apple)
   #:use-module (gnu packages ninja)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system cmake)
