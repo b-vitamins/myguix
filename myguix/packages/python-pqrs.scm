@@ -9,6 +9,7 @@
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)
+  #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages machine-learning)
   #:use-module (guix build-system python)
