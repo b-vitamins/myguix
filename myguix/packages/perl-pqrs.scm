@@ -23,7 +23,8 @@
     (propagated-inputs (list perl-digest-hmac))
     (home-page "https://metacpan.org/release/NTLM")
     (synopsis "An NTLM authentication module")
-    (description "This module provides methods to use NTLM authentication.  It can
+    (description
+     "This module provides methods to use NTLM authentication.  It can
 be used as an authenticate method with the @code{Mail::IMAPClient} module
 to perform the challenge/response mechanism for NTLM connections
 or it can be used on its own for NTLM authentication with other
@@ -52,7 +53,8 @@ likely to be good enough for most situations.")
     (propagated-inputs (list perl-http-server-simple))
     (home-page "https://metacpan.org/release/Test-HTTP-Server-Simple")
     (synopsis "Test::More functions for HTTP::Server::Simple")
-    (description "This mixin class provides methods to test an @code{HTTP::Server::Simple}-based web server. Currently, it provides only one such method: @code{started_ok}.
+    (description
+     "This mixin class provides methods to test an @code{HTTP::Server::Simple}-based web server. Currently, it provides only one such method: @code{started_ok}.
 
 @code{started_ok} takes an optional test description. The server needs to have been configured (specifically, its port needs to have been set), but it should not have been run or backgrounded. @code{started_ok} calls background on the server, which forks it to run in the background. @code{Test::HTTP::Server::Simple} takes care of killing the server when your test script dies, even if you kill your test script with an interrupt. @code{started_ok} returns the URL @code{http://localhost:$port} which you can use to connect to your server.
 
@@ -76,7 +78,8 @@ Also, it probably won't work if you use a custom @code{Net::Server} in your serv
     (propagated-inputs (list perl-io-socket-ssl perl-net-http))
     (home-page "https://metacpan.org/release/Net-HTTPS-NB")
     (synopsis "Non-blocking HTTPS client")
-    (description "Same interface as @code{Net::HTTPS} but it will never try multiple reads when the @code{read_response_headers()} or @code{read_entity_body()} methods are invoked. In addition allows non-blocking connect.
+    (description
+     "Same interface as @code{Net::HTTPS} but it will never try multiple reads when the @code{read_response_headers()} or @code{read_entity_body()} methods are invoked. In addition allows non-blocking connect.
 
 If @code{read_response_headers()} did not see enough data to complete the headers an empty list is returned.
 If @code{read_entity_body()} did not see new entity data in its read the value -1 is returned.")
