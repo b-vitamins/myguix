@@ -3,7 +3,10 @@
                 #:prefix license:)
   #:use-module (gnu packages)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
+  #:use-module (gnu packages time)
+  #:use-module (gnu packages xml)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages python-web)
@@ -345,3 +348,109 @@ as well.")
     (synopsis "A language server for Jedi!")
     (description "This package provides a language server for Jedi!")
     (license license:expat)))
+
+(define-public python-pymupdfb
+  (package
+    (name "python-pymupdfb")
+    (version "1.24.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "PyMuPDFb" version))
+       (sha256
+        (base32 "0b24dxj5fanxwasab8v2y21dq2m7viymd25v3pqf0q6i64qdmibw"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/pymupdf/pymupdf")
+    (synopsis "MuPDF shared libraries for PyMuPDF.")
+    (description "@code{MuPDF} shared libraries for @code{PyMuPDF}.")
+    (license license:gpl3+)))
+
+(define-public python-pymupdf
+  (package
+    (name "python-pymupdf")
+    (version "1.24.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "PyMuPDF" version))
+       (sha256
+        (base32 "0lcmljpasq57ay0jfvnijy2xqxql0fvysr4vzk91az7s8pv2shdg"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-pymupdfb))
+    (home-page "https://github.com/pymupdf/pymupdf")
+    (synopsis
+     "A high performance Python library for data extraction, analysis, conversion & manipulation of PDF (and other) documents.")
+    (description
+     "This package provides a high performance Python library for data extraction,
+analysis, conversion & manipulation of PDF (and other) documents.")
+    (license license:gpl3+)))
+
+(define-public python-free-proxy
+  (package
+    (name "python-free-proxy")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "free_proxy" version))
+       (sha256
+        (base32 "1ywrd27a05ajq6dyx6qaxy7xp7ac5w9igvic5622kd3j763fn81b"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-lxml python-requests))
+    (home-page "https://github.com/jundymek/free-proxy")
+    (synopsis "Proxy scraper for further use")
+    (description "Proxy scraper for further use")
+    (license license:expat)))
+
+(define-public python-fake-useragent
+  (package
+    (name "python-fake-useragent")
+    (version "1.5.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "fake-useragent" version))
+       (sha256
+        (base32 "0jaw5xv8wshf8rr0xicm3id891jlyx95i4yqgsxbb5i1bagjd1v3"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-pytest))
+    (propagated-inputs (list python-importlib-metadata
+                             python-importlib-resources))
+    (home-page "")
+    (synopsis "Up-to-date simple useragent faker with real world database")
+    (description "Up-to-date simple useragent faker with real world database")
+    (license license:asl2.0)))
+
+(define-public python-scholarly
+  (package
+    (name "python-scholarly")
+    (version "1.7.11")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/scholarly-python-package/scholarly")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1pzgqc1c6sd06bqlrddk425v2vlvx80fzjp1n7q2iha6ggmv1xya"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-arrow
+                             python-beautifulsoup4
+                             python-bibtexparser
+                             python-deprecated
+                             python-fake-useragent
+                             python-free-proxy
+                             python-httpx
+                             python-dotenv
+                             python-requests
+                             python-selenium
+                             python-sphinx-rtd-theme
+                             python-typing-extensions))
+    (home-page "https://github.com/scholarly-python-package/scholarly")
+    (synopsis "Simple access to Google Scholar authors and citations")
+    (description "Simple access to Google Scholar authors and citations")
+    (license #f)))
