@@ -2,6 +2,7 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (gnu packages web)
+  #:use-module (gnu packages libevent)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages perl-check)
   #:use-module (guix build-system perl)
@@ -154,4 +155,30 @@ If @code{read_entity_body()} did not see new entity data in its read the value -
 It gives you a 'Async' object that you can add requests to, and then get the requests off as they finish. The actual sending and receiving of the requests is abstracted. As soon as you add a request it is transmitted, if there are too many requests in progress at the moment they are queued. There is no concept of starting or stopping - it runs continuously.
 
 Whilst it is waiting to receive data it returns control to the code that called it meaning that you can carry out processing whilst fetching data from the network. All without forking or threading - it is actually done using select lists.")
+    (license license:artistic2.0)))
+
+(define-public perl-anyevent-http
+  (package
+    (name "perl-anyevent-http")
+    (version "2.25")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "mirror://cpan/authors/id/M/ML/MLEHMANN/AnyEvent-HTTP-" version
+             ".tar.gz"))
+       (sha256
+        (base32 "04shwa3gw16di4wnhn0jymfjv6m7ikm00ayk9ipny5r4c50m7yjw"))))
+    (build-system perl-build-system)
+    (propagated-inputs (list perl-anyevent perl-common-sense perl-uri))
+    (home-page "https://metacpan.org/release/AnyEvent-HTTP")
+    (synopsis "simple but non-blocking HTTP/HTTPS client")
+    (description
+     "This module is an @code{AnyEvent} user, you need to make sure that you use and run a supported event loop.
+
+This module implements a simple, stateless and non-blocking HTTP client. It supports GET, POST and other request methods, cookies and more, all on a very low level. It can follow redirects, supports proxies, and automatically limits the number of connections to the values specified in the RFC.
+
+It should generally be a good client that is enough for most HTTP tasks. Simple tasks should be simple, but complex tasks should still be possible as the user retains control over request and response headers.
+
+The caller is responsible for authentication management, cookies (if the simplistic implementation in this module doesn't suffice), referer and other high-level protocol details for which this module offers only limited support.")
     (license license:artistic2.0)))
