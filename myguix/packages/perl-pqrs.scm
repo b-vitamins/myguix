@@ -182,3 +182,88 @@ It should generally be a good client that is enough for most HTTP tasks. Simple 
 
 The caller is responsible for authentication management, cookies (if the simplistic implementation in this module doesn't suffice), referer and other high-level protocol details for which this module offers only limited support.")
     (license license:artistic2.0)))
+
+(define-public perl-log-any
+  (package
+    (name "perl-log-any")
+    (version "1.717")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "mirror://cpan/authors/id/P/PR/PREACTION/Log-Any-"
+                           version ".tar.gz"))
+       (sha256
+        (base32 "1jjvlrcqjdnpmh2jilpbvnr6z03l1b5m54njwg4k00lhyfh9sr2n"))))
+    (build-system perl-build-system)
+    (home-page "https://metacpan.org/release/Log-Any")
+    (synopsis "Bringing loggers and listeners together")
+    (description
+     "@code{Log::Any} provides a standard log production API for modules. @code{Log::Any::Adapter} allows applications to choose the mechanism for log consumption, whether screen, file or another logging mechanism like @code{Log::Dispatch} or @code{Log::Log4perl}.
+
+Many modules have something interesting to say. Unfortunately there is no standard way for them to say it - some output to STDERR, others to warn, others to custom file logs. And there is no standard way to get a module to start talking - sometimes you must call a uniquely named method, other times set a package variable.
+
+This being Perl, there are many logging mechanisms available on CPAN. Each has their pros and cons. Unfortunately, the existence of so many mechanisms makes it difficult for a CPAN author to commit his/her users to one of them. This may be why many CPAN modules invent their own logging or choose not to log at all.
+
+To untangle this situation, we must separate the two parts of a logging API. The first, log production, includes methods to output logs (like @code{$log->debug}) and methods to inspect whether a log level is activated (like @code{$log->is_debug}). This is generally all that CPAN modules care about. The second, log consumption, includes a way to configure where logging goes (a file, the screen, etc.) and the code to send it there. This choice generally belongs to the application.
+
+A CPAN module uses @code{Log::Any} to get a log producer object. An application, in turn, may choose one or more logging mechanisms via @code{Log::Any::Adapter}, or none at all.
+
+@code{Log::Any} has a very tiny footprint and no dependencies beyond Perl 5.8.1, which makes it appropriate for even small CPAN modules to use. It defaults to 'null' logging activity, so a module can safely log without worrying about whether the application has chosen (or will ever choose) a logging mechanism.
+
+See @url{http://www.openswartz.com/2007/09/06/standard-logging-api/ for the original post proposing this module}.")
+    (license license:artistic2.0)))
+
+(define-public perl-log-dispatch
+  (package
+    (name "perl-log-dispatch")
+    (version "2.71")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "mirror://cpan/authors/id/D/DR/DROLSKY/Log-Dispatch-" version
+             ".tar.gz"))
+       (sha256
+        (base32 "0w15fgndkblm8zbp8fv3pphyq2aqy2vxxd0yfda2gkimiijdjq4x"))))
+    (build-system perl-build-system)
+    (native-inputs (list perl-dist-checkconflicts perl-ipc-run3
+                         perl-test-fatal perl-test-needs))
+    (propagated-inputs (list perl-devel-globaldestruction
+                             perl-dist-checkconflicts
+                             perl-module-runtime
+                             perl-namespace-autoclean
+                             perl-params-validationcompiler
+                             perl-specio
+                             perl-try-tiny))
+    (home-page "https://metacpan.org/release/Log-Dispatch")
+    (synopsis "Dispatches messages to one or more outputs")
+    (description
+     "This module manages a set of @code{Log::Dispatch::*} output objects that can be logged to via a unified interface.
+
+The idea is that you create a @code{Log::Dispatch} object and then add various logging objects to it (such as a file logger or screen logger). Then you call the log method of the dispatch object, which passes the message to each of the objects, which in turn decide whether or not to accept the message and what to do with it.
+
+This makes it possible to call single method and send a message to a log file, via email, to the screen, and anywhere else, all with very little code needed on your part, once the dispatching object has been created.")
+    (license license:artistic2.0)))
+
+(define-public perl-log-any-adapter-dispatch
+  (package
+    (name "perl-log-any-adapter-dispatch")
+    (version "0.08")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "mirror://cpan/authors/id/P/PR/PREACTION/Log-Any-Adapter-Dispatch-"
+             version ".tar.gz"))
+       (sha256
+        (base32 "1ndl7lipkvb58mzd9kjfdb4674pv2v95h27f7sfdn2pawmbkpjdf"))))
+    (build-system perl-build-system)
+    (propagated-inputs (list perl-log-any perl-log-dispatch))
+    (home-page "https://metacpan.org/release/Log-Any-Adapter-Dispatch")
+    (synopsis "Adapter to use Log::Dispatch with Log::Any")
+    (description
+     "This @code{Log::Any} adapter uses @code{Log::Dispatch} for logging.
+You may either pass parameters (like outputs) to be passed to @code{Log::Dispatch->new}, or pass a @code{Log::Dispatch} object directly in the dispatcher parameter.")
+    (license license:artistic2.0)))
+
+perl-log-any-adapter-dispatch
