@@ -454,3 +454,51 @@ analysis, conversion & manipulation of PDF (and other) documents.")
     (synopsis "Simple access to Google Scholar authors and citations")
     (description "Simple access to Google Scholar authors and citations")
     (license #f)))
+
+(define-public python-types-tqdm
+  (package
+    (name "python-types-tqdm")
+    (version "4.66.0.20240417")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "types-tqdm" version))
+       (sha256
+        (base32 "0c8s8ahz3w4b2mz7mvnf2gyfwrhiibfq93av9w7d9a1fabpykp0n"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/python/typeshed")
+    (synopsis "Typing stubs for tqdm")
+    (description "Typing stubs for tqdm")
+    (license license:asl2.0)))
+
+(define-public python-types-simplejson
+  (package
+    (name "python-types-simplejson")
+    (version "3.19.0.20240310")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "types-simplejson" version))
+       (sha256
+        (base32 "005mq8q7mvmzdl41sqiqzdamsmw9r7vxyy6rqcr5imfmf1pkcc98"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/python/typeshed")
+    (synopsis "Typing stubs for simplejson")
+    (description "Typing stubs for simplejson")
+    (license license:asl2.0)))
+
+(define-public python-types-pyyaml
+  (package
+    (name "python-types-pyyaml")
+    (version "6.0.12.20240311")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "types-PyYAML" version))
+       (sha256
+        (base32 "0hjk1b5khpzckbg7kbviga4jmjh41plix98w1jdp6df8ipwg1q59"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/python/typeshed")
+    (synopsis "Typing stubs for PyYAML")
+    (description "Typing stubs for @code{PyYAML}")
+    (license license:asl2.0)))
