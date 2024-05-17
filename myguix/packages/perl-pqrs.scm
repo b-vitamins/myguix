@@ -266,4 +266,95 @@ This makes it possible to call single method and send a message to a log file, v
 You may either pass parameters (like outputs) to be passed to @code{Log::Dispatch->new}, or pass a @code{Log::Dispatch} object directly in the dispatcher parameter.")
     (license license:artistic2.0)))
 
-perl-log-any-adapter-dispatch
+(define-public perl-datetime-format-rfc3339
+  (package
+    (name "perl-datetime-format-rfc3339")
+    (version "1.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "mirror://cpan/authors/id/I/IK/IKEGAMI/DateTime-Format-RFC3339-v"
+             version ".tar.gz"))
+       (sha256
+        (base32 "17a6nc3gmhx2ifz96jagi1572wdffy3vzynrfqhyywlcyzk8rp7p"))))
+    (build-system perl-build-system)
+    (native-inputs (list perl-test-pod))
+    (propagated-inputs (list perl-datetime))
+    (home-page "https://metacpan.org/release/DateTime-Format-RFC3339")
+    (synopsis
+     "@code{DateTime::Format::RFC3339} - Parse and format RFC3339 datetime strings")
+    (description
+     "This module understands the RFC3339 date/time format, an ISO 8601 profile, defined at http://tools.ietf.org/html/rfc3339. It can be used to parse these formats in order to create the appropriate objects.")
+    (license license:artistic2.0)))
+
+(define-public perl-toml-tiny
+  (package
+    (name "perl-toml-tiny")
+    (version "0.16")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "mirror://cpan/authors/id/O/OA/OALDERS/TOML-Tiny-"
+                           version ".tar.gz"))
+       (sha256
+        (base32 "0z5slnw254wpad93wx9qpms9r5k880169i4aqnls7sllm2yq2cxq"))))
+    (build-system perl-build-system)
+    (native-inputs (list perl-datetime-format-iso8601
+                         perl-datetime-format-rfc3339
+                         perl-test-pod
+                         perl-test2-suite
+                         perl-toml-parser
+                         perl-unicode-linebreak))
+    (propagated-inputs (list perl-types-serialiser))
+    (home-page "https://metacpan.org/release/TOML-Tiny")
+    (synopsis "a minimal, pure perl TOML parser and serializer")
+    (description
+     "@code{TOML::Tiny} implements a pure-perl parser and generator for the @code{TOML} data format. It conforms to @{TOML v1.0} (with a few caveats; see `strict`).
+ 
+@code{TOML::Tiny} strives to maintain an interface compatible to the @code{TOML} and @code{TOML::Parser} modules, and could even be used to override $TOML::Parser:")
+    (license license:artistic2.0)))
+
+(define-public perl-test-deep-fuzzy
+  (package
+    (name "perl-test-deep-fuzzy")
+    (version "0.01")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "mirror://cpan/authors/id/K/KA/KARUPA/Test-Deep-Fuzzy-" version
+             ".tar.gz"))
+       (sha256
+        (base32 "1bsd7607ahpd5sb52qhkbp6x5208dfc5cx99gqc0f3bbhgflzjgm"))))
+    (build-system perl-build-system)
+    (native-inputs (list perl-module-build-tiny perl-test-deep))
+    (propagated-inputs (list perl-math-round perl-test-deep))
+    (home-page "https://metacpan.org/release/Test-Deep-Fuzzy")
+    (synopsis "fuzzy number comparison with @code{Test::Deep}")
+    (description
+     "@code{Test::Deep::Fuzzy} provides fuzzy number comparison with @code{Test::Deep}.")
+    (license license:artistic2.0)))
+
+(define-public perl-toml-parser
+  (package
+    (name "perl-toml-parser")
+    (version "0.91")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "mirror://cpan/authors/id/K/KA/KARUPA/TOML-Parser-"
+             version ".tar.gz"))
+       (sha256
+        (base32 "13lsm8vprp36vmcc6080jsyrdzzlfvk0p496wz5f0xz30jwi719a"))))
+    (build-system perl-build-system)
+    (native-inputs (list perl-module-build-tiny perl-test-deep
+                         perl-test-deep-fuzzy))
+    (propagated-inputs (list perl-types-serialiser))
+    (home-page "https://metacpan.org/release/TOML-Parser")
+    (synopsis "simple toml parser")
+    (description
+     "TOML::Tiny implements a pure-perl parser and generator for the TOML data format. It conforms to TOML v1.0 (with a few caveats; see strict). TOML::Tiny strives to maintain an interface compatible to the TOML and TOML::Parser modules, and could even be used to override $TOML::Parser")
+    (license license:artistic2.0)))
+
+perl-datetime-format-rfc3339
