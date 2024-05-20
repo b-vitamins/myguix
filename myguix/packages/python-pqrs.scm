@@ -502,3 +502,64 @@ analysis, conversion & manipulation of PDF (and other) documents.")
     (synopsis "Typing stubs for PyYAML")
     (description "Typing stubs for @code{PyYAML}")
     (license license:asl2.0)))
+
+(define-public python-pfzy
+  (package
+    (name "python-pfzy")
+    (version "0.3.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pfzy" version))
+       (sha256
+        (base32 "1wdkjkmwwg920ybmr46m1jry06fqxyc2v2r9wwc3ddhhvmjsfzki"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-poetry-core python-myst-parser
+                             python-sphinx python-sphinx-autobuild
+                             python-sphinx-copybutton))
+    (home-page "https://github.com/kazhala/pfzy")
+    (synopsis "Python port of the fzy fuzzy string matching algorithm")
+    (description "Python port of the fzy fuzzy string matching algorithm")
+    (license license:expat)))
+
+(define-public python-inquirerpy
+  (package
+    (name "python-inquirerpy")
+    (version "0.3.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/kazhala/InquirerPy")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "01s1wpsfsjxd1vpvhrz9b5314fml8kg11a3fiqnrzqqlf5j33782"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-poetry-core python-pytest
+                         python-prompt-toolkit python-pfzy))
+    (home-page "https://github.com/kazhala/InquirerPy")
+    (synopsis
+     "Python port of Inquirer.js (A collection of common interactive command-line user interfaces)")
+    (description
+     "Python port of Inquirer.js (A collection of common interactive command-line user interfaces)")
+    (license license:expat)))
+
+(define-public python-ffmpy
+  (package
+    (name "python-ffmpy")
+    (version "0.3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ffmpy" version))
+       (sha256
+        (base32 "13x74ydb8sa769z65h3qxv9mdgxr5p6xnjckjs6inrj423zvypj7"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/Ch00k/ffmpy")
+    (synopsis "A simple Python wrapper for ffmpeg")
+    (description "This package provides a simple Python wrapper for ffmpeg")
+    (license license:expat)))
