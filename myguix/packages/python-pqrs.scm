@@ -12,12 +12,15 @@
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)
+  #:use-module (gnu packages python-check)
+  #:use-module (gnu packages python-crypto)
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages machine-learning)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix download)
+  #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (myguix packages video))
@@ -563,3 +566,287 @@ analysis, conversion & manipulation of PDF (and other) documents.")
     (synopsis "A simple Python wrapper for ffmpeg")
     (description "This package provides a simple Python wrapper for ffmpeg")
     (license license:expat)))
+
+(define-public python-chardet
+  (package
+    (name "python-chardet")
+    (version "3.0.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "chardet" version))
+       (sha256
+        (base32 "1bpalpia6r5x1kknbk11p1fzph56fmmnp405ds8icksd3knr5aw4"))))
+    (arguments
+     (list
+      #:tests? #f))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/chardet/chardet")
+    (synopsis "Universal encoding detector for Python 3")
+    (description "Universal encoding detector for Python 3.")
+    (license #f)))
+
+(define-public python-idna
+  (package
+    (name "python-idna")
+    (version "2.8")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "idna" version))
+       (sha256
+        (base32 "01rlkigdxg17sf9yar1jl8n18ls59367wqh59hnawlyg53vb6my3"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/kjd/idna")
+    (synopsis "Internationalized Domain Names in Applications (IDNA)")
+    (description "Internationalized Domain Names in Applications (IDNA).")
+    (license #f)))
+
+(define-public python-urllib3
+  (package
+    (name "python-urllib3")
+    (version "1.25.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "urllib3" version))
+       (sha256
+        (base32 "1nq2k4pss1ihsjh02r41sqpjpm5rfqkjfysyq7g7n2i1p7c66c55"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (home-page "https://github.com/urllib3")
+    (synopsis
+     "HTTP library with thread-safe connection pooling, file post, and more.")
+    (description
+     "HTTP library with thread-safe connection pooling, file post, and more.")
+    (license #f)))
+
+(define-public python-requests
+  (package
+    (name "python-requests")
+    (version "2.22.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "requests" version))
+       (sha256
+        (base32 "1d5ybh11jr5sm7xp6mz8fyc7vrp4syifds91m7sj60xalal0gq0i"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-certifi python-chardet python-idna
+                             python-urllib3))
+    (home-page "https://requests.readthedocs.io")
+    (synopsis "Python HTTP for Humans.")
+    (description "Python HTTP for Humans.")
+    (license #f)))
+
+(define-public python-deprecated
+  (package
+    (name "python-deprecated")
+    (version "1.2.14")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "Deprecated" version))
+       (sha256
+        (base32 "1cq17pavjw291hmzyrbhl9ssfln84b1zkiidb31cr3a56swkwcp5"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-wrapt))
+    (native-inputs (list python-bump2version python-pytest python-pytest-cov
+                         python-sphinx python-tox))
+    (home-page "https://github.com/tantale/deprecated")
+    (synopsis
+     "Python @deprecated decorator to deprecate old python classes, functions or methods.")
+    (description
+     "Python @@deprecated decorator to deprecate old python classes, functions or
+methods.")
+    (license license:expat)))
+
+(define-public python-tld
+  (package
+    (name "python-tld")
+    (version "0.13")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "tld" version))
+       (sha256
+        (base32 "0aanzdsf10vlbp076nr3mgs2379p0q3l9bkfjx21ipsbq3hybpck"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (home-page "https://github.com/barseghyanartur/tld")
+    (synopsis "Extract the top-level domain (TLD) from the URL given.")
+    (description "Extract the top-level domain (TLD) from the URL given.")
+    (license #f)))
+
+(define-public python-future
+  (package
+    (name "python-future")
+    (version "1.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "future" version))
+       (sha256
+        (base32 "01bvq2a5vgxffq8555rvwhxw161m9y54z2j5w7d1x1h7jcq6hadx"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (home-page "https://python-future.org")
+    (synopsis "Clean single-source support for Python 3 and 2")
+    (description "Clean single-source support for Python 3 and 2.")
+    (license license:expat)))
+
+(define-public python-openreview-py
+  (package
+    (name "python-openreview-py")
+    (version "1.40.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/openreview/openreview-py")
+             (commit (string-append "v" version))
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1rfk9pvznxmplnabjhzr2380j05bdf1298swk4xgag575iv8dhvw"))
+       (snippet #~(begin
+                    (use-modules (guix build utils))
+                    (substitute* "setup.py"
+                      (("setuptools==65.5.1")
+                       "setuptools"))))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f
+       #:phases (modify-phases %standard-phases
+                  (delete 'compile-bytecode))))
+    (inputs (list python-future python-requests))
+    (propagated-inputs (list python-pycryptodome
+                             python-tld
+                             python-deprecated
+                             python-tqdm
+                             python-pylatexenc
+                             python-pyjwt))
+    (home-page "https://github.com/theblackcat102/openreview_api_py")
+    (synopsis "Openreview web API client")
+    (description "Openreview web API client.")
+    (license license:expat)))
+
+(define-public python-distro
+  (package
+    (name "python-distro")
+    (version "1.9.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "distro" version))
+       (sha256
+        (base32 "1vfvkgfvrjpxpb48pf8rs2l5wfxij0plmffnw5p123wlv1ppr9rg"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-pytest))
+    (home-page "https://github.com/nir0s/distro")
+    (synopsis "OS platform information API")
+    (description
+     "@code{distro} provides information about the OS distribution it runs on,
+such as a reliable machine-readable ID, or version information.
+
+It is the recommended replacement for Python's original
+`platform.linux_distribution` function (which will be removed in Python 3.8).
+@code{distro} also provides a command-line interface to output the platform
+information in various formats.")
+    (license license:asl2.0)))
+
+(define-public python-openai
+  (package
+    (name "python-openai")
+    (version "1.35.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "openai" version))
+       (sha256
+        (base32 "02gb9cp4gmk9nrl8rnf6pdb5ccj2s4v5krbvv1jfziy90hazm6q0"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
+                         python-hatch-vcs))
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-anyio
+                             python-cached-property
+                             python-distro
+                             python-httpx
+                             python-pydantic
+                             python-sniffio
+                             python-tqdm
+                             python-typing-extensions))
+    (home-page "https://openai.com")
+    (synopsis "The official Python library for the openai API")
+    (description "The official Python library for the openai API.")
+    (license #f)))
+
+(define-public python-bibtexparser
+  (package
+    (name "python-bibtexparser")
+    (version "2.0.0b7")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/sciunto-org/python-bibtexparser")
+             (commit (string-append "v" version))
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0y76hfm6yddp61wb2m2yavlvl9cmi2drh7d5r6irk1bxnhr4g08b"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-pyparsing python-pylatexenc))
+    (native-inputs (list python-future))
+    (home-page "https://github.com/sciunto-org/python-bibtexparser")
+    (synopsis "Python library to parse BibTeX files")
+    (description "BibtexParser is a Python library to parse BibTeX files.")
+    (license (list license:bsd-3 license:lgpl3))))
+
+(define-public python-pysbd
+  (package
+    (name "python-pysbd")
+    (version "0.3.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/nipunsadvilkar/pySBD")
+             (commit (string-append "v" version))
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "12p7qm237z56hw4zr03n8rycgfymhki2m9c4w3ib0mvqq122a5dp"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-pyparsing python-pylatexenc))
+    (native-inputs (list python-future))
+    (home-page "https://github.com/nipunsadvilkar/pySBD")
+    (synopsis
+     "pySBD - python Sentence Boundary Disambiguation (SBD) - is a rule-based sentence boundary detection module that works out-of-the-box.")
+    (description
+     "pySBD - python Sentence Boundary Disambiguation (SBD) - is a rule-based sentence boundary detection module that works out-of-the-box.")
+    (license (list license:bsd-3 license:lgpl3))))
