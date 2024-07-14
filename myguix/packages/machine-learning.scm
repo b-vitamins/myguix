@@ -117,3 +117,41 @@
     (description
      "Provides an implementation of today's most used tokenizers, with a focus on performance and versatility.")
     (license license:expat)))
+
+(define-public gloo-cuda-20240626
+  (let ((version "0.0.0")
+        (commit "81925d1c674c34f0dc34dd9a0f2151c1b6f701eb")
+        (revision "20240626"))
+    (package
+      (name "gloo-cuda")
+      (version (git-version version revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/facebookincubator/gloo")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "16zs8ndbiv9nppn8bv6lfanzyyssz7g5pawxiqcnafwq3nvxpj9m"))))
+      (build-system cmake-build-system)
+      (arguments
+       (list
+        #:tests? #f
+        #:configure-flags #~'("-DBUILD_SHARED_LIBS=ON" "-DBUILD_TEST=OFF"
+                              "-DUSE_CUDA=ON")
+        #:phases #~(modify-phases %standard-phases
+                     (add-after 'unpack 'drop-unsupported-arch
+                       (lambda _
+                         (substitute* "cmake/Cuda.cmake"
+                           (("gloo_known_gpu_archs \"[^\"]+\"")
+                            "gloo_known_gpu_archs \"35 50 52 60 61 70 75\"")))))))
+      (inputs (list cuda-toolkit-12.1 openssl))
+      (native-inputs (list googletest))
+      (synopsis "Collective communications library")
+      (description
+       "Gloo is a collective communications library.  It comes with a
+number of collective algorithms useful for machine learning applications.
+These include a barrier, broadcast, and allreduce.")
+      (home-page "https://github.com/facebookincubator/gloo")
+      (license license:bsd-3))))
