@@ -35,15 +35,13 @@
   #:use-module (gnu packages perl)
   #:use-module (gnu packages python))
 
-(define-public cuda-toolkit
+(define-public cuda-toolkit-12.1
   (package
     (name "cuda-toolkit")
-    (version "12.4.0_550.54.14")
+    (version "12.1.0")
     (source
      (origin
-       (uri (string-append
-             "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_"
-             version "_linux.run"))
+       (uri "https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run")
        (sha256
         (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
        (method url-fetch)))
