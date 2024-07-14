@@ -38,11 +38,12 @@
 (define-public cuda-toolkit
   (package
     (name "cuda-toolkit")
-    (version "12.4.0")
+    (version "12.4.0_550.54.14")
     (source
      (origin
-       (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_"
+             version "_linux.run"))
        (sha256
         (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
        (method url-fetch)))
@@ -151,3 +152,77 @@
 libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (nonfree:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
+
+(define-public cudnn
+  (package
+    (name "cudnn")
+    (version "9.2.1.18")
+    (source
+     (origin
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
+             version "_cuda12-archive.tar.xz"))
+       (sha256
+        (base32 "16c34a0ymxhh3867pk53bwf81dicgci5cq5n723nc8isvnkxrqnn"))
+       (method url-fetch)))
+    (supported-systems '("x86_64-linux"))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:modules '((guix build utils)
+                  (guix build gnu-build-system)
+                  (ice-9 match))
+      #:substitutable? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases #~(modify-phases %standard-phases
+                   (delete 'configure)
+                   (delete 'check)
+                   (replace 'build
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (define libc
+                         (assoc-ref inputs "libc"))
+                       (define gcc-lib
+                         (assoc-ref inputs "gcc:lib"))
+                       (define ld.so
+                         (search-input-file inputs
+                                            #$(glibc-dynamic-linker)))
+                       (define rpath
+                         (string-join (list "$ORIGIN"
+                                            (string-append #$output "/lib")
+                                            (string-append #$output
+                                                           "/nvvm/lib64")
+                                            (string-append libc "/lib")
+                                            (string-append gcc-lib "/lib"))
+                                      ":"))
+
+                       (define (patch-elf file)
+                         (make-file-writable file)
+                         (unless (string-contains file ".so")
+                           (format #t "Setting interpreter on '~a'...~%" file)
+                           (invoke "patchelf" "--set-interpreter" ld.so file))
+                         (format #t "Setting RPATH on '~a'...~%" file)
+                         (invoke "patchelf" "--set-rpath" rpath
+                                 "--force-rpath" file))
+
+                       (for-each (lambda (file)
+                                   (when (elf-file? file)
+                                     (patch-elf file)))
+                                 (find-files "."
+                                             (lambda (file stat)
+                                               (eq? 'regular
+                                                    (stat:type stat)))))))
+                   (replace 'install
+                     (lambda _
+                       (let ((lib (string-append #$output "/lib"))
+                             (include (string-append #$output "/include")))
+                         (mkdir-p #$output)
+                         (copy-recursively "lib" lib)
+                         (copy-recursively "include" include)))))))
+    (native-inputs (list patchelf))
+    (inputs `(("gcc:lib" ,gcc-13 "lib")))
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (synopsis "NVIDIA CUDA Deep Neural Network library (cuDNN)")
+    (description "This package provides the CUDA Deep Neural Network library.")
+    (license (nonfree:nonfree
+              "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
