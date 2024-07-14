@@ -1,558 +1,556 @@
 (define-module (myguix research)
   #:use-module (guix records)
-  #:export (
-						;; affiliation
-						affiliation
-						affiliation?
-						this-affiliation
-						affiliation-institution
-						affiliation-years
+  #:export ( ;affiliation
+             affiliation
+            affiliation?
+            this-affiliation
+            affiliation-institution
+            affiliation-years
 
-						;; author-ids
-						author-ids
-						author-ids?
-						this-author-ids
-						author-ids-openalex
-						author-ids-orcid
-						author-ids-scopus
-						author-ids-twitter
-						author-ids-wikipedia
+            ;; author-ids
+            author-ids
+            author-ids?
+            this-author-ids
+            author-ids-openalex
+            author-ids-orcid
+            author-ids-scopus
+            author-ids-twitter
+            author-ids-wikipedia
 
-                   ;; count-by-year
-					count-by-year
-					count-by-year?
-					this-count-by-year
-					count-by-year-year
-					count-by-year-works-count
-					count-by-year-cited-by-count
+            ;; count-by-year
+            count-by-year
+            count-by-year?
+            this-count-by-year
+            count-by-year-year
+            count-by-year-works-count
+            count-by-year-cited-by-count
 
-					;; summary-stats
-					summary-stats
-					summary-stats?
-					this-summary-stats
-					summary-stats-two-year-mean-citedness
-					summary-stats-h-index
-					summary-stats-i10-index
+            ;; summary-stats
+            summary-stats
+            summary-stats?
+            this-summary-stats
+            summary-stats-two-year-mean-citedness
+            summary-stats-h-index
+            summary-stats-i10-index
 
-					;; dehydrated-institution
-					dehydrated-institution
-					dehydrated-institution?
-					this-dehydrated-institution
-					dehydrated-institution-id
-					dehydrated-institution-ror
-					dehydrated-institution-display-name
-					dehydrated-institution-country-code
-					dehydrated-institution-institution-type
-					dehydrated-institution-lineage
+            ;; dehydrated-institution
+            dehydrated-institution
+            dehydrated-institution?
+            this-dehydrated-institution
+            dehydrated-institution-id
+            dehydrated-institution-ror
+            dehydrated-institution-display-name
+            dehydrated-institution-country-code
+            dehydrated-institution-institution-type
+            dehydrated-institution-lineage
 
-					;; dehydrated-concept
-					dehydrated-concept
-					dehydrated-concept?
-					this-dehydrated-concept
-					dehydrated-concept-id
-					dehydrated-concept-wikidata
-					dehydrated-concept-display-name
-					dehydrated-concept-level
-					dehydrated-concept-score
+            ;; dehydrated-concept
+            dehydrated-concept
+            dehydrated-concept?
+            this-dehydrated-concept
+            dehydrated-concept-id
+            dehydrated-concept-wikidata
+            dehydrated-concept-display-name
+            dehydrated-concept-level
+            dehydrated-concept-score
 
-					;; authorship
-					authorship
-					authorship?
-					this-authorship
-					authorship-author
-					authorship-author-position
-					authorship-countries
-					authorship-institutions
-					authorship-is-corresponding
-					authorship-raw-affiliation-string
-					authorship-raw-affiliation-strings
-					authorship-raw-author-name
+            ;; authorship
+            authorship
+            authorship?
+            this-authorship
+            authorship-author
+            authorship-author-position
+            authorship-countries
+            authorship-institutions
+            authorship-is-corresponding
+            authorship-raw-affiliation-string
+            authorship-raw-affiliation-strings
+            authorship-raw-author-name
 
-					;; apc
-					apc
-					apc?
-					this-apc
-					apc-value
-					apc-currency
-					apc-provenance
-					apc-value-usd
+            ;; apc
+            apc
+            apc?
+            this-apc
+            apc-value
+            apc-currency
+            apc-provenance
+            apc-value-usd
 
-					;; biblio
-					biblio
-					biblio?
-					this-biblio
-					biblio-volume
-					biblio-issue
-					biblio-first-page
-					biblio-last-page
+            ;; biblio
+            biblio
+            biblio?
+            this-biblio
+            biblio-volume
+            biblio-issue
+            biblio-first-page
+            biblio-last-page
 
-					;; concept
-					concept
-					concept?
-					this-concept
-					concept-id
-					concept-wikidata
-					concept-display-name
-					concept-level
-					concept-score
+            ;; concept
+            concept
+            concept?
+            this-concept
+            concept-id
+            concept-wikidata
+            concept-display-name
+            concept-level
+            concept-score
 
-					;; grant
-					grant
-					grant?
-					this-grant
-					grant-funder
-					grant-funder-display-name
-					grant-award-id
+            ;; grant
+            grant
+            grant?
+            this-grant
+            grant-funder
+            grant-funder-display-name
+            grant-award-id
 
-					;; year-count
-					year-count
-					year-count?
-					this-year-count
-					year-count-year
-					year-count-cited-by-count
+            ;; year-count
+            year-count
+            year-count?
+            this-year-count
+            year-count-year
+            year-count-cited-by-count
 
-                   ;; percentile-year
-					percentile-year
-					percentile-year?
-					this-percentile-year
-					percentile-year-max
-					percentile-year-min
+            ;; percentile-year
+            percentile-year
+            percentile-year?
+            this-percentile-year
+            percentile-year-max
+            percentile-year-min
 
-					;; keyword
-					keyword
-					keyword?
-					this-keyword
-					keyword-keyword
-					keyword-score
+            ;; keyword
+            keyword
+            keyword?
+            this-keyword
+            keyword-keyword
+            keyword-score
 
-					;; mesh-tag
-					mesh-tag
-					mesh-tag?
-					this-mesh-tag
-					mesh-tag-descriptor-ui
-					mesh-tag-descriptor-name
-					mesh-tag-qualifier-ui
-					mesh-tag-qualifier-name
-					mesh-tag-is-major-topic
+            ;; mesh-tag
+            mesh-tag
+            mesh-tag?
+            this-mesh-tag
+            mesh-tag-descriptor-ui
+            mesh-tag-descriptor-name
+            mesh-tag-qualifier-ui
+            mesh-tag-qualifier-name
+            mesh-tag-is-major-topic
 
-					;; work-ids
-					work-ids
-					work-ids?
-					this-work-ids
-					work-ids-openalex
-					work-ids-doi
-					work-ids-mag
-					work-ids-pmid
-					work-ids-pmcid
+            ;; work-ids
+            work-ids
+            work-ids?
+            this-work-ids
+            work-ids-openalex
+            work-ids-doi
+            work-ids-mag
+            work-ids-pmid
+            work-ids-pmcid
 
-					;; open-access
-					open-access
-					open-access?
-					this-open-access
-					open-access-is-oa
-					open-access-oa-status
-					open-access-oa-url
-					open-access-any-repository-has-fulltext
+            ;; open-access
+            open-access
+            open-access?
+            this-open-access
+            open-access-is-oa
+            open-access-oa-status
+            open-access-oa-url
+            open-access-any-repository-has-fulltext
 
-					;; sdg
-					sdg
-					sdg?
-					this-sdg
-					sdg-id
-					sdg-display-name
-					sdg-score
+            ;; sdg
+            sdg
+            sdg?
+            this-sdg
+            sdg-id
+            sdg-display-name
+            sdg-score
 
-					;; topic
-					topic
-					topic?
-					this-topic
-					topic-display-name
-					topic-domain
-					topic-field
-					topic-id
-					topic-score
-					topic-subfield
+            ;; topic
+            topic
+            topic?
+            this-topic
+            topic-display-name
+            topic-domain
+            topic-field
+            topic-id
+            topic-score
+            topic-subfield
 
-					;; source
-					source
-					source?
-					this-source
-					source-display-name
-					source-host-organization
-					source-host-organization-lineage
-					source-host-organization-lineage-names
-					source-host-organization-name
-					source-id
-					source-is-in-doaj
-					source-is-oa
-					source-issn
-					source-issn-l
-					source-type
+            ;; source
+            source
+            source?
+            this-source
+            source-display-name
+            source-host-organization
+            source-host-organization-lineage
+            source-host-organization-lineage-names
+            source-host-organization-name
+            source-id
+            source-is-in-doaj
+            source-is-oa
+            source-issn
+            source-issn-l
+            source-type
 
-					;; publisher-ids
-					publisher-ids
-					publisher-ids?
-					this-publisher-ids
-					publisher-ids-openalex
-					publisher-ids-ror
-					publisher-ids-wikidata
+            ;; publisher-ids
+            publisher-ids
+            publisher-ids?
+            this-publisher-ids
+            publisher-ids-openalex
+            publisher-ids-ror
+            publisher-ids-wikidata
 
-					;; role
-					role
-					role?
-					this-role
-					role-role
-					role-id
-					role-works-count
+            ;; role
+            role
+            role?
+            this-role
+            role-role
+            role-id
+            role-works-count
 
-					;; counts-by-year
-					counts-by-year
-					counts-by-year?
-					this-counts-by-year
-					counts-by-year-year
-					counts-by-year-works-count
-					counts-by-year-cited-by-count
+            ;; counts-by-year
+            counts-by-year
+            counts-by-year?
+            this-counts-by-year
+            counts-by-year-year
+            counts-by-year-works-count
+            counts-by-year-cited-by-count
 
-					;; funder-ids
-					funder-ids
-					funder-ids?
-					this-funder-ids
-					funder-ids-crossref
-					funder-ids-doi
-					funder-ids-openalex
-					funder-ids-ror
-					funder-ids-wikidata
+            ;; funder-ids
+            funder-ids
+            funder-ids?
+            this-funder-ids
+            funder-ids-crossref
+            funder-ids-doi
+            funder-ids-openalex
+            funder-ids-ror
+            funder-ids-wikidata
 
-					;; apc-price
-					apc-price
-					apc-price?
-					this-apc-price
-					apc-price-price
-					apc-price-currency
+            ;; apc-price
+            apc-price
+            apc-price?
+            this-apc-price
+            apc-price-price
+            apc-price-currency
 
-					;; source-ids
-					source-ids
-					source-ids?
-					this-source-ids
-					source-ids-fatcat
-					source-ids-issn
-					source-ids-issn-l
-					source-ids-mag
-					source-ids-openalex
-					source-ids-wikidata
+            ;; source-ids
+            source-ids
+            source-ids?
+            this-source-ids
+            source-ids-fatcat
+            source-ids-issn
+            source-ids-issn-l
+            source-ids-mag
+            source-ids-openalex
+            source-ids-wikidata
 
-					;; society
-					society
-					society?
-					this-society
-					society-url
-					society-organization
+            ;; society
+            society
+            society?
+            this-society
+            society-url
+            society-organization
 
-					;; concept-ids
-					concept-ids
-					concept-ids?
-					this-concept-ids
-					concept-ids-mag
-					concept-ids-openalex
-					concept-ids-umls-cui
-					concept-ids-umls-aui
-					concept-ids-wikidata
-					concept-ids-wikipedia
+            ;; concept-ids
+            concept-ids
+            concept-ids?
+            this-concept-ids
+            concept-ids-mag
+            concept-ids-openalex
+            concept-ids-umls-cui
+            concept-ids-umls-aui
+            concept-ids-wikidata
+            concept-ids-wikipedia
 
-                   ;; international-display-names
-					international-display-names
-					international-display-names?
-					this-international-display-names
-					international-display-names-display-name
+            ;; international-display-names
+            international-display-names
+            international-display-names?
+            this-international-display-names
+            international-display-names-display-name
 
-					;; concept-summary-stats
-					concept-summary-stats
-					concept-summary-stats?
-					this-concept-summary-stats
-					concept-summary-stats-two-year-mean-citedness
-					concept-summary-stats-h-index
-					concept-summary-stats-i10-index
+            ;; concept-summary-stats
+            concept-summary-stats
+            concept-summary-stats?
+            this-concept-summary-stats
+            concept-summary-stats-two-year-mean-citedness
+            concept-summary-stats-h-index
+            concept-summary-stats-i10-index
 
-					;; dehydrated-institution-with-relationship
-					dehydrated-institution-with-relationship
-					dehydrated-institution-with-relationship?
-					this-dehydrated-institution-with-relationship
-					dehydrated-institution-with-relationship-id
-					dehydrated-institution-with-relationship-ror
-					dehydrated-institution-with-relationship-display-name
-					dehydrated-institution-with-relationship-country-code
-					dehydrated-institution-with-relationship-institution-type
-					dehydrated-institution-with-relationship-relationship
+            ;; dehydrated-institution-with-relationship
+            dehydrated-institution-with-relationship
+            dehydrated-institution-with-relationship?
+            this-dehydrated-institution-with-relationship
+            dehydrated-institution-with-relationship-id
+            dehydrated-institution-with-relationship-ror
+            dehydrated-institution-with-relationship-display-name
+            dehydrated-institution-with-relationship-country-code
+            dehydrated-institution-with-relationship-institution-type
+            dehydrated-institution-with-relationship-relationship
 
-					;; geo
-					geo
-					geo?
-					this-geo
-					geo-city
-					geo-geonames-city-id
-					geo-region
-					geo-country-code
-					geo-country
-					geo-latitude
-					geo-longitude
+            ;; geo
+            geo
+            geo?
+            this-geo
+            geo-city
+            geo-geonames-city-id
+            geo-region
+            geo-country-code
+            geo-country
+            geo-latitude
+            geo-longitude
 
-					;; institution-ids
-					institution-ids
-					institution-ids?
-					this-institution-ids
-					institution-ids-grid
-					institution-ids-mag
-					institution-ids-openalex
-					institution-ids-ror
-					institution-ids-wikipedia
-					institution-ids-wikidata
+            ;; institution-ids
+            institution-ids
+            institution-ids?
+            this-institution-ids
+            institution-ids-grid
+            institution-ids-mag
+            institution-ids-openalex
+            institution-ids-ror
+            institution-ids-wikipedia
+            institution-ids-wikidata
 
-					;; repository
-					repository
-					repository?
-					this-repository
-					repository-id
-					repository-display-name
-					repository-host-organization
-					repository-host-organization-name
-					repository-host-organization-lineage
+            ;; repository
+            repository
+            repository?
+            this-repository
+            repository-id
+            repository-display-name
+            repository-host-organization
+            repository-host-organization-name
+            repository-host-organization-lineage
 
-					;; domain
-					domain
-					domain?
-					this-domain
-					domain-id
-					domain-display-name
+            ;; domain
+            domain
+            domain?
+            this-domain
+            domain-id
+            domain-display-name
 
-					;; field
-					field
-					field?
-					this-field
-					field-id
-					field-display-name
+            ;; field
+            field
+            field?
+            this-field
+            field-id
+            field-display-name
 
-					;; subfield
-					subfield
-					subfield?
-					this-subfield
-					subfield-id
-					subfield-display-name
+            ;; subfield
+            subfield
+            subfield?
+            this-subfield
+            subfield-id
+            subfield-display-name
 
-					;; topic-ids
-					topic-ids
-					topic-ids?
-					this-topic-ids
-					topic-ids-openalex
-					topic-ids-wikipedia
+            ;; topic-ids
+            topic-ids
+            topic-ids?
+            this-topic-ids
+            topic-ids-openalex
+            topic-ids-wikipedia
 
-					;; author
-					author
-					author?
-					this-author
-					author-affiliations
-					author-cited-by-count
-					author-counts-by-year
-					author-created-date
-					author-display-name
-					author-display-name-alternatives
-					author-id
-					author-ids
-					author-last-known-institution
-					author-last-known-institutions
-					author-orcid
-					author-summary-stats
-					author-updated-date
-					author-works-api-url
-					author-works-count
-					author-x-concepts
+            ;; author
+            author
+            author?
+            this-author
+            author-affiliations
+            author-cited-by-count
+            author-counts-by-year
+            author-created-date
+            author-display-name
+            author-display-name-alternatives
+            author-id
+            author-ids
+            author-last-known-institution
+            author-last-known-institutions
+            author-orcid
+            author-summary-stats
+            author-updated-date
+            author-works-api-url
+            author-works-count
+            author-x-concepts
 
-                   ;; work
-					work
-					work?
-					this-work
-					work-abstract-inverted-index
-					work-authorships
-					work-apc-list
-					work-apc-paid
-					work-best-oa-location
-					work-biblio
-					work-cited-by-api-url
-					work-cited-by-count
-					work-cited-by-percentile-year
-					work-concepts
-					work-corresponding-author-ids
-					work-corresponding-institution-ids
-					work-countries-distinct-count
-					work-counts-by-year
-					work-created-date
-					work-display-name
-					work-doi
-					work-fulltext-origin
-					work-grants
-					work-has-fulltext
-					work-id
-					work-ids
-					work-indexed-in
-					work-institutions-distinct-count
-					work-is-paratext
-					work-is-retracted
-					work-keywords
-					work-language
-					work-locations
-					work-locations-count
-					work-mesh
-					work-ngrams-url
-					work-open-access
-					work-primary-location
-					work-primary-topic
-					work-publication-date
-					work-publication-year
-					work-referenced-works
-					work-referenced-works-count
-					work-related-works
-					work-sustainable-development-goals
-					work-title
-					work-topics
-					work-work-type
-					work-type-crossref
-					work-updated-date
-					work-versions
+            ;; work
+            work
+            work?
+            this-work
+            work-abstract-inverted-index
+            work-authorships
+            work-apc-list
+            work-apc-paid
+            work-best-oa-location
+            work-biblio
+            work-cited-by-api-url
+            work-cited-by-count
+            work-cited-by-percentile-year
+            work-concepts
+            work-corresponding-author-ids
+            work-corresponding-institution-ids
+            work-countries-distinct-count
+            work-counts-by-year
+            work-created-date
+            work-display-name
+            work-doi
+            work-fulltext-origin
+            work-grants
+            work-has-fulltext
+            work-id
+            work-ids
+            work-indexed-in
+            work-institutions-distinct-count
+            work-is-paratext
+            work-is-retracted
+            work-keywords
+            work-language
+            work-locations
+            work-locations-count
+            work-mesh
+            work-ngrams-url
+            work-open-access
+            work-primary-location
+            work-primary-topic
+            work-publication-date
+            work-publication-year
+            work-referenced-works
+            work-referenced-works-count
+            work-related-works
+            work-sustainable-development-goals
+            work-title
+            work-topics
+            work-work-type
+            work-type-crossref
+            work-updated-date
+            work-versions
 
-					;; institution
-					institution
-					institution?
-					this-institution
-					institution-associated-institutions
-					institution-cited-by-count
-					institution-country-code
-					institution-counts-by-year
-					institution-created-date
-					institution-display-name
-					institution-display-name-acronyms
-					institution-display-name-alternatives
-					institution-geo
-					institution-homepage-url
-					institution-id
-					institution-ids
-					institution-image-thumbnail-url
-					institution-image-url
-					institution-international
-					institution-lineage
-					institution-repositories
-					institution-roles
-					institution-ror
-					institution-summary-stats
-					institution-institution-type
-					institution-institution-type-id
-					institution-updated-date
-					institution-works-api-url
-					institution-works-count
-					institution-x-concepts
+            ;; institution
+            institution
+            institution?
+            this-institution
+            institution-associated-institutions
+            institution-cited-by-count
+            institution-country-code
+            institution-counts-by-year
+            institution-created-date
+            institution-display-name
+            institution-display-name-acronyms
+            institution-display-name-alternatives
+            institution-geo
+            institution-homepage-url
+            institution-id
+            institution-ids
+            institution-image-thumbnail-url
+            institution-image-url
+            institution-international
+            institution-lineage
+            institution-repositories
+            institution-roles
+            institution-ror
+            institution-summary-stats
+            institution-institution-type
+            institution-institution-type-id
+            institution-updated-date
+            institution-works-api-url
+            institution-works-count
+            institution-x-concepts
 
-					;; funder
-					funder
-					funder?
-					this-funder
-					funder-alternate-titles
-					funder-cited-by-count
-					funder-country-code
-					funder-counts-by-year
-					funder-created-date
-					funder-description
-					funder-display-name
-					funder-grants-count
-					funder-homepage-url
-					funder-id
-					funder-ids
-					funder-image-thumbnail-url
-					funder-image-url
-					funder-roles
-					funder-summary-stats
-					funder-updated-date
-					funder-works-count
+            ;; funder
+            funder
+            funder?
+            this-funder
+            funder-alternate-titles
+            funder-cited-by-count
+            funder-country-code
+            funder-counts-by-year
+            funder-created-date
+            funder-description
+            funder-display-name
+            funder-grants-count
+            funder-homepage-url
+            funder-id
+            funder-ids
+            funder-image-thumbnail-url
+            funder-image-url
+            funder-roles
+            funder-summary-stats
+            funder-updated-date
+            funder-works-count
 
-                   ;; publisher
-					publisher
-					publisher?
-					this-publisher
-					publisher-alternate-titles
-					publisher-cited-by-count
-					publisher-country-codes
-					publisher-counts-by-year
-					publisher-created-date
-					publisher-display-name
-					publisher-hierarchy-level
-					publisher-homepage-url
-					publisher-id
-					publisher-ids
-					publisher-image-thumbnail-url
-					publisher-image-url
-					publisher-lineage
-					publisher-parent-publisher
-					publisher-roles
-					publisher-sources-api-url
-					publisher-summary-stats
-					publisher-updated-date
-					publisher-works-count
+            ;; publisher
+            publisher
+            publisher?
+            this-publisher
+            publisher-alternate-titles
+            publisher-cited-by-count
+            publisher-country-codes
+            publisher-counts-by-year
+            publisher-created-date
+            publisher-display-name
+            publisher-hierarchy-level
+            publisher-homepage-url
+            publisher-id
+            publisher-ids
+            publisher-image-thumbnail-url
+            publisher-image-url
+            publisher-lineage
+            publisher-parent-publisher
+            publisher-roles
+            publisher-sources-api-url
+            publisher-summary-stats
+            publisher-updated-date
+            publisher-works-count
 
-					;; source
-					source
-					source?
-					this-source
-					source-abbreviated-title
-					source-alternate-titles
-					source-apc-prices
-					source-apc-usd
-					source-cited-by-count
-					source-country-code
-					source-counts-by-year
-					source-created-date
-					source-display-name
-					source-homepage-url
-					source-host-organization
-					source-host-organization-lineage
-					source-host-organization-name
-					source-id
-					source-ids
-					source-is-in-doaj
-					source-is-oa
-					source-issn
-					source-issn-l
-					source-societies
-					source-summary-stats
-					source-source-type
-					source-updated-date
-					source-works-api-url
-					source-works-count
-					source-x-concepts
+            ;; source
+            source
+            source?
+            this-source
+            source-abbreviated-title
+            source-alternate-titles
+            source-apc-prices
+            source-apc-usd
+            source-cited-by-count
+            source-country-code
+            source-counts-by-year
+            source-created-date
+            source-display-name
+            source-homepage-url
+            source-host-organization
+            source-host-organization-lineage
+            source-host-organization-name
+            source-id
+            source-ids
+            source-is-in-doaj
+            source-is-oa
+            source-issn
+            source-issn-l
+            source-societies
+            source-summary-stats
+            source-source-type
+            source-updated-date
+            source-works-api-url
+            source-works-count
+            source-x-concepts
 
-					;; topic
-					topic
-					topic?
-					this-topic
-					topic-cited-by-count
-					topic-created-date
-					topic-description
-					topic-display-name
-					topic-domain
-					topic-field
-					topic-id
-					topic-ids
-					topic-keywords
-					topic-siblings
-					topic-subfield
-					topic-updated-date
-					topic-works-count
-					))
+            ;; topic
+            topic
+            topic?
+            this-topic
+            topic-cited-by-count
+            topic-created-date
+            topic-description
+            topic-display-name
+            topic-domain
+            topic-field
+            topic-id
+            topic-ids
+            topic-keywords
+            topic-siblings
+            topic-subfield
+            topic-updated-date
+            topic-works-count))
 
 ;; A record type for affiliation.
 (define-record-type* <affiliation> %affiliation make-affiliation
-  affiliation?
-  this-affiliation
+  affiliation? this-affiliation
   (institution affiliation-institution
                (default #f)) ;<dehydrated-institution>
   (years affiliation-years
-         (default '()))) ;list of integers
+         (default '())))
+;list of integers
 
 ;; A record for various author identifiers.
 (define-record-type* <author-ids> %author-ids make-author-ids
@@ -567,7 +565,8 @@
   (twitter author-ids-twitter
            (default #f)) ;string
   (wikipedia author-ids-wikipedia
-             (default #f))) ;string
+             (default #f)))
+;string
 
 ;; A record holding counts by year.
 (define-record-type* <count-by-year> %count-by-year make-count-by-year
@@ -578,7 +577,8 @@
   (works-count count-by-year-works-count
                (default #f)) ;integer
   (cited-by-count count-by-year-cited-by-count
-                  (default #f))) ;integer
+                  (default #f)))
+;integer
 
 ;; A record for summary statistics.
 (define-record-type* <summary-stats> %summary-stats make-summary-stats
@@ -589,7 +589,8 @@
   (h-index summary-stats-h-index
            (default #f)) ;integer
   (i10-index summary-stats-i10-index
-             (default #f))) ;integer
+             (default #f)))
+;integer
 
 ;; A record for basic institution data in a dehydrated form.
 (define-record-type* <dehydrated-institution> %dehydrated-institution
@@ -607,7 +608,8 @@
   (institution-type dehydrated-institution-institution-type
                     (default #f)) ;string
   (lineage dehydrated-institution-lineage
-           (default '()))) ;list of strings
+           (default '())))
+;list of strings
 
 ;; A record for dehydrated concept data.
 (define-record-type* <dehydrated-concept> %dehydrated-concept
@@ -623,7 +625,8 @@
   (level dehydrated-concept-level
          (default #f)) ;integer
   (score dehydrated-concept-score
-         (default #f))) ;float
+         (default #f)))
+;float
 
 ;; A record for authorship.
 (define-record-type* <authorship> %authorship make-authorship
@@ -644,7 +647,8 @@
   (raw-affiliation-strings authorship-raw-affiliation-strings
                            (default '())) ;list of strings
   (raw-author-name authorship-raw-author-name
-                   (default #f))) ;string
+                   (default #f)))
+;string
 
 ;; A record for article processing charges.
 (define-record-type* <apc> %apc make-apc
@@ -657,7 +661,8 @@
   (provenance apc-provenance
               (default #f)) ;string
   (value-usd apc-value-usd
-             (default #f))) ;integer
+             (default #f)))
+;integer
 
 ;; A bibliographic record holding details of a publication.
 (define-record-type* <biblio> %biblio make-biblio
@@ -670,7 +675,8 @@
   (first-page biblio-first-page
               (default #f)) ;string
   (last-page biblio-last-page
-             (default #f))) ;string
+             (default #f)))
+;string
 
 ;; A record for basic concept data.
 (define-record-type* <concept> concept make-concept
@@ -685,7 +691,8 @@
   (level concept-level
          (default #f)) ;integer
   (score concept-score
-         (default #f))) ;float
+         (default #f)))
+;float
 
 ;; A record for grant information.
 (define-record-type* <grant> grant make-grant
@@ -696,34 +703,35 @@
   (funder-display-name grant-funder-display-name
                        (default #f)) ;string
   (award-id grant-award-id
-            (default #f))) ;string
+            (default #f)))
+;string
 
 ;; A record holding counts by year.
 (define-record-type* <year-count> year-count make-year-count
-  year-count?
-  this-year-count
+  year-count? this-year-count
   (year year-count-year
         (default #f)) ;integer
   (cited-by-count year-count-cited-by-count
-                  (default #f))) ;integer
+                  (default #f)))
+;integer
 
 ;; A record for percentile year data.
 (define-record-type* <percentile-year> percentile-year make-percentile-year
-  percentile-year?
-  this-percentile-year
+  percentile-year? this-percentile-year
   (max percentile-year-max
        (default #f)) ;integer
   (min percentile-year-min
-       (default #f))) ;integer
+       (default #f)))
+;integer
 
 ;; A record for keywords.
 (define-record-type* <keyword> keyword make-keyword
-  keyword?
-  this-keyword
+  keyword? this-keyword
   (keyword keyword-keyword
            (default #f)) ;string
   (score keyword-score
-         (default #f))) ;float
+         (default #f)))
+;float
 
 ;; A record for mesh tags.
 (define-record-type* <mesh-tag> mesh-tag make-mesh-tag
@@ -738,7 +746,8 @@
   (qualifier-name mesh-tag-qualifier-name
                   (default #f)) ;string
   (is-major-topic mesh-tag-is-major-topic
-                  (default #f))) ;boolean
+                  (default #f)))
+;boolean
 
 ;; A record for work identifiers.
 (define-record-type* <work-ids> work-ids make-work-ids
@@ -753,7 +762,8 @@
   (pmid work-ids-pmid
         (default #f)) ;string
   (pmcid work-ids-pmcid
-         (default #f))) ;string
+         (default #f)))
+;string
 
 ;; A record for open access information.
 (define-record-type* <open-access> open-access make-open-access
@@ -766,7 +776,8 @@
   (oa-url open-access-oa-url
           (default #f)) ;string
   (any-repository-has-fulltext open-access-any-repository-has-fulltext
-                               (default #f))) ;boolean
+                               (default #f)))
+;boolean
 
 ;; A record for sustainable development goals.
 (define-record-type* <sdg> sdg make-sdg
@@ -777,7 +788,8 @@
   (display-name sdg-display-name
                 (default #f)) ;string
   (score sdg-score
-         (default #f))) ;float
+         (default #f)))
+;float
 
 ;; A record for topics.
 (define-record-type* <topic> topic make-topic
@@ -794,7 +806,8 @@
   (score topic-score
          (default #f)) ;float
   (subfield topic-subfield
-            (default #f))) ;string
+            (default #f)))
+;string
 
 ;; A record for sources.
 (define-record-type* <source> source make-source
@@ -821,7 +834,8 @@
   (issn-l source-issn-l
           (default #f)) ;string
   (type source-type
-        (default #f))) ;string
+        (default #f)))
+;string
 
 ;; A record for publisher identifiers.
 (define-record-type* <publisher-ids> publisher-ids make-publisher-ids
@@ -832,7 +846,8 @@
   (ror publisher-ids-ror
        (default #f)) ;string
   (wikidata publisher-ids-wikidata
-            (default #f))) ;string
+            (default #f)))
+;string
 
 ;; A record for roles.
 (define-record-type* <role> role make-role
@@ -843,7 +858,8 @@
   (id role-id
       (default #f)) ;string
   (works-count role-works-count
-               (default #f))) ;integer
+               (default #f)))
+;integer
 
 ;; A record for counts by year.
 (define-record-type* <counts-by-year> counts-by-year make-counts-by-year
@@ -854,7 +870,8 @@
   (works-count counts-by-year-works-count
                (default #f)) ;integer
   (cited-by-count counts-by-year-cited-by-count
-                  (default #f))) ;integer
+                  (default #f)))
+;integer
 
 ;; A record for funder identifiers.
 (define-record-type* <funder-ids> funder-ids make-funder-ids
@@ -869,16 +886,17 @@
   (ror funder-ids-ror
        (default #f)) ;string
   (wikidata funder-ids-wikidata
-            (default #f))) ;string
+            (default #f)))
+;string
 
 ;; A record for APC prices.
 (define-record-type* <apc-price> apc-price make-apc-price
-  apc-price?
-  this-apc-price
+  apc-price? this-apc-price
   (price apc-price-price
          (default #f)) ;integer
   (currency apc-price-currency
-            (default #f))) ;string
+            (default #f)))
+;string
 
 ;; A record for source identifiers.
 (define-record-type* <source-ids> source-ids make-source-ids
@@ -895,16 +913,17 @@
   (openalex source-ids-openalex
             (default #f)) ;string
   (wikidata source-ids-wikidata
-            (default #f))) ;string
+            (default #f)))
+;string
 
 ;; A record for societies.
 (define-record-type* <society> society make-society
-  society?
-  this-society
+  society? this-society
   (url society-url
        (default #f)) ;string
   (organization society-organization
-                (default #f))) ;string
+                (default #f)))
+;string
 
 ;; A record for concept identifiers.
 (define-record-type* <concept-ids> concept-ids make-concept-ids
@@ -921,15 +940,16 @@
   (wikidata concept-ids-wikidata
             (default #f)) ;string
   (wikipedia concept-ids-wikipedia
-             (default #f))) ;string
+             (default #f)))
+;string
 
 ;; A record for international display names.
 (define-record-type* <international-display-names> international-display-names
                      make-international-display-names
-  international-display-names?
-  this-international-display-names
+  international-display-names? this-international-display-names
   (display-name international-display-names-display-name
-                (default '()))) ;alist of (string . string)
+                (default '())))
+;alist of (string . string)
 
 ;; A record for concept summary statistics.
 (define-record-type* <concept-summary-stats> concept-summary-stats
@@ -941,7 +961,8 @@
   (h-index concept-summary-stats-h-index
            (default #f)) ;integer
   (i10-index concept-summary-stats-i10-index
-             (default #f))) ;integer
+             (default #f)))
+;integer
 
 ;; A record for dehydrated institution with relationship.
 (define-record-type* <dehydrated-institution-with-relationship>
@@ -960,7 +981,8 @@
   (institution-type dehydrated-institution-with-relationship-institution-type
                     (default #f)) ;string
   (relationship dehydrated-institution-with-relationship-relationship
-                (default #f))) ;string
+                (default #f)))
+;string
 
 ;; A record for geographical information.
 (define-record-type* <geo> geo make-geo
@@ -979,7 +1001,8 @@
   (latitude geo-latitude
             (default #f)) ;float
   (longitude geo-longitude
-             (default #f))) ;float
+             (default #f)))
+;float
 
 ;; A record for institution identifiers.
 (define-record-type* <institution-ids> institution-ids make-institution-ids
@@ -996,7 +1019,8 @@
   (wikipedia institution-ids-wikipedia
              (default #f)) ;string
   (wikidata institution-ids-wikidata
-            (default #f))) ;string
+            (default #f)))
+;string
 
 ;; A record for repository information.
 (define-record-type* <repository> repository make-repository
@@ -1011,43 +1035,44 @@
   (host-organization-name repository-host-organization-name
                           (default #f)) ;string
   (host-organization-lineage repository-host-organization-lineage
-                             (default '()))) ;list of strings
+                             (default '())))
+;list of strings
 
 ;; A record for domain information.
 (define-record-type* <domain> domain make-domain
-  domain?
-  this-domain
+  domain? this-domain
   (id domain-id
       (default #f)) ;string
   (display-name domain-display-name
-                (default #f))) ;string
+                (default #f)))
+;string
 
 ;; A record for field information.
 (define-record-type* <field> field make-field
-  field?
-  this-field
+  field? this-field
   (id field-id
       (default #f)) ;string
   (display-name field-display-name
-                (default #f))) ;string
+                (default #f)))
+;string
 
 ;; A record for subfield information.
 (define-record-type* <subfield> subfield make-subfield
-  subfield?
-  this-subfield
+  subfield? this-subfield
   (id subfield-id
       (default #f)) ;string
   (display-name subfield-display-name
-                (default #f))) ;string
+                (default #f)))
+;string
 
 ;; A record for topic identifiers.
 (define-record-type* <topic-ids> topic-ids make-topic-ids
-  topic-ids?
-  this-topic-ids
+  topic-ids? this-topic-ids
   (openalex topic-ids-openalex
             (default #f)) ;string
   (wikipedia topic-ids-wikipedia
-             (default #f))) ;string
+             (default #f)))
+;string
 
 ;; A record type for author.
 (define-record-type* <author> %author make-author
@@ -1084,7 +1109,8 @@
   (works-count author-works-count
                (default #f)) ;integer
   (x-concepts author-x-concepts
-              (default '()))) ;list of <dehydrated-concept> | #f
+              (default '())))
+;list of <dehydrated-concept> | #f
 
 ;; A record type for a work.
 (define-record-type* <work> %work make-work
@@ -1183,7 +1209,8 @@
   (updated-date work-updated-date
                 (default #f)) ;string
   (versions work-versions
-            (default '()))) ;list of strings | #f
+            (default '())))
+;list of strings | #f
 
 ;; A record type for an institution.
 (define-record-type* <institution> institution make-institution
@@ -1240,7 +1267,8 @@
   (works-count institution-works-count
                (default #f)) ;integer
   (x-concepts institution-x-concepts
-              (default '()))) ;list of <dehydrated-concept> | #f
+              (default '())))
+;list of <dehydrated-concept> | #f
 
 ;; A record type for a funder.
 (define-record-type* <funder> funder make-funder
@@ -1279,7 +1307,8 @@
   (updated-date funder-updated-date
                 (default #f)) ;string
   (works-count funder-works-count
-               (default #f))) ;integer
+               (default #f)))
+;integer
 
 ;; A record type for a publisher.
 (define-record-type* <publisher> publisher make-publisher
@@ -1322,7 +1351,8 @@
   (updated-date publisher-updated-date
                 (default #f)) ;string
   (works-count publisher-works-count
-               (default #f))) ;integer
+               (default #f)))
+;integer
 
 ;; A record type for a source.
 (define-record-type* <source> source make-source
@@ -1379,7 +1409,8 @@
   (works-count source-works-count
                (default #f)) ;integer
   (x-concepts source-x-concepts
-              (default '()))) ;list of <dehydrated-concept> | #f
+              (default '())))
+;list of <dehydrated-concept> | #f
 
 ;; A record type for a topic.
 (define-record-type* <topic> topic make-topic
@@ -1410,4 +1441,5 @@
   (updated-date topic-updated-date
                 (default #f)) ;string
   (works-count topic-works-count
-               (default #f))) ;integer
+               (default #f)))
+;integer
