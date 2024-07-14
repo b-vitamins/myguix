@@ -155,3 +155,13 @@ number of collective algorithms useful for machine learning applications.
 These include a barrier, broadcast, and allreduce.")
       (home-page "https://github.com/facebookincubator/gloo")
       (license license:bsd-3))))
+
+(define-public tensorpipe-cuda-12.1
+  (package
+    (inherit tensorpipe)
+    (name "tensorpipe-cuda")
+    (arguments (substitute-keyword-arguments (package-arguments tensorpipe)
+                 ((#:configure-flags flags #~'())
+                  #~(cons "-DTP_USE_CUDA=ON" #$flags))))
+    (inputs (modify-inputs (package-inputs tensorpipe)
+              (append cuda-toolkit-12.1)))))
