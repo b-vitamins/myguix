@@ -225,3 +225,46 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (description "This package provides the CUDA Deep Neural Network library.")
     (license (nonfree:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
+
+(define-public cutlass
+  (package
+    (name "cutlass")
+    (version "3.5.0")
+    (home-page "https://github.com/NVIDIA/cutlass")
+    (source
+     (origin
+       (method git-fetch)
+       (file-name (git-file-name name version))
+       (uri (git-reference
+             (url home-page)
+             (commit (string-append "v" version))))
+       (sha256
+        (base32 "1vp1n2y0llyzypd6a6iasr0i6mww4r7b9xqygzk5zrhsidwkpyqg"))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
+                                               #$(package-source googletest))
+
+                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
+                                "-DCUTLASS_ENABLE_TESTS=NO"
+                                "-DCUTLASS_INSTALL_TESTS=NO")
+      #:validate-runpath? #f))
+    (native-inputs (list python))
+    (inputs (list cuda-toolkit-12.1))
+    (synopsis
+     "CUDA C++ template abstractions for high-performance linear algebra")
+    (description
+     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
+high-performance matrix-matrix multiplication (GEMM) and related computations
+at all levels and scales within CUDA.  It incorporates strategies for
+hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.
+
+CUTLASS decomposes these ``moving parts'' into reusable, modular software
+components abstracted by C++ template classes.  Primitives for different
+levels of a conceptual parallelization hierarchy can be specialized and tuned
+via custom tiling sizes, data types, and other algorithmic policy.  The
+resulting flexibility simplifies their use as building blocks within custom
+kernels and applications.")
+    (license license:bsd-3)))
