@@ -1,5 +1,6 @@
 (define-module (myguix packages maths)
   #:use-module (myguix packages)
+  #:use-module (myguix packages check)
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module ((guix licenses) #:prefix license:)
@@ -53,7 +54,7 @@
       (native-inputs
        (list python-wrapper))
       (inputs
-       (list psimd googletest googlebenchmark))
+       (list psimd googletest-e2239e googlebenchmark))
       (synopsis "C++ library for half-precision floating point formats")
       (description
        "This header-only C++ library implements conversion to and from
@@ -76,4 +77,6 @@ half-precision floating point formats.")
                 (sha256
                  (base32
                   "1nsrwghyy2rn9la9q6vwba19nzsg8cg6l9ihqi8mhqd3qxrfqj04"))
-                (patches (search-patches "fxdiv-system-libraries-rev2.patch")))))))
+                (patches (search-patches "fxdiv-system-libraries-rev2.patch"))))
+			(inputs
+       (list googletest-e2239e googlebenchmark)))))
