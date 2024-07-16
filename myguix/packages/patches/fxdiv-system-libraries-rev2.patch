@@ -1,0 +1,53 @@
+From cc3502831740947461fe62e0f413c468d6feb252 Mon Sep 17 00:00:00 2001
+From: Ayan Das <bvits@riseup.net>
+Date: Tue, 16 Jul 2024 18:20:26 +0530
+Subject: [PATCH] Use system-installed libraries instead of downloading
+ dependencies
+
+---
+ CMakeLists.txt | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bcae6b5..ff6710d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -21,7 +21,7 @@ IF(FXDIV_BUILD_TESTS)
+ ENDIF()
+ 
+ # ---[ Download deps
+-IF(FXDIV_BUILD_TESTS AND NOT DEFINED GOOGLETEST_SOURCE_DIR)
++IF(FALSE)
+   MESSAGE(STATUS "Downloading Google Test to ${CMAKE_BINARY_DIR}/googletest-source (define GOOGLETEST_SOURCE_DIR to avoid it)")
+   CONFIGURE_FILE(cmake/DownloadGoogleTest.cmake "${CMAKE_BINARY_DIR}/googletest-download/CMakeLists.txt")
+   EXECUTE_PROCESS(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+@@ -31,7 +31,7 @@ IF(FXDIV_BUILD_TESTS AND NOT DEFINED GOOGLETEST_SOURCE_DIR)
+   SET(GOOGLETEST_SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-source" CACHE STRING "Google Test source directory")
+ ENDIF()
+ 
+-IF(FXDIV_BUILD_BENCHMARKS AND NOT DEFINED GOOGLEBENCHMARK_SOURCE_DIR)
++IF(FALSE)
+   MESSAGE(STATUS "Downloading Google Benchmark to ${CMAKE_BINARY_DIR}/googlebenchmark-source (define GOOGLEBENCHMARK_SOURCE_DIR to avoid it)")
+   CONFIGURE_FILE(cmake/DownloadGoogleBenchmark.cmake "${CMAKE_BINARY_DIR}/googlebenchmark-download/CMakeLists.txt")
+   EXECUTE_PROCESS(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" .
+@@ -54,7 +54,7 @@ INSTALL(FILES include/fxdiv.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ 
+ IF(FXDIV_BUILD_TESTS)
+   # ---[ Build google test
+-  IF(NOT TARGET gtest)
++  IF(FALSE)
+     SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+     ADD_SUBDIRECTORY(
+       "${GOOGLETEST_SOURCE_DIR}"
+@@ -78,7 +78,7 @@ ENDIF()
+ 
+ IF(FXDIV_BUILD_BENCHMARKS)
+   # ---[ Build google benchmark
+-  IF(NOT TARGET benchmark)
++  IF(FALSE)
+     SET(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+     ADD_SUBDIRECTORY(
+       "${GOOGLEBENCHMARK_SOURCE_DIR}"
+-- 
+2.45.2
+
