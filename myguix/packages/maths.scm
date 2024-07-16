@@ -1,6 +1,7 @@
 (define-module (myguix packages maths)
-  #:use-module (guix)
+  #:use-module (myguix packages)
   #:use-module (guix gexp)
+  #:use-module (guix packages)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix git-download)
   #:use-module (gnu packages)
@@ -8,8 +9,7 @@
   #:use-module (gnu packages parallel)
   #:use-module (gnu packages check)
   #:use-module (gnu packages python)
-  #:use-module (guix build-system cmake)
-  #:use-module (myguix packages))
+  #:use-module (guix build-system cmake))
 
 (define-public fp16-4dfe081
   (let ((commit "4dfe081cf6bcd15db339cf2680b9281b8451eeb3")
@@ -65,6 +65,7 @@ half-precision floating point formats.")
         (version "0.0")
         (revision "2"))
     (package
+			(inherit fxdiv)
       (name "fxdiv")
       (version (git-version version revision commit))
       (home-page "https://github.com/Maratyszcza/FXdiv")
@@ -75,15 +76,4 @@ half-precision floating point formats.")
                 (sha256
                  (base32
                   "1nsrwghyy2rn9la9q6vwba19nzsg8cg6l9ihqi8mhqd3qxrfqj04"))
-                (patches (search-patches "fxdiv-system-libraries-rev2.patch"))))
-      (build-system cmake-build-system)
-      (inputs
-       (list googletest googlebenchmark))
-      (synopsis
-       "C++ library for division via fixed-point multiplication by inverse")
-      (description
-       "On modern CPUs and GPUs, integer division is several times slower than
-multiplication.  FXdiv implements an algorithm to replace an integer division
-with a multiplication and two shifts.  This algorithm improves performance
-when an application performs repeated divisions by the same divisor.")
-      (license license:expat))))
+                (patches (search-patches "fxdiv-system-libraries-rev2.patch")))))))
