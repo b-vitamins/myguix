@@ -1,23 +1,22 @@
 (define-module (myguix packages maths)
-  #:use-module (gnu)
   #:use-module (guix)
   #:use-module (guix gexp)
   #:use-module ((guix licenses) #:prefix license:)
-  #:use-module (myguix packages)
   #:use-module (guix git-download)
+  #:use-module (gnu packages)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages parallel)
   #:use-module (gnu packages check)
   #:use-module (gnu packages python)
-  #:use-module (guix build-system cmake))
+  #:use-module (guix build-system cmake)
+  #:use-module (myguix packages))
 
-(define-public fp16
-  ;; There is currently no tag in this repo.
+(define-public fp16-4dfe081
   (let ((commit "4dfe081cf6bcd15db339cf2680b9281b8451eeb3")
         (version "0.0")
         (revision "2"))
     (package
-			(name "fp16")
+      (name "fp16")
       (version (git-version version revision commit))
       (home-page "https://github.com/Maratyszcza/FP16")
       (source (origin
@@ -30,7 +29,7 @@
                 (patches (search-patches "fp16-implicit-double.patch"
 																				 "fp16-system-libraries-rev2.patch"))))
       (build-system cmake-build-system)
-    (arguments
+      (arguments
        `(#:imported-modules ((guix build python-build-system)
                              ,@%cmake-build-system-modules)
          #:modules (((guix build python-build-system)
@@ -40,8 +39,6 @@
          #:phases (modify-phases %standard-phases
                     (add-after 'install 'move-python-files
                       (lambda* (#:key inputs outputs #:allow-other-keys)
-                        ;; Python files get installed to $includedir (!).
-                        ;; Move them to the usual Python site directory.
                         (let* ((out     (assoc-ref outputs "out"))
                                (include (string-append out "/include"))
                                (site    (site-packages inputs outputs))
@@ -63,4 +60,30 @@
 half-precision floating point formats.")
       (license license:expat))))
 
-fp16
+(define-public fxdiv-b408327
+  (let ((commit "b408327ac2a15ec3e43352421954f5b1967701d1")
+        (version "0.0")
+        (revision "2"))
+    (package
+      (name "fxdiv")
+      (version (git-version version revision commit))
+      (home-page "https://github.com/Maratyszcza/FXdiv")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference (url home-page) (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                 (base32
+                  "1nsrwghyy2rn9la9q6vwba19nzsg8cg6l9ihqi8mhqd3qxrfqj04"))
+                (patches (search-patches "fxdiv-system-libraries-rev2.patch"))))
+      (build-system cmake-build-system)
+      (inputs
+       (list googletest googlebenchmark))
+      (synopsis
+       "C++ library for division via fixed-point multiplication by inverse")
+      (description
+       "On modern CPUs and GPUs, integer division is several times slower than
+multiplication.  FXdiv implements an algorithm to replace an integer division
+with a multiplication and two shifts.  This algorithm improves performance
+when an application performs repeated divisions by the same divisor.")
+      (license license:expat))))
