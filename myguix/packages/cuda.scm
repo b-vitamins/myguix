@@ -148,14 +148,15 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 
 (define-public cuda-toolkit-12.4
   (package
-		(inherit cuda-toolkit-12.1)
+    (inherit cuda-toolkit-12.1)
     (version "12.1.4")
     (source
      (origin
-       (uri "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
+       (uri
+        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
        (sha256
         (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
-       (method url-fetch))))
+       (method url-fetch)))))
 
 (define-public cudnn
   (package
