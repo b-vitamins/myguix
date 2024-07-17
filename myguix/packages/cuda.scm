@@ -16,13 +16,12 @@
 ;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (myguix packages cuda)
-  #:use-module (guix)
+  #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system gnu)
-  #:use-module (guix build-system trivial)
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module ((myguix licenses)
@@ -38,13 +37,13 @@
 (define-public cuda-toolkit-12.1
   (package
     (name "cuda-toolkit")
-    (version "12.1.0")
+    (version "12.1.1")
     (source
      (origin
        (uri
         "https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run")
        (sha256
-        (base32 "0764a8zsnmlp1f9912s8nkx700h7zzidr697mnwssw9dq4v90sb8"))
+        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
        (method url-fetch)))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
@@ -67,12 +66,6 @@
                        (let ((source (assoc-ref inputs "source")))
                          (invoke "sh" source "--keep" "--noexec")
                          (chdir "pkg"))))
-                   (add-after 'unpack 'remove-superfluous-stuff
-                     (lambda _
-                       (with-directory-excursion "builds"
-                         (for-each delete-file-recursively
-                                   '("nsight_compute" "nsight_systems"
-                                     "cuda_gdb")))))
                    (delete 'configure)
                    (delete 'check)
                    (replace 'build
@@ -143,7 +136,7 @@
                      (lambda _
                        (delete-file (string-append #$output "/include/include")))))))
     (native-inputs (list which patchelf perl python-2))
-    (inputs `(("gcc:lib" ,gcc-13 "lib")))
+    (inputs `(("gcc:lib" ,gcc-11 "lib")))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "Compiler for the CUDA language and associated run-time support")
     (description
@@ -151,6 +144,17 @@
 libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (nonfree:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
+
+(define-public cuda-toolkit-12.4
+  (package
+		(inherit cuda-toolkit-12.1)
+    (version "12.1.4")
+    (source
+     (origin
+       (uri "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
+       (sha256
+        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
+       (method url-fetch))))
 
 (define-public cudnn
   (package
