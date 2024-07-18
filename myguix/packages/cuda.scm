@@ -44,7 +44,7 @@
        (uri
         "https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run")
        (sha256
-        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
+        (base32 "0764a8zsnmlp1f9912s8nkx700h7zzidr697mnwssw9dq4v90sb8"))
        (method url-fetch)))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
