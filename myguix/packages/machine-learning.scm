@@ -1,22 +1,22 @@
 (define-module (myguix packages machine-learning)
   #:use-module ((guix licenses)
                 #:prefix license:)
-  #:use-module (gnu packages check)
-  #:use-module (gnu packages tls)
-  #:use-module (gnu packages python)
-  #:use-module (gnu packages machine-learning)
-  #:use-module (gnu packages rust-apps)
+  #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust-pqrs)
-  #:use-module (myguix packages cuda)
+  #:use-module (myguix packages maths)
+  #:use-module (myguix packages parallel)
+  #:use-module (myguix packages check)
   #:use-module (guix gexp)
-  #:use-module (guix utils)
   #:use-module (guix packages)
-  #:use-module (guix download)
   #:use-module (guix git-download)
-  #:use-module (guix build-system cmake)
-  #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
-  #:use-module (guix build-system cargo))
+  #:use-module (guix build-system cargo)
+  #:use-module (gnu packages)
+  #:use-module (gnu packages machine-learning)
+  #:use-module (gnu packages parallel)
+  #:use-module (gnu packages python)
+  #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages rust-apps))
 
 (define-public python-safetensors
   (package
@@ -118,50 +118,37 @@
      "Provides an implementation of today's most used tokenizers, with a focus on performance and versatility.")
     (license license:expat)))
 
-(define-public gloo-cuda-20240626
-  (let ((version "0.0.0")
-        (commit "81925d1c674c34f0dc34dd9a0f2151c1b6f701eb")
-        (revision "20240626"))
+(define-public nnpack-c07e3a0
+  (let ((version "0.0")
+        (commit "c07e3a0400713d546e0dea2d5466dd22ea389c73")
+        (revision "3"))
     (package
-      (name "gloo-cuda")
+      (inherit nnpack)
+      (name "nnpack")
       (version (git-version version revision commit))
+      (home-page "https://github.com/Maratyszcza/NNPACK")
       (source
        (origin
          (method git-fetch)
          (uri (git-reference
-               (url "https://github.com/facebookincubator/gloo")
+               (url home-page)
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "16zs8ndbiv9nppn8bv6lfanzyyssz7g5pawxiqcnafwq3nvxpj9m"))))
-      (build-system cmake-build-system)
+          (base32 "0s0kk3a35w3yzf0q447p72350sbsh4qhg6vm3y2djbj4xpg7jc8v"))
+         (patches (search-patches "nnpack-system-libraries-rev3.patch"))))
       (arguments
-       (list
-        #:tests? #f
-        #:configure-flags #~'("-DBUILD_SHARED_LIBS=ON" "-DBUILD_TEST=OFF"
-                              "-DUSE_CUDA=ON")
-        #:phases #~(modify-phases %standard-phases
-                     (add-after 'unpack 'drop-unsupported-arch
-                       (lambda _
-                         (substitute* "cmake/Cuda.cmake"
-                           (("gloo_known_gpu_archs \"[^\"]+\"")
-                            "gloo_known_gpu_archs \"35 50 52 60 61 70 75\"")))))))
-      (inputs (list cuda-toolkit-12.1 openssl))
-      (native-inputs (list googletest))
-      (synopsis "Collective communications library")
-      (description
-       "Gloo is a collective communications library.  It comes with a
-number of collective algorithms useful for machine learning applications.
-These include a barrier, broadcast, and allreduce.")
-      (home-page "https://github.com/facebookincubator/gloo")
-      (license license:bsd-3))))
-
-(define-public tensorpipe-cuda-12.1
-  (package
-    (inherit tensorpipe)
-    (name "tensorpipe-cuda")
-    (arguments (substitute-keyword-arguments (package-arguments tensorpipe)
-                 ((#:configure-flags flags #~'())
-                  #~(cons "-DTP_USE_CUDA=ON" #$flags))))
-    (inputs (modify-inputs (package-inputs tensorpipe)
-              (append cuda-toolkit-12.1)))))
+       '(#:tests? #t))
+      ;; XXX: Figure out why WT8x8.conv1_with_relu from convolution-output-vgg-test fails.
+      (inputs (list cpuinfo-3c8b15
+                    fp16-4dfe081
+                    fxdiv-b408327
+                    ;; psimd is now a public archive (read-only); no more upgrades expected.
+                    ;; (072586)a71b55b7f8c584153d223e95687148a900 is the latest commit on master.
+                    ;; guix/gnu/packages/parallel.scm has psimd @ 072586. Safe to use as is.
+                    psimd
+                    pthreadpool-4fe0e1
+                    googletest-e2239e))
+      (native-inputs (list python python-peachpy-f45429 python-six))
+      (supported-systems '("x86_64-linux" "armhf-linux" "aarch64-linux"))
+      (license license:bsd-2))))
