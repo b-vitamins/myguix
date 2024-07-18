@@ -8,14 +8,17 @@
         (revision "1")
         (commit "a6bfc237255a6bac1513f7c1ebde6d8aed6b5191"))
     (package
-			(inherit vulkan-memory-allocator)
+      (inherit vulkan-memory-allocator)
       (name "vulkan-memory-allocator")
       (version (git-version version revision commit))
-      (home-page "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator")
-      (source (origin
-                (method git-fetch)
-                (uri (git-reference (url home-page) (commit commit)))
-                (file-name (git-file-name name version))
-                (sha256
-                 (base32
-                  "1hpzjwl5bgqv9hmf1fdldihfllcbdg515f391a200klg0rnixdds")))))))
+      (home-page
+       "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1hpzjwl5bgqv9hmf1fdldihfllcbdg515f391a200klg0rnixdds")))))))

@@ -4,9 +4,12 @@
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (guix git-download)
+  #:use-module (gnu packages gcc)
+  #:use-module (gnu packages mpi)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages cmake)
+  #:use-module (gnu packages maths)
   #:use-module (gnu packages crates-io)
   #:use-module (gnu packages crates-graphics)
   #:use-module (gnu packages crates-tls)
@@ -15,6 +18,7 @@
   #:use-module (gnu packages crates-apple)
   #:use-module (gnu packages crates-crypto)
   #:use-module (gnu packages ninja)
+  #:use-module (gnu packages llvm)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system cmake)
   #:use-module (ice-9 match))
@@ -223,9 +227,9 @@ of the file.")
         (base32 "069fsnf5hw2q3hx91kj86r5rgxk1l3drl7a4lx8fd8xl1y2vsxp0"))))
     (build-system cmake-build-system)
     (arguments
-     `(#:configure-flags (list "-DBUILD_SHARED_LIBS:BOOL=ON"
-                               "-DCMAKE_BUILD_TYPE:STRING=Release"
-                               "-DPYTHON_EXECUTABLE:PATH=python3")
+     `(#:configure-flags (list "-DBUILD_SHARED_LIBS=ON"
+                               "-DCMAKE_BUILD_TYPE=Release"
+                               "-DPYTHON_EXECUTABLE=python3" "-DUSE_CUDA=ON")
        #:phases (modify-phases %standard-phases
                   (replace 'build
                     (lambda _
@@ -235,6 +239,7 @@ of the file.")
                       (let ((out (assoc-ref outputs "out")))
                         (invoke "cmake" "--install" "." "--prefix" out)) #t)))))
     (native-inputs `(("python3" ,python-3)
+                     ("numpy" ,python-numpy)
                      ("pyyaml" ,python-pyyaml)
                      ("cmake" ,cmake)
                      ("ninja" ,ninja)))
