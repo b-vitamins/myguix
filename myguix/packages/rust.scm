@@ -370,7 +370,7 @@ exec -a \"$0\" \"~a\" \"$@\""
                             `("cmake" ,cmake)
                             (package-native-inputs base-rust))))))
 
-(define-public rust
+(define-public rust-1.77
   (let ((base-rust (rust-bootstrapped-package rust-1.76 "1.77.0"
                     "11rda8d8qj24a5mkjzj1x6x9pkvaq0zlhkgdp5b39zj5m0gwsv0d")))
     (package
@@ -396,3 +396,92 @@ exec -a \"$0\" \"~a\" \"$@\""
                        (("target_arch = \"arm\"" arm)
                         (string-append "target_os = \"linux\",\n" "        "
                                        arm))))))))))))))
+
+(define-public rust-1.78
+  (let ((base-rust (rust-bootstrapped-package rust-1.77 "1.78.0"
+                    "1afmj5g3bz7439w4i8zjhd68zvh0gqg7ymr8h5rz49ybllilhm7z")))
+    (package
+      (inherit base-rust)
+      (source
+       (origin
+         (inherit (package-source base-rust))
+         (patches '())
+         (snippet '(begin
+                     (for-each delete-file-recursively
+                               '("vendor/openssl-src/openssl"
+                                 "vendor/curl-sys/curl"
+                                 "vendor/libffi-sys/libffi"
+                                 "vendor/libnghttp2-sys/nghttp2"
+                                 "vendor/libz-sys/src/zlib"))
+                     (delete-file "vendor/libnghttp2-sys/build.rs")
+                     (with-output-to-file "vendor/libnghttp2-sys/build.rs"
+                       (lambda _
+                         (format #t
+                          "fn main() {~@
+                         println!(\"cargo:rustc-link-lib=nghttp2\");~@
+                         }~%")))
+                     (for-each delete-file
+                               (find-files "vendor" "\\.(dll|exe|lib)$"))
+                     (substitute* "vendor/tempfile/Cargo.toml"
+                       (("features = \\[\"fs\"" all)
+                        (string-append all ", \"use-libc\"")))))))
+      (arguments
+       (substitute-keyword-arguments (package-arguments base-rust)
+         ((#:phases phases)
+          `(modify-phases ,phases
+             (replace 'adjust-rpath-values
+               (lambda* (#:key outputs #:allow-other-keys)
+                 (let ((out (assoc-ref outputs "out")))
+                   (substitute* "src/bootstrap/src/core/builder.rs"
+                     ((" = rpath.*" all)
+                      (string-append all "                "
+                       "self.rustflags.arg(\"-Clink-args=-Wl,-rpath=" out
+                       "/lib\");\n"))))))
+             (add-after 'unpack 'disable-more-tests
+               (lambda _
+                 (with-directory-excursion "src/tools/cargo/tests/testsuite"
+                   (substitute* "install.rs"
+                     ,@(make-ignore-test-list '("fn install_global_cargo_config")))))))))))))
+
+(define-public rust
+  (let ((base-rust (rust-bootstrapped-package rust-1.78 "1.79.0"
+                    "1h282jb1yxc69999w4nhvqb08rw2jy32i9njdjqrz78zglycybhp")))
+    (package
+      (inherit base-rust)
+      (source
+       (origin
+         (inherit (package-source base-rust))
+         (patches '())
+         (snippet '(begin
+                     (for-each delete-file-recursively
+                               '("vendor/openssl-src-111.28.1+1.1.1w/openssl"
+                                 "vendor/curl-sys-0.4.72+curl-8.6.0/curl"
+                                 "vendor/libffi-sys-2.3.0/libffi"
+                                 "vendor/libnghttp2-sys-0.1.9+1.58.0/nghttp2"
+                                 "vendor/libz-sys-1.1.16/src/zlib"))
+                     (delete-file
+                      "vendor/libnghttp2-sys-0.1.9+1.58.0/build.rs")
+                     (with-output-to-file "vendor/libnghttp2-sys-0.1.9+1.58.0/build.rs"
+                       (lambda _
+                         (format #t
+                          "fn main() {~@
+                         println!(\"cargo:rustc-link-lib=nghttp2\");~@
+                         }~%")))
+                     (for-each delete-file
+                               (find-files "vendor" "\\.(dll|exe|lib)$"))))))
+      (arguments
+       (substitute-keyword-arguments (strip-keyword-arguments '(#:tests?)
+                                                              (package-arguments
+                                                               base-rust))
+         ((#:phases phases)
+          `(modify-phases ,phases
+             (replace 'patch-jemalloc-sys
+               (lambda _
+                 (substitute* "vendor/jemalloc-sys-0.5.4+5.3.0-patched/jemalloc/Makefile.in"
+                   (("/bin/sh")
+                    (which "sh")))))
+             (add-after 'unpack 'disable-further-tests
+               (lambda _
+                 (with-directory-excursion "src/tools/cargo/tests/testsuite"
+                   (substitute* "build.rs"
+                     ,@(make-ignore-test-list '("fn build_with_symlink_to_path_dependency_with_build_script_in_git")))))))))))))
