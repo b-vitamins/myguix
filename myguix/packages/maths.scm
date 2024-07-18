@@ -3,7 +3,8 @@
   #:use-module (myguix packages check)
   #:use-module (guix gexp)
   #:use-module (guix packages)
-  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module ((guix licenses)
+                #:prefix license:)
   #:use-module (guix git-download)
   #:use-module (gnu packages)
   #:use-module (gnu packages maths)
@@ -20,15 +21,17 @@
       (name "fp16")
       (version (git-version version revision commit))
       (home-page "https://github.com/Maratyszcza/FP16")
-      (source (origin
-                (method git-fetch)
-                (uri (git-reference (url home-page) (commit commit)))
-                (file-name (git-file-name name version))
-                (sha256
-                 (base32
-                  "06a8dfl3a29r93nxpp6hpywsajz5d555n3sqd3i6krybb6swnvh7"))
-                (patches (search-patches "fp16-implicit-double.patch"
-																				 "fp16-system-libraries-rev2.patch"))))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "06a8dfl3a29r93nxpp6hpywsajz5d555n3sqd3i6krybb6swnvh7"))
+         (patches (search-patches "fp16-implicit-double.patch"
+                                  "fp16-system-libraries-rev2.patch"))))
       (build-system cmake-build-system)
       (arguments
        `(#:imported-modules ((guix build python-build-system)
@@ -40,10 +43,10 @@
          #:phases (modify-phases %standard-phases
                     (add-after 'install 'move-python-files
                       (lambda* (#:key inputs outputs #:allow-other-keys)
-                        (let* ((out     (assoc-ref outputs "out"))
+                        (let* ((out (assoc-ref outputs "out"))
                                (include (string-append out "/include"))
-                               (site    (site-packages inputs outputs))
-                               (target  (string-append site "/fp16")))
+                               (site (site-packages inputs outputs))
+                               (target (string-append site "/fp16")))
                           (mkdir-p target)
                           (for-each (lambda (file)
                                       (rename-file file
@@ -51,10 +54,8 @@
                                                                   (basename
                                                                    file))))
                                     (find-files include "\\.py$"))))))))
-      (native-inputs
-       (list python-wrapper))
-      (inputs
-       (list psimd googletest-e2239e googlebenchmark))
+      (native-inputs (list python-wrapper))
+      (inputs (list psimd googletest-e2239e googlebenchmark))
       (synopsis "C++ library for half-precision floating point formats")
       (description
        "This header-only C++ library implements conversion to and from
@@ -66,17 +67,18 @@ half-precision floating point formats.")
         (version "0.0")
         (revision "2"))
     (package
-			(inherit fxdiv)
+      (inherit fxdiv)
       (name "fxdiv")
       (version (git-version version revision commit))
       (home-page "https://github.com/Maratyszcza/FXdiv")
-      (source (origin
-                (method git-fetch)
-                (uri (git-reference (url home-page) (commit commit)))
-                (file-name (git-file-name name version))
-                (sha256
-                 (base32
-                  "1nsrwghyy2rn9la9q6vwba19nzsg8cg6l9ihqi8mhqd3qxrfqj04"))
-                (patches (search-patches "fxdiv-system-libraries-rev2.patch"))))
-			(inputs
-       (list googletest-e2239e googlebenchmark)))))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1nsrwghyy2rn9la9q6vwba19nzsg8cg6l9ihqi8mhqd3qxrfqj04"))
+         (patches (search-patches "fxdiv-system-libraries-rev2.patch"))))
+      (inputs (list googletest-e2239e googlebenchmark)))))
