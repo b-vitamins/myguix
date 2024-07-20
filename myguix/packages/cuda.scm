@@ -252,7 +252,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
          (sha256
           (base32 "04aglaxh4mgm94qwia293gqn7gmlw5w6mk8nky4k6l1m2615swyd"))
          ;; unit_tests requires Catch2::Catch2WithMani
-         (patches (search-patches "cuddn-frontend-remove-all-unit-tests.patch"))))
+         (patches (search-patches "cudnn-frontend-remove-all-unit-tests.patch"))))
       (build-system cmake-build-system)
       (arguments
        (list
