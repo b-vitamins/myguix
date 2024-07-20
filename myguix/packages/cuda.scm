@@ -16,6 +16,7 @@
 ;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (myguix packages cuda)
+  #:use-module (myguix packages)
   #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (guix download)
@@ -27,6 +28,7 @@
                 #:prefix license:)
   #:use-module ((myguix licenses)
                 #:prefix nonfree:)
+  #:use-module (gnu packages)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages check)
@@ -232,6 +234,48 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (nonfree:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
+(define-public cudnn-frontend-98ca4e
+  (let ((version "1.5.2")
+        (revision "0")
+        (commit "98ca4e1941fe3263f128f74f10063a3ea35c7019"))
+    (package
+      (name "cudnn-frontend")
+      (version version)
+      (home-page "https://github.com/NVIDIA/cudnn-frontend")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "04aglaxh4mgm94qwia293gqn7gmlw5w6mk8nky4k6l1m2615swyd"))
+         ;; unit_tests requires Catch2::Catch2WithMani
+         (patches (search-patches "cuddn-frontend-remove-all-unit-tests.patch"))))
+      (build-system cmake-build-system)
+      (arguments
+       (list
+        ;; building samples requires Catch2::Catch2WithMain
+        #:configure-flags #~(list "-DCUDNN_FRONTEND_BUILD_SAMPLES=OFF")))
+      (inputs (list cudnn cuda-toolkit-12.1))
+      (propagated-inputs (list catch2))
+      (synopsis "Front end API for NVIDIA CUDA Deep Neural Network library")
+      (description
+       "The cuDNN FrontEnd(FE) API is a C++ header-only library that wraps the cuDNN C backend API. Both the FE and backend APIs are entry points to the same set of functionality that is commonly referred to as the 'graph API'.
+
+While there are two entry points to the graph API (i.e. backend and frontend), it is expected that most users will use the FE API. Reasons being:
+
+    FE API is less verbose without loss of control. All functionality accessible through the backend API is also accessible through the FE API.
+    FE API adds functionality on top of the backend API, like errata filters and autotuning.
+
+Also, for those using backend API, FE API source and samples can serve as reference implementation.
+
+In FE v1.0 API, users can describe multiple operations that form subgraph through a persistent @code{cudnn_frontend::graph::Graph} object. Unlike the FE v0.x API, users don't need to worry about specifying shapes and sizes of the intermediate virtual tensors. FE v1.0 API extends the groundwork of earlier versions and introduces a new set of APIs to further simplify the workflow.
+
+Additionally, FE v1.0 API provides python bindings to all API through pybind11. It is recommended that new users of cuDNN start with the frontend v1.0 API. See samples/cpp and samples/python for more details on its usage.")
+      (license license:expat))))
+
 (define-public cutlass
   (package
     (name "cutlass")
@@ -274,3 +318,5 @@ via custom tiling sizes, data types, and other algorithmic policy.  The
 resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
     (license license:bsd-3)))
+
+cudnn-frontend-98ca4e
