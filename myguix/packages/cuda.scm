@@ -276,36 +276,39 @@ In FE v1.0 API, users can describe multiple operations that form subgraph throug
 Additionally, FE v1.0 API provides python bindings to all API through pybind11. It is recommended that new users of cuDNN start with the frontend v1.0 API. See samples/cpp and samples/python for more details on its usage.")
       (license license:expat))))
 
-(define-public cutlass
-  (package
-    (name "cutlass")
-    (version "3.5.0")
-    (home-page "https://github.com/NVIDIA/cutlass")
-    (source
-     (origin
-       (method git-fetch)
-       (file-name (git-file-name name version))
-       (uri (git-reference
-             (url home-page)
-             (commit (string-append "v" version))))
-       (sha256
-        (base32 "1vp1n2y0llyzypd6a6iasr0i6mww4r7b9xqygzk5zrhsidwkpyqg"))))
-    (build-system cmake-build-system)
-    (arguments
-     (list
-      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
-                                               #$(package-source googletest))
+(define-public cutlass-bbe579
+  (let ((version "3.4.1")
+        (revision "0")
+        (commit "bbe579a9e3beb6ea6626d9227ec32d0dae119a49"))
+    (package
+      (name "cutlass")
+      (version version)
+      (home-page "https://github.com/NVIDIA/cutlass")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))
+      (build-system cmake-build-system)
+      (arguments
+       (list
+        #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
+                                                 #$(package-source googletest))
 
-                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
-                                "-DCUTLASS_ENABLE_TESTS=NO"
-                                "-DCUTLASS_INSTALL_TESTS=NO")
-      #:validate-runpath? #f))
-    (native-inputs (list python))
-    (inputs (list cuda-toolkit-12.1))
-    (synopsis
-     "CUDA C++ template abstractions for high-performance linear algebra")
-    (description
-     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
+                                  "-DCUTLASS_ENABLE_EXAMPLES=NO"
+                                  "-DCUTLASS_ENABLE_TESTS=NO"
+                                  "-DCUTLASS_INSTALL_TESTS=NO")
+        #:validate-runpath? #f))
+      (native-inputs (list python))
+      (inputs (list cuda-toolkit-12.1))
+      (synopsis
+       "CUDA C++ template abstractions for high-performance linear algebra")
+      (description
+       "CUTLASS is a collection of CUDA C++ template abstractions for implementing
 high-performance matrix-matrix multiplication (GEMM) and related computations
 at all levels and scales within CUDA.  It incorporates strategies for
 hierarchical decomposition and data movement similar to those used to
@@ -317,6 +320,4 @@ levels of a conceptual parallelization hierarchy can be specialized and tuned
 via custom tiling sizes, data types, and other algorithmic policy.  The
 resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
-    (license license:bsd-3)))
-
-cudnn-frontend-98ca4e
+      (license license:bsd-3))))
