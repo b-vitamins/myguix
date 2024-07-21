@@ -10,7 +10,7 @@
     (package
       (inherit googletest)
       (name "googletest")
-      (version (string-append version "." revision))
+      (version version)
       (home-page "https://github.com/google/googletest")
       (source
        (origin
