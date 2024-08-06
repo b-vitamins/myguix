@@ -300,6 +300,8 @@ Additionally, FE v1.0 API provides python bindings to all API through pybind11. 
                                                  #$(package-source googletest))
 
                                   "-DCUTLASS_ENABLE_EXAMPLES=NO"
+																	"-DCUTLASS_NVCC_ARCHS=80"
+																	"-DCUTLASS_LIBRARY_KERNELS=all"
                                   "-DCUTLASS_ENABLE_TESTS=NO"
                                   "-DCUTLASS_INSTALL_TESTS=NO")
         #:validate-runpath? #f))
