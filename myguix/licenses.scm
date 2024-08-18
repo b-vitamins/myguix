@@ -17,7 +17,7 @@
 ;;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 (define-module (myguix licenses)
-  #:export (nonfree artistic-1.0 cc-by-nd4.0))
+  #:export (nonfree artistic-1.0 cc-by-nd4.0 undistributable))
 
 ;; Guix does not export the license record constructor.
 (define license
@@ -39,3 +39,14 @@ at URI, which may be a file:// URI pointing the package's tree."
   (license "CC-BY-ND 4.0" "http://creativecommons.org/licenses/by-nd/4.0/"
            "Creative Commons Attribution-NoDerivatives 4.0 International"))
 
+
+(define* (undistributable uri #:optional (comment ""))
+  "Return a nonfree license for packages which may not be redistributed, whose
+full text can be found at URI, which may be a file:// URI pointing the
+package's tree."
+  (license "Nonfree Undistributable"
+           uri
+           (string-append
+            "This a nonfree license.  This package may NOT be redistributed "
+            "in prebuilt form.  Check the URI for details.  "
+            comment)))
