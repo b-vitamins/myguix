@@ -151,4 +151,4 @@ Determining what constitutes an "essential" need requires careful consideration.
 
 * Acknowledgment
 
-Part of this README.org is borrowed from the Nonguix =README.org=, available at [[https://gitlab.com/nonguix/nonguix/-/blob/master/README.org][this link]].
+Part of this =README.org= is borrowed from the [[https://gitlab.com/nonguix/nonguix][Nonguix]] =README.org=, available at [[https://gitlab.com/nonguix/nonguix/-/blob/master/README.org][this link]].
