@@ -1,0 +1,12 @@
+*.eps
+*.go
+*.log
+*.mo
+*.pdf
+*.png
+*.tar.xz
+*.tmp
+*~
+.#*
+\#*\#
+,*
