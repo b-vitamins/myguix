@@ -28,11 +28,13 @@
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system trivial)
   #:use-module (guix download)
-  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module ((guix licenses)
+                #:prefix license:)
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module ((guix build utils) #:select (alist-replace))
+  #:use-module ((guix build utils)
+                #:select (alist-replace))
 
   #:use-module (gnu packages)
   #:use-module (gnu packages assembly)
@@ -80,28 +82,31 @@
 ;;; it is a tradeoff worth making.
 ;;; 0: https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html
 ;; The `rust' package is too old.
-(define-public rust-firefox-esr rust-1.77)
-(define-public rust-firefox     rust-1.77)
+(define-public rust-firefox-esr
+  rust-1.77)
+(define-public rust-firefox
+  rust-1.77)
 
 (define icu4c-73
   (package
     (inherit icu4c)
     (version "73.1")
-    (source (origin
-              (method url-fetch)
-              (uri (string-append
-                    "https://github.com/unicode-org/icu/releases/download/release-"
-                    (string-map (lambda (x) (if (char=? x #\.) #\- x)) version)
-                    "/icu4c-"
-                    (string-map (lambda (x) (if (char=? x #\.) #\_ x)) version)
-                    "-src.tgz"))
-              (sha256
-               (base32
-                "0iccpdvc0kvpww5a31k9gjkqigyz016i7v80r9zamd34w4fl6mx4"))))))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://github.com/unicode-org/icu/releases/download/release-"
+             (string-map (lambda (x)
+                           (if (char=? x #\.) #\- x)) version) "/icu4c-"
+             (string-map (lambda (x)
+                           (if (char=? x #\.) #\_ x)) version) "-src.tgz"))
+       (sha256
+        (base32 "0iccpdvc0kvpww5a31k9gjkqigyz016i7v80r9zamd34w4fl6mx4"))))))
 
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
-(define %firefox-esr-build-id "20240805130522")
+(define %firefox-esr-build-id
+  "20240805130522")
 
 (define-public firefox-esr
   (package
@@ -111,53 +116,54 @@
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
-                           version "/source/firefox-" version ".source.tar.xz"))
+             version "/source/firefox-" version ".source.tar.xz"))
        (sha256
         (base32 "1dfr3z4qmf855ikvc7b09xhimn2sf48hl140dny2lqlmlcibdnnc"))))
     (build-system gnu-build-system)
     (arguments
      (list
-      #:configure-flags
-      #~(let ((clang #$(this-package-native-input "clang"))
-              (wasi-sysroot #$(this-package-native-input "wasm32-wasi-clang-toolchain")))
-          `("--enable-application=browser"
+      #:configure-flags #~(let ((clang #$(this-package-native-input "clang"))
+                                (wasi-sysroot #$(this-package-native-input
+                                                 "wasm32-wasi-clang-toolchain")))
+                            `("--enable-application=browser"
 
-            ;; Configuration
-            "--with-system-jpeg"
-            "--with-system-zlib"
-            ;; "--with-system-png" ;require libpng-apng >= 1.6.35
-            "--with-system-icu"
-            "--enable-system-ffi"
-            "--enable-system-pixman"
-            "--enable-jemalloc"
+                              ;; Configuration
+                              "--with-system-jpeg"
+                              "--with-system-zlib"
+                              ;; "--with-system-png" ;require libpng-apng >= 1.6.35
+                              "--with-system-icu"
+                              "--enable-system-ffi"
+                              "--enable-system-pixman"
+                              "--enable-jemalloc"
 
-            ;; see https://bugs.gnu.org/32833
-            "--with-system-nspr"
-            ;; "--with-system-nss"
+                              ;; see https://bugs.gnu.org/32833
+                              "--with-system-nspr"
+                              ;; "--with-system-nss"
+                              
+                              ,(string-append "--with-clang-path=" clang
+                                              "/bin/clang")
+                              ,(string-append "--with-libclang-path=" clang
+                                              "/lib")
+                              ,(string-append "--with-wasi-sysroot="
+                                              wasi-sysroot "/wasm32-wasi")
 
-            ,(string-append "--with-clang-path="
-                            clang "/bin/clang")
-            ,(string-append "--with-libclang-path="
-                            clang "/lib")
-            ,(string-append "--with-wasi-sysroot=" wasi-sysroot "/wasm32-wasi")
+                              ;; Distribution
+                              "--with-distribution-id=org.myguix"
+                              "--disable-official-branding"
 
-            ;; Distribution
-            "--with-distribution-id=org.myguix"
-            "--disable-official-branding"
+                              ;; Features
+                              "--disable-tests"
+                              "--disable-updater"
+                              "--enable-pulseaudio"
+                              "--disable-crashreporter"
 
-            ;; Features
-            "--disable-tests"
-            "--disable-updater"
-            "--enable-pulseaudio"
-            "--disable-crashreporter"
-
-            ;; Build details
-            "--disable-debug"
-            "--enable-rust-simd"
-            "--enable-release"
-            "--enable-optimize"
-            "--enable-strip"
-            "--disable-elf-hack"))
+                              ;; Build details
+                              "--disable-debug"
+                              "--enable-rust-simd"
+                              "--enable-release"
+                              "--enable-optimize"
+                              "--enable-strip"
+                              "--disable-elf-hack"))
       #:imported-modules %cargo-utils-modules
       #:modules `((ice-9 regex)
                   (ice-9 string-fun)
@@ -169,258 +175,301 @@
                   (guix elf)
                   (guix build gremlin)
                   ,@%gnu-build-system-modules)
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'unpack 'fix-preferences
-            (lambda* (#:key inputs #:allow-other-keys)
-              (let ((port (open-file "browser/app/profile/firefox.js" "a")))
-                (define (write-setting key value)
-                  (format port "~%pref(\"~a\", ~a);~%"
-                          key value)
-                  (format #t "fix-preferences: setting value of ~a to ~a~%"
-                          key value))
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'fix-preferences
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (let ((port (open-file "browser/app/profile/firefox.js"
+                                    "a")))
+                         (define (write-setting key value)
+                           (format port "~%pref(\"~a\", ~a);~%" key value)
+                           (format #t
+                            "fix-preferences: setting value of ~a to ~a~%" key
+                            value))
 
-                ;; We should allow Firefox sandbox to read the store directory,
-                ;; because Firefox sandbox have access to /usr on FHS distros.
-                (write-setting "security.sandbox.content.read_path_whitelist"
-                               (string-append "\"" (%store-directory) "/\""))
+                         ;; We should allow Firefox sandbox to read the store directory,
+                         ;; because Firefox sandbox have access to /usr on FHS distros.
+                         (write-setting
+                          "security.sandbox.content.read_path_whitelist"
+                          (string-append "\""
+                                         (%store-directory) "/\""))
 
-                ;; XDG settings should be managed by Guix.
-                (write-setting "browser.shell.checkDefaultBrowser" "false")
-                (close-port port))))
-          (add-after 'fix-preferences 'fix-ffmpeg-runtime-linker
-            (lambda* (#:key inputs #:allow-other-keys)
-              (let* ((ffmpeg (assoc-ref inputs "ffmpeg"))
-                     (libavcodec (string-append ffmpeg "/lib/libavcodec.so")))
-                ;; Arrange to load libavcodec.so by its absolute file name.
-                (substitute* "dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp"
-                  (("libavcodec\\.so")
-                   libavcodec)))))
-          (add-after 'patch-source-shebangs 'patch-cargo-checksums
-            (lambda _
-              (use-modules (guix build cargo-utils))
-              (let ((null-hash
-                     ;; This is the SHA256 output of an empty string.
-                     "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"))
-                (for-each
-                 (lambda (file)
-                   (format #t "patch-cargo-checksums: patching checksums in ~a~%"
-                           file)
-                   (substitute* file
-                     (("(checksum = )\".*\"" all name)
-                      (string-append name "\"" null-hash "\""))))
-                 (find-files "." "Cargo\\.lock$"))
-                (for-each generate-all-checksums
-                          '("build"
-                            "dom/media"
-                            "dom/webauthn"
-                            "gfx"
-                            "intl"
-                            "js"
-                            "media"
-                            "modules"
-                            "mozglue/static/rust"
-                            "netwerk"
-                            "remote"
-                            "security/manager/ssl"
-                            "servo"
-                            "storage"
-                            "third_party/rust"
-                            "toolkit"
-                            "xpcom/rust"
-                            "services")))))
-          (add-after 'patch-cargo-checksums 'remove-cargo-frozen-flag
-            (lambda _
-              ;; Remove --frozen flag from cargo invokation, otherwise it'll
-              ;; complain that it's not able to change Cargo.lock.
-              ;; https://bugzilla.mozilla.org/show_bug.cgi?id=1726373
-              (substitute* "build/RunCbindgen.py"
-                (("args.append\\(\"--frozen\"\\)") "pass"))))
-          (delete 'bootstrap)
-          (add-before 'configure 'patch-SpeechDispatcherService.cpp
-            (lambda _
-              (let* ((lib "libspeechd.so.2")
-                     (file "dom/media/webspeech/synth/speechd/SpeechDispatcherService.cpp")
-                     (old-content (call-with-input-file file get-string-all)))
-                (substitute
-                 file
-                 `((,(format #f "~s" lib)
-                    . ,(lambda (line _)
-                         (string-replace-substring
-                          line
-                          lib
-                          (string-append #$speech-dispatcher "/lib/" lib))))))
-                (if (string=? old-content
-                              (call-with-input-file file get-string-all))
-                    (error "substitute did nothing, phase requires an update")))))
-          (add-before 'configure 'set-build-id
-            ;; Firefox will write the timestamp to output, which is harmful
-            ;; for reproducibility, so change it to a fixed date.  Use a
-            ;; separate phase for easier modification with inherit.
-            (lambda _
-              (setenv "MOZ_BUILD_DATE" #$%firefox-esr-build-id)))
-          (replace 'configure
-            (lambda* (#:key inputs outputs configure-flags #:allow-other-keys)
-              (setenv "AUTOCONF" (string-append (assoc-ref inputs "autoconf")
-                                                "/bin/autoconf"))
-              (setenv "SHELL" (which "bash"))
-              (setenv "CONFIG_SHELL" (which "bash"))
-              (setenv "MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE" "system")
-              ;; This should use the host info probably (does firefox build on
-              ;; non-x86_64 though?)
-              (setenv "GUIX_PYTHONPATH"
-                      (string-append (getcwd)
-                                     "/obj-x86_64-pc-linux-gnu/_virtualenvs/build"))
+                         ;; XDG settings should be managed by Guix.
+                         (write-setting "browser.shell.checkDefaultBrowser"
+                                        "false")
+                         (close-port port))))
+                   (add-after 'fix-preferences 'fix-ffmpeg-runtime-linker
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (let* ((ffmpeg (assoc-ref inputs "ffmpeg"))
+                              (libavcodec (string-append ffmpeg
+                                                         "/lib/libavcodec.so")))
+                         ;; Arrange to load libavcodec.so by its absolute file name.
+                         (substitute* "dom/media/platforms/ffmpeg/FFmpegRuntimeLinker.cpp"
+                           (("libavcodec\\.so")
+                            libavcodec)))))
+                   (add-after 'patch-source-shebangs 'patch-cargo-checksums
+                     (lambda _
+                       (use-modules (guix build cargo-utils))
+                       (let ((null-hash
+                              ;; This is the SHA256 output of an empty string.
+                              "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"))
+                         (for-each (lambda (file)
+                                     (format #t
+                                      "patch-cargo-checksums: patching checksums in ~a~%"
+                                      file)
+                                     (substitute* file
+                                       (("(checksum = )\".*\"" all name)
+                                        (string-append name "\"" null-hash
+                                                       "\""))))
+                                   (find-files "." "Cargo\\.lock$"))
+                         (for-each generate-all-checksums
+                                   '("build" "dom/media"
+                                     "dom/webauthn"
+                                     "gfx"
+                                     "intl"
+                                     "js"
+                                     "media"
+                                     "modules"
+                                     "mozglue/static/rust"
+                                     "netwerk"
+                                     "remote"
+                                     "security/manager/ssl"
+                                     "servo"
+                                     "storage"
+                                     "third_party/rust"
+                                     "toolkit"
+                                     "xpcom/rust"
+                                     "services")))))
+                   (add-after 'patch-cargo-checksums 'remove-cargo-frozen-flag
+                     (lambda _
+                       ;; Remove --frozen flag from cargo invokation, otherwise it'll
+                       ;; complain that it's not able to change Cargo.lock.
+                       ;; https://bugzilla.mozilla.org/show_bug.cgi?id=1726373
+                       (substitute* "build/RunCbindgen.py"
+                         (("args.append\\(\"--frozen\"\\)")
+                          "pass"))))
+                   (delete 'bootstrap)
+                   (add-before 'configure 'patch-SpeechDispatcherService.cpp
+                     (lambda _
+                       (let* ((lib "libspeechd.so.2")
+                              (file
+                               "dom/media/webspeech/synth/speechd/SpeechDispatcherService.cpp")
+                              (old-content (call-with-input-file file
+                                             get-string-all)))
+                         (substitute file
+                                     `((,(format #f "~s" lib) unquote
+                                        (lambda (line _)
+                                          (string-replace-substring line lib
+                                                                    (string-append #$speech-dispatcher
+                                                                     "/lib/"
+                                                                     lib))))))
+                         (if (string=? old-content
+                                       (call-with-input-file file
+                                         get-string-all))
+                             (error
+                              "substitute did nothing, phase requires an update")))))
+                   (add-before 'configure 'set-build-id
+                     ;; Firefox will write the timestamp to output, which is harmful
+                     ;; for reproducibility, so change it to a fixed date.  Use a
+                     ;; separate phase for easier modification with inherit.
+                     (lambda _
+                       (setenv "MOZ_BUILD_DATE"
+                               #$%firefox-esr-build-id)))
+                   (replace 'configure
+                     (lambda* (#:key inputs outputs configure-flags
+                               #:allow-other-keys)
+                       (setenv "AUTOCONF"
+                               (string-append (assoc-ref inputs "autoconf")
+                                              "/bin/autoconf"))
+                       (setenv "SHELL"
+                               (which "bash"))
+                       (setenv "CONFIG_SHELL"
+                               (which "bash"))
+                       (setenv "MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE"
+                               "system")
+                       ;; This should use the host info probably (does firefox build on
+                       ;; non-x86_64 though?)
+                       (setenv "GUIX_PYTHONPATH"
+                               (string-append (getcwd)
+                                "/obj-x86_64-pc-linux-gnu/_virtualenvs/build"))
 
-              ;; Use Clang, Clang is 2x faster than GCC
-              (setenv "AR" "llvm-ar")
-              (setenv "NM" "llvm-nm")
-              (setenv "CC" "clang")
-              (setenv "CXX" "clang++")
-              (setenv "WASM_CC"
-                      (string-append
-                       (assoc-ref inputs "wasm32-wasi-clang-toolchain")
-                       "/bin/clang"))
-              (setenv "WASM_CXX"
-                      (string-append
-                       (assoc-ref inputs "wasm32-wasi-clang-toolchain")
-                       "/bin/clang++"))
+                       ;; Use Clang, Clang is 2x faster than GCC
+                       (setenv "AR" "llvm-ar")
+                       (setenv "NM" "llvm-nm")
+                       (setenv "CC" "clang")
+                       (setenv "CXX" "clang++")
+                       (setenv "WASM_CC"
+                               (string-append (assoc-ref inputs
+                                               "wasm32-wasi-clang-toolchain")
+                                              "/bin/clang"))
+                       (setenv "WASM_CXX"
+                               (string-append (assoc-ref inputs
+                                               "wasm32-wasi-clang-toolchain")
+                                              "/bin/clang++"))
 
-              (setenv "MOZ_NOSPAM" "1")
+                       (setenv "MOZ_NOSPAM" "1")
 
-              ;; WM_CLASS (default is "$MOZ_APP_NAME-$MOZ_UPDATE_CHANNEL").
-              (setenv "MOZ_APP_REMOTINGNAME" "Firefox")
+                       ;; WM_CLASS (default is "$MOZ_APP_NAME-$MOZ_UPDATE_CHANNEL").
+                       (setenv "MOZ_APP_REMOTINGNAME" "Firefox")
 
-              (setenv "MOZBUILD_STATE_PATH" (getcwd))
+                       (setenv "MOZBUILD_STATE_PATH"
+                               (getcwd))
 
-              (let* ((mozconfig (string-append (getcwd) "/mozconfig"))
-                     (out (assoc-ref outputs "out"))
-                     (flags (cons (string-append "--prefix=" out)
-                                  configure-flags)))
-                (format #t "build directory: ~s~%" (getcwd))
-                (format #t "configure flags: ~s~%" flags)
+                       (let* ((mozconfig (string-append (getcwd) "/mozconfig"))
+                              (out (assoc-ref outputs "out"))
+                              (flags (cons (string-append "--prefix=" out)
+                                           configure-flags)))
+                         (format #t "build directory: ~s~%"
+                                 (getcwd))
+                         (format #t "configure flags: ~s~%" flags)
 
-                (define write-flags
-                  (lambda flags
-                    (display (string-join
-                              (map (cut string-append "ac_add_options " <>)
-                                   flags)
-                              "\n"))
-                    (display "\n")))
-                (with-output-to-file mozconfig
-                  (lambda ()
-                    (apply write-flags flags)
-                    ;; The following option unsets Telemetry Reporting. With the Addons Fiasco,
-                    ;; Mozilla was found to be collecting user's data, including saved passwords and
-                    ;; web form data, without users consent. Mozilla was also found shipping updates
-                    ;; to systems without the user's knowledge or permission.
-                    ;; As a result of this, use the following command to permanently disable
-                    ;; telemetry reporting in Firefox.
-                    (display "unset MOZ_TELEMETRY_REPORTING\n")))
-                (setenv "MOZCONFIG" mozconfig))
-              (invoke "./mach" "configure")))
-          (replace 'build
-            (lambda* (#:key (make-flags '()) (parallel-build? #t)
-                      #:allow-other-keys)
-              (apply invoke "./mach" "build"
-                     ;; mach will use parallel build if possible by default
-                     `(,@(if parallel-build?
-                             '()
-                             '("-j1"))
-                       ,@make-flags))))
-          (add-after 'build 'neutralise-store-references
-            (lambda _
-              ;; Mangle the store references to compilers & other build tools in
-              ;; about:buildconfig, reducing Firefox's closure by 1 GiB on x86-64.
-              (let* ((build-dir (car (scandir "." (cut string-prefix? "obj-" <>))))
-                     (file (string-append build-dir "/dist/bin/chrome/toolkit/content/global/buildconfig.html")))
-                (substitute* file
-                  (((format #f "(~a/)([0-9a-df-np-sv-z]{32})"
-                            (regexp-quote (%store-directory)))
-                    _ store hash)
-                   (string-append store
-                                  (string-take hash 8)
-                                  "<!-- Guix: not a runtime dependency -->"
-                                  (string-drop hash 8)))))))
-          (replace 'install
-            (lambda _ (invoke "./mach" "install")))
-          (add-after 'install 'wrap-program
-            (lambda* (#:key inputs outputs #:allow-other-keys)
-              ;; The following two functions are from Guix's icecat package in
-              ;; (gnu packages gnuzilla).  See commit
-              ;; b7a0935420ee630a29b7e5ac73a32ba1eb24f00b.
-              (define (runpath-of lib)
-                (call-with-input-file lib
-                  (compose elf-dynamic-info-runpath
-                           elf-dynamic-info
-                           parse-elf
-                           get-bytevector-all)))
-              (define (runpaths-of-input label)
-                (let* ((dir (string-append (assoc-ref inputs label) "/lib"))
-                       (libs (find-files dir "\\.so$")))
-                  (append-map runpath-of libs)))
-              (let* ((out (assoc-ref outputs "out"))
-                     (lib (string-append out "/lib"))
-                     ;; TODO: make me a loop again
-                     (mesa-lib (string-append (assoc-ref inputs "mesa") "/lib"))
-                     ;; For the integration of native notifications
-                     (libnotify-lib (string-append (assoc-ref inputs "libnotify")
-                                                   "/lib"))
-                     ;; For hardware video acceleration via VA-API
-                     (libva-lib (string-append (assoc-ref inputs "libva")
-                                               "/lib"))
-                     ;; VA-API is run in the RDD (Remote Data Decoder) sandbox
-                     ;; and must be explicitly given access to files it needs.
-                     ;; Rather than adding the whole store (as Nix had
-                     ;; upstream do, see
-                     ;; <https://github.com/NixOS/nixpkgs/pull/165964> and
-                     ;; linked upstream patches), we can just follow the
-                     ;; runpaths of the needed libraries to add everything to
-                     ;; LD_LIBRARY_PATH.  These will then be accessible in the
-                     ;; RDD sandbox.
-                     (rdd-whitelist
-                      (map (cut string-append <> "/")
-                           (delete-duplicates
-                            (append-map runpaths-of-input
-                                        '("mesa" "ffmpeg")))))
-                     (pulseaudio-lib (string-append (assoc-ref inputs "pulseaudio")
+                         (define write-flags
+                           (lambda flags
+                             (display (string-join (map (cut string-append
+                                                         "ac_add_options " <>)
+                                                        flags) "\n"))
+                             (display "\n")))
+                         (with-output-to-file mozconfig
+                           (lambda ()
+                             (apply write-flags flags)
+                             ;; The following option unsets Telemetry Reporting. With the Addons Fiasco,
+                             ;; Mozilla was found to be collecting user's data, including saved passwords and
+                             ;; web form data, without users consent. Mozilla was also found shipping updates
+                             ;; to systems without the user's knowledge or permission.
+                             ;; As a result of this, use the following command to permanently disable
+                             ;; telemetry reporting in Firefox.
+                             (display "unset MOZ_TELEMETRY_REPORTING\n")))
+                         (setenv "MOZCONFIG" mozconfig))
+                       (invoke "./mach" "configure")))
+                   (replace 'build
+                     (lambda* (#:key (make-flags '())
+                               (parallel-build? #t) #:allow-other-keys)
+                       (apply invoke "./mach" "build"
+                              ;; mach will use parallel build if possible by default
+                              `(,@(if parallel-build?
+                                      '()
+                                      '("-j1")) ,@make-flags))))
+                   (add-after 'build 'neutralise-store-references
+                     (lambda _
+                       ;; Mangle the store references to compilers & other build tools in
+                       ;; about:buildconfig, reducing Firefox's closure by 1 GiB on x86-64.
+                       (let* ((build-dir (car (scandir "."
+                                                       (cut string-prefix?
+                                                            "obj-" <>))))
+                              (file (string-append build-dir
+                                     "/dist/bin/chrome/toolkit/content/global/buildconfig.html")))
+                         (substitute* file
+                           (((format #f "(~a/)([0-9a-df-np-sv-z]{32})"
+                                     (regexp-quote (%store-directory)))
+                             _ store hash)
+                            (string-append store
+                             (string-take hash 8)
+                             "<!-- Guix: not a runtime dependency -->"
+                             (string-drop hash 8)))))))
+                   (replace 'install
+                     (lambda _
+                       (invoke "./mach" "install")))
+                   (add-after 'install 'wrap-program
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       ;; The following two functions are from Guix's icecat package in
+                       ;; (gnu packages gnuzilla).  See commit
+                       ;; b7a0935420ee630a29b7e5ac73a32ba1eb24f00b.
+                       (define (runpath-of lib)
+                         (call-with-input-file lib
+                           (compose elf-dynamic-info-runpath elf-dynamic-info
+                                    parse-elf get-bytevector-all)))
+                       (define (runpaths-of-input label)
+                         (let* ((dir (string-append (assoc-ref inputs label)
                                                     "/lib"))
-                     ;; For U2F and WebAuthn
-                     (eudev-lib (string-append (assoc-ref inputs "eudev") "/lib"))
-                     (gtk-share (string-append (assoc-ref inputs "gtk+")
-                                               "/share")))
-                (wrap-program (car (find-files lib "^firefox$"))
-                  `("LD_LIBRARY_PATH" prefix (,mesa-lib ,libnotify-lib ,libva-lib
-                                              ,pulseaudio-lib ,eudev-lib ,@rdd-whitelist))
-                  `("XDG_DATA_DIRS" prefix (,gtk-share))
-                  `("MOZ_LEGACY_PROFILES" = ("1"))
-                  `("MOZ_ALLOW_DOWNGRADE" = ("1"))))))
-          (add-after 'wrap-program 'install-desktop-entry
-            (lambda* (#:key outputs #:allow-other-keys)
-              (let* ((desktop-file "taskcluster/docker/firefox-snap/firefox.desktop")
-                     (applications (string-append #$output "/share/applications")))
-                (substitute* desktop-file
-                  (("^Exec=firefox") (string-append "Exec=" #$output "/bin/firefox"))
-                  (("Icon=.*") "Icon=firefox\n")
-                  (("NewWindow") "new-window")
-                  (("NewPrivateWindow") "new-private-window")
-                  (("StartupNotify=true")
-                   "StartupNotify=true\nStartupWMClass=Firefox"))
-                (install-file desktop-file applications))))
-          (add-after 'install-desktop-entry 'install-icons
-            (lambda* (#:key outputs #:allow-other-keys)
-              (let ((icon-source-dir
-                     (string-append
-                      #$output "/lib/firefox/browser/chrome/icons/default")))
-                (for-each
-                 (lambda (size)
-                   (let ((dest (string-append #$output "/share/icons/hicolor/"
-                                              size "x" size "/apps")))
-                     (mkdir-p dest)
-                     (symlink (string-append icon-source-dir
-                                             "/default" size ".png")
-                              (string-append dest "/firefox.png"))))
-                 '("16" "32" "48" "64" "128"))))))
+                                (libs (find-files dir "\\.so$")))
+                           (append-map runpath-of libs)))
+                       (let* ((out (assoc-ref outputs "out"))
+                              (lib (string-append out "/lib"))
+                              ;; TODO: make me a loop again
+                              (mesa-lib (string-append (assoc-ref inputs
+                                                                  "mesa")
+                                                       "/lib"))
+                              ;; For the integration of native notifications
+                              (libnotify-lib (string-append (assoc-ref inputs
+                                                             "libnotify")
+                                                            "/lib"))
+                              ;; For hardware video acceleration via VA-API
+                              (libva-lib (string-append (assoc-ref inputs
+                                                                   "libva")
+                                                        "/lib"))
+                              ;; VA-API is run in the RDD (Remote Data Decoder) sandbox
+                              ;; and must be explicitly given access to files it needs.
+                              ;; Rather than adding the whole store (as Nix had
+                              ;; upstream do, see
+                              ;; <https://github.com/NixOS/nixpkgs/pull/165964> and
+                              ;; linked upstream patches), we can just follow the
+                              ;; runpaths of the needed libraries to add everything to
+                              ;; LD_LIBRARY_PATH.  These will then be accessible in the
+                              ;; RDD sandbox.
+                              (rdd-whitelist (map (cut string-append <> "/")
+                                                  (delete-duplicates (append-map
+                                                                      runpaths-of-input
+                                                                      '("mesa"
+                                                                        "ffmpeg")))))
+                              (pulseaudio-lib (string-append (assoc-ref inputs
+                                                              "pulseaudio")
+                                                             "/lib"))
+                              ;; For U2F and WebAuthn
+                              (eudev-lib (string-append (assoc-ref inputs
+                                                                   "eudev")
+                                                        "/lib"))
+                              (gtk-share (string-append (assoc-ref inputs
+                                                                   "gtk+")
+                                                        "/share")))
+                         (wrap-program (car (find-files lib "^firefox$"))
+                           `("LD_LIBRARY_PATH" prefix
+                             (,mesa-lib ,libnotify-lib
+                              ,libva-lib
+                              ,pulseaudio-lib
+                              ,eudev-lib
+                              ,@rdd-whitelist))
+                           `("XDG_DATA_DIRS" prefix
+                             (,gtk-share))
+                           `("MOZ_LEGACY_PROFILES" =
+                             ("1"))
+                           `("MOZ_ALLOW_DOWNGRADE" =
+                             ("1"))))))
+                   (add-after 'wrap-program 'install-desktop-entry
+                     (lambda* (#:key outputs #:allow-other-keys)
+                       (let* ((desktop-file
+                               "taskcluster/docker/firefox-snap/firefox.desktop")
+                              (applications (string-append #$output
+                                             "/share/applications")))
+                         (substitute* desktop-file
+                           (("^Exec=firefox")
+                            (string-append "Exec="
+                                           #$output "/bin/firefox"))
+                           (("Icon=.*")
+                            "Icon=firefox\n")
+                           (("NewWindow")
+                            "new-window")
+                           (("NewPrivateWindow")
+                            "new-private-window")
+                           (("StartupNotify=true")
+                            "StartupNotify=true
+StartupWMClass=Firefox"))
+                         (install-file desktop-file applications))))
+                   (add-after 'install-desktop-entry 'install-icons
+                     (lambda* (#:key outputs #:allow-other-keys)
+                       (let ((icon-source-dir (string-append #$output
+                                               "/lib/firefox/browser/chrome/icons/default")))
+                         (for-each (lambda (size)
+                                     (let ((dest (string-append #$output
+                                                  "/share/icons/hicolor/"
+                                                  size
+                                                  "x"
+                                                  size
+                                                  "/apps")))
+                                       (mkdir-p dest)
+                                       (symlink (string-append icon-source-dir
+                                                 "/default" size ".png")
+                                                (string-append dest
+                                                               "/firefox.png"))))
+                                   '("16" "32" "48" "64" "128"))))))
 
       ;; Test will significantly increase build time but with little rewards.
       #:tests? #f
@@ -428,71 +477,67 @@
       ;; WARNING: Parallel build will consume lots of memory!
       ;; If you have encountered OOM issue in build phase, try disable it.
       ;; #:parallel-build? #f
-
+      
       ;; Some dynamic lib was determined at runtime, so rpath check may fail.
       #:validate-runpath? #f))
-    (inputs
-      (list
-        bzip2
-        cairo
-        cups
-        dbus-glib
-        freetype
-        ffmpeg
-        gdk-pixbuf
-        glib
-        gtk+
-        gtk+-2
-        hunspell
-        icu4c-73
-        jemalloc
-        libcanberra
-        libevent
-        libffi
-        libgnome
-        libjpeg-turbo
-        libnotify
-        ;; libpng-apng
-        libva
-        libvpx
-        libxcomposite
-        libxft
-        libxinerama
-        libxscrnsaver
-        libxt
-        mesa
-        mit-krb5
-        nspr-4.32
-        ;; nss
-        pango
-        pipewire
-        pixman
-        pulseaudio
-        speech-dispatcher
-        sqlite
-        startup-notification
-        eudev
-        unzip
-        zip
-        zlib))
-    (native-inputs
-      (list
-        alsa-lib
-        autoconf-2.13
-        `(,rust-firefox-esr "cargo")
-        clang-18
-        llvm
-        wasm32-wasi-clang-toolchain
-        m4
-        nasm
-        node-lts
-        perl
-        pkg-config
-        python
-        rust-firefox-esr
-        rust-cbindgen-0.26
-        which
-        yasm))
+    (inputs (list bzip2
+                  cairo
+                  cups
+                  dbus-glib
+                  freetype
+                  ffmpeg
+                  gdk-pixbuf
+                  glib
+                  gtk+
+                  gtk+-2
+                  hunspell
+                  icu4c-73
+                  jemalloc
+                  libcanberra
+                  libevent
+                  libffi
+                  libgnome
+                  libjpeg-turbo
+                  libnotify
+                  ;; libpng-apng
+                  libva
+                  libvpx
+                  libxcomposite
+                  libxft
+                  libxinerama
+                  libxscrnsaver
+                  libxt
+                  mesa
+                  mit-krb5
+                  nspr-4.32
+                  ;; nss
+                  pango
+                  pipewire
+                  pixman
+                  pulseaudio
+                  speech-dispatcher
+                  sqlite
+                  startup-notification
+                  eudev
+                  unzip
+                  zip
+                  zlib))
+    (native-inputs (list alsa-lib
+                         autoconf-2.13
+                         `(,rust-firefox-esr "cargo")
+                         clang-18
+                         llvm
+                         wasm32-wasi-clang-toolchain
+                         m4
+                         nasm
+                         node-lts
+                         perl
+                         pkg-config
+                         python
+                         rust-firefox-esr
+                         rust-cbindgen-0.26
+                         which
+                         yasm))
     (home-page "https://mozilla.org/firefox/")
     (synopsis "Trademarkless version of Firefox")
     (description
@@ -506,40 +551,40 @@ Release (ESR) version.")
     (inherit firefox-esr)
     (name "firefox-esr-wayland")
     (native-inputs '())
-    (inputs
-     `(("bash" ,bash-minimal)
-       ("firefox-esr" ,firefox-esr)))
+    (inputs `(("bash" ,bash-minimal)
+              ("firefox-esr" ,firefox-esr)))
     (build-system trivial-build-system)
     (arguments
      '(#:modules ((guix build utils))
-       #:builder
-       (begin
-         (use-modules (guix build utils))
-         (let* ((bash    (assoc-ref %build-inputs "bash"))
-                (firefox (assoc-ref %build-inputs "firefox-esr"))
-                (out     (assoc-ref %outputs "out"))
-                (exe     (string-append out "/bin/firefox")))
-           (mkdir-p (dirname exe))
+       #:builder (begin
+                   (use-modules (guix build utils))
+                   (let* ((bash (assoc-ref %build-inputs "bash"))
+                          (firefox (assoc-ref %build-inputs "firefox-esr"))
+                          (out (assoc-ref %outputs "out"))
+                          (exe (string-append out "/bin/firefox")))
+                     (mkdir-p (dirname exe))
 
-           (call-with-output-file exe
-             (lambda (port)
-               (format port "#!~a
-MOZ_ENABLE_WAYLAND=1 exec ~a $@\n"
-                       (string-append bash "/bin/bash")
-                       (string-append firefox "/bin/firefox"))))
-           (chmod exe #o555)
+                     (call-with-output-file exe
+                       (lambda (port)
+                         (format port
+                                 "#!~a\nMOZ_ENABLE_WAYLAND=1 exec ~a $@\n"
+                                 (string-append bash "/bin/bash")
+                                 (string-append firefox "/bin/firefox"))))
+                     (chmod exe #o555)
 
-           ;; Provide the manual and .desktop file.
-           (copy-recursively (string-append firefox "/share")
-                             (string-append out "/share"))
-           (substitute* (string-append
-                         out "/share/applications/firefox.desktop")
-             ((firefox) out))
-           #t))))))
+                     ;; Provide the manual and .desktop file.
+                     (copy-recursively (string-append firefox "/share")
+                                       (string-append out "/share"))
+                     (substitute* (string-append out
+                                   "/share/applications/firefox.desktop")
+                       ((firefox)
+                        out))
+                     #t))))))
 
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
-(define %firefox-build-id "20240812152331")
+(define %firefox-build-id
+  "20240812152331")
 
 (define-public firefox
   (package
@@ -550,7 +595,7 @@ MOZ_ENABLE_WAYLAND=1 exec ~a $@\n"
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
-                           version "/source/firefox-" version ".source.tar.xz"))
+             version "/source/firefox-" version ".source.tar.xz"))
        (sha256
         (base32 "0wy0fn0pavlhlkdybr59hhbn5ng0zn56mxa7gsknf8f2whiyipwx"))))
     (arguments
@@ -559,11 +604,12 @@ MOZ_ENABLE_WAYLAND=1 exec ~a $@\n"
         #~(modify-phases #$phases
             (replace 'set-build-id
               (lambda _
-                (setenv "MOZ_BUILD_DATE" #$%firefox-build-id)))))))
-    (native-inputs
-     (modify-inputs (package-native-inputs firefox-esr)
-       (replace "rust" rust-firefox)
-       (replace "rust:cargo" `(,rust-firefox "cargo"))))
+                (setenv "MOZ_BUILD_DATE"
+                        #$%firefox-build-id)))))))
+    (native-inputs (modify-inputs (package-native-inputs firefox-esr)
+                     (replace "rust" rust-firefox)
+                     (replace "rust:cargo"
+                              `(,rust-firefox "cargo"))))
     (description
      "Full-featured browser client built from Firefox source tree, without
 the official icon and the name \"firefox\".")))

@@ -39,14 +39,12 @@ at URI, which may be a file:// URI pointing the package's tree."
   (license "CC-BY-ND 4.0" "http://creativecommons.org/licenses/by-nd/4.0/"
            "Creative Commons Attribution-NoDerivatives 4.0 International"))
 
-
-(define* (undistributable uri #:optional (comment ""))
+(define* (undistributable uri
+                          #:optional (comment ""))
   "Return a nonfree license for packages which may not be redistributed, whose
 full text can be found at URI, which may be a file:// URI pointing the
 package's tree."
-  (license "Nonfree Undistributable"
-           uri
+  (license "Nonfree Undistributable" uri
            (string-append
             "This a nonfree license.  This package may NOT be redistributed "
-            "in prebuilt form.  Check the URI for details.  "
-            comment)))
+            "in prebuilt form.  Check the URI for details.  " comment)))
