@@ -18,6 +18,7 @@
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages machine-learning)
+  #:use-module (gnu packages version-control)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix download)
@@ -871,3 +872,68 @@ information in various formats.")
          (sha256
           (base32 "03apb6kwb2zgh8rsqmys51zznpnwxwkfn19rq84xnglrwff5ya3v"))
          (patches (search-patches "python-peachpy-determinism-rev2.patch")))))))
+
+(define-public python-pybind11
+  (package
+    (name "python-pybind11")
+    (version "2.13.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pybind11" version))
+       (sha256
+        (base32 "1c67pfycghy9gl2hsmzjxdmr2x2n6xjqwl6immhn2ldc3j5lkgk5"))))
+    (build-system pyproject-build-system)
+    (home-page "https://github.com/pybind/pybind11")
+    (synopsis "Seamless operability between C++11 and Python")
+    (description "Seamless operability between C++11 and Python.")
+    (license license:bsd-3)))
+
+(define-public python-camel-converter
+  (package
+    (name "python-camel-converter")
+    (version "3.1.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/sanders41/camel-converter")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1f8cw4habpfkyz9gjjmj548ipjk18c32yvl57qkgbh9p2aaxz5h8"))))
+    (build-system pyproject-build-system)
+    (inputs (list python-poetry-core python-pytest python-pytest-cov
+                  python-pydantic-2))
+    (home-page "https://github.com/sanders41/camel-converter")
+    (synopsis
+     "Converts a string from snake case to camel case or camel case to snake case")
+    (description
+     "Converts a string from snake case to camel case or camel case to snake case.")
+    (license license:expat)))
+
+(define-public python-meilisearch
+  (package
+    (name "python-meilisearch")
+    (version "0.31.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/meilisearch/meilisearch-python")
+             (commit (string-append "v" version))
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1gxik38zabz7m2lv4ji4xi38bwfzby5iypdyjy7vd21a0af6lmgv"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (inputs (list python-poetry-core python-pytest pre-commit
+                  python-pytest-cov python-pydantic-2))
+    (propagated-inputs (list python-camel-converter python-requests))
+    (home-page "https://github.com/meilisearch/meilisearch-python")
+    (synopsis "The python client for Meilisearch API.")
+    (description "The python client for Meilisearch API.")
+    (license license:expat)))
