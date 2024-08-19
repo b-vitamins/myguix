@@ -2,7 +2,7 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (myguix packages cuda)
-  #:use-module (nongnu packages nvidia)
+  #:use-module (myguix packages nvidia)
   #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
