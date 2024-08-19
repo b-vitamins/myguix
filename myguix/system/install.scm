@@ -4,8 +4,11 @@
 ;;; Copyright © 2022 Jonathan Brielmaier <jonathan.brielmaier@web.de>
 ;;; Copyright © 2024 Hilton Chain <hako@ultrarare.space>
 ;;; Copyright © 2024 Ayan Das <ayan@iisc.ac.in>
+;;
 ;; Generate a bookable image (e.g. for USB sticks, etc.) with:
+;;
 ;; $ guix system image --image-type=iso9660 myguix/system/install.scm
+
 (define-module (myguix system install)
   #:use-module (guix channels)
   #:use-module (guix gexp)
@@ -18,7 +21,7 @@
   #:use-module (gnu services base)
   #:use-module (gnu system)
   #:use-module (gnu system install)
-  #:use-module (nongnu packages linux)
+  #:use-module (myguix packages linux)
   #:export (my-installation-os))
 
 (define my-installation-os
@@ -44,15 +47,10 @@
 
                                                                                
                                                                                (local-file
-                                                                                "keys/substitutes.nonguix.org.pub")
-
-                                                                               
-                                                                               (local-file
                                                                                 "keys/bordeaux.guix.gnu.org.pub"))
                                                                        %default-authorized-guix-keys))
                                                      (substitute-urls (append (list
                                                                                "https://ci.guix.gnu.org.pub"
-                                                                               "https://substitutes.nonguix.org.pub"
                                                                                "https://bordeaux.guix.gnu.org.pub"))))))))))
 
 my-installation-os
