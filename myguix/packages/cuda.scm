@@ -16,7 +16,6 @@
 ;;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (define-module (myguix packages cuda)
-  #:use-module (myguix packages)
   #:use-module (guix packages)
   #:use-module (guix gexp)
   #:use-module (guix download)
