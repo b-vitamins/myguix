@@ -1,5 +1,4 @@
 (define-module (myguix packages python-pqrs)
-  #:use-module (myguix packages)
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (gnu packages)
