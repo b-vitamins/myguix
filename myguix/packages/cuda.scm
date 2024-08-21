@@ -257,8 +257,8 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                                                  #$(package-source googletest))
 
                                   "-DCUTLASS_ENABLE_EXAMPLES=NO"
-																	"-DCUTLASS_NVCC_ARCHS=80"
-																	"-DCUTLASS_LIBRARY_KERNELS=all"
+                                  "-DCUTLASS_NVCC_ARCHS=80"
+                                  "-DCUTLASS_LIBRARY_KERNELS=all"
                                   "-DCUTLASS_ENABLE_TESTS=NO"
                                   "-DCUTLASS_INSTALL_TESTS=NO")
         #:validate-runpath? #f))
