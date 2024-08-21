@@ -853,26 +853,6 @@ information in various formats.")
      "pySBD - python Sentence Boundary Disambiguation (SBD) - is a rule-based sentence boundary detection module that works out-of-the-box.")
     (license (list license:bsd-3 license:lgpl3))))
 
-(define-public python-peachpy-f45429
-  (let ((commit "f45429b087dd7d5bc78bb40dc7cf06425c252d67")
-        (version "0.2.0")
-        (revision "2"))
-    (package
-      (inherit python-peachpy)
-      (name "python-peachpy")
-      (version (git-version version revision commit))
-      (home-page "https://github.com/Maratyszcza/PeachPy")
-      (source
-       (origin
-         (method git-fetch)
-         (uri (git-reference
-               (url home-page)
-               (commit commit)))
-         (file-name (git-file-name name version))
-         (sha256
-          (base32 "03apb6kwb2zgh8rsqmys51zznpnwxwkfn19rq84xnglrwff5ya3v"))
-         (patches (search-patches "python-peachpy-determinism-rev2.patch")))))))
-
 (define-public python-pybind11
   (package
     (name "python-pybind11")

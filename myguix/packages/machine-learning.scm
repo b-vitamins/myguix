@@ -117,38 +117,3 @@
     (description
      "Provides an implementation of today's most used tokenizers, with a focus on performance and versatility.")
     (license license:expat)))
-
-(define-public nnpack-c07e3a0
-  (let ((version "0.0")
-        (commit "c07e3a0400713d546e0dea2d5466dd22ea389c73")
-        (revision "3"))
-    (package
-      (inherit nnpack)
-      (name "nnpack")
-      (version (git-version version revision commit))
-      (home-page "https://github.com/Maratyszcza/NNPACK")
-      (source
-       (origin
-         (method git-fetch)
-         (uri (git-reference
-               (url home-page)
-               (commit commit)))
-         (file-name (git-file-name name version))
-         (sha256
-          (base32 "0s0kk3a35w3yzf0q447p72350sbsh4qhg6vm3y2djbj4xpg7jc8v"))
-         (patches (search-patches "nnpack-system-libraries-rev3.patch"))))
-      (arguments
-       '(#:tests? #t))
-      ;; XXX: Figure out why WT8x8.conv1_with_relu from convolution-output-vgg-test fails.
-      (inputs (list cpuinfo-3c8b15
-                    fp16-4dfe081
-                    fxdiv-b408327
-                    ;; psimd is now a public archive (read-only); no more upgrades expected.
-                    ;; (072586)a71b55b7f8c584153d223e95687148a900 is the latest commit on master.
-                    ;; guix/gnu/packages/parallel.scm has psimd @ 072586. Safe to use as is.
-                    psimd
-                    pthreadpool-4fe0e1
-                    googletest-e2239e))
-      (native-inputs (list python python-peachpy-f45429 python-six))
-      (supported-systems '("x86_64-linux" "armhf-linux" "aarch64-linux"))
-      (license license:bsd-2))))
