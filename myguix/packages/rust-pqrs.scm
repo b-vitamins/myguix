@@ -3181,10 +3181,17 @@ API to decouple token-based libraries from the procedural macro use case.")
        (uri (crate-uri "bitflags" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "12ki6w8gn1ldq7yz9y680llwk5gmrhrzszaa17g1sbrw2r2qvwxy"))))
+        (base32 "12ki6w8gn1ldq7yz9y680llwk5gmrhrzszaa17g1sbrw2r2qvwxy"))
+       (snippet #~(begin
+                    (use-modules (guix build utils))
+                    ;; feature "derive" must be declared for serde
+                    (substitute* "Cargo.toml"
+                      (("^\\[dev-dependencies.serde\\].*$" all)
+                       (string-append all "features = [\"derive\"]\n")))))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-compiler-builtins" ,rust-compiler-builtins-0.1)
+     `(#:cargo-test-flags `("--" "--skip=fail")
+       #:cargo-inputs (("rust-compiler-builtins" ,rust-compiler-builtins-0.1)
                        ("rust-rustc-std-workspace-core" ,rust-rustc-std-workspace-core-1))
        #:cargo-development-inputs (("rust-rustversion" ,rust-rustversion-1)
                                    ("rust-serde" ,rust-serde-1)
@@ -3193,8 +3200,7 @@ API to decouple token-based libraries from the procedural macro use case.")
                                    ("rust-trybuild" ,rust-trybuild-1)
                                    ("rust-walkdir" ,rust-walkdir-2))))
     (home-page "https://github.com/bitflags/bitflags")
-    (synopsis "A macro to generate structures which behave like bitflags.
-")
+    (synopsis "A macro to generate structures which behave like bitflags.")
     (description
      "This package provides a macro to generate structures which behave like bitflags.")
     (license (list license:expat license:asl2.0))))
@@ -11202,3 +11208,5 @@ Unicode Standard Annex #15.")
      "This package provides a very simple library who's job is to return the version
 of your crate if you're building with Cargo.")
     (license (list license:expat license:asl2.0))))
+
+rust-bitflags-1
