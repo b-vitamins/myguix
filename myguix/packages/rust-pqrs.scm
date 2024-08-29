@@ -1428,33 +1428,6 @@ shorthands for guards with one of the implemented strategies.")
     (description "Targeting utilities for compilers and related tools")
     (license (list license:asl2.0))))
 
-(define-public rust-proc-macro2-1
-  (package
-    (name "rust-proc-macro2")
-    (version "1.0.80")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "proc-macro2" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "03mgcpad63z6ga7hx8hvi89bvvaf1aaf59csid0997m2n0bflvd5"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-unicode-ident" ,rust-unicode-ident-1))
-       #:cargo-development-inputs (("rust-flate2" ,rust-flate2-1)
-                                   ("rust-quote" ,rust-quote-1)
-                                   ("rust-rayon" ,rust-rayon-1)
-                                   ("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-tar" ,rust-tar-0.4))))
-    (home-page "https://github.com/dtolnay/proc-macro2")
-    (synopsis
-     "A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.")
-    (description
-     "This package provides a substitute implementation of the compiler's `proc_macro`
-API to decouple token-based libraries from the procedural macro use case.")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-serde-derive-1
   (package
     (name "rust-serde-derive")
@@ -3093,6 +3066,60 @@ for `@code{NonNull<T>`}, and the function `ptrdistance`.")
     (synopsis "PyO3-based Rust bindings of the NumPy C-API")
     (description "@code{PyO3-based} Rust bindings of the @code{NumPy} C-API")
     (license license:bsd-2)))
+
+(define-public rust-proc-macro2-1
+  (package
+    (name "rust-proc-macro2")
+    (version "1.0.79")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "proc-macro2" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "03mgcpad63z6ga7hx8hvi89bvvaf1aaf59csid0997m2n0bflvd5"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-unicode-ident" ,rust-unicode-ident-1))
+       #:cargo-development-inputs (("rust-flate2" ,rust-flate2-1)
+                                   ("rust-quote" ,rust-quote-1)
+                                   ("rust-rayon" ,rust-rayon-1)
+                                   ("rust-rustversion" ,rust-rustversion-1)
+                                   ("rust-tar" ,rust-tar-0.4))))
+    (home-page "https://github.com/dtolnay/proc-macro2")
+    (synopsis
+     "A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.")
+    (description
+     "This package provides a substitute implementation of the compiler's `proc_macro`
+API to decouple token-based libraries from the procedural macro use case.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-proc-macro2-1
+  (package
+    (name "rust-proc-macro2")
+    (version "1.0.80")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "proc-macro2" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "03mgcpad63z6ga7hx8hvi89bvvaf1aaf59csid0997m2n0bflvd5"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-unicode-ident" ,rust-unicode-ident-1))
+       #:cargo-development-inputs (("rust-flate2" ,rust-flate2-1)
+                                   ("rust-quote" ,rust-quote-1)
+                                   ("rust-rayon" ,rust-rayon-1)
+                                   ("rust-rustversion" ,rust-rustversion-1)
+                                   ("rust-tar" ,rust-tar-0.4))))
+    (home-page "https://github.com/dtolnay/proc-macro2")
+    (synopsis
+     "A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.")
+    (description
+     "This package provides a substitute implementation of the compiler's `proc_macro`
+API to decouple token-based libraries from the procedural macro use case.")
+    (license (list license:expat license:asl2.0))))
 
 (define-public rust-proc-macro2-1
   (package
@@ -6036,20 +6063,20 @@ browser's console.")
 (define-public rust-dirs-5
   (package
     (name "rust-dirs")
-    (version "5.0.0")
+    (version "5.0.1")
     (source
      (origin
        (method url-fetch)
        (uri (crate-uri "dirs" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1kbfyhyw7ycf2g26rp1fi5x84dbcilyfpqy2iajy6lrkrnd05kny"))))
+        (base32 "0992xk5vx75b2x91nw9ssb51mpl8x73j9rxmpi96cryn0ffmmi24"))))
     (build-system cargo-build-system)
     (arguments
      `(#:cargo-inputs (("rust-dirs-sys" ,rust-dirs-sys-0.4))))
     (home-page "https://github.com/soc/dirs-rs")
     (synopsis
-     "A tiny low-level library that provides platform-specific standard locations of directories for config, cache and other data on Linux, Windows, macOS and Redox by leveraging the mechanisms defined by the XDG base/user directory specifications on Linux, the Known Folder API on Windows, and the Standard Directory guidelines on macOS.")
+     "tiny low-level library that provides platform-specific standard locations of directories for config, cache and other data on Linux, Windows, macOS and Redox by leveraging the mechanisms defined by the XDG base/user directory specifications on Linux, the Known Folder API on Windows, and the Standard Directory guidelines on macOS.")
     (description
      "This package provides a tiny low-level library that provides platform-specific
 standard locations of directories for config, cache and other data on Linux,
@@ -8996,33 +9023,6 @@ implementing PEP 440")
 colorful diffs.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-proc-macro2-1
-  (package
-    (name "rust-proc-macro2")
-    (version "1.0.79")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "proc-macro2" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0bn004ybzdqid81cqppr5c9jrvqsxv50x60sxc41cwpmk0igydg8"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-unicode-ident" ,rust-unicode-ident-1))
-       #:cargo-development-inputs (("rust-flate2" ,rust-flate2-1)
-                                   ("rust-quote" ,rust-quote-1)
-                                   ("rust-rayon" ,rust-rayon-1)
-                                   ("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-tar" ,rust-tar-0.4))))
-    (home-page "https://github.com/dtolnay/proc-macro2")
-    (synopsis
-     "A substitute implementation of the compiler's `proc_macro` API to decouple token-based libraries from the procedural macro use case.")
-    (description
-     "This package provides a substitute implementation of the compiler's `proc_macro`
-API to decouple token-based libraries from the procedural macro use case.")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-pyo3-log-0.9
   (package
     (name "rust-pyo3-log")
@@ -10339,6 +10339,46 @@ support for Unicode and emojis as well as machine hyphenation.")
     (home-page "https://github.com/dtolnay/syn")
     (synopsis "Parser for Rust source code")
     (description "Parser for Rust source code")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-syn-2
+  (package
+    (name "rust-syn")
+    (version "2.0.59")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "syn" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0nk1f98z027qdjwsn756hnshp0y4cka4pq729ig6awdhqzzk2raa"))
+       (snippet #~(begin
+                    (use-modules (guix build utils))
+                    ;; rust-syn-test-suite-0.0.0 doesn't have a 'allfeatures' feature.
+                    (substitute* "Cargo.toml"
+                      (("test = \\[\"syn-test-suite/all-features\"\\]")
+                       ""))))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:tests? #f
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-unicode-ident" ,rust-unicode-ident-1))
+       #:cargo-development-inputs (("rust-anyhow" ,rust-anyhow-1)
+                                   ("rust-automod" ,rust-automod-1)
+                                   ("rust-flate2" ,rust-flate2-1)
+                                   ("rust-insta" ,rust-insta-1)
+                                   ("rust-rayon" ,rust-rayon-1)
+                                   ("rust-ref-cast" ,rust-ref-cast-1)
+                                   ("rust-reqwest" ,rust-reqwest-0.12)
+                                   ("rust-rustversion" ,rust-rustversion-1)
+                                   ("rust-syn-test-suite" ,rust-syn-test-suite-0.0.0)
+                                   ("rust-tar" ,rust-tar-0.4)
+                                   ("rust-termcolor" ,rust-termcolor-1)
+                                   ("rust-walkdir" ,rust-walkdir-2))))
+    (home-page "https://github.com/dtolnay/syn")
+    (synopsis "Parser for Rust source code")
+    (description "This package provides Parser for Rust source code.")
     (license (list license:expat license:asl2.0))))
 
 (define-public rust-tempfile-3
