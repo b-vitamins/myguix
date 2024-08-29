@@ -353,42 +353,6 @@ as well.")
     (description "This package provides a language server for Jedi!")
     (license license:expat)))
 
-(define-public python-pymupdfb
-  (package
-    (name "python-pymupdfb")
-    (version "1.24.3")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "PyMuPDFb" version))
-       (sha256
-        (base32 "0b24dxj5fanxwasab8v2y21dq2m7viymd25v3pqf0q6i64qdmibw"))))
-    (build-system pyproject-build-system)
-    (home-page "https://github.com/pymupdf/pymupdf")
-    (synopsis "MuPDF shared libraries for PyMuPDF.")
-    (description "@code{MuPDF} shared libraries for @code{PyMuPDF}.")
-    (license license:gpl3+)))
-
-(define-public python-pymupdf
-  (package
-    (name "python-pymupdf")
-    (version "1.24.3")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "PyMuPDF" version))
-       (sha256
-        (base32 "0lcmljpasq57ay0jfvnijy2xqxql0fvysr4vzk91az7s8pv2shdg"))))
-    (build-system pyproject-build-system)
-    (propagated-inputs (list python-pymupdfb))
-    (home-page "https://github.com/pymupdf/pymupdf")
-    (synopsis
-     "A high performance Python library for data extraction, analysis, conversion & manipulation of PDF (and other) documents.")
-    (description
-     "This package provides a high performance Python library for data extraction,
-analysis, conversion & manipulation of PDF (and other) documents.")
-    (license license:gpl3+)))
-
 (define-public python-free-proxy
   (package
     (name "python-free-proxy")
