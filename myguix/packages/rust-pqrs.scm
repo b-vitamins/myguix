@@ -21,6 +21,7 @@
   #:use-module (gnu packages llvm)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system cmake)
+  #:use-module (guix gexp)
   #:use-module (ice-9 match))
 
 (define-public rust-torch-sys-0.14
@@ -10304,10 +10305,17 @@ support for Unicode and emojis as well as machine hyphenation.")
        (uri (crate-uri "syn" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1w5qxgrqp6vyrk4347dajjwvf2xbfzrx0m96qfpxyzlnpwyinah0"))))
+        (base32 "1w5qxgrqp6vyrk4347dajjwvf2xbfzrx0m96qfpxyzlnpwyinah0"))
+       (snippet #~(begin
+                    (use-modules (guix build utils))
+                    ;; rust-syn-test-suite-0.0.0 doesn't have a 'allfeatures' feature.
+                    (substitute* "Cargo.toml"
+                      (("test = \\[\"syn-test-suite/all-features\"\\]")
+                       ""))))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+     `(#:tests? #f
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
                        ("rust-quote" ,rust-quote-1)
                        ("rust-unicode-ident" ,rust-unicode-ident-1))
        #:cargo-development-inputs (("rust-anyhow" ,rust-anyhow-1)
