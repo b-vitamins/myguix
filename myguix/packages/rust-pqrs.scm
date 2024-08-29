@@ -11208,5 +11208,3 @@ Unicode Standard Annex #15.")
      "This package provides a very simple library who's job is to return the version
 of your crate if you're building with Cargo.")
     (license (list license:expat license:asl2.0))))
-
-rust-bitflags-1
