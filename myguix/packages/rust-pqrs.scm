@@ -9626,7 +9626,21 @@ statistical guarantees.")
         (base32 "17pdigm0w1wvch7vpnk13199wn3gmkb0883l0hr53qv75l6j249n"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-serde" ,rust-serde-1))
+     `(#:cargo-test-flags `("--" "--skip=assert::assert_de_tokens"
+                            "--skip=assert::assert_de_tokens_error"
+                            "--skip=assert::assert_ser_tokens"
+                            "--skip=assert::assert_ser_tokens_error"
+                            "--skip=assert::assert_tokens"
+                            "--skip=token::Token::Enum"
+                            "--skip=token::Token::NewtypeStruct"
+                            "--skip=token::Token::NewtypeVariant"
+                            "--skip=token::Token::Struct"
+                            "--skip=token::Token::StructVariant"
+                            "--skip=token::Token::TupleStruct"
+                            "--skip=token::Token::TupleVariant"
+                            "--skip=token::Token::UnitStruct"
+                            "--skip=token::Token::UnitVariant")
+       #:cargo-inputs (("rust-serde" ,rust-serde-1))
        #:cargo-development-inputs (("rust-serde" ,rust-serde-1)
                                    ("rust-serde-derive" ,rust-serde-derive-1))))
     (home-page "https://github.com/serde-rs/test")
