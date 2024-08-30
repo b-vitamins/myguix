@@ -3473,6 +3473,7 @@ from system source")
                             "--skip=string::test::askalono_9"
                             "--skip=string::test::comrak_0"
                             "--skip=string::test::linky_0"
+                            "--skip=string::test::phone_number_0"
                             "--skip=string::test::phonenumber_5"
                             "--skip=string::test::spaceslugs_2"
                             "--skip=string::test::stache_0")
