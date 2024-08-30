@@ -8604,25 +8604,6 @@ Protocol")
 routines for 1, 2 or 3 byte search and single substring search.")
     (license (list license:unlicense license:expat))))
 
-(define-public rust-mimalloc-0.1
-  (package
-    (name "rust-mimalloc")
-    (version "0.1.39")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "mimalloc" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "176w9gf5qxs07kd2q39f0k25rzmp4kyx5r13wc8sk052bqmr40gs"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-libmimalloc-sys" ,rust-libmimalloc-sys-0.1))))
-    (home-page "https://github.com/purpleprotocol/mimalloc_rust")
-    (synopsis "Performance and security oriented drop-in allocator")
-    (description "Performance and security oriented drop-in allocator")
-    (license license:expat)))
-
 (define-public rust-natord-1
   (package
     (name "rust-natord")
