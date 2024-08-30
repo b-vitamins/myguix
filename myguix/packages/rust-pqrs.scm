@@ -5758,7 +5758,8 @@ installed executable in cross platforms.")
         (base32 "1g5v8s0ndycc10mdn6igy914k645pgpcl8vjpz6nvxkhyirynsm0"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
+     `(#:cargo-test-flags '("--release" "--" "--skip=cargo_readme_up_to_date")
+       #:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
                        ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2))))
     (home-page "https://github.com/rustwasm/console_error_panic_hook")
     (synopsis
