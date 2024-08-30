@@ -143,44 +143,6 @@ spectral density and spectral ergodicity for complexity of deep learning
 architectures.")
     (license license:asl2.0)))
 
-(define-public python-pele
-  (package
-    (name "python-pele")
-    (version "0.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/pele-python/pele")
-             (commit "7da72ba")))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1b8s182w3i6dzjgwzgj9pb927fd3yqypma9hys86r4c7ij4kbmpb"))))
-    (build-system python-build-system)
-    (arguments
-     '(#:phases (modify-phases %standard-phases
-                  (replace 'build
-                    (lambda _
-                      (invoke "python" "setup.py" "build")))
-                  (replace 'install
-                    (lambda _
-                      (invoke "python" "setup.py" "install"))))))
-    (inputs (list python
-                  gfortran-toolchain
-                  python-numpy
-                  python-scipy
-                  python-cython
-                  python-networkx
-                  python-matplotlib
-                  python-pyro4
-                  python-sqlalchemy))
-    (propagated-inputs (list python-decorator))
-    (native-inputs (list python-pytest))
-    (home-page "https://github.com/pele-python/")
-    (synopsis "Energy landscapes.")
-    (description "TBA.")
-    (license license:bsd-3)))
-
 (define-public python-attrs
   (package
     (name "python-attrs")
