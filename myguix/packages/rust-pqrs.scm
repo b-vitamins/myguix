@@ -11048,3 +11048,54 @@ Unicode Standard Annex #15.")
      "This package provides a very simple library who's job is to return the version
 of your crate if you're building with Cargo.")
     (license (list license:expat license:asl2.0))))
+
+(define-public rust-statrs-0.16
+  (package
+    (name "rust-statrs")
+    (version "0.16.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "statrs" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "08bp7n3rwk41r11ynwl5x7xdc9cv85zw4r7ww117mhfsp8nhcnmk"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-approx" ,rust-approx-0.5)
+                       ("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-nalgebra" ,rust-nalgebra-0.29)
+                       ("rust-num-traits" ,rust-num-traits-0.2)
+                       ("rust-rand" ,rust-rand-0.8))))
+    (home-page "https://github.com/statrs-dev/statrs")
+    (synopsis "Statistical computing library for Rust")
+    (description
+     "This package provides Statistical computing library for Rust.")
+    (license license:expat)))
+
+(define-public rust-fastset-0.4
+  (package
+    (name "rust-fastset")
+    (version "0.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "fastset" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0vilsx2mwd7xys6ivss5k48q3f4xpyalsgsz0254lqh3xq8n7pkq"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-nanorand" ,rust-nanorand-0.7)
+                       ("rust-serde" ,rust-serde-1))
+       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
+                                   ("rust-hashbrown" ,rust-hashbrown-0.14)
+                                   ("rust-statrs" ,rust-statrs-0.16))))
+    (home-page "https://github.com/b-vitamins/fastset")
+    (synopsis
+     "Fast set implementation for dense, bounded integer collections, optimized for quick updates and access")
+    (description
+     "This package provides Fast set implementation for dense, bounded integer collections, optimized for
+quick updates and access.")
+    (license license:expat)))
