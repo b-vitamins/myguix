@@ -4143,7 +4143,8 @@ recursive algorithms that may accidentally blow the stack.")
         (base32 "1wznr6ax3jl09vxkvj4a62vip2avfgif13js9sflkjg4b6fv7skc"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
+     `(#:tests? #f ;path tests/../generate/src/ucd.rs does not exist
+       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
                                    ("rust-fst" ,rust-fst-0.4)
                                    ("rust-rand" ,rust-rand-0.8)
                                    ("rust-roaring" ,rust-roaring-0.10)
