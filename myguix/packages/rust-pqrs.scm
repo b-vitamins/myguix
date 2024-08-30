@@ -2346,6 +2346,36 @@ of the file.")
 (define-public rust-log-0.4
   (package
     (name "rust-log")
+    (version "0.4.17")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/rust-lang/log")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "06xlvsi7kh1n5whzn2flm6nrfhmcqhamm00q6k2mp6w8ixyk6swl"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-sval" ,rust-sval-1)
+                       ("rust-value-bag" ,rust-value-bag-1))
+       #:cargo-development-inputs (("rust-rustversion" ,rust-rustversion-1)
+                                   ("rust-serde" ,rust-serde-1)
+                                   ("rust-serde-test" ,rust-serde-test-1)
+                                   ("rust-sval" ,rust-sval-1)
+                                   ("rust-value-bag" ,rust-value-bag-1))))
+    (home-page "https://github.com/rust-lang/log")
+    (synopsis "A lightweight logging facade for Rust
+")
+    (description "This package provides a lightweight logging facade for Rust")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-log-0.4
+  (package
+    (name "rust-log")
     (version "0.4.21")
     (source
      (origin
@@ -8462,34 +8492,6 @@ Node.js and browsers, built on `#[wasm_bindgen]` using the `wasm-bindgen` crate.
     (synopsis "Streaming, structured value serialization")
     (description "Streaming, structured value serialization")
     (license (list license:asl2.0 license:expat))))
-
-(define-public rust-log-0.4
-  (package
-    (name "rust-log")
-    (version "0.4.17")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "log" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0biqlaaw1lsr8bpnmbcc0fvgjj34yy79ghqzyi0ali7vgil2xcdb"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-sval" ,rust-sval-1)
-                       ("rust-value-bag" ,rust-value-bag-1))
-       #:cargo-development-inputs (("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-serde" ,rust-serde-1)
-                                   ("rust-serde-test" ,rust-serde-test-1)
-                                   ("rust-sval" ,rust-sval-1)
-                                   ("rust-value-bag" ,rust-value-bag-1))))
-    (home-page "https://github.com/rust-lang/log")
-    (synopsis "A lightweight logging facade for Rust
-")
-    (description "This package provides a lightweight logging facade for Rust")
-    (license (list license:expat license:asl2.0))))
 
 (define-public rust-lsp-types-0.95
   (package
