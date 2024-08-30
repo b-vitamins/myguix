@@ -5745,28 +5745,6 @@ installed executable in cross platforms.")
     (description "Criterion.rs compatibility layer for @code{CodSpeed}")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-colored-2
-  (package
-    (name "rust-colored")
-    (version "2.1.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "colored" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1f4h9p64snrnz4x432iza15p4diqjcgpmpvhi956d6r1rq61bwnb"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-lazy-static" ,rust-lazy-static-1)
-                       ("rust-windows-sys" ,rust-windows-sys-0.48))
-       #:cargo-development-inputs (("rust-ansi-term" ,rust-ansi-term-0.12)
-                                   ("rust-rspec" ,rust-rspec-1))))
-    (home-page "https://github.com/mackwic/colored")
-    (synopsis "The most simple way to add colors in your terminal")
-    (description "The most simple way to add colors in your terminal")
-    (license license:mpl2.0)))
-
 (define-public rust-console-error-panic-hook-0.1
   (package
     (name "rust-console-error-panic-hook")
