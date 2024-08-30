@@ -7031,7 +7031,8 @@ as `.gitignore` against file paths.")
        (uri (crate-uri "windows_i686_gnu" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1hgkx5g68qz2p3wirqryyqmmwhbyacjsbhiax9fzh38gszx0jnxa"))))
+        (base32 "1hgkx5g68qz2p3wirqryyqmmwhbyacjsbhiax9fzh38gszx0jnxa"))
+       (snippet #~(delete-file "lib/windows.lib"))))
     (build-system cargo-build-system)
     (arguments
      `(#:skip-build? #t))
