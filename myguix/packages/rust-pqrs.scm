@@ -6993,7 +6993,7 @@ as `.gitignore` against file paths.")
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
         (base32 "1ira2rf4nzm2piq417xfi037zqcq50c828lxnij81nkjvmzg63sj"))
-        (snippet #~(delete-file "lib/libwindows.a"))))
+       (snippet #~(delete-file "lib/libwindows.a"))))
     (build-system cargo-build-system)
     (arguments
      `(#:skip-build? #t))
@@ -11118,10 +11118,43 @@ Unicode Standard Annex #15.")
        (uri (crate-uri "ureq" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "0dfw99r7lxizkz7dpyyqz1f2hnrzxn369ank9vlcpcnq33719whi"))))
+        (base32 "0dfw99r7lxizkz7dpyyqz1f2hnrzxn369ank9vlcpcnq33719whi"))
+       (snippet #~(begin
+                    (use-modules (guix build utils))
+                    ;; Doctest src/lib.rs - (line 60) fails.
+                    (substitute* "src/lib.rs"
+                      (("```rust")
+                       "```no_run"))))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-base64" ,rust-base64-0.21)
+     `( ;Skipped tests need network access.
+        #:cargo-test-flags `("--"
+                             "--skip=error::tests::status_code_error_redirect"
+                             "--skip=test::range::read_range_rustls"
+                             "--skip=tests::connect_http_google"
+                             "--skip=tests::connect_https_google_rustls"
+                             "--skip=agent::Agent"
+                             "--skip=agent::Agent::request"
+                             "--skip=agent::Agent::request_url"
+                             "--skip=error::Error"
+                             "--skip=error::Error::kind"
+                             "--skip=request"
+                             "--skip=request_url"
+                             "--skip=request::Request"
+                             "--skip=request::Request::call"
+                             "--skip=request::Request::query"
+                             "--skip=request::Request::query_pairs"
+                             "--skip=request::Request::send"
+                             "--skip=request::Request::send_bytes"
+                             "--skip=request::Request::send_form"
+                             "--skip=request::Request::send_string"
+                             "--skip=request::Request::set"
+                             "--skip=response::Response"
+                             "--skip=response::Response::charset"
+                             "--skip=response::Response::content_type"
+                             "--skip=response::Response::into_reader"
+                             "--skip=response::Response::into_string")
+       #:cargo-inputs (("rust-base64" ,rust-base64-0.21)
                        ("rust-brotli-decompressor" ,rust-brotli-decompressor-2)
                        ("rust-cookie" ,rust-cookie-0.18)
                        ("rust-cookie-store" ,rust-cookie-store-0.21)
