@@ -11119,6 +11119,19 @@ Unicode Standard Annex #15.")
      "This package provides a library to generate and parse UUIDs.")
     (license (list license:asl2.0 license:expat))))
 
+(define-public rust-uuid-1
+  (package
+    (inherit rust-uuid-1)
+    (name "rust-uuid")
+    (version "1.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "uuid" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1h7wks153j08xmdk06wnza3is8pn6j37hihd3kfv95xsxrzwz0x1"))))))
+
 (define-public rust-walkdir-2
   (package
     (name "rust-walkdir")
