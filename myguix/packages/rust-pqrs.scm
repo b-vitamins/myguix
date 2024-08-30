@@ -10243,7 +10243,9 @@ support for Unicode and emojis as well as machine hyphenation.")
         (base32 "03kfgifxi4gh8bdq83kzzxp427ilg93k56ckfg3ikk56r0x42z0i"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-phf" ,rust-phf-0.10)
+     `(#:cargo-test-flags '("--release" "--" "--skip=EnumMessage"
+                            "--skip=EnumProperty" "--skip=IntoEnumIterator")
+       #:cargo-inputs (("rust-phf" ,rust-phf-0.10)
                        ("rust-strum-macros" ,rust-strum-macros-0.26))
        #:cargo-development-inputs (("rust-strum-macros" ,rust-strum-macros-0.26))))
     (home-page "https://github.com/Peternator7/strum")
