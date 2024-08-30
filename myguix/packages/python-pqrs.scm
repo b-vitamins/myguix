@@ -389,6 +389,23 @@ as well.")
     (description "Up-to-date simple useragent faker with real world database")
     (license license:asl2.0)))
 
+(define-public python-bibtexparser-1
+  (package
+    (name "python-bibtexparser-1")
+    (version "1.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "bibtexparser" version))
+       (sha256
+        (base32 "12fpi0ajh2c50minz9big2xrrjjwnmxv6cs31f781i3n8vi2j3p0"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-pyparsing))
+    (home-page "https://github.com/sciunto-org/python-bibtexparser")
+    (synopsis "Bibtex parser for python 3")
+    (description "Bibtex parser for python 3.")
+    (license license:expat)))
+
 (define-public python-scholarly
   (package
     (name "python-scholarly")
@@ -402,19 +419,19 @@ as well.")
        (file-name (git-file-name name version))
        (sha256
         (base32 "1pzgqc1c6sd06bqlrddk425v2vlvx80fzjp1n7q2iha6ggmv1xya"))))
-    (build-system python-build-system)
+    (build-system pyproject-build-system)
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-arrow
+    (propagated-inputs (list python-requests
+                             python-arrow
                              python-beautifulsoup4
-                             python-bibtexparser
+                             python-bibtexparser-1
                              python-deprecated
                              python-fake-useragent
                              python-free-proxy
                              python-httpx
                              python-dotenv
-                             python-requests
                              python-selenium
                              python-sphinx-rtd-theme
                              python-typing-extensions))
@@ -880,3 +897,5 @@ information in various formats.")
     (synopsis "The python client for Meilisearch API.")
     (description "The python client for Meilisearch API.")
     (license license:expat)))
+
+python-scholarly
