@@ -1251,6 +1251,27 @@ matching branch is the item that gets emitted.")
 primitives.")
     (license (list license:expat license:asl2.0))))
 
+(define-public rust-quote-1.0.35
+  (package
+    (name "rust-quote")
+    (version "1.0.35")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "quote" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1vv8r2ncaz4pqdr78x7f138ka595sp2ncr1sa2plm4zxbsmwj7i9"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1))
+       #:cargo-development-inputs (("rust-rustversion" ,rust-rustversion-1)
+                                   ("rust-trybuild" ,rust-trybuild-1))))
+    (home-page "https://github.com/dtolnay/quote")
+    (synopsis "Quasi-quoting macro quote!(...)")
+    (description "This package provides Quasi-quoting macro quote!(...).")
+    (license (list license:expat license:asl2.0))))
+
 (define-public rust-lock-api-0.4
   (package
     (name "rust-lock-api")
@@ -1269,12 +1290,11 @@ primitives.")
                        ("rust-scopeguard" ,rust-scopeguard-1)
                        ("rust-serde" ,rust-serde-1))))
     (home-page "https://github.com/Amanieu/parking_lot")
-    (synopsis
-     "Wrappers to create fully-featured Mutex and RwLock types. Compatible with no_std.")
+    (synopsis "Wrappers to create fully-featured Mutex and RwLock types")
     (description
-     "Wrappers to create fully-featured Mutex and @code{RwLock} types.  Compatible
-with no_std.")
-    (license (list license:expat license:asl2.0))))
+     "This package provides wrappers to create fully-featured
+@code{Mutex} and @code{RwLock} types.  It is compatible with @code{no_std}.")
+    (license (list license:asl2.0 license:expat))))
 
 (define-public rust-scopeguard-1
   (package
@@ -3366,7 +3386,7 @@ in order to be used in Cargo build scripts.")
     (arguments
      `(#:skip-build? #t
        #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-quote" ,rust-quote-1)
+                       ("rust-quote" ,rust-quote-1.0.35)
                        ("rust-syn" ,rust-syn-2))))
     (home-page "https://serde.rs")
     (synopsis "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]")
