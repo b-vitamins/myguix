@@ -13,6 +13,7 @@
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages parallel)
   #:use-module (gnu packages python)
+  #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rust-apps))
 
@@ -119,7 +120,7 @@
 (define-public libtorch
   (package
     (name "libtorch")
-    (version "2.1.0")
+    (version "2.4.0")
     (source
      (origin
        (method git-fetch)
@@ -129,12 +130,17 @@
              (recursive? #t)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "069fsnf5hw2q3hx91kj86r5rgxk1l3drl7a4lx8fd8xl1y2vsxp0"))))
+        (base32 "1nsahlvkl74dsjsascbp7qs3rcb4dpr93gnikilx2d66masnp3xk"))))
     (build-system cmake-build-system)
     (arguments
      `(#:configure-flags (list "-DBUILD_SHARED_LIBS=ON"
                                "-DCMAKE_BUILD_TYPE=Release"
-                               "-DPYTHON_EXECUTABLE=python3" "-DUSE_CUDA=ON")
+                               "-DUSE_CUDA=ON"
+                               "-DUSE_GLOO=ON"
+                               "-DUSE_MAGMA=ON"
+                               "-DUSE_NCCL=OFF"
+                               "-DUSE_NNPACK=OFF"
+                               "-DUSE_NUMA=OFF")
        #:phases (modify-phases %standard-phases
                   (replace 'build
                     (lambda _
@@ -143,10 +149,8 @@
                     (lambda* (#:key outputs #:allow-other-keys)
                       (let ((out (assoc-ref outputs "out")))
                         (invoke "cmake" "--install" "." "--prefix" out)) #t)))))
-    (native-inputs `(("python3" ,python-3)
-                     ("numpy" ,python-numpy)
-                     ("pyyaml" ,python-pyyaml)
-                     ("cuda-toolkit" ,cuda-toolkit-12.1)))
+    (native-inputs (list cuda-toolkit-12.4 python-3 python-numpy python-pyyaml
+                         python-typing-extensions))
     (synopsis "The core library of PyTorch in C++")
     (description
      "libtorch is the core library of PyTorch without Python bindings. It 
