@@ -2401,31 +2401,6 @@ to a terminal.")
     (description "Moving code-gen our of build.rs")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-anstyle-parse-0.2
-  (package
-    (name "rust-anstyle-parse")
-    (version "0.2.3")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "anstyle-parse" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "134jhzrz89labrdwxxnjxqjdg06qvaflj1wkfnmyapwyldfwcnn7"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-arrayvec" ,rust-arrayvec-0.7)
-                       ("rust-utf8parse" ,rust-utf8parse-0.2))
-       #:cargo-development-inputs (("rust-codegenrs" ,rust-codegenrs-3)
-                                   ("rust-criterion" ,rust-criterion-0.5)
-                                   ("rust-proptest" ,rust-proptest-1)
-                                   ("rust-snapbox" ,rust-snapbox-0.4)
-                                   ("rust-vte-generate-state-changes" ,rust-vte-generate-state-changes-0.1))))
-    (home-page "https://github.com/rust-cli/anstyle")
-    (synopsis "Parse ANSI Style Escapes")
-    (description "Parse ANSI Style Escapes")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-utf8parse-0.2
   (package
     (name "rust-utf8parse")
