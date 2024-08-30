@@ -19,6 +19,7 @@
   #:use-module (gnu packages crates-crypto)
   #:use-module (gnu packages ninja)
   #:use-module (gnu packages llvm)
+  #:use-module (gnu packages pkg-config)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system cmake)
   #:use-module (guix gexp)
@@ -3248,7 +3249,16 @@ to be linked into Rust code.")
         (base32 "1v07557dj1sa0aly9c90wsygc0i8xv5vnmyv0g94lpkvj8qb4cfj"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-development-inputs (("rust-lazy-static" ,rust-lazy-static-1))))
+     `(#:cargo-development-inputs (("rust-lazy-static" ,rust-lazy-static-1))
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'hardcode-pkg-config-location
+                    (lambda* (#:key inputs #:allow-other-keys)
+                      (substitute* "src/lib.rs"
+                        (("\"pkg-config\"")
+                         (string-append "\""
+                                        (assoc-ref inputs "pkg-config")
+                                        "/bin/pkg-config\""))))))))
+    (native-inputs (list pkg-config))
     (home-page "https://github.com/rust-lang/pkg-config-rs")
     (synopsis
      "A library to run the pkg-config system tool at build time in order to be used in
