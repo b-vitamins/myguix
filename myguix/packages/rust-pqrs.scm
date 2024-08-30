@@ -10844,7 +10844,8 @@ spans.")
         (base32 "0xb6csq7hpjjr9x7qx1h6r3ra7p2mxvirh4vp71q8r1z5k6rw4v5"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-nu-ansi-term" ,rust-nu-ansi-term-0.49)
+     `(#:tests? #f ;manifest path `test_dependencies/Cargo.toml` does not exist
+       #:cargo-inputs (("rust-nu-ansi-term" ,rust-nu-ansi-term-0.49)
                        ("rust-time" ,rust-time-0.3)
                        ("rust-tracing-core" ,rust-tracing-core-0.1)
                        ("rust-tracing-log" ,rust-tracing-log-0.2)
