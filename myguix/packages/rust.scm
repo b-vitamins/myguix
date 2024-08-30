@@ -443,7 +443,7 @@ exec -a \"$0\" \"~a\" \"$@\""
                    (substitute* "install.rs"
                      ,@(make-ignore-test-list '("fn install_global_cargo_config")))))))))))))
 
-(define-public rust
+(define-public rust-1.79
   (let ((base-rust (rust-bootstrapped-package rust-1.78 "1.79.0"
                     "1h282jb1yxc69999w4nhvqb08rw2jy32i9njdjqrz78zglycybhp")))
     (package
@@ -485,3 +485,47 @@ exec -a \"$0\" \"~a\" \"$@\""
                  (with-directory-excursion "src/tools/cargo/tests/testsuite"
                    (substitute* "build.rs"
                      ,@(make-ignore-test-list '("fn build_with_symlink_to_path_dependency_with_build_script_in_git")))))))))))))
+
+(define-public rust
+  (let ((base-rust (rust-bootstrapped-package rust-1.79 "1.80.0"
+                    "0wnn44spsy1gnbwxn4gzbnrgkxah9nrgfxj5mqn6n3r37wcnqq3g")))
+    (package
+      (inherit base-rust)
+      (source
+       (origin
+         (inherit (package-source base-rust))
+         (patches '())
+         (snippet '(begin
+                     (for-each delete-file-recursively
+                               '("vendor/openssl-src-111.28.2+1.1.1w/openssl"
+                                 "vendor/curl-sys-0.4.72+curl-8.6.0/curl"
+                                 "vendor/libffi-sys-2.3.0/libffi"
+                                 "vendor/libnghttp2-sys-0.1.9+1.58.0/nghttp2"
+                                 "vendor/libz-sys-1.1.16/src/zlib"))
+                     (delete-file
+                      "vendor/libnghttp2-sys-0.1.9+1.58.0/build.rs")
+                     (with-output-to-file "vendor/libnghttp2-sys-0.1.9+1.58.0/build.rs"
+                       (lambda _
+                         (format #t
+                          "fn main() {~@
+                         println!(\"cargo:rustc-link-lib=nghttp2\");~@
+                         }~%")))
+                     (for-each delete-file
+                               (find-files "vendor" "\\.(dll|exe|lib)$"))))))
+      (arguments
+       (substitute-keyword-arguments (strip-keyword-arguments '(#:tests?)
+                                                              (package-arguments
+                                                               base-rust))
+         ((#:phases phases)
+          `(modify-phases ,phases
+             (replace 'patch-jemalloc-sys
+               (lambda _
+                 (substitute* "vendor/jemalloc-sys-0.5.4+5.3.0-patched/jemalloc/Makefile.in"
+                   (("/bin/sh")
+                    (which "sh")))))
+             (add-after 'unpack 'disable-some-more-tests
+               (lambda _
+                 (with-directory-excursion "src/tools/cargo/tests/testsuite/"
+                   (substitute* "check_cfg.rs"
+                     ,@(make-ignore-test-list '("fn config_fingerprint"
+                                                "fn features_fingerprint")))))))))))))
