@@ -3800,38 +3800,6 @@ focus on performances and versatility.")
     (description "Fast CSV parsing with support for serde.")
     (license (list license:unlicense license:expat))))
 
-(define-public rust-insta-1
-  (package
-    (name "rust-insta")
-    (version "1.39.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "insta" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1xd64139vi0hrxs8l8k3r1xqf2x8b0x5chsh47lwkqj85l2fc2l1"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-console" ,rust-console-0.15)
-                       ("rust-csv" ,rust-csv-1)
-                       ("rust-globset" ,rust-globset-0.4)
-                       ("rust-lazy-static" ,rust-lazy-static-1)
-                       ("rust-linked-hash-map" ,rust-linked-hash-map-0.5)
-                       ("rust-pest" ,rust-pest-2)
-                       ("rust-pest-derive" ,rust-pest-derive-2)
-                       ("rust-regex" ,rust-regex-1)
-                       ("rust-ron" ,rust-ron-0.7)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-similar" ,rust-similar-2)
-                       ("rust-toml" ,rust-toml-0.5)
-                       ("rust-walkdir" ,rust-walkdir-2))))
-    (home-page "https://insta.rs/")
-    (synopsis "A snapshot testing library for Rust")
-    (description "This package provides a snapshot testing library for Rust")
-    (license license:asl2.0)))
-
 (define-public rust-once-cell-1
   (package
     (name "rust-once-cell")
@@ -4070,18 +4038,18 @@ according to Unicode Standard Annex #31")
 (define-public rust-insta-1
   (package
     (name "rust-insta")
-    (version "1.38.0")
+    (version "1.35.1")
     (source
      (origin
        (method url-fetch)
        (uri (crate-uri "insta" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1k2kbpyw7wp1s9n7pw9wcg0rw5aii3lz023j0ck6bjjrivsp7ary"))))
+        (base32 "1qpr5pndsbfc53nn1ppb8vlbz8l17m471r5diz2i7kwrxwdmr63w"))))
     (build-system cargo-build-system)
     (arguments
      `(#:cargo-test-flags '("--release" "--"
-                            "--skip=test_format_rust_expression")
+                            "--skip=utils::test_format_rust_expression")
        #:cargo-inputs (("rust-console" ,rust-console-0.15)
                        ("rust-csv" ,rust-csv-1)
                        ("rust-globset" ,rust-globset-0.4)
@@ -4094,14 +4062,41 @@ according to Unicode Standard Annex #31")
                        ("rust-serde" ,rust-serde-1)
                        ("rust-similar" ,rust-similar-2)
                        ("rust-toml" ,rust-toml-0.5)
-                       ("rust-walkdir" ,rust-walkdir-2))
-       #:cargo-development-inputs (("rust-rustc-version" ,rust-rustc-version-0.4)
-                                   ("rust-serde" ,rust-serde-1)
+                       ("rust-walkdir" ,rust-walkdir-2)
+                       ("rust-yaml-rust" ,rust-yaml-rust-0.4))
+       #:cargo-development-inputs (("rust-serde" ,rust-serde-1)
                                    ("rust-similar-asserts" ,rust-similar-asserts-1))))
     (home-page "https://insta.rs/")
     (synopsis "A snapshot testing library for Rust")
     (description "This package provides a snapshot testing library for Rust")
     (license license:asl2.0)))
+
+(define-public rust-insta-1
+  (package
+    (inherit rust-insta-1)
+    (name "rust-insta")
+    (version "1.38.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "insta" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1k2kbpyw7wp1s9n7pw9wcg0rw5aii3lz023j0ck6bjjrivsp7ary"))))))
+
+(define-public rust-insta-1
+  (package
+    (inherit rust-insta-1)
+    (name "rust-insta")
+    (version "1.39.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "insta" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1xd64139vi0hrxs8l8k3r1xqf2x8b0x5chsh47lwkqj85l2fc2l1"))))
+    (build-system cargo-build-system)))
 
 (define-public rust-similar-asserts-1
   (package
@@ -7807,42 +7802,6 @@ algorithms")
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
         (base32 "1dgjk49rkmx4kjy07k4b90qb5vl89smgb5rcw02n0q0x9ligaj5j"))))))
-
-(define-public rust-insta-1
-  (package
-    (name "rust-insta")
-    (version "1.35.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "insta" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1qpr5pndsbfc53nn1ppb8vlbz8l17m471r5diz2i7kwrxwdmr63w"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-test-flags '("--release" "--"
-                            "--skip=utils::test_format_rust_expression")
-       #:cargo-inputs (("rust-console" ,rust-console-0.15)
-                       ("rust-csv" ,rust-csv-1)
-                       ("rust-globset" ,rust-globset-0.4)
-                       ("rust-lazy-static" ,rust-lazy-static-1)
-                       ("rust-linked-hash-map" ,rust-linked-hash-map-0.5)
-                       ("rust-pest" ,rust-pest-2)
-                       ("rust-pest-derive" ,rust-pest-derive-2)
-                       ("rust-regex" ,rust-regex-1)
-                       ("rust-ron" ,rust-ron-0.7)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-similar" ,rust-similar-2)
-                       ("rust-toml" ,rust-toml-0.5)
-                       ("rust-walkdir" ,rust-walkdir-2)
-                       ("rust-yaml-rust" ,rust-yaml-rust-0.4))
-       #:cargo-development-inputs (("rust-serde" ,rust-serde-1)
-                                   ("rust-similar-asserts" ,rust-similar-asserts-1))))
-    (home-page "https://insta.rs/")
-    (synopsis "A snapshot testing library for Rust")
-    (description "This package provides a snapshot testing library for Rust")
-    (license license:asl2.0)))
 
 (define-public rust-insta-cmd-0.6
   (package
