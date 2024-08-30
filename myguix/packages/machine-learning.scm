@@ -2,11 +2,13 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (myguix packages rust-pqrs)
+  #:use-module (myguix packages cuda)
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix git-download)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
+  #:use-module (guix build-system cmake)
   #:use-module (gnu packages)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages parallel)
@@ -113,3 +115,41 @@
     (description
      "Provides an implementation of today's most used tokenizers, with a focus on performance and versatility.")
     (license license:expat)))
+
+(define-public libtorch
+  (package
+    (name "libtorch")
+    (version "2.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pytorch/pytorch.git")
+             (commit (string-append "v" version))
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "069fsnf5hw2q3hx91kj86r5rgxk1l3drl7a4lx8fd8xl1y2vsxp0"))))
+    (build-system cmake-build-system)
+    (arguments
+     `(#:configure-flags (list "-DBUILD_SHARED_LIBS=ON"
+                               "-DCMAKE_BUILD_TYPE=Release"
+                               "-DPYTHON_EXECUTABLE=python3" "-DUSE_CUDA=ON")
+       #:phases (modify-phases %standard-phases
+                  (replace 'build
+                    (lambda _
+                      (invoke "cmake" "--build" ".")))
+                  (replace 'install
+                    (lambda* (#:key outputs #:allow-other-keys)
+                      (let ((out (assoc-ref outputs "out")))
+                        (invoke "cmake" "--install" "." "--prefix" out)) #t)))))
+    (native-inputs `(("python3" ,python-3)
+                     ("numpy" ,python-numpy)
+                     ("pyyaml" ,python-pyyaml)
+                     ("cuda-toolkit" ,cuda-toolkit-12.1)))
+    (synopsis "The core library of PyTorch in C++")
+    (description
+     "libtorch is the core library of PyTorch without Python bindings. It 
+      provides the tensor and neural network backends for PyTorch in C++.")
+    (license license:bsd-3)
+    (home-page "https://github.com/pytorch/pytorch")))
