@@ -10158,7 +10158,16 @@ support for Unicode and emojis as well as machine hyphenation.")
        (uri (crate-uri "strum_macros" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "0in9jvbb3g16x8fj7lf91vwzj98319hj3z8lpaaa9h42ybd5kky6"))))))
+        (base32 "0in9jvbb3g16x8fj7lf91vwzj98319hj3z8lpaaa9h42ybd5kky6"))))
+    (arguments
+     `(#:cargo-test-flags '("--release" "--" "--skip=enum_discriminants"
+                            "--skip=static_variants_array")
+       #:cargo-inputs (("rust-heck" ,rust-heck-0.4)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-rustversion" ,rust-rustversion-1)
+                       ("rust-syn" ,rust-syn-2))
+       #:cargo-development-inputs (("rust-strum" ,rust-strum-0.26))))))
 
 (define-public rust-syn-2
   (package
