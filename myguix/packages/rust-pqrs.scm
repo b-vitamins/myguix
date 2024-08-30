@@ -8561,7 +8561,8 @@ Protocol")
         (base32 "168l27mrdq6681nwqd1f7mc6znr83hy06qaqvcp4bbq4azab8z9m"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-development-inputs (("rust-actix-router" ,rust-actix-router-0.2)
+     `(#:tests? #f ;tests/match.rs:81:16 no method named `check_priorities`.
+       #:cargo-development-inputs (("rust-actix-router" ,rust-actix-router-0.2)
                                    ("rust-criterion" ,rust-criterion-0.3)
                                    ("rust-gonzales" ,rust-gonzales-0.0.3)
                                    ("rust-hyper" ,rust-hyper-0.14)
