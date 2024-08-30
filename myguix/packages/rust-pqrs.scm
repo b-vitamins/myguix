@@ -10895,7 +10895,8 @@ spans.")
         (base32 "0xvnf1zpaqmbmw4bzcrjrjcymg5vgsr9ywjg2shj4yfzjkrfppmd"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-phf" ,rust-phf-0.11)
+     `(#:tests? #f ;`#[feature]` may not be used on the stable release channel
+       #:cargo-inputs (("rust-phf" ,rust-phf-0.11)
                        ("rust-unicode-names2-generator" ,rust-unicode-names2-generator-1))
        #:cargo-development-inputs (("rust-rand" ,rust-rand-0.8)
                                    ("rust-rand-xorshift" ,rust-rand-xorshift-0.3)
