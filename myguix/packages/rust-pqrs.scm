@@ -5872,52 +5872,6 @@ browser's console.")
      "This package provides a library for managing temporary files and directories.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-criterion-0.5
-  (package
-    (name "rust-criterion")
-    (version "0.5.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "criterion" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0bv9ipygam3z8kk6k771gh9zi0j0lb9ir0xi1pc075ljg80jvcgj"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-anes" ,rust-anes-0.1)
-                       ("rust-async-std" ,rust-async-std-1)
-                       ("rust-cast" ,rust-cast-0.3)
-                       ("rust-ciborium" ,rust-ciborium-0.2)
-                       ("rust-clap" ,rust-clap-4)
-                       ("rust-criterion-plot" ,rust-criterion-plot-0.5)
-                       ("rust-csv" ,rust-csv-1)
-                       ("rust-futures" ,rust-futures-0.3)
-                       ("rust-is-terminal" ,rust-is-terminal-0.4)
-                       ("rust-itertools" ,rust-itertools-0.10)
-                       ("rust-num-traits" ,rust-num-traits-0.2)
-                       ("rust-once-cell" ,rust-once-cell-1)
-                       ("rust-oorandom" ,rust-oorandom-11)
-                       ("rust-plotters" ,rust-plotters-0.3)
-                       ("rust-rayon" ,rust-rayon-1)
-                       ("rust-regex" ,rust-regex-1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-serde-derive" ,rust-serde-derive-1)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-smol" ,rust-smol-1)
-                       ("rust-tinytemplate" ,rust-tinytemplate-1)
-                       ("rust-tokio" ,rust-tokio-1)
-                       ("rust-walkdir" ,rust-walkdir-2))
-       #:cargo-development-inputs (("rust-approx" ,rust-approx-0.5)
-                                   ("rust-futures" ,rust-futures-0.3)
-                                   ("rust-quickcheck" ,rust-quickcheck-1)
-                                   ("rust-rand" ,rust-rand-0.8)
-                                   ("rust-tempfile" ,rust-tempfile-3))))
-    (home-page "https://bheisler.github.io/criterion.rs/book/index.html")
-    (synopsis "Statistics-driven micro-benchmarking library")
-    (description "Statistics-driven micro-benchmarking library")
-    (license (list license:asl2.0 license:expat))))
-
 (define-public rust-crossbeam-queue-0.3
   (package
     (name "rust-crossbeam-queue")
