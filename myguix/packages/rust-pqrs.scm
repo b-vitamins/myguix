@@ -1123,6 +1123,8 @@ matching branch is the item that gets emitted.")
        (sha256
         (base32 "102c77is3pii4rsqfsc5vrbk6qabjy0yqc0gwqzmjjb9fp3spzgi"))))
     (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-test-flags `("--" "--skip=test_wrappers")))
     (home-page "https://github.com/cuviper/autocfg")
     (synopsis "Automatic cfg for Rust compiler features")
     (description "Automatic cfg for Rust compiler features")
