@@ -173,44 +173,6 @@ of the file.")
     (description "Bindings to Python")
     (license license:expat)))
 
-(define-public rust-tch-0.14
-  (package
-    (name "rust-tch")
-    (version "0.14.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "tch" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1nh3xj5acz4nxhff4c99cwqrz91f6xp16rxmbyzr4a41ngddvm8f"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-clap" ,rust-clap-4)
-                       ("rust-cpython" ,rust-cpython-0.7)
-                       ("rust-half" ,rust-half-2)
-                       ("rust-image" ,rust-image-0.24)
-                       ("rust-lazy-static" ,rust-lazy-static-1)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-memmap2" ,rust-memmap2-0.6)
-                       ("rust-ndarray" ,rust-ndarray-0.15)
-                       ("rust-rand" ,rust-rand-0.8)
-                       ("rust-regex" ,rust-regex-1)
-                       ("rust-safetensors" ,rust-safetensors-0.3)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-thiserror" ,rust-thiserror-1)
-                       ("rust-torch-sys" ,rust-torch-sys-0.14)
-                       ("rust-zip" ,rust-zip-0.6))
-       #:cargo-development-inputs (("rust-anyhow" ,rust-anyhow-1))
-       #:phases (modify-phases %standard-phases
-                  (add-after 'unpack 'enable-unstable-features
-                    (lambda _
-                      (setenv "LIBTORCH_USE_PYTORCH" "1") #t)))))
-    (home-page "https://github.com/LaurentMazare/tch-rs")
-    (synopsis "Rust wrappers for the PyTorch C++ api (libtorch).")
-    (description "Rust wrappers for the @code{PyTorch} C++ api (libtorch).")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-libc-0.2
   (package
     (name "rust-libc")
@@ -10242,8 +10204,7 @@ support for Unicode and emojis as well as machine hyphenation.")
         (base32 "057y4cpbqknwfh0amrmm407y3ki25fyjb7a96gshgqps871ak4by"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-test-flags '("--release" "--"
-                            "--skip=enum_discriminants"
+     `(#:cargo-test-flags '("--release" "--" "--skip=enum_discriminants"
                             "--skip=static_variants_array")
        #:cargo-inputs (("rust-heck" ,rust-heck-0.4)
                        ("rust-proc-macro2" ,rust-proc-macro2-1)
@@ -10269,8 +10230,7 @@ support for Unicode and emojis as well as machine hyphenation.")
         (base32 "0in9jvbb3g16x8fj7lf91vwzj98319hj3z8lpaaa9h42ybd5kky6"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-test-flags '("--release" "--"
-                            "--skip=enum_discriminants"
+     `(#:cargo-test-flags '("--release" "--" "--skip=enum_discriminants"
                             "--skip=static_variants_array")
        #:cargo-inputs (("rust-heck" ,rust-heck-0.4)
                        ("rust-proc-macro2" ,rust-proc-macro2-1)
