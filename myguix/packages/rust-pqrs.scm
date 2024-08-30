@@ -10149,6 +10149,7 @@ support for Unicode and emojis as well as machine hyphenation.")
 
 (define-public rust-strum-macros-0.26
   (package
+    (inherit rust-strum-macros-0.26)
     (name "rust-strum-macros")
     (version "0.26.2")
     (source
@@ -10157,20 +10158,7 @@ support for Unicode and emojis as well as machine hyphenation.")
        (uri (crate-uri "strum_macros" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "0in9jvbb3g16x8fj7lf91vwzj98319hj3z8lpaaa9h42ybd5kky6"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-test-flags '("--release" "--" "--skip=enum_discriminants"
-                            "--skip=static_variants_array")
-       #:cargo-inputs (("rust-heck" ,rust-heck-0.4)
-                       ("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-quote" ,rust-quote-1)
-                       ("rust-rustversion" ,rust-rustversion-1)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://github.com/Peternator7/strum")
-    (synopsis "Helpful macros for working with enums and strings")
-    (description "Helpful macros for working with enums and strings")
-    (license license:expat)))
+        (base32 "0in9jvbb3g16x8fj7lf91vwzj98319hj3z8lpaaa9h42ybd5kky6"))))))
 
 (define-public rust-syn-2
   (package
