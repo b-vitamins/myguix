@@ -6150,29 +6150,6 @@ an environment variable.")
 messages.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-glob-0.3
-  (package
-    (name "rust-glob")
-    (version "0.3.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "glob" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "16zca52nglanv23q5qrwd5jinw3d3as5ylya6y1pbx47vkxvrynj"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-development-inputs (("rust-doc-comment" ,rust-doc-comment-0.3)
-                                   ("rust-tempdir" ,rust-tempdir-0.3))))
-    (home-page "https://github.com/rust-lang/glob")
-    (synopsis
-     "Support for matching file paths against Unix shell style patterns.
-")
-    (description
-     "Support for matching file paths against Unix shell style patterns.")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-globset-0.4
   (package
     (name "rust-globset")
