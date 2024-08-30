@@ -3798,7 +3798,8 @@ Standard Annex #11 rules.")
         (base32 "0b4j2v4cb5krak1pv6kakv4sz6xcwbrmy2zckc32hsigbrwy82zc"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-getrandom" ,rust-getrandom-0.2)
+     `(#:cargo-test-flags '("--lib")
+       #:cargo-inputs (("rust-getrandom" ,rust-getrandom-0.2)
                        ("rust-serde" ,rust-serde-1))))
     (home-page "https://rust-random.github.io/book")
     (synopsis
