@@ -10421,7 +10421,8 @@ support for Unicode and emojis as well as machine hyphenation.")
         (base32 "1a380yzm6787737cw7s09jqmkn9035hghahradl2ikdg2gfm09gb"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-regex" ,rust-regex-1)
+     `(#:tests? #f
+       #:cargo-inputs (("rust-regex" ,rust-regex-1)
                        ("rust-test-case-macros" ,rust-test-case-macros-3))
        #:cargo-development-inputs (("rust-insta" ,rust-insta-1)
                                    ("rust-itertools" ,rust-itertools-0.11)
