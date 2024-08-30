@@ -8149,7 +8149,8 @@ Node.js and browsers, built on `#[wasm_bindgen]` using the `wasm-bindgen` crate.
         (base32 "0pz4b3gj2qk447g2mlmqlfgb7rym796c9b3cnhxs6ldq5k402fk7"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-lexical-parse-integer" ,rust-lexical-parse-integer-0.8)
+     `(#:tests? #f ;unresolved import `quickcheck`
+       #:cargo-inputs (("rust-lexical-parse-integer" ,rust-lexical-parse-integer-0.8)
                        ("rust-lexical-util" ,rust-lexical-util-0.8)
                        ("rust-static-assertions" ,rust-static-assertions-1))
        #:cargo-development-inputs (("rust-proptest" ,rust-proptest-0.10))))
