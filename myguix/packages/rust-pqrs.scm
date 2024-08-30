@@ -201,8 +201,7 @@ of the file.")
                        ("rust-thiserror" ,rust-thiserror-1)
                        ("rust-torch-sys" ,rust-torch-sys-0.14)
                        ("rust-zip" ,rust-zip-0.6))
-       #:cargo-development-inputs (("rust-anyhow" ,rust-anyhow-1)
-                                   ("python3" ,python))
+       #:cargo-development-inputs (("rust-anyhow" ,rust-anyhow-1))
        #:phases (modify-phases %standard-phases
                   (add-after 'unpack 'enable-unstable-features
                     (lambda _
