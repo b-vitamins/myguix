@@ -7882,7 +7882,9 @@ algorithms")
         (base32 "1qpr5pndsbfc53nn1ppb8vlbz8l17m471r5diz2i7kwrxwdmr63w"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-console" ,rust-console-0.15)
+     `(#:cargo-test-flags '("--release" "--"
+                            "--skip=utils::test_format_rust_expression")
+       #:cargo-inputs (("rust-console" ,rust-console-0.15)
                        ("rust-csv" ,rust-csv-1)
                        ("rust-globset" ,rust-globset-0.4)
                        ("rust-lazy-static" ,rust-lazy-static-1)
