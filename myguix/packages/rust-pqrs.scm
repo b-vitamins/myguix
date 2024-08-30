@@ -9566,7 +9566,8 @@ statistical guarantees.")
         (base32 "17zpasbscy4nk5xd4b41ld8356hq6nam2imcjxj9d2yf5c8k452c"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-js-sys" ,rust-js-sys-0.3)
+     `(#:tests? #f ;cannot call wasm-bindgen imported functions on non-wasm targets
+       #:cargo-inputs (("rust-js-sys" ,rust-js-sys-0.3)
                        ("rust-serde" ,rust-serde-1)
                        ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2))
        #:cargo-development-inputs (("rust-bincode" ,rust-bincode-1)
