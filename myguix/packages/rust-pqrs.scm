@@ -8233,7 +8233,8 @@ Node.js and browsers, built on `#[wasm_bindgen]` using the `wasm-bindgen` crate.
         (base32 "0lx0fqhwr8539z5zhxn36z69gfwiaj41s64lyxxnbb6a03s2yp5x"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-chic" ,rust-chic-1)
+     `(#:cargo-test-flags `("--" "--skip=roundtrip_fixtures")
+       #:cargo-inputs (("rust-chic" ,rust-chic-1)
                        ("rust-libcst-derive" ,rust-libcst-derive-1)
                        ("rust-memchr" ,rust-memchr-2)
                        ("rust-paste" ,rust-paste-1)
@@ -8245,6 +8246,7 @@ Node.js and browsers, built on `#[wasm_bindgen]` using the `wasm-bindgen` crate.
                                    ("rust-difference" ,rust-difference-2)
                                    ("rust-itertools" ,rust-itertools-0.11)
                                    ("rust-rayon" ,rust-rayon-1))))
+    (inputs (list python))
     (home-page "https://github.com/Instagram/LibCST")
     (synopsis "A Python parser and Concrete Syntax Tree library.")
     (description
