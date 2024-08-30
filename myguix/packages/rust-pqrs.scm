@@ -11074,8 +11074,34 @@ of your crate if you're building with Cargo.")
      "This package provides Statistical computing library for Rust.")
     (license license:expat)))
 
+(define-public rust-fastset-0.2
+  (package
+    (name "rust-fastset")
+    (version "0.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "fastset" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "03kgmw0705vranbcngldgdfkx54n7cfn05hgaixqgmlnrj9jjhal"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-nanorand" ,rust-nanorand-0.7)
+                       ("rust-serde" ,rust-serde-1))
+       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
+                                   ("rust-hashbrown" ,rust-hashbrown-0.14))))
+    (home-page "https://github.com/b-vitamins/fastset")
+    (synopsis
+     "Fast set implementation for dense, bounded integer collections, optimized for quick updates and access")
+    (description
+     "This package provides Fast set implementation for dense, bounded integer collections, optimized for
+quick updates and access.")
+    (license license:gpl3)))
+
 (define-public rust-fastset-0.4
   (package
+    (inherit rust-fastset-0.2)
     (name "rust-fastset")
     (version "0.4.1")
     (source
@@ -11091,11 +11117,28 @@ of your crate if you're building with Cargo.")
                        ("rust-serde" ,rust-serde-1))
        #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
                                    ("rust-hashbrown" ,rust-hashbrown-0.14)
-                                   ("rust-statrs" ,rust-statrs-0.16))))
-    (home-page "https://github.com/b-vitamins/fastset")
+                                   ("rust-statrs" ,rust-statrs-0.16))))))
+
+(define-public rust-signvec-0.3
+  (package
+    (name "rust-signvec")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "signvec" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0dgh735a6xsz05qkr374rri3vz579dmv11v8xympyk90nnq1q2qn"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-fastset" ,rust-fastset-0.2)
+                       ("rust-nanorand" ,rust-nanorand-0.7)
+                       ("rust-serde" ,rust-serde-1))
+       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4))))
+    (home-page "https://github.com/b-vitamins/signvec")
     (synopsis
-     "Fast set implementation for dense, bounded integer collections, optimized for quick updates and access")
+     "Vector implementation for fast, sign-based manipulation of dynamic collections")
     (description
-     "This package provides Fast set implementation for dense, bounded integer collections, optimized for
-quick updates and access.")
+     "This package provides Vector implementation for fast, sign-based manipulation of dynamic collections.")
     (license license:expat)))
