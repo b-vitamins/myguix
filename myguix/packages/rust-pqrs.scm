@@ -7033,7 +7033,7 @@ as `.gitignore` against file paths.")
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
         (base32 "1hgkx5g68qz2p3wirqryyqmmwhbyacjsbhiax9fzh38gszx0jnxa"))
-       (snippet #~(delete-file "lib/windows.lib"))))
+       (snippet #~(delete-file "lib/libwindows.a"))))
     (build-system cargo-build-system)
     (arguments
      `(#:skip-build? #t))
