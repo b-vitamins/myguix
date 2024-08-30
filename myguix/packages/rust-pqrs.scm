@@ -10707,33 +10707,6 @@ traits for TOML data to facilitate deserializing and serializing Rust
 structures.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-tracing-0.1
-  (package
-    (name "rust-tracing")
-    (version "0.1.40")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "tracing" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1vv48dac9zgj9650pg2b4d0j3w6f3x9gbggf43scq5hrlysklln3"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-log" ,rust-log-0.4)
-                       ("rust-pin-project-lite" ,rust-pin-project-lite-0.2)
-                       ("rust-tracing-attributes" ,rust-tracing-attributes-0.1)
-                       ("rust-tracing-core" ,rust-tracing-core-0.1))
-       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.3)
-                                   ("rust-futures" ,rust-futures-0.3)
-                                   ("rust-log" ,rust-log-0.4)
-                                   ("rust-wasm-bindgen-test" ,rust-wasm-bindgen-test-0.3))))
-    (home-page "https://tokio.rs")
-    (synopsis "Application-level tracing for Rust.
-")
-    (description "Application-level tracing for Rust.")
-    (license license:expat)))
-
 (define-public rust-tracing-indicatif-0.3
   (package
     (name "rust-tracing-indicatif")
