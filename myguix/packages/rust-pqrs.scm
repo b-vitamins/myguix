@@ -1311,7 +1311,8 @@ shorthands for guards with one of the implemented strategies.")
         (base32 "1h77x9qx7pns0d66vdrmdbmwpi7586h7ysnkdnhrn5mwi2cyyw3i"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-critical-section" ,rust-critical-section-1)
+     `(#:tests? #f ;use of undeclared crate or module `test_helper`
+       #:cargo-inputs (("rust-critical-section" ,rust-critical-section-1)
                        ("rust-serde" ,rust-serde-1))
        #:cargo-development-inputs (("rust-build-context" ,rust-build-context-0.1)
                                    ("rust-crossbeam-utils" ,rust-crossbeam-utils-0.8)
@@ -1321,8 +1322,7 @@ shorthands for guards with one of the implemented strategies.")
                                    ("rust-static-assertions" ,rust-static-assertions-1))))
     (home-page "https://github.com/taiki-e/portable-atomic")
     (synopsis
-     "Portable atomic types including support for 128-bit atomics, atomic float, etc.
-")
+     "Portable atomic types including support for 128-bit atomics, atomic float, etc.")
     (description
      "Portable atomic types including support for 128-bit atomics, atomic float, etc.")
     (license (list license:asl2.0 license:expat))))
