@@ -3563,27 +3563,6 @@ according to Unicode Standard Annex #11 rules.
 Standard Annex #11 rules.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-paste-1
-  (package
-    (name "rust-paste")
-    (version "1.0.14")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "paste" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0k7d54zz8zrz0623l3xhvws61z5q2wd3hkwim6gylk8212placfy"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-development-inputs (("rust-paste-test-suite" ,rust-paste-test-suite-0.0.0)
-                                   ("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-trybuild" ,rust-trybuild-1))))
-    (home-page "https://github.com/dtolnay/paste")
-    (synopsis "Macros for all your token pasting needs")
-    (description "Macros for all your token pasting needs")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-monostate-impl-0.1
   (package
     (name "rust-monostate-impl")
@@ -11195,3 +11174,5 @@ Unicode Standard Annex #15.")
      "This package provides a very simple library who's job is to return the version
 of your crate if you're building with Cargo.")
     (license (list license:expat license:asl2.0))))
+
+rust-paste-1
