@@ -8958,6 +8958,19 @@ implementing PEP 440")
 colorful diffs.")
     (license (list license:expat license:asl2.0))))
 
+(define-public rust-pretty-assertions-1
+  (package
+    (inherit rust-pretty-assertions-1)
+    (name "rust-pretty-assertions")
+    (version "1.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pretty_assertions" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0rmsnqlpmpfjp5gyi31xgc48kdhc1kqn246bnc494nwadhdfwz5g"))))))
+
 (define-public rust-pyo3-log-0.9
   (package
     (name "rust-pyo3-log")
@@ -10071,7 +10084,12 @@ support for Unicode and emojis as well as machine hyphenation.")
         (base32 "10g9jnv1x5jw2q1nh207fbrsyd72n3g1hvdp8m7ncs2s5ikd23hv"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-base64" ,rust-base64-0.21)
+     `(#:cargo-test-flags '("--release" "--"
+                            "--skip=time::test_timestamp_seconds_systemtime"
+                            "--skip=time::test_timestamp_seconds_with_frac_systemtime"
+                            "--skip=test_docs_rs_url_point_to_current_version"
+                            "--skip=test_serde_with_macros_dependency")
+       #:cargo-inputs (("rust-base64" ,rust-base64-0.21)
                        ("rust-chrono" ,rust-chrono-0.4)
                        ("rust-doc-comment" ,rust-doc-comment-0.3)
                        ("rust-document-features" ,rust-document-features-0.2)
