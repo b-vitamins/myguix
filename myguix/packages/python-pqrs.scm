@@ -898,4 +898,3 @@ information in various formats.")
     (description "The python client for Meilisearch API.")
     (license license:expat)))
 
-python-scholarly
