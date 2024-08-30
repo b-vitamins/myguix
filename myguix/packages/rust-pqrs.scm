@@ -7832,30 +7832,6 @@ possibly blocking tasks")
      "This crate is now named gix and not available under this name anymore")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-imara-diff-0.1
-  (package
-    (name "rust-imara-diff")
-    (version "0.1.5")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "imara-diff" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1f0caw8bizfhrvyvzqix7ffmfnaynlyz7caljs5ipj8gsw51v379"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-ahash" ,rust-ahash-0.8)
-                       ("rust-hashbrown" ,rust-hashbrown-0.12))
-       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
-                                   ("rust-expect-test" ,rust-expect-test-1)
-                                   ("rust-git-repository" ,rust-git-repository-0.25)
-                                   ("rust-similar" ,rust-similar-2))))
-    (home-page "https://github.com/pascalkuthe/imara-diff")
-    (synopsis "Minimal terminfo libary.")
-    (description "Minimal terminfo libary.")
-    (license license:asl2.0)))
-
 (define-public rust-rust-stemmers-1
   (package
     (name "rust-rust-stemmers")
