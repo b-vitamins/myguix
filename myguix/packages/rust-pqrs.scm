@@ -1091,27 +1091,6 @@ large number of #[cfg] parameters.  Structured like an if-else chain, the first
 matching branch is the item that gets emitted.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-indoc-2
-  (package
-    (name "rust-indoc")
-    (version "2.0.5")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "indoc" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1dgjk49rkmx4kjy07k4b90qb5vl89smgb5rcw02n0q0x9ligaj5j"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-development-inputs (("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-trybuild" ,rust-trybuild-1)
-                                   ("rust-unindent" ,rust-unindent-0.2))))
-    (home-page "https://github.com/dtolnay/indoc")
-    (synopsis "Indented document literals")
-    (description "Indented document literals")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-memoffset-0.9
   (package
     (name "rust-memoffset")
@@ -7836,6 +7815,19 @@ algorithms")
     (synopsis "Indented document literals")
     (description "Indented document literals")
     (license (list license:expat license:asl2.0))))
+
+(define-public rust-indoc-2
+  (package
+    (inherit rust-indoc-2)
+    (name "rust-indoc")
+    (version "2.0.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "indoc" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1dgjk49rkmx4kjy07k4b90qb5vl89smgb5rcw02n0q0x9ligaj5j"))))))
 
 (define-public rust-insta-1
   (package
