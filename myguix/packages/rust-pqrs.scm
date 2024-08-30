@@ -10762,52 +10762,6 @@ spans.")
      "Library for ANSI terminal colors and styles (bold, underline)")
     (license license:expat)))
 
-(define-public rust-tracing-subscriber-0.3
-  (package
-    (name "rust-tracing-subscriber")
-    (version "0.3.18")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "tracing-subscriber" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "12vs1bwk4kig1l2qqjbbn2nm5amwiqmkcmnznylzmnfvjy6083xd"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-chrono" ,rust-chrono-0.4)
-                       ("rust-matchers" ,rust-matchers-0.1)
-                       ("rust-nu-ansi-term" ,rust-nu-ansi-term-0.46)
-                       ("rust-once-cell" ,rust-once-cell-1)
-                       ("rust-parking-lot" ,rust-parking-lot-0.12)
-                       ("rust-regex" ,rust-regex-1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-sharded-slab" ,rust-sharded-slab-0.1)
-                       ("rust-smallvec" ,rust-smallvec-1)
-                       ("rust-thread-local" ,rust-thread-local-1)
-                       ("rust-time" ,rust-time-0.3)
-                       ("rust-tracing" ,rust-tracing-0.1)
-                       ("rust-tracing-core" ,rust-tracing-core-0.1)
-                       ("rust-tracing-log" ,rust-tracing-log-0.2)
-                       ("rust-tracing-serde" ,rust-tracing-serde-0.1)
-                       ("rust-valuable" ,rust-valuable-0.1)
-                       ("rust-valuable-serde" ,rust-valuable-serde-0.1))
-       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.3)
-                                   ("rust-log" ,rust-log-0.4)
-                                   ("rust-regex" ,rust-regex-1)
-                                   ("rust-time" ,rust-time-0.3)
-                                   ("rust-tokio" ,rust-tokio-1)
-                                   ("rust-tracing" ,rust-tracing-0.1)
-                                   ("rust-tracing-futures" ,rust-tracing-futures-0.2)
-                                   ("rust-tracing-log" ,rust-tracing-log-0.2))))
-    (home-page "https://tokio.rs")
-    (synopsis "Utilities for implementing and composing `tracing` subscribers.
-")
-    (description
-     "Utilities for implementing and composing `tracing` subscribers.")
-    (license license:expat)))
-
 (define-public rust-nu-ansi-term-0.49
   (package
     (name "rust-nu-ansi-term")
