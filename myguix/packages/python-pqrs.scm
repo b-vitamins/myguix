@@ -928,10 +928,11 @@ Plus all the standard features of requests:
                              python-sniffio
                              python-tqdm
                              python-typing-extensions))
-    (home-page "https://openai.com")
-    (synopsis "The official Python library for the openai API")
-    (description "The official Python library for the openai API.")
-    (license #f)))
+    (home-page "https://github.com/openai/openai-python")
+    (synopsis "Python client library for the OpenAI API")
+    (description "This package provides a Python client library for the
+OpenAI API.")
+    (license license:expat)))
 
 (define-public python-bibtexparser
   (package
