@@ -12,32 +12,6 @@
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages emacs-xyz))
 
-(define-public my-emacs
-  (package
-    (inherit emacs-pgtk)
-    (name "my-emacs")
-    (synopsis "Emacs text editor with @code{pgtk} support")
-    (arguments
-     (substitute-keyword-arguments (package-arguments emacs-pgtk)
-       ((#:configure-flags flags
-         #~'())
-        #~(cons* "--with-tree-sitter" "--with-json" "--with-threads"
-                 #$flags))
-       ((#:phases phases)
-        #~(modify-phases #$phases
-            (add-after 'unpack 'optimize-flags
-              (lambda* (#:key inputs #:allow-other-keys)
-                (let ((clang (assoc-ref inputs "clang"))
-                      (llvm (assoc-ref inputs "llvm")))
-                  (setenv "CC"
-                          (string-append clang "/bin/clang"))
-                  (setenv "CXX"
-                          (string-append clang "/bin/clang++"))
-                  (setenv "CFLAGS" "-O3 -march=native -mtune=native")
-                  (setenv "CXXFLAGS" "-O3 -march=native -mtune=native"))))))))
-    (inputs (modify-inputs (package-inputs emacs-pgtk)
-              (prepend clang-17)))))
-
 (define-public emacs-mjolnir-mode
   (package
     (name "emacs-mjolnir-mode")
