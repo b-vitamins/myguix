@@ -46,10 +46,6 @@
            gdm-file-system-service
            fontconfig-file-system-service
            (service x11-socket-directory-service-type)
-           (set-xorg-configuration
-            (xorg-configuration (keyboard-layout (keyboard-layout "us"
-                                                  "altgr-intl"
-                                                  #:options '("ctrl:nocaps")))))
            (service screen-locker-service-type
                     (screen-locker-configuration (name "xlockmore")
                                                  (program (file-append (specification->package
