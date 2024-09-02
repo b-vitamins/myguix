@@ -3,17 +3,21 @@
                 #:prefix license:)
   #:use-module (gnu packages)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages compression)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
   #:use-module (gnu packages time)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
-  #:use-module (gnu packages python-web)
+  #:use-module ((gnu packages python-web)
+                #:hide (python-httpcore python-httpx))
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-crypto)
+  #:use-module (gnu packages python-compression)
+  #:use-module (gnu packages web)
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages machine-learning)
@@ -714,6 +718,98 @@ It is the recommended replacement for Python's original
 information in various formats.")
     (license license:asl2.0)))
 
+(define-public python-httpcore
+  (package
+    (name "python-httpcore")
+    (version "1.0.5")
+    (source
+     (origin
+       ;; PyPI tarball does not contain tests.
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/encode/httpcore")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "16kb33k5xj11yzriwyp7qwb8g4k0dxjg4cq1m4sihgb2n0pdi66k"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags '(list "--override-ini=asyncio_mode=auto" "-k"
+                          (string-join '("not test_ssl_request"
+                                         ;; PytestUnraisableExceptionWarning
+                                         "test_authenticated_socks5_request"
+                                         "test_socks5_request"
+                                         "test_socks5_request_connect_failed"
+                                         "test_socks5_request_failed_to_provide_auth"
+                                         "test_socks5_request_incorrect_auth"
+                                         ;; marked with @pytest.mark.asyncio but it is not an async function
+                                         "test_connection_pool_concurrency"
+                                         "test_connection_pool_concurrency_same_domain_keepalive"
+                                         "test_response_async_read"
+                                         "test_response_async_streaming"
+                                         ;; SSL connection has been closed
+                                         "test_extra_info"
+                                         ;; Additional skipped tests
+                                         "test_http_connection"
+                                         "test_concurrent_requests_not_available_on_http11_connections"
+                                         "test_write_error_with_response_sent"
+                                         "test_write_error_without_response_sent"
+                                         "test_http2_connection"
+                                         "test_connection_retries"
+                                         "test_connection_retries_tls"
+                                         "test_uds_connections"
+                                         "test_connection_pool_with_keepalive"
+                                         "test_connection_pool_with_close"
+                                         "test_connection_pool_with_http2"
+                                         "test_connection_pool_with_http2_goaway"
+                                         "test_trace_request"
+                                         "test_connection_pool_with_http_exception"
+                                         "test_connection_pool_with_immediate_expiry"
+                                         "test_connection_pool_with_no_keepalive_connections_allowed"
+                                         "test_connection_pool_closed_while_request_in_flight"
+                                         "test_connection_pool_timeout"
+                                         "test_connection_pool_timeout_zero"
+                                         "test_http11_upgrade_connection"
+                                         "test_proxy_tunneling"
+                                         "test_proxy_tunneling_http2"
+                                         "test_proxy_tunneling_with_auth")
+                                       " and not "))))
+    (native-inputs (list python-hatchling
+                         python-hatch-fancy-pypi-readme
+                         python-pytest
+                         python-pytest-asyncio
+                         python-pytest-cov
+                         python-pytest-httpbin
+                         python-pytest-trio
+                         python-uvicorn
+                         python-trustme))
+    (propagated-inputs (list python-anyio
+                             python-certifi
+                             python-h11
+                             python-h2
+                             python-sniffio
+                             python-socksio
+                             python-trio
+                             python-trio-typing))
+    (home-page "https://github.com/encode/httpcore")
+    (synopsis "Minimal, low-level HTTP client")
+    (description
+     "HTTP Core provides a minimal and low-level HTTP client, which does one
+thing only: send HTTP requests.
+
+Some things HTTP Core does do:
+
+@itemize
+@item Sending HTTP requests.
+@item Provides both sync and async interfaces.
+@item Supports HTTP/1.1 and HTTP/2.
+@item Async backend support for asyncio and trio.
+@item Automatic connection pooling.
+@item HTTP(S) proxy support.
+@end itemize")
+    (license license:bsd-3)))
+
 (define-public python-openai
   (package
     (name "python-openai")
@@ -859,4 +955,3 @@ information in various formats.")
     (synopsis "The python client for Meilisearch API.")
     (description "The python client for Meilisearch API.")
     (license license:expat)))
-
