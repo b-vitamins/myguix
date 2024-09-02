@@ -82,6 +82,8 @@
                        #:groups '("adbusers"))
    (service urandom-seed-service-type)
    (service gpm-service-type)
+   (service static-networking-service-type
+            (list %loopback-static-networking))
    (service guix-publish-service-type
             (guix-publish-configuration (compression '(("zstd" 19)))
                                         (cache "/var/cache/publish")))
