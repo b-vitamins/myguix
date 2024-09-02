@@ -90,7 +90,7 @@
                        (substitute* "Cargo.toml"
                          (("^\\[dependencies.tokenizers\\].*$" all)
                           (string-append all "version = \"0.19.1\"\n")))))
-                   (add-after 'prepare-python-module 'build-python-module
+                   (add-after 'build 'build-python-module
                      (assoc-ref py:%standard-phases
                                 'build))
                    (add-after 'build-python-module 'install-python-module
