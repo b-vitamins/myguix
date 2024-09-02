@@ -233,9 +233,9 @@ All available commands are listed in a hydra help menu accessible by pressing `?
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "13b4ikn392dm0d1f4i3lzb0gibljww2npvsbyxdkrn58gf1q4qfy"))))
+        (base32 "0yic5rgp4f1rmi979if79kva7wn3rqnky423mqgf7sdw310h8akl"))))
     (build-system emacs-build-system)
-    (inputs (list emacs-org-roam))
+    (inputs (list emacs-org-roam emacs-simple-httpd emacs-websocket))
     (home-page "https://github.com/org-roam/org-roam-ui")
     (synopsis
      "a graphical frontend for your @url{https://github.com/org-roam/org-roam, org-roam} Zettelkasten.")
