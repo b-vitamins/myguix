@@ -58,7 +58,6 @@
            (service cups-pk-helper-service-type)
 
            ;; Desktop Services
-           (service gnome-desktop-service-type)
            (service dbus-root-service-type)
            (service elogind-service-type)
            (service accountsservice-service-type)
@@ -72,7 +71,6 @@
            (service geoclue-service-type)
            (service bluetooth-service-type
                     (bluetooth-configuration (auto-enable? #t)))
-           (service gnome-keyring-service-type)
 
            ;; Sound Services
            (service alsa-service-type)
