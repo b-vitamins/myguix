@@ -28,7 +28,7 @@
       (build-system cmake-build-system)
       (arguments
        (list
-        #:configure-flags #~(list "-DBUILD_SHARED_LIBS=ON" "-DLLAMA_CUDA=ON")
+        #:configure-flags #~(list "-DBUILD_SHARED_LIBS=ON")
         #:phases #~(modify-phases %standard-phases
                      (add-after 'unpack 'disable-unrunable-tests
                        (lambda _
@@ -38,7 +38,7 @@
                          (substitute* '("examples/eval-callback/CMakeLists.txt")
                            (("set_property")
                             "#set_property")))))))
-      (inputs (list python nvidia-driver cuda-toolkit-12.1))
+      (inputs (list python))
       (native-inputs (list pkg-config))
       (properties '((tunable? . #t)))
       (home-page "https://github.com/ggerganov/llama.cpp")
