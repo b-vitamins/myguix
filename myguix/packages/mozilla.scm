@@ -66,11 +66,11 @@
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages pulseaudio)
   #:use-module (gnu packages python)
-  #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages speech)
   #:use-module (gnu packages sqlite)
   #:use-module (gnu packages video)
+  #:use-module (myguix packages rust)
   #:use-module (myguix packages wasm)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xorg))
@@ -83,9 +83,9 @@
 ;;; 0: https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html
 ;; The `rust' package is too old.
 (define-public rust-firefox-esr
-  rust-1.77)
+  rust-1.79)
 (define-public rust-firefox
-  rust-1.77)
+  rust-1.79)
 
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
