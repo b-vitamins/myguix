@@ -810,6 +810,100 @@ Some things HTTP Core does do:
 @end itemize")
     (license license:bsd-3)))
 
+(define-public python-httpx
+  (package
+    (name "python-httpx")
+    (version "0.27.2")
+    (source
+     (origin
+       ;; PyPI tarball does not contain tests.
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/encode/httpx")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1jd5w3nhpvrbj66nk2njvfnk0g1mkxivwa52j2yyhcna1xafsk1p"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags '(list "-vv"
+                          "-o"
+                          "asyncio_mode=auto"
+                          "-k"
+                          ;; These tests try to open an outgoing connection.
+                          (string-join '("not test_connect_timeout"
+                                         "test_that_send_cause_async_client_to_be_not_closed"
+                                         "test_that_async_client_caused_warning_when_being_deleted"
+                                         "test_that_send_cause_client_to_be_not_closed"
+                                         "test_async_proxy_close"
+                                         "test_sync_proxy_close"
+                                         ;; This test is apparently incompatible with
+                                         ;; python-click 8, fails with " AttributeError:
+                                         ;; 'function' object has no attribute 'name'".
+                                         "test_main"
+                                         ;; Additional skipped test
+                                         "test_load_ssl_config_verify_existing_file"
+                                         "test_load_ssl_config_verify_directory"
+                                         "test_logging_ssl") " and not "))))
+    (native-inputs (list python-cryptography
+                         python-hatchling
+                         python-hatch-fancy-pypi-readme
+                         python-pytest
+                         python-pytest-asyncio
+                         python-pytest-trio
+                         python-trio
+                         python-trio-typing
+                         python-trustme
+                         python-uvicorn
+                         python-zstandard))
+    (propagated-inputs (list python-charset-normalizer
+                             python-brotli
+                             python-certifi
+                             python-chardet
+                             python-httpcore
+                             python-idna
+                             python-rfc3986
+                             python-sniffio))
+    (home-page "https://www.python-httpx.org/")
+    (synopsis "HTTP client for Python")
+    (description
+     "HTTPX is a fully featured HTTP client for Python 3, which provides sync
+and async APIs, and support for both HTTP/1.1 and HTTP/2.
+
+HTTPX builds on the well-established usability of requests, and gives you:
+
+@itemize
+@item A broadly requests-compatible API.
+@item Standard synchronous interface, but with async support if you need it.
+@item HTTP/1.1 and HTTP/2 support.
+@item Ability to make requests directly to WSGI applications or ASGI applications.
+@item Strict timeouts everywhere.
+@item Fully type annotated.
+@item 99% test coverage.
+@end itemize
+
+Plus all the standard features of requests:
+
+@itemize
+@item International Domains and URLs
+@item Keep-Alive & Connection Pooling
+@item Sessions with Cookie Persistence
+@item Browser-style SSL Verification
+@item Basic/Digest Authentication
+@item Elegant Key/Value Cookies
+@item Automatic Decompression
+@item Automatic Content Decoding
+@item Unicode Response Bodies
+@item Multipart File Uploads
+@item HTTP(S) Proxy Support
+@item Connection Timeouts
+@item Streaming Downloads
+@item .netrc Support
+@item Chunked Requests
+@end itemize")
+    (license license:bsd-3)))
+
 (define-public python-openai
   (package
     (name "python-openai")
