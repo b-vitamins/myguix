@@ -26,8 +26,7 @@
     (build-system cmake-build-system)
     (arguments
      `(#:tests? #t
-       #:configure-flags '("-DBUILD_SHARED_LIBS=ON" "-DWHISPER_CUDA=ON"
-                           "-DWHISPER_OPENMP=ON")
+       #:configure-flags '("-DBUILD_SHARED_LIBS=ON")
        #:validate-runpath? #f
        #:phases (modify-phases %standard-phases
                   (add-after 'configure 'fix-runpath
@@ -53,7 +52,7 @@
                                       (install-file new-file dest-file)))
                                   '("main" "bench" "server" "quantize"))))))))
     (outputs '("out"))
-    (inputs (list python nvidia-driver cuda-toolkit-12.1 libomp coreutils))
+    (inputs (list python))
     (home-page "https://github.com/ggerganov/whisper.cpp")
     (synopsis "Port of OpenAI's Whisper model in C/C++")
     (description
