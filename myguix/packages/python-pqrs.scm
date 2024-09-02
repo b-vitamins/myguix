@@ -1026,5 +1026,3 @@ OpenAI API.")
     (synopsis "The python client for Meilisearch API.")
     (description "The python client for Meilisearch API.")
     (license license:expat)))
-
-python-bristol
