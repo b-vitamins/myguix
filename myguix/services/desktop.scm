@@ -14,8 +14,7 @@
   #~(job "5 0 * * *" "guix gc -F 1G"))
 
 (define %my-gnome-shell-assets
-  (list (specification->package "pinentry")
-        (specification->package "gnome-tweaks")
+  (list (specification->package "gnome-tweaks")
         (specification->package "gnome-shell-extensions")
         (specification->package "gnome-shell-extension-dash-to-dock")
         (specification->package "gnome-shell-extension-vitals")
