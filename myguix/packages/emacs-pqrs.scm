@@ -220,3 +220,25 @@ In the article list, use `n' and `p' to navigate the article list. Press `SPC' t
 
 All available commands are listed in a hydra help menu accessible by pressing `?' whenever you are in the article list.")
     (license license:gpl3+)))
+
+(define-public emacs-org-roam-ui
+  (package
+    (name "emacs-org-roam-ui")
+    (version "5ac7496")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/org-roam/org-roam-ui")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "13b4ikn392dm0d1f4i3lzb0gibljww2npvsbyxdkrn58gf1q4qfy"))))
+    (build-system emacs-build-system)
+    (inputs (list emacs-org-roam))
+    (home-page "https://github.com/org-roam/org-roam-ui")
+    (synopsis
+     "a graphical frontend for your @url{https://github.com/org-roam/org-roam, org-roam} Zettelkasten.")
+    (description
+     "Org-Roam-UI is a frontend for exploring and interacting with your @url{https://github.com/org-roam/org-roam, org-roam} notes. It is meant to be a successor of @url{https://github.com/org-roam/org-roam-server, org-roam-server} that extends functionality of org-roam with a Web app that runs side-by-side with Emacs.")
+    (license license:gpl3+)))
