@@ -123,30 +123,6 @@
 @code{Decord} is also able to decode audio from both video and audio files. One can slice video and audio together to get a synchronized result; hence providing a one-stop solution for both video and audio decoding.")
     (license license:asl2.0)))
 
-(define-public python-bristol
-  (package
-    (name "python-bristol")
-    (version "0.2.14")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "bristol" version))
-       (sha256
-        (base32 "1l8k6ndv9hssxkl0f4ylzidm9s59r1h8d3fiaa8dqwjnx7c8pa01"))))
-    (build-system pyproject-build-system)
-    (propagated-inputs (list python-numpy python-pytorch python-torchvision))
-    (home-page "https://github.com/msuzen/bristol")
-    (synopsis
-     "Parallel random matrix tools and random matrix theory deep learning applications. Generate matrices from Circular Unitary Ensemble (CUE), Circular Ortogonal Ensemble (COE) and Circular Symplectic Ensemble (CSE). Additional spectral analysis utilities are also implemented, such as computation of spectral density and spectral ergodicity for complexity of deep learning architectures.")
-    (description
-     "Parallel random matrix tools and random matrix theory deep learning
-applications.  Generate matrices from Circular Unitary Ensemble (CUE), Circular
-Ortogonal Ensemble (COE) and Circular Symplectic Ensemble (CSE).  Additional
-spectral analysis utilities are also implemented, such as computation of
-spectral density and spectral ergodicity for complexity of deep learning
-architectures.")
-    (license license:asl2.0)))
-
 (define-public python-attrs
   (package
     (name "python-attrs")
@@ -1050,3 +1026,5 @@ OpenAI API.")
     (synopsis "The python client for Meilisearch API.")
     (description "The python client for Meilisearch API.")
     (license license:expat)))
+
+python-bristol
