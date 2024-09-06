@@ -69,7 +69,7 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "550.67")
+  "550.107.02")
 
 
 ;;;
@@ -80,9 +80,9 @@
                              #:optional (package
                                           "nvidia-driver"))
   (define %nvidia-source-hashes
-    '(("550.67"
-       ("nvidia-driver" . "1qnsyzplkxfcc2sj6fcw3ylfp0njvb5z1c0y4v80zzqwqw4il84r")
-       ("nvidia-settings" . "18sij736liyhqysvsnqwb6r58pf0zbggxyvyc11psc4ljxg30h8m"))))
+    '(("550.107.02"
+       ("nvidia-driver" . "0s01dk78qpap7f2ls8scgk2ma6q6m0gn7vbsikc2hq1hvyj1qz7r")
+       ("nvidia-settings" . "0cfs5565r3407xjl43x0sjmkb908lifqc0n5wifvzk3sj10n2mjq"))))
   (let ((hashes (assoc-ref %nvidia-source-hashes version)))
     (assoc-ref hashes package)))
 
@@ -597,7 +597,7 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
     (build-system linux-module-build-system)
     (arguments
      (list
-      #:linux linux-lts
+      #:linux linux
       #:source-directory "kernel"
       #:tests? #f
       #:make-flags #~(list (string-append "CC="
