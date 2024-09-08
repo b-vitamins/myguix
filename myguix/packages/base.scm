@@ -1,4 +1,4 @@
-(define-module (myguix packages)
+(define-module (myguix packages base)
   #:use-module (gnu packages admin)
   #:use-module (gnu packages autotools)
   #:use-module (gnu packages audio)
