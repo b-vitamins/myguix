@@ -9,10 +9,6 @@
   #:use-module (myguix services base)
   #:export (%my-gnome-shell-assets %my-desktop-services))
 
-(define garbage-collector-job
-  ;; Collect garbage 5 minutes after midnight every day.
-  #~(job "5 0 * * *" "guix gc -F 1G"))
-
 (define %my-gnome-shell-assets
   (list (specification->package "gnome-tweaks")
         (specification->package "gnome-shell-extensions")
@@ -29,10 +25,6 @@
 
 (define %my-desktop-services
   (append (list
-           ;; Scheduled Job Execution
-           (service mcron-service-type
-                    (mcron-configuration (jobs (list garbage-collector-job))))
-
            ;; Log Rotation
            (service rottlog-service-type)
            (service log-cleanup-service-type
