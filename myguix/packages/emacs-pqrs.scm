@@ -258,18 +258,18 @@ All available commands are listed in a hydra help menu accessible by pressing `?
         (base32 "0i7g8gw1yikgm5j1zwz67z1612kxsbh8cknvxg63p6ljyjbkqq62"))))
     (build-system emacs-build-system)
     (arguments
-     `(#:phases
-       (modify-phases %standard-phases
-         (add-after 'install 'install-snippets
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'install 'install-snippets
                     (lambda* (#:key outputs #:allow-other-keys)
                       ;; Define the destination directory for the snippets
-                      (let ((snippet-dir (string-append (assoc-ref outputs "out")
-                                                        "/share/emacs/site-lisp/latex-snippets-" ,version "/org-mode")))
+                      (let ((snippet-dir (string-append (assoc-ref outputs
+                                                                   "out")
+                                          "/share/emacs/site-lisp/latex-snippets-"
+                                          ,version "/org-mode")))
                         ;; Create the directory
                         (mkdir-p snippet-dir)
                         ;; Copy the org-mode directory from the source to the destination
-                        (copy-recursively "org-mode" snippet-dir)
-                        #t))))))
+                        (copy-recursively "org-mode" snippet-dir) #t))))))
     (inputs (list emacs-yasnippet))
     (home-page "https://github.com/b-vitamins/latex-snippets")
     (synopsis "LaTeX YASnippet collection")
