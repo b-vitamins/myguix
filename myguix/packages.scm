@@ -103,7 +103,6 @@
         tcpdump
         wireshark
         traceroute
-        iproute2
         net-tools
         whois
         nicotine+
@@ -112,7 +111,6 @@
 ;; General development tools
 (define %development-tools-packages
   (list git
-        make
         cmake
         autoconf
         automake
@@ -122,7 +120,7 @@
         gcc-toolchain
         strace
         ltrace
-        llvm-with-bolt
+        llvm-with-bolt-17
         jemalloc
         node))
 
@@ -137,7 +135,7 @@
 
 ;; Guile development tools
 (define %guile-development-packages
-  (list guile guile-readline guile-colorized))
+  (list guile-3.0 guile-readline guile-colorized))
 
 ;; Perl development tools
 (define %perl-development-packages
