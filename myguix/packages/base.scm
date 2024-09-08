@@ -234,8 +234,7 @@
         emacs-ac-geiser
         emacs-iedit
         emacs-multiple-cursors
-        emacs-arxiv-mode
-        emacs-latex-snippets))
+        emacs-arxiv-mode))
 
 ;; Tree-sitter packages for language parsing
 (define %language-support-packages
