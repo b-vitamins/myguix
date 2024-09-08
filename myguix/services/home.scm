@@ -1,8 +1,12 @@
 (define-module (myguix services home)
-  #:use-module (gnu)
-  #:use-module (gnu services base)
-  #:use-module (gnu services mcron)
-  #:use-module (myguix packages base)
+  #:use-module (gnu services)
+  #:use-module (gnu packages)
+  #:use-module (gnu packages shells)
+  #:use-module (gnu home services)
+  #:use-module (gnu home services shells)
+  #:use-module (gnu home services gnupg)
+  #:use-module (gnu system shadow)
+  #:use-module (guix gexp)
   #:export (%my-home-services))
 
 (define %my-home-services
