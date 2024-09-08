@@ -242,3 +242,37 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (description
      "Org-Roam-UI is a frontend for exploring and interacting with your @url{https://github.com/org-roam/org-roam, org-roam} notes. It is meant to be a successor of @url{https://github.com/org-roam/org-roam-server, org-roam-server} that extends functionality of org-roam with a Web app that runs side-by-side with Emacs.")
     (license license:gpl3+)))
+
+(define-public emacs-latex-snippets
+  (package
+    (name "emacs-latex-snippets")
+    (version "0.2.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/latex-snippets")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0i7g8gw1yikgm5j1zwz67z1612kxsbh8cknvxg63p6ljyjbkqq62"))))
+    (build-system emacs-build-system)
+    (arguments
+     `(#:phases
+       (modify-phases %standard-phases
+         (add-after 'install 'install-snippets
+                    (lambda* (#:key outputs #:allow-other-keys)
+                      ;; Define the destination directory for the snippets
+                      (let ((snippet-dir (string-append (assoc-ref outputs "out")
+                                                        "/share/emacs/site-lisp/latex-snippets-" ,version "/org-mode")))
+                        ;; Create the directory
+                        (mkdir-p snippet-dir)
+                        ;; Copy the org-mode directory from the source to the destination
+                        (copy-recursively "org-mode" snippet-dir)
+                        #t))))))
+    (inputs (list emacs-yasnippet))
+    (home-page "https://github.com/b-vitamins/latex-snippets")
+    (synopsis "LaTeX YASnippet collection")
+    (description
+     "LaTeX YASnippet collection (not only) following the 'Short Math Guide for LaTeX' by Michael Downes and Barbara Beeton.")
+    (license license:gpl3+)))
