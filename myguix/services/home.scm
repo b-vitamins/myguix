@@ -5,6 +5,7 @@
   #:use-module (gnu home services)
   #:use-module (gnu home services shells)
   #:use-module (gnu home services gnupg)
+  #:use-module (gnu home services xdg)
   #:use-module (gnu system shadow)
   #:use-module (guix gexp)
   #:export (%my-home-services))
@@ -90,4 +91,21 @@
                                           (default-cache-ttl 28800)
                                           (max-cache-ttl 28800)
                                           (default-cache-ttl-ssh 28800)
-                                          (max-cache-ttl-ssh 28800)))))
+                                          (max-cache-ttl-ssh 28800)))
+   ;; XDG User Directories
+   (service home-xdg-user-directories-service-type
+            (home-xdg-user-directories-configuration (desktop "$HOME/desktop")
+                                                     (documents
+                                                      "$HOME/library/documents")
+                                                     (download
+                                                      "$HOME/downloads")
+                                                     (music
+                                                      "$HOME/library/music")
+                                                     (pictures
+                                                      "$HOME/library/pictures")
+                                                     (publicshare
+                                                      "$HOME/library/public")
+                                                     (templates
+                                                      "$HOME/library/templates")
+                                                     (videos
+                                                      "$HOME/library/videos")))))
