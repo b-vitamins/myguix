@@ -46,6 +46,7 @@
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
   #:use-module (gnu packages wget)
+  #:use-module (gnu packages xorg)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages mozilla)
@@ -264,7 +265,7 @@
 
 ;; Desktop environment utilities
 (define %desktop-environment-packages
-  (list firefox gnome-tweaks gnome-boxes solaar))
+  (list firefox gnome-tweaks gnome-boxes solaar xvfb-run))
 
 ;; TeX and document formatting tools
 (define %document-formatting-packages
