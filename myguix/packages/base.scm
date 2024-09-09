@@ -76,6 +76,7 @@
   (list coreutils
         binutils
         findutils
+        tree
         grep
         sed
         plocate))
