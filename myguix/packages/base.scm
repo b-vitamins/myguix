@@ -41,7 +41,6 @@
   #:use-module (gnu packages screen)
   #:use-module (gnu packages search)
   #:use-module (gnu packages shells)
-  #:use-module (gnu packages sync)
   #:use-module (gnu packages terminals)
   #:use-module (gnu packages texlive)
   #:use-module (gnu packages tmux)
@@ -104,7 +103,6 @@
   (list wget
         curl
         rsync
-        rclone
         nmap
         tcpdump
         wireshark
