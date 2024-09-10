@@ -17,6 +17,7 @@
   #:use-module (gnu packages graphics)
   #:use-module (gnu packages guile)
   #:use-module (gnu packages guile-xyz)
+  #:use-module (gnu packages hunspell)
   #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages inkscape)
   #:use-module (gnu packages java)
@@ -276,4 +277,4 @@
 
 ;; TeX and document formatting tools
 (define %document-formatting-packages
-  (list texlive))
+  (list texlive hunspell hunspell-dict-en-us hunspell-dict-en-gb-ize))
