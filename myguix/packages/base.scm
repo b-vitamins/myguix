@@ -167,6 +167,7 @@
         emacs-kind-icon
         emacs-all-the-icons
         emacs-no-littering
+        emacs-exec-path-from-shell
         emacs-guix
         emacs-mjolnir-mode
         emacs-windsize
