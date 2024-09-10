@@ -150,6 +150,7 @@
 ;; Emacs core packages and plugins
 (define %emacs-core-packages
   (list emacs-next
+        emacs-setup
         emacs-modus-themes
         emacs-doom-themes
         emacs-doom-modeline
