@@ -58,9 +58,9 @@
   (operating-system
     (inherit installation-os)
     (kernel linux)
-    (kernel-arguments '("modprobe.blacklist=b43,b43legacy,ssb,bcm43xx,brcm80211,brcmfmac,brcmsmac,bcma"))
+    (kernel-arguments (list "modprobe.blacklist=b43,b43legacy,ssb,bcm43xx,brcm80211,brcmfmac,brcmsmac,bcma"))
     (kernel-loadable-modules (list broadcom-sta))
-    (firmware (list linux-firmware broadcom-bt-firmware sof-firmware))
+    (firmware (list linux-firmware))
     (keyboard-layout (keyboard-layout "us" "altgr-intl"
                                       #:options '("ctrl:nocaps"
                                                   "altwin:swap_alt_win")))
