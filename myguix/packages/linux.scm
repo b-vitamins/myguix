@@ -35,7 +35,8 @@
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cpio)
   #:use-module (gnu packages linux)
-  #:use-module (guix licenses)
+  #:use-module ((guix licenses)
+                #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (guix download)
@@ -47,6 +48,7 @@
   #:use-module (guix build-system trivial)
   #:use-module (ice-9 match)
   #:use-module (myguix licenses)
+  #:use-module (myguix packages cuda)
   #:use-module (srfi srfi-1)
   #:export (corrupt-linux))
 
@@ -453,7 +455,7 @@ advanced 3D.")))
 and modules, userspace libraries, and bootloader/GPU firmware.")
     (home-page "https://github.com/raspberrypi/firmware")
     (supported-systems '("armhf-linux" "aarch64-linux"))
-    (license (list gpl2
+    (license (list license:gpl2
                    (nonfree (string-append "file://boot/LICENCE.broadcom"))
                    (nonfree (string-append "file://opt/vc/LICENCE"))))))
 
@@ -617,7 +619,7 @@ WLAN.TF.2.1-00021-QCARMSWP-1 (ath10k/QCA9377/hw1.0/firmware-6.bin)
     (license (list (nonfree (string-append
                              "https://git.kernel.org/pub/scm/linux/kernel/git/firmware"
                              "/linux-firmware.git/plain/LICENCE.atheros_firmware"))
-                   (non-copyleft (string-append
+                   (license:non-copyleft (string-append
                                   "https://git.kernel.org/pub/scm/linux/kernel/git/firmware"
                                   "/linux-firmware.git/plain/LICENCE.open-ath9k-htc-firmware"))
                    (nonfree (string-append
@@ -827,7 +829,7 @@ package contains nonfree firmware for the following chips:
 network adapters.")
       ;; Rejected by Guix beause it contains a binary blob in:
       ;; hal/rtl8192e/hal8192e_fw.c
-      (license gpl2))))
+      (license license:gpl2))))
 
 (define-public rtl8821ce-linux-module
   (let ((commit "f119398d868b1a3395f40c1df2e08b57b2c882cd")
@@ -868,7 +870,7 @@ network adapters.")
 network adapters.")
       ;; Rejected by Guix beause it contains a binary blob in:
       ;; hal/rtl8821c/hal8821c_fw.c
-      (license gpl2))))
+      (license license:gpl2))))
 
 (define-public rtl8821cu-linux-module
   (let ((commit "4f6004af4c4171882f37e2e5d8fb3609fe260617")
@@ -956,7 +958,7 @@ and frame injection.  It provides a @code{88XXau} kernel module that supports
 RTL8812AU, RTL8821AU, and RTL8814AU chips.")
       ;; Rejected by Guix beause it contains a binary blob in:
       ;; hal/rtl8812a/hal8812a_fw.c
-      (license gpl2+))))
+      (license license:gpl2+))))
 
 (define-public r8168-linux-module
   (package
@@ -980,7 +982,7 @@ RTL8812AU, RTL8821AU, and RTL8814AU chips.")
     (description
      "Linux driver for Realtek PCIe network adapters.  If the r8169 kernel module is
 giving you trouble, you can try this module.")
-    (license gpl2)))
+    (license license:gpl2)))
 
 (define broadcom-sta-version
   "6.30.223.271")
@@ -1228,7 +1230,7 @@ driver:
 @item Thunderbolt display
 @end itemize")
     (home-page "https://github.com/patjak/facetimehd")
-    (license gpl2)
+    (license license:gpl2)
     (supported-systems '("i686-linux" "x86_64-linux"))))
 
 (define-public intel-microcode
@@ -1315,4 +1317,34 @@ documented in the respective processor revision guides.")
 audio DSPs that can be found on the Intel Meteor Lake architecture.  This
 firmware can be built from source but need to be signed by Intel in order to be
 loaded by Linux.")
-    (license bsd-3)))
+    (license license:bsd-3)))
+
+(define-public opa-hfi1-headers
+  (package
+    (name "opa-hfi1-headers")
+    (version "10.11.0.1")
+    (home-page "https://github.com/cornelisnetworks/opa-hfi1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url home-page)
+             (commit "bfb3da47c6f90d89015c7c7ce01c88a4e7581c7c")))
+       (file-name (git-file-name "opa-hfi1" version))
+       (sha256
+        (base32 "08gp55zvp4y45x8jvjfmk7rh8ayphp9szplg58lcjykslhcl40wc"))
+       (modules '((guix build utils)))
+       (snippet #~(substitute* "include/uapi/rdma/hfi/hfi1_user.h"
+                    (("#define _LINUX__HFI1_USER_H" all)
+                     (string-append all "\n"
+                      "#define __packed __attribute__ ((__packed__))
+"))))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:install-plan #~'(("include" "include"))))
+    (synopsis "Headers of the HFI1 Linux driver")
+    (description "This package provides headers of the HFI1 Linux driver.")
+    (license (list license:gpl2 license:bsd-3))))
+ ;dual-licensed
+
