@@ -180,6 +180,7 @@
         emacs-orderless
         emacs-marginalia
         emacs-consult
+        emacs-consult-org-roam
         emacs-corfu
         emacs-embark
         emacs-citar
