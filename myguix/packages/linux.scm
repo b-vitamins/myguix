@@ -620,8 +620,8 @@ WLAN.TF.2.1-00021-QCARMSWP-1 (ath10k/QCA9377/hw1.0/firmware-6.bin)
                              "https://git.kernel.org/pub/scm/linux/kernel/git/firmware"
                              "/linux-firmware.git/plain/LICENCE.atheros_firmware"))
                    (license:non-copyleft (string-append
-                                  "https://git.kernel.org/pub/scm/linux/kernel/git/firmware"
-                                  "/linux-firmware.git/plain/LICENCE.open-ath9k-htc-firmware"))
+                                          "https://git.kernel.org/pub/scm/linux/kernel/git/firmware"
+                                          "/linux-firmware.git/plain/LICENCE.open-ath9k-htc-firmware"))
                    (nonfree (string-append
                              "https://git.kernel.org/pub/scm/linux/kernel/git/firmware"
                              "/linux-firmware.git/plain/LICENSE.QualcommAtheros_ar3k"))
@@ -1346,5 +1346,40 @@ loaded by Linux.")
     (synopsis "Headers of the HFI1 Linux driver")
     (description "This package provides headers of the HFI1 Linux driver.")
     (license (list license:gpl2 license:bsd-3))))
- ;dual-licensed
+;dual-licensed
 
+(define-public psm2-cuda
+  (package
+    (inherit psm2)
+    (name "psm2-cuda")
+    (inputs (modify-inputs (package-inputs psm2)
+              (append cuda-toolkit-12.4
+
+                      ;; This package provides the definition for
+                      ;; 'HFI1_CAP_GPUDIRECT_OT', which psm2 relies on:
+                      ;; <https://github.com/cornelisnetworks/opa-psm2/issues/57>.
+                      opa-hfi1-headers)))
+    (arguments
+     (list
+      #:make-flags #~(list (string-append "LDFLAGS=-Wl,-rpath="
+                                          #$output "/lib")
+                           (string-append "IFS_HFI_HEADER_PATH="
+                                          #$(this-package-input
+                                             "opa-hfi1-headers")
+                                          "/include/uapi") "PSM_CUDA=1")
+      #:tests? #f
+      #:phases #~(modify-phases %standard-phases
+                   (delete 'configure)
+                   (add-after 'unpack 'patch-Makefiles
+                     (lambda _
+                       (substitute* '("Makefile" "compat/Makefile")
+                         (("/lib64")
+                          "/lib")
+                         (("/usr")
+                          ""))))
+                   (replace 'install
+                     (lambda _
+                       (setenv "DESTDIR" %output)
+                       (invoke "make" "install"))))))
+    (synopsis
+     "Intel PSM2 communication library, with NVIDIA GPU Direct support")))
