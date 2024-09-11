@@ -57,8 +57,10 @@
 (define my-installation-os
   (operating-system
     (inherit installation-os)
-    (kernel linux-6.10)
-    (firmware (list linux-firmware sof-firmware))
+    (kernel linux)
+    (kernel-arguments '("modprobe.blacklist=b43,b43legacy,ssb,bcm43xx,brcm80211,brcmfmac,brcmsmac,bcma"))
+    (kernel-loadable-modules (list broadcom-sta))
+    (firmware (list linux-firmware broadcom-bt-firmware sof-firmware))
     (keyboard-layout (keyboard-layout "us" "altgr-intl"
                                       #:options '("ctrl:nocaps"
                                                   "altwin:swap_alt_win")))
