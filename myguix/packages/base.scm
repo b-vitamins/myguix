@@ -152,6 +152,7 @@
 (define %emacs-core-packages
   (list emacs-next
         emacs-setup
+        emacs-spinner
         emacs-modus-themes
         emacs-doom-themes
         emacs-doom-modeline
@@ -179,6 +180,7 @@
         emacs-vertico
         emacs-orderless
         emacs-marginalia
+        emacs-compat
         emacs-consult
         emacs-consult-org-roam
         emacs-corfu
@@ -209,6 +211,9 @@
         emacs-lsp-haskell
         emacs-rust-mode
         emacs-rustic
+        emacs-ht
+        emacs-hydra
+        emacs-let-alist
         emacs-haskell-mode
         emacs-gnuplot
         emacs-lua-mode
@@ -229,7 +234,12 @@
         emacs-vterm
         emacs-vterm-toggle
         emacs-projectile
+        emacs-dash
+        emacs-eldoc
         emacs-dashboard
+        emacs-f
+        emacs-tablist
+        emacs-straight-el
         emacs-treemacs
         emacs-treemacs-extra
         emacs-lsp-treemacs
@@ -243,6 +253,8 @@
         emacs-cape
         emacs-ac-geiser
         emacs-iedit
+        emacs-s
+        emacs-seq
         emacs-multiple-cursors
         emacs-arxiv-mode))
 
