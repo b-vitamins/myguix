@@ -239,7 +239,6 @@
         emacs-dashboard
         emacs-f
         emacs-tablist
-        emacs-straight-el
         emacs-treemacs
         emacs-treemacs-extra
         emacs-lsp-treemacs
