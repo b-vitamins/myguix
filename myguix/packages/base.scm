@@ -81,7 +81,8 @@
         tree
         grep
         sed
-        plocate))
+        plocate
+        emacs))
 
 ;; Compression and archiving tools
 (define %compression-tools-packages
@@ -150,8 +151,7 @@
 
 ;; Emacs core packages and plugins
 (define %emacs-core-packages
-  (list emacs
-        emacs-setup
+  (list emacs-setup
         emacs-spinner
         emacs-modus-themes
         emacs-doom-themes
