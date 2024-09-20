@@ -81,8 +81,7 @@
         tree
         grep
         sed
-        plocate
-        emacs))
+        plocate))
 
 ;; Compression and archiving tools
 (define %compression-tools-packages
