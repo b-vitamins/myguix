@@ -150,7 +150,7 @@
 
 ;; Emacs core packages and plugins
 (define %emacs-core-packages
-  (list emacs-next
+  (list emacs
         emacs-setup
         emacs-spinner
         emacs-modus-themes
