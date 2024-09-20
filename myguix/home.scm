@@ -1,4 +1,4 @@
-(define-module (myguix services home)
+(define-module (myguix home)
   #:use-module (gnu services)
   #:use-module (gnu packages)
   #:use-module (gnu packages shells)

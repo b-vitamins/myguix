@@ -1,4 +1,4 @@
-(define-module (myguix services home emacs)
+(define-module (myguix home services emacs)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-xyz)
