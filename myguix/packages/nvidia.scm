@@ -76,15 +76,11 @@
 ;;; NVIDIA driver checkouts
 ;;;
 
-(define* (nvidia-source-hash version
-                             #:optional (package
-                                          "nvidia-driver"))
-  (define %nvidia-source-hashes
-    '(("550.107.02"
-       ("nvidia-driver" . "0s01dk78qpap7f2ls8scgk2ma6q6m0gn7vbsikc2hq1hvyj1qz7r")
-       ("nvidia-settings" . "0cfs5565r3407xjl43x0sjmkb908lifqc0n5wifvzk3sj10n2mjq"))))
-  (let ((hashes (assoc-ref %nvidia-source-hashes version)))
-    (assoc-ref hashes package)))
+(define %nvidia-driver-hashes
+  '(("550.107.02" . "0s01dk78qpap7f2ls8scgk2ma6q6m0gn7vbsikc2hq1hvyj1qz7r")))
+
+(define %nvidia-settings-hashes
+  '(("550.107.02" . "0cfs5565r3407xjl43x0sjmkb908lifqc0n5wifvzk3sj10n2mjq")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -159,7 +155,7 @@ VERSION as argument and returns a G-expression."
 
 (define-public nvidia-source
   (make-nvidia-source nvidia-version
-                      (base32 (nvidia-source-hash nvidia-version))))
+                      (base32 (assoc-ref %nvidia-driver-hashes nvidia-version))))
 
 
 ;;;
@@ -687,7 +683,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
        (sha256
-        (base32 (nvidia-source-hash version name)))))
+        (base32 (assoc-ref %nvidia-settings-hashes version)))))
     (build-system gnu-build-system)
     (arguments
      (list
