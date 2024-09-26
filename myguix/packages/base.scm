@@ -45,6 +45,7 @@
   #:use-module (gnu packages sync)
   #:use-module (gnu packages terminals)
   #:use-module (gnu packages texlive)
+  #:use-module (gnu packages tls)
   #:use-module (gnu packages tmux)
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages version-control)
@@ -113,7 +114,10 @@
         net-tools
         whois
         nicotine+
-        deluge))
+        deluge
+        megacmd
+        openssl
+        speedtest-cli))
 
 ;; General development tools
 (define %development-tools-packages
