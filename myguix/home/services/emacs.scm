@@ -10,7 +10,7 @@
   #:export (my-home-emacs-service-type))
 
 (define (my-home-emacs-profile-service-type config)
-  (list emacs-next
+  (list emacs
         emacs-setup
         emacs-spinner
         emacs-modus-themes
