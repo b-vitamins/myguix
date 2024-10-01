@@ -38,11 +38,14 @@
                                                              ("SAVEHIST" . "10000")
                                                              ("ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE" . "fg=4")))
                                     (zshrc `(,(plain-file "add-zsh-hook"
-                                               "autoload -Uz add-zsh-hook\n") ,
-                                             (plain-file "compinit"
-                                                         (string-append
-                                                          "autoload -Uz compinit\n"
-                                                          "compinit -u\n"))
+                                               "autoload -Uz add-zsh-hook\n")
+
+                                             ,(plain-file "history-search"
+                                                          (string-append
+                                                           "bindkey '^[[A' history-beginning-search-backward
+"
+                                                           "bindkey '^[[B' history-beginning-search-forward
+"))
                                              ,(plain-file "colors"
                                                "autoload -Uz colors && colors\n")
                                              ,(plain-file "setopt"
@@ -67,13 +70,34 @@
                                                            "TRAPALRM() {\n"
                                                            "    zle reset-prompt\n"
                                                            "}\n" "TMOUT=1\n"))
-                                             ,(plain-file "aliases"
+                                             (plain-file "aliases"
+                                                         (string-append
+                                                          "alias ls='ls --color=auto'\n"
+                                                          "alias grep='grep --color=auto'\n"
+                                                          "alias diff='diff --color=auto'\n"
+                                                          "alias ll='ls -lh'\n"
+                                                          "alias la='ls -A'\n"
+                                                          ;; oai-set alias with checks for file existence and gpg availability
+                                                          "alias oai-set='"
+                                                          "if command -v gpg >/dev/null 2>&1; then\n"
+                                                          "  if [ -f ~/.authinfo.gpg ]; then\n"
+                                                          "    export OPENAI_API_KEY=$(gpg --quiet --decrypt ~/.authinfo.gpg | grep \"machine api.openai.com\" | awk \"{print \\$NF}\");
+"
+                                                          "  fi;\n"
+                                                          "fi'\n"
+                                                          ;; oai-unset alias to unset the environment variable
+                                                          "alias oai-unset='unset OPENAI_API_KEY'\n"))
+                                             ,(plain-file "guix-completion"
                                                           (string-append
-                                                           "alias ls='ls --color=auto'\n"
-                                                           "alias grep='grep --color=auto'\n"
-                                                           "alias diff='diff --color=auto'\n"
-                                                           "alias ll='ls -lh'\n"
-                                                           "alias la='ls -A'\n"))))))
+                                                           "fpath=($HOME/.guix-home/profile/share/zsh/site-functions $fpath)
+"
+                                                           "autoload -Uz compinit && compinit\n"))
+                                             ,(plain-file "compinit"
+                                                          (string-append
+                                                           "autoload -Uz compinit\n"
+                                                           "compinit -u\n"))
+                                             ,(plain-file "compinit-cache"
+                                               "zstyle ':completion:*' use-cache on\n")))))
 
    (service home-inputrc-service-type
             (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")))
@@ -104,7 +128,7 @@
                                                      (pictures
                                                       "$HOME/library/pictures")
                                                      (publicshare
-                                                      "$HOME/library/public")
+                                                      "$HOME/share/public")
                                                      (templates
                                                       "$HOME/library/templates")
                                                      (videos
