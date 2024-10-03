@@ -17,6 +17,7 @@
   #:use-module (gnu packages graphics)
   #:use-module (gnu packages guile)
   #:use-module (gnu packages guile-xyz)
+  #:use-module (gnu packages haskell-xyz)
   #:use-module (gnu packages hunspell)
   #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages inkscape)
@@ -99,7 +100,7 @@
 
 ;; Shell and terminal utilities
 (define %terminal-tools-packages
-  (list screen tmux alacritty))
+  (list screen tmux alacritty pandoc python-gmap))
 
 ;; Networking and file sharing tools
 (define %network-tools-packages
