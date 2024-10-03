@@ -1026,3 +1026,33 @@ OpenAI API.")
     (synopsis "The python client for Meilisearch API.")
     (description "The python client for Meilisearch API.")
     (license license:expat)))
+
+(define-public python-gmap
+  (package
+    (name "python-gmap")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/gmap")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0lshqjy7xy0s4dq5zwa1q22cyr3445ymibzw2pwhr9pdn5dxi3rx"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-poetry-core
+                         python-pytest
+                         python-pytest-cov
+                         python-requests-next
+                         python-fuzzywuzzy
+                         python-pyalex))
+    (home-page "https://github.com/b-vitamins/gmap")
+    (synopsis
+     "Get Me A Paper (gmap): A command-line tool to fetch academic papers by title")
+    (description
+     "Get Me A Paper (gmap) is a command-line tool to fetch academic papers by title using the OpenAlex API.")
+    (license license:expat)))
