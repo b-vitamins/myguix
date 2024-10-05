@@ -1044,12 +1044,9 @@ OpenAI API.")
     (arguments
      (list
       #:tests? #f))
-    (native-inputs (list python-poetry-core
-                         python-pytest
-                         python-pytest-cov
-                         python-requests-next
-                         python-fuzzywuzzy
-                         python-pyalex))
+    (native-inputs (list python-poetry-core python-pytest python-pytest-cov))
+    (propagated-inputs (list python-requests-next python-fuzzywuzzy
+                             python-pyalex))
     (home-page "https://github.com/b-vitamins/gmap")
     (synopsis
      "Get Me A Paper (gmap): A command-line tool to fetch academic papers by title")
