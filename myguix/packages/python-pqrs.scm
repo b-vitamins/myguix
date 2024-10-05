@@ -1039,7 +1039,7 @@ OpenAI API.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0lshqjy7xy0s4dq5zwa1q22cyr3445ymibzw2pwhr9pdn5dxi3rx"))))
+        (base32 "1msf4jf0q6xjh0j0xvvdwf9xpb4z6b31jf16k3rgf5nch0pzdznn"))))
     (build-system pyproject-build-system)
     (arguments
      (list
