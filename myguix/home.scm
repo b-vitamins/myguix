@@ -96,16 +96,16 @@
    (service home-xdg-user-directories-service-type
             (home-xdg-user-directories-configuration (desktop "$HOME/desktop")
                                                      (documents
-                                                      "$HOME/library/documents")
+                                                      "$HOME/documents")
                                                      (download
                                                       "$HOME/downloads")
                                                      (music
-                                                      "$HOME/library/music")
+                                                      "$HOME/music")
                                                      (pictures
-                                                      "$HOME/library/pictures")
+                                                      "$HOME/pictures")
                                                      (publicshare
-                                                      "$HOME/library/public")
+                                                      "$HOME/public")
                                                      (templates
-                                                      "$HOME/library/templates")
+                                                      "$HOME/templates")
                                                      (videos
-                                                      "$HOME/library/videos")))))
+                                                      "$HOME/videos")))))
