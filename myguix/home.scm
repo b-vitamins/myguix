@@ -100,13 +100,11 @@
                                                       "$HOME/documents")
                                                      (download
                                                       "$HOME/downloads")
-                                                     (music
-                                                      "$HOME/music")
+                                                     (music "$HOME/music")
                                                      (pictures
                                                       "$HOME/pictures")
                                                      (publicshare
                                                       "$HOME/public")
                                                      (templates
                                                       "$HOME/templates")
-                                                     (videos
-                                                      "$HOME/videos")))))
+                                                     (videos "$HOME/videos")))))
