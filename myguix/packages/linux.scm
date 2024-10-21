@@ -136,6 +136,9 @@ some freedo package or an output of package-version procedure."
        "The unmodified Linux kernel, including nonfree blobs, for running Guix System
 on hardware which requires nonfree software to function."))))
 
+(define-public linux-6.11
+  (corrupt-linux linux-libre-6.11))
+
 (define-public linux-6.10
   (corrupt-linux linux-libre-6.10))
 
@@ -158,7 +161,7 @@ on hardware which requires nonfree software to function."))))
   (corrupt-linux linux-libre-4.19))
 
 (define-public linux
-  linux-6.10)
+  linux-6.11)
 ;; linux-lts points to the *newest* released long-term support version.
 (define-public linux-lts
   linux-6.6)
