@@ -336,14 +336,14 @@ stable, responsive and smooth desktop experience.")))
 (define-public linux-firmware
   (package
     (name "linux-firmware")
-    (version "20240811")
+    (version "20241017")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "mirror://kernel.org/linux/kernel/firmware/"
                            "linux-firmware-" version ".tar.xz"))
        (sha256
-        (base32 "10l0acnc1w4dqlrp2mcai6vi9bgih4ydi5v1k1kijg8fh15s3waq"))))
+        (base32 "0wqj6labj16qimdcwjgavsim5a35335gi2yfk0mjy9w3bbpkhv52"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -351,7 +351,16 @@ stable, responsive and smooth desktop experience.")))
       #:strip-binaries? #f
       #:validate-runpath? #f
       #:make-flags #~(list (string-append "DESTDIR="
-                                          #$output))))
+                                          #$output))
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'patch-out-check_whence.py
+                     (lambda _
+                       ;; The 'check_whence.py' script requires git (and the
+                       ;; repository metadata).
+                       (substitute* "copy-firmware.sh"
+                         (("./check_whence.py")
+                          "true"))))
+                   (delete 'configure))))
     (native-inputs (list rdfind))
     (home-page
      "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git")
