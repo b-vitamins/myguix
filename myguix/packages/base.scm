@@ -2,6 +2,7 @@
   #:use-module (gnu packages admin)
   #:use-module (gnu packages autotools)
   #:use-module (gnu packages audio)
+  #:use-module (gnu packages backup)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bittorrent)
   #:use-module (gnu packages cmake)
@@ -108,6 +109,8 @@
         curl
         rsync
         rclone
+        borg
+        borgmatic
         nmap
         tcpdump
         wireshark
@@ -116,6 +119,8 @@
         whois
         nicotine+
         deluge
+        qbittorrent-enhanced
+        transmission
         megacmd
         openssl
         speedtest-cli))
