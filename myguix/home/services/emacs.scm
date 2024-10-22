@@ -115,7 +115,8 @@
         emacs-s
         emacs-seq
         emacs-multiple-cursors
-        emacs-arxiv-mode))
+        emacs-arxiv-mode
+        emacs-transmission))
 
 (define my-home-emacs-service-type
   (service-type (name 'home-emacs)
