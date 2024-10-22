@@ -22,15 +22,13 @@
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages version-control)
-  #:use-module (guix build-system cargo)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix download)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
-  #:use-module (myguix packages video)
-  #:use-module (myguix packages rust))
+  #:use-module (myguix packages video))
 
 (define-public python-grobid-client-python
   (package
@@ -82,7 +80,7 @@
     (arguments
      '(#:tests? #f)) ;Requires network access
     (build-system pyproject-build-system)
-    (propagated-inputs (list python-requests-next python-urllib3))
+    (propagated-inputs (list python-requests python-urllib3))
     (native-inputs (list python-pytest python-pytest-xdist))
     (home-page "")
     (synopsis "Python interface to the OpenAlex database")
