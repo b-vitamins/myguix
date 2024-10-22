@@ -101,7 +101,7 @@
 
 ;; Shell and terminal utilities
 (define %terminal-tools-packages
-  (list screen tmux alacritty pandoc python-gmap))
+  (list screen tmux alacritty pandoc))
 
 ;; Networking and file sharing tools
 (define %network-tools-packages
