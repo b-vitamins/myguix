@@ -70,13 +70,16 @@
 (define-public python-pyalex
   (package
     (name "python-pyalex")
-    (version "0.13")
+    (version "0.15.1")
     (source
      (origin
-       (method url-fetch)
-       (uri (pypi-uri "pyalex" version))
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/J535D165/pyalex")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
        (sha256
-        (base32 "0n29hl0m137jyx65lry7mh50lwcnba1j8zpap252rckli0gbfffh"))))
+        (base32 "05bq586y2s0vycd9d6r9sacb5yqxzc1rssvc94vvc69h1b4hcid0"))))
     (arguments
      '(#:tests? #f)) ;Requires network access
     (build-system pyproject-build-system)
