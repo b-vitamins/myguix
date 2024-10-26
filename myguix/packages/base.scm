@@ -128,6 +128,11 @@
 ;; General development tools
 (define %development-tools-packages
   (list git
+        git-lfs
+        git-tools
+        git-remote-gcrypt
+        git-crypt
+        pass-git-helper
         cmake
         autoconf
         automake
