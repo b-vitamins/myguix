@@ -5,6 +5,8 @@
   #:use-module (gnu packages backup)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bittorrent)
+  #:use-module (gnu packages cdrom)
+  #:use-module (gnu packages chromium)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
@@ -28,12 +30,16 @@
   #:use-module (gnu packages linux)
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages monitoring)
+  #:use-module (gnu packages mp3)
   #:use-module (gnu packages music)
   #:use-module (gnu packages networking)
   #:use-module (gnu packages nicotine)
   #:use-module (gnu packages node)
+  #:use-module (gnu packages parallel)
   #:use-module (gnu packages password-utils)
+  #:use-module (gnu packages pdf)
   #:use-module (gnu packages perl)
+  #:use-module (gnu packages photo)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
@@ -53,6 +59,7 @@
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
   #:use-module (gnu packages wget)
+  #:use-module (gnu packages xiph)
   #:use-module (gnu packages xorg)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages llvm-pqrs)
@@ -101,7 +108,7 @@
 
 ;; Shell and terminal utilities
 (define %terminal-tools-packages
-  (list screen tmux alacritty pandoc))
+  (list parallel screen tmux alacritty))
 
 ;; Networking and file sharing tools
 (define %network-tools-packages
@@ -121,6 +128,7 @@
         deluge
         qbittorrent-enhanced
         transmission
+        aria2
         megacmd
         openssl
         speedtest-cli))
@@ -286,20 +294,33 @@
 
 ;; Media and image manipulation tools
 (define %media-tools-packages
-  (list vlc
-        yt-dlp
+  (list abcde
+        mpv
+        celluloid
+        vlc
+        qpdf
+        ffmpeg
         imagemagick
+        mkvtoolnix
+        handbrake
+        sox
+        lame
+        flac
+        yt-dlp
         blender
         kdenlive
         gimp
         audacity
         inkscape
         obs
-        audacious))
+        audacious
+        pandoc
+        mediainfo
+        perl-image-exiftool))
 
 ;; Desktop environment utilities
 (define %desktop-environment-packages
-  (list firefox gnome-tweaks gnome-boxes solaar xvfb-run))
+  (list ungoogled-chromium/wayland firefox gnome-tweaks gnome-boxes solaar xvfb-run))
 
 ;; TeX and document formatting tools
 (define %document-formatting-packages
