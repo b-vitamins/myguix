@@ -14,6 +14,8 @@
   #:use-module (guix gexp)
   #:use-module (guix modules)
   #:use-module (guix utils)
+  #:use-module (myguix packages cuda)
+  #:use-module (myguix packages nvidia)
   #:use-module (ice-9 match))
 
 (define-public decord
@@ -43,3 +45,34 @@
 
 @code{Decord} is also able to decode audio from both video and audio files. One can slice video and audio together to get a synchronized result; hence providing a one-stop solution for both video and audio decoding.")
     (license license:asl2.0)))
+
+(define-public nv-codec-headers
+  (package
+    (name "nv-codec-headers")
+    (version "12.2.72.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/FFmpeg/nv-codec-headers")
+             (commit (string-append "n" version))))
+       (sha256
+        (base32 "1dk13wjg56ddb9g0653fwx3n0h64xs7n8m5ys696adrhhgx77pym"))))
+    (build-system gnu-build-system)
+    (arguments
+     `(#:make-flags (list "PREFIX=" "" "LIBDIR=lib")
+       #:phases (modify-phases %standard-phases
+                  (delete 'configure)
+                  (replace 'install
+                    (lambda* (#:key make-flags outputs #:allow-other-keys)
+                      (let ((out (assoc-ref outputs "out")))
+                        (apply invoke "make" "install"
+                               (string-append "DESTDIR=" out) make-flags))))
+                  (delete 'check))))
+    (native-inputs (list pkg-config))
+    (home-page "https://github.com/FFmpeg/nv-codec-headers")
+    (synopsis
+     "FFmpeg version of headers required to interface with NVIDIA codec APIs")
+    (description
+     "NV Codec headers are required for FFmpeg and other multimedia frameworks to interface with NVIDIA's hardware-accelerated video encoding and decoding.")
+    (license license:expat)))
