@@ -61,11 +61,14 @@
   #:use-module (gnu packages wget)
   #:use-module (gnu packages xiph)
   #:use-module (gnu packages xorg)
+  #:use-module (myguix packages cuda)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages mozilla)
+  #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust)
+  #:use-module (myguix packages video)
   #:export (%system-core-packages %compression-tools-packages
                                   %filesystem-management-packages
                                   %terminal-tools-packages
@@ -80,6 +83,7 @@
                                   %system-monitoring-packages
                                   %security-tools-packages
                                   %media-tools-packages
+                                  %nvidia-gpu-packages
                                   %desktop-environment-packages
                                   %document-formatting-packages))
 
@@ -288,6 +292,15 @@
 (define %system-monitoring-packages
   (list htop sysstat procps atop inxi))
 
+;; NVIDIA GPU related packages
+(define %nvidia-gpu-packages
+  (list cuda-toolkit-12.4
+        nvidia-htop
+        nvidia-system-monitor
+        nvidia-settings
+        gpustat
+        ffmpeg-cuda))
+
 ;; Encryption and password management tools
 (define %security-tools-packages
   (list password-store))
@@ -299,7 +312,6 @@
         celluloid
         vlc
         qpdf
-        ffmpeg
         imagemagick
         mkvtoolnix
         handbrake
@@ -320,7 +332,12 @@
 
 ;; Desktop environment utilities
 (define %desktop-environment-packages
-  (list ungoogled-chromium/wayland firefox gnome-tweaks gnome-boxes solaar xvfb-run))
+  (list ungoogled-chromium/wayland
+        firefox
+        gnome-tweaks
+        gnome-boxes
+        solaar
+        xvfb-run))
 
 ;; TeX and document formatting tools
 (define %document-formatting-packages
