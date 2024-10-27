@@ -60,7 +60,7 @@
         (base32 "1dk13wjg56ddb9g0653fwx3n0h64xs7n8m5ys696adrhhgx77pym"))))
     (build-system gnu-build-system)
     (arguments
-     `(#:make-flags (list "PREFIX=" "" "LIBDIR=lib")
+     `(#:make-flags (list "PREFIX=" "LIBDIR=lib")
        #:phases (modify-phases %standard-phases
                   (delete 'configure)
                   (replace 'install
