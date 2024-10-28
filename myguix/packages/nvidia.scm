@@ -69,7 +69,7 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "550.120")
+  "550.127.05")
 
 
 ;;;
@@ -77,10 +77,10 @@
 ;;;
 
 (define %nvidia-driver-hashes
-  '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
+  '(("550.127.05" . "1sba12953gz35qf5lj5dlfa80gcpdmmfngbdagbnp29abm7z716k")))
 
 (define %nvidia-settings-hashes
-  '(("550.120" . "1d8rxpk2z9apkvm7vsr7j93rfizh8bgm4h6rlha3m2j818zwixvw")))
+  '(("550.127.05" . "0a5zdkizqa1pxvj88bwcph1ck51f4yhzqy3nmfc4malyrd78wi3i")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
