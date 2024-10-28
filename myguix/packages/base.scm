@@ -308,7 +308,7 @@
 ;; Media and image manipulation tools
 (define %media-tools-packages
   (list abcde
-        mpv
+        mpv-cuda
         celluloid
         vlc
         qpdf
