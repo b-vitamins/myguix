@@ -135,7 +135,8 @@
         aria2
         megacmd
         openssl
-        speedtest-cli))
+        speedtest-cli
+        libnatpmp))
 
 ;; General development tools
 (define %development-tools-packages
