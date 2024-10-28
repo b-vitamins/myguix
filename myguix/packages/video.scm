@@ -138,3 +138,13 @@
     (description
      "FFmpeg with NVIDIA hardware acceleration support using NVDEC and CUDA libraries.")
     (synopsis "FFmpeg with NVIDIA GPU hardware decoding (NVDEC) support")))
+
+(define-public mpv-cuda
+  (package
+    (inherit mpv)
+    (name "mpv-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs mpv)
+                         (append nvda)
+                         (replace "ffmpeg" ffmpeg-cuda)
+                         (append nv-codec-headers)))))
+
