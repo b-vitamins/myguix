@@ -1056,3 +1056,91 @@ OpenAI API.")
     (description
      "Get Me A Paper (gmap) is a command-line tool to fetch academic papers by title using the OpenAlex API.")
     (license license:expat)))
+
+(define-public python-mss
+  (package
+    (name "python-mss")
+    (version "9.0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mss" version))
+       (sha256
+        (base32 "07m2jc0fzg1v24ljx1yi01lviy0qmb7z6zn05fr7vni46b3lwsn9"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-hatchling))
+    (propagated-inputs (list python-numpy
+                             python-mypy
+                             python-pillow
+                             python-pytest
+                             python-pytest-cov
+                             python-pytest-rerunfailures
+                             python-pyvirtualdisplay
+                             python-sphinx
+                             python-twine
+                             python-wheel))
+    (arguments
+     (list
+      #:tests? #f
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'remove-invalid-classifier
+                     (lambda _
+                       (substitute* "pyproject.toml"
+                         (("Programming Language :: Python :: 3.13")
+                          "Programming Language :: Python :: 3.12")))))))
+    (home-page "https://github.com/BoboTiG/python-mss")
+    (synopsis
+     "An ultra fast cross-platform multiple screenshots module in pure python using ctypes.")
+    (description
+     "An ultra fast cross-platform multiple screenshots module in pure python using
+ctypes.")
+    (license license:expat)))
+
+(define-public python-nodriver
+  (package
+    (name "python-nodriver")
+    (version "0.37")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "nodriver" version))
+       (sha256
+        (base32 "0h1bhb5hr2s0f8na0sh2nn9nd50zq7lw6q5vaax8vgjr2g9c8pql"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-setuptools
+                             python-wheel
+                             python-deprecated
+                             python-mss
+                             python-websockets
+                             python-black
+                             python-sphinx
+                             python-pygments))
+    (home-page "https://github.com/ultrafunkamsterdam/nodriver")
+    (synopsis "Browser automation without webdriver based Selenium")
+    (description
+     "This package provides next level webscraping and browser automation using a relatively simple interface.
+@itemize
+@item This is the official successor of the Undetected-Chromedriver python package.
+@item No more webdriver, no more selenium
+@end itemize
+Direct communication provides even better resistance against web applicatinon firewalls (WAF’s), while performance gets a massive boost. This module is, contrary to undetected-chromedriver, fully asynchronous.
+What makes this package different from other known packages, is the optimization to stay undetected for most anti-bot solutions.
+Another focus point is usability and quick prototyping, so expect a lot to work -as is- , with most method parameters having best practice defaults. Using 1 or 2 lines, this is up and running, providing best practice config by default.
+While usability and convenience is important. It’s also easy to fully customizable everything using the entire array of CDP domains, methods and events available.
+Some features:
+@itemize
+@item A blazing fast undetected chrome (-ish) automation library
+@item No chromedriver binary or Selenium dependency
+@item This equals bizarre performance increase and less detections!
+@item Up and running in 1 line of code*
+@item uses fresh profile on each run, cleans up on exit
+@item save and load cookies to file to not repeat tedious login steps
+@item smart element lookup, by selector or text, including iframe content. this could also be used as wait condition for a element to appear, since it will retry for the duration of until found. single element lookup by text using tab.find(), accepts a best_match flag, which will not naively return the first match, but will match candidates by closest matching text length.
+@item descriptive __repr__ for elements, which represent the element as html
+@item utility function to convert a running undetected_chromedriver.Chrome instance to a nodriver.Browser instance and contintue from there
+@item packed with helpers and utility methods for most used and important operations
+@end itemize")
+    (license license:agpl3)))
