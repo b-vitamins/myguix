@@ -1114,5 +1114,3 @@ Some features:
 @item packed with helpers and utility methods for most used and important operations
 @end itemize")
     (license license:agpl3)))
-
-python-pyalex
