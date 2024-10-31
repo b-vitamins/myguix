@@ -46,6 +46,7 @@
         emacs-corfu
         emacs-embark
         emacs-citar
+        emacs-citar-org-roam
         emacs-org-roam
         emacs-org-roam-ui
         emacs-websocket
@@ -116,7 +117,14 @@
         emacs-seq
         emacs-multiple-cursors
         emacs-arxiv-mode
-        emacs-transmission))
+        emacs-transmission
+        emacs-openwith
+        emacs-org-super-agenda
+        emacs-elfeed
+        emacs-elfeed-score
+        emacs-elfeed-goodies
+        emacs-elfeed-protocol
+        emacs-elfeed-org))
 
 (define my-home-emacs-service-type
   (service-type (name 'home-emacs)
