@@ -136,7 +136,8 @@
         megacmd
         openssl
         speedtest-cli
-        libnatpmp))
+        libnatpmp
+        python-nodriver))
 
 ;; General development tools
 (define %development-tools-packages
