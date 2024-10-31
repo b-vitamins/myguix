@@ -70,16 +70,13 @@
 (define-public python-pyalex
   (package
     (name "python-pyalex")
-    (version "0.15.1")
+    (version "0.13")
     (source
      (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/J535D165/pyalex")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
+       (method url-fetch)
+       (uri (pypi-uri "pyalex" version))
        (sha256
-        (base32 "05bq586y2s0vycd9d6r9sacb5yqxzc1rssvc94vvc69h1b4hcid0"))))
+        (base32 "0n29hl0m137jyx65lry7mh50lwcnba1j8zpap252rckli0gbfffh"))))
     (arguments
      '(#:tests? #f)) ;Requires network access
     (build-system pyproject-build-system)
@@ -1030,33 +1027,6 @@ OpenAI API.")
     (description "The python client for Meilisearch API.")
     (license license:expat)))
 
-(define-public python-gmap
-  (package
-    (name "python-gmap")
-    (version "0.1.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/b-vitamins/gmap")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1msf4jf0q6xjh0j0xvvdwf9xpb4z6b31jf16k3rgf5nch0pzdznn"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f))
-    (native-inputs (list python-poetry-core python-pytest python-pytest-cov))
-    (propagated-inputs (list python-requests-next python-fuzzywuzzy
-                             python-pyalex))
-    (home-page "https://github.com/b-vitamins/gmap")
-    (synopsis
-     "Get Me A Paper (gmap): A command-line tool to fetch academic papers by title")
-    (description
-     "Get Me A Paper (gmap) is a command-line tool to fetch academic papers by title using the OpenAlex API.")
-    (license license:expat)))
-
 (define-public python-mss
   (package
     (name "python-mss")
@@ -1144,3 +1114,5 @@ Some features:
 @item packed with helpers and utility methods for most used and important operations
 @end itemize")
     (license license:agpl3)))
+
+python-pyalex
