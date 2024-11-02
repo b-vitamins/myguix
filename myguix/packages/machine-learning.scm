@@ -1,11 +1,8 @@
 (define-module (myguix packages machine-learning)
   #:use-module (gnu packages)
-  #:use-module (gnu packages machine-learning)
-  #:use-module (gnu packages parallel)
+  #:use-module (gnu packages algebra)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
-  #:use-module (gnu packages python-build)
-  #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rust-apps)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
@@ -16,7 +13,6 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages rust-pqrs)
-  #:use-module (myguix packages cuda)
   #:use-module (ice-9 match))
 
 (define-public python-safetensors
@@ -131,3 +127,26 @@
        ((#:phases phases)
         #~(modify-phases #$phases
             (delete 'move-static-libraries)))))))
+
+(define-public eigen-for-python-ml-dtypes
+  (let ((commit "7bf2968fed5f246c0589e1111004cb420fcd7c71")
+        (revision "1"))
+    (package
+      (inherit eigen)
+      (name "eigen-for-python-ml-dtypes")
+      (version (git-version "3.4.90" revision commit))
+      (source
+       (origin
+         (inherit (package-source eigen))
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://gitlab.com/libeigen/eigen.git")
+               (commit commit)))
+         (sha256
+          (base32 "0yq69h7pasbzq5r83d974xi031r0z2y2x0my1rz5crky54i1j0r7"))
+         (patches '())
+         (file-name (git-file-name name version))))
+      (arguments
+       (substitute-keyword-arguments (package-arguments eigen)
+         ((#:tests? flag #f)
+          #f))))))
