@@ -1452,3 +1452,54 @@ reliable JAX code.  This includes utils to help:
     (description "Optax is a gradient processing and optimization
 library for JAX.")
     (license license:asl2.0)))
+
+(define-public python-orbax-checkpoint
+  (package
+    (name "python-orbax-checkpoint")
+    (version "0.4.5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/google/orbax")
+             (commit "e68a1cd8c997caccc87fc5c1134847294be45ead")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "02njj5jkcg5j58krj6z2y6sfi49zd9ic8r7v34fnbgkr648ay87q"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; Tests require flax, but flax needs orbax.  Luckily there's a
+      ;; goal to remove the dependency on flax as evidenced by this
+      ;; comment in utils_test.py:
+      ;;
+      ;; # TODO(b/275613424): Eliminate flax dependency in Orbax
+      ;; test suite.
+      ;;
+      ;; One can only hope.
+      #:tests? #f
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'chdir
+                     (lambda _
+                       (chdir "checkpoint"))))))
+    (propagated-inputs (list python-absl-py
+                             python-cached-property
+                             python-etils
+                             python-importlib-resources
+                             python-jax
+                             python-jaxlib
+                             python-msgpack
+                             python-nest-asyncio
+                             python-numpy
+                             python-pyyaml
+                             python-tensorstore
+                             python-typing-extensions))
+    (native-inputs (list python-flit-core python-pytest python-pytest-xdist))
+    (home-page "https://github.com/google/orbax")
+    (synopsis "Utility libraries for JAX users")
+    (description
+     "Orbax is a namespace providing common utility
+libraries for JAX users.  Orbax also includes a serialization library
+for JAX users, enabling the exporting of JAX models to the TensorFlow
+SavedModel format.")
+    (license license:asl2.0)))
