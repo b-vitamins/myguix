@@ -18,6 +18,7 @@
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-check)
+  #:use-module (gnu packages python-compression)
   #:use-module (gnu packages python-crypto)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-web)
@@ -638,6 +639,61 @@ subclassing API with an imperative style for advanced research.")
     (inputs (list tensorflow))
     (native-inputs (list eigen-for-python-ml-dtypes patchelf
                          `(,tensorflow "python")))))
+
+;; This package provides *independent* modules that are meant to be
+;; imported selectively.  Each module has its own Bazel BUILD file,
+;; but no separate pyproject.toml.  Bundling everything up as a single
+;; package defeats the original purpose.  We should probably split
+;; this up into as many packages as there are modules.
+(define-public python-etils
+  (package
+    (name "python-etils")
+    (version "1.5.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/google/etils/")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1xhnsr4n6dxsn25jiblf5qpk8jj9rgm4yb3gq4zyxffqxd1nlplg"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags
+      ;; The lazy imports require python-dataclass-array, but that
+      ;; package needs etils at build time.
+      '(list "--ignore=etils/epy/lazy_imports_utils_test.py"
+             ;; This needs internet access
+             "-k" "not test_public_access")))
+    (inputs (list ffmpeg-5)) ;for mediapy
+    (propagated-inputs (list jupyter
+                             python-absl-py
+                             python-chex
+                             python-dm-tree
+                             python-fsspec
+                             python-importlib-resources
+                             python-jax
+                             python-mediapy
+                             python-numpy
+                             python-optree
+                             python-packaging
+                             python-protobuf
+                             python-pylint
+                             python-pytorch
+                             python-simple-parsing
+                             python-tensorflow
+                             python-tqdm
+                             python-typing-extensions
+                             python-zipp))
+    (native-inputs (list python-flit-core python-pytest python-pytest-subtests
+                         python-pytest-xdist))
+    (home-page "https://github.com/google/etils/")
+    (synopsis "Collection of common Python utils")
+    (description "This is a collection of independent Python modules
+providing utilities for various projects.")
+    (license license:asl2.0)))
 
 (define python-jaxlib/wheel
   (let ((jaxlib-system-libs (list "absl_py"
