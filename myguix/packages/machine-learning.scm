@@ -1697,3 +1697,34 @@ library for TensorFlow.")
 protein’s 3D structure from its amino acid sequence.  It regularly
 achieves accuracy competitive with experiment.")
     (license license:asl2.0)))
+
+(define-public python-torch-diffeq
+  (package
+    (name "python-torch-diffeq")
+    (version "0.2.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/rtqichen/torchdiffeq")
+             (commit "97e93deddcb18f67330f0b9caa75808f38b94c89")))
+       (sha256
+        (base32 "04gmc13jf0wnbdvslgvzzbnnmzl1f7q44b73xbpaa7s7s4ijprxd"))))
+    (build-system python-build-system)
+    (arguments
+     ;; Looks like the tests require network connection.
+     '(#:tests? #f))
+    (inputs (list python-pytorch python-pillow python-scipy))
+    (home-page "https://github.com/rtqichen/torchdiffeq")
+    (synopsis
+     "Differentiable ODE solvers with full GPU support and O(1)-memory
+backpropagation.")
+    (description
+     "This library provides ordinary differential equation (ODE) solvers
+implemented in PyTorch. Backpropagation through ODE solutions is supported using
+the adjoint method for constant memory cost. For usage of ODE solvers in deep
+learning applications.
+
+As the solvers are implemented in PyTorch, algorithms in this repository are
+fully supported to run on the GPU.")
+    (license license:expat)))
