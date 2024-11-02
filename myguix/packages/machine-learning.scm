@@ -6,17 +6,20 @@
   #:use-module (gnu packages curl)
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
+  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
+  #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages serialization)
   #:use-module (gnu packages tls)
+  #:use-module (gnu packages video)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
@@ -239,6 +242,33 @@ NumPy @code{dtype} extensions used in machine learning libraries, including:
      "Protocol buffers are a language-neutral, platform-neutral extensible
 mechanism for serializing structured data.")
     (license license:bsd-3)))
+
+(define-public python-simple-parsing
+  (package
+    (name "python-simple-parsing")
+    (version "0.1.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "simple_parsing" version))
+       (sha256
+        (base32 "1s0s6hc6qz66x4rzfrnshf5vwdfk7d1015a1nrhyn2wgglr008ri"))))
+    (build-system pyproject-build-system)
+    ;; TODO: There is some sort of path issue, because most tests fail
+    ;; outright with this error: ImportError: attempted relative
+    ;; import with no known parent package
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-docstring-parser python-typing-extensions))
+    (native-inputs (list python-numpy python-pytest python-pytest-benchmark
+                         python-pytest-regressions python-pytest-xdist))
+    (home-page "https://github.com/lebrice/SimpleParsing")
+    (synopsis
+     "Utility for simplifying and cleaning up argument parsing scripts")
+    (description "This package provides a small utility for simplifying and
+cleaning up argument parsing scripts.")
+    (license license:expat)))
 
 (define jaxlib-system-libs
   (list "absl_py"
