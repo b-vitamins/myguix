@@ -1,14 +1,17 @@
 (define-module (myguix packages nlp)
-  #:use-module ((guix licenses)
-                #:prefix license:)
-  #:use-module (myguix packages cuda)
-  #:use-module (myguix packages nvidia)
-  #:use-module (guix packages)
-  #:use-module (guix git-download)
-  #:use-module (guix build-system cmake)
   #:use-module (gnu packages base)
   #:use-module (gnu packages llvm)
-  #:use-module (gnu packages python))
+  #:use-module (gnu packages python)
+  #:use-module (gnu packages python-xyz)
+  #:use-module (guix build-system cmake)
+  #:use-module (guix build-system python)
+  #:use-module (guix download)
+  #:use-module (guix git-download)
+  #:use-module ((guix licenses)
+                #:prefix license:)
+  #:use-module (guix packages)
+  #:use-module (myguix packages cuda)
+  #:use-module (myguix packages nvidia))
 
 (define-public whisper-cpp
   (package
@@ -58,3 +61,19 @@
     (description
      "This package provides a port to OpenAI's Whisper Automatic Speech Recognition Models. It requires model parameters to be downloaded independently and to be able to run a Whisper model.")
     (license license:expat)))
+
+(define-public python-morfessor
+  (package
+    (name "python-morfessor")
+    (version "2.0.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "Morfessor" version))
+       (sha256
+        (base32 "1cmsxyd7ymlqlgam9a6va0x3fqhz0w1mixj0yv2j85rl6k1flfxv"))))
+    (build-system python-build-system)
+    (home-page "http://morpho.aalto.fi")
+    (synopsis "Morfessor")
+    (description "Morfessor")
+    (license license:bsd-3)))

@@ -1697,20 +1697,3 @@ library for TensorFlow.")
 protein’s 3D structure from its amino acid sequence.  It regularly
 achieves accuracy competitive with experiment.")
     (license license:asl2.0)))
-
-(define-public python-morfessor
-  (package
-    (name "python-morfessor")
-    (version "2.0.6")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "Morfessor" version))
-       (sha256
-        (base32 "1cmsxyd7ymlqlgam9a6va0x3fqhz0w1mixj0yv2j85rl6k1flfxv"))))
-    (build-system python-build-system)
-    (home-page "http://morpho.aalto.fi")
-    (synopsis "Morfessor")
-    (description "Morfessor")
-    (license license:bsd-3)))
-
