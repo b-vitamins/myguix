@@ -1,6 +1,8 @@
 (define-module (myguix packages machine-learning)
   #:use-module (gnu packages)
   #:use-module (gnu packages algebra)
+  #:use-module (gnu packages assembly)
+  #:use-module (gnu packages c)
   #:use-module (gnu packages check)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages curl)
@@ -9,11 +11,14 @@
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
+  #:use-module (gnu packages perl)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-check)
+  #:use-module (gnu packages python-crypto)
   #:use-module (gnu packages python-science)
+  #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust-apps)
@@ -28,6 +33,7 @@
   #:use-module (guix git-download)
   #:use-module ((guix licenses)
                 #:prefix license:)
+  #:use-module (guix modules)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix build-system bazel)
@@ -304,6 +310,239 @@ running on top of the machine learning platform TensorFlow.  It was
 developed with a focus on enabling fast experimentation and providing
 a delightful developer experience.")
     (license license:asl2.0)))
+
+;; Remember to update python-keras-for-tensorflow when upgrading this
+;; package.  The versions must match.
+(define-public tensorflow
+  (let ((tensorflow-system-libs (list
+                                 ;; "absl_py"
+                                 ;; "astor_archive"
+                                 ;; "astunparse_archive"
+                                 ;; "boringssl"
+                                 ;; "com_github_googlecloudplatform_google_cloud_cpp"
+                                 "com_github_grpc_grpc"
+                                 ;; "com_google_absl"
+                                 ;; "com_google_protobuf"
+                                 ;; "com_googlesource_code_re2"
+                                 "curl"
+                                 "cython"
+                                 ;; "dill_archive"
+                                 "double_conversion"
+                                 "flatbuffers"
+                                 ;; "functools32_archive"
+                                 "gast_archive"
+                                 "gif"
+                                 "hwloc"
+                                 "icu"
+                                 "jsoncpp_git"
+                                 "libjpeg_turbo"
+                                 "nasm"
+                                 "nsync"
+                                 "opt_einsum_archive"
+                                 ;; "org_sqlite"
+                                 "pasta"
+                                 "png"
+                                 ;; "pybind11" ;Our 2.8.1 does not support "const_name" attribute
+                                 "six_archive"
+                                 ;; "snappy"
+                                 ;; "tblib_archive"
+                                 "termcolor_archive"
+                                 "typing_extensions_archive"
+                                 "wrapt"
+                                 "zlib")))
+    (package
+      (name "tensorflow")
+      (version "2.13.1")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/tensorflow/tensorflow/")
+               (commit (string-append "v" version))))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "09mfskmpvpbq919wibnw3bnhi1y3hkx3qrzm72gdr0gsivn1yb3w"))))
+      (build-system bazel-build-system)
+      (arguments
+       (list
+        #:tests? #f ;there are none
+        #:bazel-configuration
+        ;; TODO: is the union build *really* necessary?
+        (with-imported-modules (source-module-closure '((guix build utils)
+                                                        (guix build union)
+                                                        (guix build
+                                                         gnu-build-system)))
+                               #~(begin
+                                   (use-modules (guix build union))
+                                   (union-build (string-append (getenv
+                                                                "NIX_BUILD_TOP")
+                                                 "/site-packages")
+                                                (parse-path (getenv
+                                                             "GUIX_PYTHONPATH")))
+                                   (setenv "PYTHON_LIB_PATH"
+                                           (string-append (getenv
+                                                           "NIX_BUILD_TOP")
+                                                          "/site-packages"))
+                                   (setenv "PYTHON_BIN_PATH"
+                                           (string-append #$(this-package-input
+                                                             "python-wrapper")
+                                                          "/bin/python"))
+                                   (setenv "TF_PYTHON_VERSION"
+                                           #$(version-major+minor (package-version
+                                                                   (this-package-input
+                                                                    "python-wrapper"))))
+                                   (setenv "TF_SYSTEM_LIBS"
+                                           (string-join '#$tensorflow-system-libs
+                                                        ","))))
+        #:fetch-targets '(list
+                          "//tensorflow/tools/pip_package:build_pip_package"
+                          "//tensorflow/tools/lib_package:libtensorflow")
+        #:build-targets '(list
+                          "//tensorflow/tools/pip_package:build_pip_package"
+                          "//tensorflow/tools/lib_package:libtensorflow")
+        #:bazel-arguments #~(list
+                             "--extra_toolchains=@bazel_tools//tools/python:autodetecting_toolchain_nonstrict"
+                             "--action_env=PYTHON_LIB_PATH"
+                             "--host_action_env=PYTHON_LIB_PATH"
+                             "--action_env=PYTHON_BIN_PATH"
+                             "--host_action_env=PYTHON_BIN_PATH"
+                             (string-append "--python_path="
+                                            #$(this-package-input
+                                               "python-wrapper") "/bin/python"))
+        #:vendored-inputs-hash
+        "0bqlwf9br68mrm5ambnm3dg31gnpsa12wfm2q2gqszknhmk1nyj8"
+        #:phases #~(modify-phases %standard-phases
+                     (add-after 'unpack-vendored-inputs 'configure
+                       (lambda _
+                         (define bazel-out
+                           (string-append (getenv "NIX_BUILD_TOP") "/output"))
+                         ;; XXX: Our version of protobuf leads to "File already
+                         ;; exists in database" when loading in Python.
+                         (substitute* (string-append bazel-out
+                                       "/external/tf_runtime/third_party/systemlibs/protobuf.BUILD")
+                           (("-lprotobuf")
+                            "-l:libprotobuf.a")
+                           (("-lprotoc")
+                            "-l:libprotoc.a"))
+                         ;; Do not mess with RUNPATH
+                         (substitute* "tensorflow/tools/pip_package/build_pip_package.sh"
+                           (("patchelf ")
+                            "echo -- "))
+                         (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
+                         (setenv "USER" "homeless-shelter")
+                         (setenv "TF_SYSTEM_LIBS"
+                                 (string-join '#$tensorflow-system-libs ","))))
+                     (add-after 'build 'install
+                       (lambda _
+                         ;; Install library
+                         (mkdir-p #$output)
+                         (invoke "tar" "-xf"
+                          "bazel-bin/tensorflow/tools/lib_package/libtensorflow.tar.gz"
+                          "-C"
+                          #$output)
+
+                         ;; Write pkgconfig file
+                         (mkdir-p (string-append #$output "/lib/pkgconfig"))
+                         (call-with-output-file (string-append #$output
+                                                 "/lib/pkgconfig/tensorflow.pc")
+                           (lambda (port)
+                             (format port
+                              "Name: TensorFlow
+Version: ~a
+Description: Library for computation using data flow graphs for scalable machine learning
+Requires:
+Libs: -L~a/lib -ltensorflow
+Cflags: -I~a/include/tensorflow
+"
+                              #$version
+                              #$output
+                              #$output)))
+
+                         ;; Install python bindings
+                         ;; Build the source code, then copy it to the "python" output.
+                         ;;
+                         ;; TODO: build_pip_package includes symlinks so we must
+                         ;; dereference them.
+                         (let ((here (string-append (getcwd) "/dist")))
+                           (invoke
+                            "bazel-bin/tensorflow/tools/pip_package/build_pip_package"
+                            "--src" here)
+                           (copy-recursively here
+                                             #$output:python)))))))
+      (outputs '("out" "python"))
+      (inputs (list curl
+                    double-conversion
+                    flatbuffers-23.1
+                    giflib
+                    grpc
+                    hwloc
+                    icu4c
+                    jsoncpp
+                    libjpeg-turbo
+                    libpng
+                    nasm
+                    nsync
+                    openssl
+                    static-protobuf
+                    pybind11
+                    python-absl-py
+                    python-cython
+                    python-numpy
+                    python-scipy
+                    python-six
+                    python-wrapper
+                    ;; Wrong version of snappy?
+                    ;; external/tsl/tsl/platform/default/port.cc:328:11: error:
+                    ;; 'RawCompressFromIOVec' is not a member of 'snappy'; did
+                    ;; you mean 'RawUncompressToIOVec'?
+                    ;; snappy
+                    zlib))
+      ;; TODO: these inputs probably should not be propagated.  They are
+      ;; only needed for building the Python sources.
+      (propagated-inputs (list python-absl-py
+                               python-cachetools
+                               python-certifi
+                               python-charset-normalizer
+                               python-flatbuffers
+                               python-gast
+                               python-google-pasta
+                               python-grpcio
+                               python-h5py
+                               python-idna
+                               python-jax
+                               python-markdown
+                               python-markupsafe
+                               python-ml-dtypes
+                               python-numpy
+                               python-oauthlib
+                               python-opt-einsum
+                               python-packaging
+                               python-portpicker
+                               python-protobuf-for-tensorflow-2
+                               python-psutil
+                               python-pyasn1
+                               python-requests
+                               python-requests-oauthlib
+                               python-rsa
+                               python-scipy
+                               python-six
+                               python-termcolor
+                               python-typing-extensions
+                               python-urllib3
+                               python-werkzeug
+                               python-wrapt))
+      (native-inputs (list perl python-lit python-pypa-build python-setuptools
+                           python-wheel))
+      (home-page "https://tensorflow.org")
+      (synopsis "Machine learning framework")
+      (description
+       "TensorFlow is a flexible platform for building and
+training machine learning models.  It provides a library for high
+performance numerical computation and includes high level Python APIs,
+including both a sequential API for beginners that allows users to
+build models quickly by plugging together building blocks and a
+subclassing API with an imperative style for advanced research.")
+      (license license:asl2.0))))
 
 (define jaxlib-system-libs
   (list "absl_py"
