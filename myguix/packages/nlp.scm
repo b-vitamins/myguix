@@ -1,9 +1,15 @@
 (define-module (myguix packages nlp)
   #:use-module (gnu packages base)
+  #:use-module (gnu packages check)
   #:use-module (gnu packages llvm)
+  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages python)
+  #:use-module (gnu packages python-check)
+  #:use-module (gnu packages python-science)
+  #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
   #:use-module (guix build-system cmake)
+  #:use-module (guix build-system pyproject)
   #:use-module (guix build-system python)
   #:use-module (guix download)
   #:use-module (guix gexp)
@@ -13,7 +19,8 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages cuda)
-  #:use-module (myguix packages nvidia))
+  #:use-module (myguix packages nvidia)
+  #:use-module (myguix packages python-pqrs))
 
 (define-public whisper-cpp
   (package
@@ -126,3 +133,53 @@
       (synopsis "Non-Metric Space Library (NMSLIB)")
       (description "Non-Metric Space Library (NMSLIB)")
       (license license:asl2.0))))
+
+;; This package bundles 'multibuild'.
+(define-public python-gensim
+  (package
+    (name "python-gensim")
+    (version "4.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gensim" version))
+       (sha256
+        (base32 "1wgf6kzm3jc3i39kcrdhw89bzqj75whi1b5a030lf7d3f0lvsplr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags
+      ;; This fails for unknown reasons when trying to launch
+      ;; visdom.server.
+      '(list "-k" "not test_callback_update_graph"
+             ;; This needs access to the internet
+             "--ignore=gensim/test/test_api.py")
+      #:phases '(modify-phases %standard-phases
+                  (add-after 'unpack 'patch-build-system
+                    (lambda _
+                      (substitute* "setup.py"
+                        (("__builtins__.__NUMPY_SETUP__.*")
+                         ""))))
+                  (add-before 'check 'build-extensions
+                    (lambda _
+                      ;; Cython extensions have to be built before running the tests.
+                      (invoke "python" "setup.py" "build_ext" "--inplace")
+                      ;; Needed for some of the tests
+                      (setenv "HOME" "/tmp"))))))
+    (propagated-inputs (list python-pyemd python-numpy python-nmslib
+                             python-scipy python-smart-open))
+    (native-inputs (list python-cython
+                         python-mock
+                         python-pytest
+                         python-pytest-cov
+                         python-testfixtures
+                         python-visdom))
+    (home-page "https://radimrehurek.com/gensim/")
+    (synopsis "Python framework for fast vector space modelling")
+    (description
+     "This package provides a Python library for topic modelling,
+document indexing and similarity retrieval with large corpora.  The target
+audience is the natural language processing and information retrieval
+community.")
+    (license license:lgpl2.1)))
+
