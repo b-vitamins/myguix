@@ -1,12 +1,16 @@
 (define-module (myguix packages machine-learning)
   #:use-module (gnu packages)
   #:use-module (gnu packages algebra)
+  #:use-module (gnu packages check)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
+  #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rust-apps)
+  #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
   #:use-module (guix gexp)
+  #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module ((guix licenses)
                 #:prefix license:)
@@ -150,3 +154,56 @@
        (substitute-keyword-arguments (package-arguments eigen)
          ((#:tests? flag #f)
           #f))))))
+
+(define-public python-ml-dtypes
+  (package
+    (name "python-ml-dtypes")
+    (version "0.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ml_dtypes" version))
+       (sha256
+        (base32 "04f61zkizfgmf2pqlsdgskj1r1gg6l5j1nj2p8v4yk2b36cqyxv0"))
+       (modules '((guix build utils)))
+       (snippet
+        ;; Do not use bundled eigen.
+        '(delete-file-recursively "third_party/eigen"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;there are none
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'use-eigen-package
+                     (lambda _
+                       (substitute* "setup.py"
+                         (("third_party/eigen")
+                          (string-append #$(this-package-input
+                                            "eigen-for-python-ml-dtypes")
+                                         "/include/eigen3"))))))))
+    (inputs (list eigen-for-python-ml-dtypes))
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list pybind11 python-absl-py python-pylint python-pytest
+                         python-pytest-xdist))
+    (home-page "https://github.com/jax-ml/ml_dtypes")
+    (synopsis "NumPy dtype extensions used in machine learning")
+    (description
+     "This package is a stand-alone implementation of several
+NumPy @code{dtype} extensions used in machine learning libraries, including:
+
+@itemize
+@item @code{bfloat16}: an alternative to the standard @code{float16} format
+@item @code{float8_*}: several experimental 8-bit floating point
+  representations including:
+  @itemize
+  @item @code{float8_e4m3b11fnuz}
+  @item @code{float8_e4m3fn}
+  @item @code{float8_e4m3fnuz}
+  @item @code{float8_e5m2}
+  @item @code{float8_e5m2fnuz}
+  @end itemize
+@item @code{int4} and @code{uint4}: low precision integer types.
+@end itemize
+")
+    (license license:asl2.0)))
+
