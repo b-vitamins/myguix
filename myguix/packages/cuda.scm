@@ -38,50 +38,6 @@
   #:use-module (gnu packages perl)
   #:use-module (gnu packages python))
 
-(define-public cutlass
-  (package
-    (name "cutlass")
-    (version "3.5.1")
-    (home-page "https://github.com/NVIDIA/cutlass")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/cutlass")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))
-    (build-system cmake-build-system)
-    (arguments
-     (list
-      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
-                                               #$(package-source googletest))
-                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
-                                "-DCUTLASS_NVCC_ARCHS=80"
-                                "-DCUTLASS_LIBRARY_KERNELS=all"
-                                "-DCUTLASS_ENABLE_TESTS=NO"
-                                "-DCUTLASS_INSTALL_TESTS=NO")
-      #:validate-runpath? #f))
-    (native-inputs (list python))
-    (inputs (list cuda-toolkit-12.4))
-    (synopsis
-     "CUDA C++ template abstractions for high-performance linear algebra")
-    (description
-     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
-high-performance matrix-matrix multiplication (GEMM) and related computations
-at all levels and scales within CUDA.  It incorporates strategies for
-hierarchical decomposition and data movement similar to those used to
-implement cuBLAS and cuDNN.
-
-CUTLASS decomposes these ``moving parts'' into reusable, modular software
-components abstracted by C++ template classes.  Primitives for different
-levels of a conceptual parallelization hierarchy can be specialized and tuned
-via custom tiling sizes, data types, and other algorithmic policy.  The
-resulting flexibility simplifies their use as building blocks within custom
-kernels and applications.")
-    (license license:bsd-3)))
-
 (define-public nccl
   (package
     (name "nccl")
