@@ -1114,3 +1114,24 @@ Some features:
 @item packed with helpers and utility methods for most used and important operations
 @end itemize")
     (license license:agpl3)))
+
+(define-public python-pyemd
+  (package
+    (name "python-pyemd")
+    (version "0.5.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyemd" version))
+       (sha256
+        (base32 "0w3yw014760ncm09ymbh0wnw4wwz7ph773dvvxcyaww5dw8w50gw"))))
+    (build-system python-build-system)
+    (propagated-inputs (list python-numpy))
+    (home-page "http://github.com/wmayner/pyemd")
+    (synopsis
+     "Wrapper for Pele and Werman's implementation of the Earth Mover's Distance")
+    (description
+     "This package provides a Python wrapper for Ofir Pele and Michael Werman's
+implementation of the Earth Mover's Distance.")
+    (license license:expat)))
+
