@@ -400,3 +400,22 @@ reverse-mode differentiation (a.k.a. backpropagation) via grad as well
 as forward-mode differentiation, and the two can be composed
 arbitrarily to any order.")
     (license license:asl2.0)))
+
+(define-public python-jaxlib
+  (package
+    (inherit python-jaxlib/wheel)
+    (source
+     #f)
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases #~(modify-phases %standard-phases
+                   (delete 'unpack)
+                   (replace 'build
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (mkdir-p "dist")
+                       (install-file (car (find-files (assoc-ref inputs
+                                                       "python-jaxlib")
+                                                      "\\.whl$")) "dist"))))))
+    (native-inputs (list python-jaxlib/wheel))))
