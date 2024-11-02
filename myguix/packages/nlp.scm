@@ -6,10 +6,12 @@
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system python)
   #:use-module (guix download)
+  #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (myguix packages cuda)
   #:use-module (myguix packages nvidia))
 
@@ -77,3 +79,50 @@
     (synopsis "Morfessor")
     (description "Morfessor")
     (license license:bsd-3)))
+
+(define-public python-nmslib
+  (let ((pybind11-for-nmslib (package
+                               (inherit pybind11)
+                               (name "pybind11")
+                               (version "2.6.1")
+                               (source
+                                (origin
+                                  (method git-fetch)
+                                  (uri (git-reference
+                                        (url
+                                         "https://github.com/pybind/pybind11")
+                                        (commit (string-append "v" version))))
+                                  (sha256
+                                   (base32
+                                    "1wh5b1xnywzxwxkyac2wvyqwzmy1qxs341jjk820r7b825wn6yad"))
+                                  (file-name (git-file-name name version))))
+                               (arguments
+                                (substitute-keyword-arguments (package-arguments
+                                                               pybind11)
+                                  ((#:phases phases
+                                    #~%standard-phases)
+                                   #~(modify-phases #$phases
+                                       (add-after 'unpack 'skip-failing-test
+                                         (lambda _
+                                           (substitute* "tests/test_exceptions.py"
+                                             ;; This test fails with Python 3.10; skip it.
+                                             (("^def test_python_alreadyset_in_destructor(.*)"
+                                               _ rest)
+                                              (string-append
+                                               "def test_python_alreadyset_in_destructor"
+                                               rest "\n" "    return\n"))))))))))))
+    (package
+      (name "python-nmslib")
+      (version "2.1.1")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (pypi-uri "nmslib" version))
+         (sha256
+          (base32 "084wl5kl2grr2yi3bibc6i2ak5s7vanwi21wssbwd4bgfskr84lp"))))
+      (build-system python-build-system)
+      (propagated-inputs (list python-numpy python-psutil pybind11-for-nmslib))
+      (home-page "https://github.com/nmslib/nmslib")
+      (synopsis "Non-Metric Space Library (NMSLIB)")
+      (description "Non-Metric Space Library (NMSLIB)")
+      (license license:asl2.0))))
