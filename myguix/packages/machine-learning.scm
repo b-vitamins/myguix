@@ -1,21 +1,23 @@
 (define-module (myguix packages machine-learning)
-  #:use-module ((guix licenses)
-                #:prefix license:)
-  #:use-module (myguix packages rust-pqrs)
-  #:use-module (myguix packages cuda)
-  #:use-module (guix gexp)
-  #:use-module (guix packages)
-  #:use-module (guix git-download)
-  #:use-module (guix build-system pyproject)
-  #:use-module (guix build-system cargo)
-  #:use-module (guix build-system cmake)
   #:use-module (gnu packages)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages parallel)
+  #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-xyz)
-  #:use-module (gnu packages rust-apps))
+  #:use-module (gnu packages rust-apps)
+  #:use-module (guix build-system pyproject)
+  #:use-module (guix build-system cargo)
+  #:use-module (guix gexp)
+  #:use-module (guix git-download)
+  #:use-module ((guix licenses)
+                #:prefix license:)
+  #:use-module (guix packages)
+  #:use-module (guix utils)
+  #:use-module (myguix packages rust-pqrs)
+  #:use-module (myguix packages cuda)
+  #:use-module (ice-9 match))
 
 (define-public python-safetensors
   (package
@@ -117,3 +119,15 @@
      "Provides an implementation of today's most used tokenizers, with a focus on performance and versatility.")
     (license license:expat)))
 
+(define-public static-protobuf
+  (package
+    (inherit protobuf)
+    (name "protobuf-static")
+    (outputs (list "out"))
+    (arguments
+     (substitute-keyword-arguments (package-arguments protobuf)
+       ((#:configure-flags flags)
+        #~(list "-DBUILD_SHARED_LIBS=OFF" "-Dprotobuf_USE_EXTERNAL_GTEST=ON"))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (delete 'move-static-libraries)))))))
