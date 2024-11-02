@@ -10,6 +10,8 @@
   #:use-module (gnu packages elf)
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
+  #:use-module (gnu packages image-processing)
+  #:use-module (gnu packages jupyter)
   #:use-module (gnu packages libffi)
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages machine-learning)
@@ -1502,4 +1504,65 @@ library for JAX.")
 libraries for JAX users.  Orbax also includes a serialization library
 for JAX users, enabling the exporting of JAX models to the TensorFlow
 SavedModel format.")
+    (license license:asl2.0)))
+
+(define-public python-flax
+  (package
+    (name "python-flax")
+    (version "0.8.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/google/flax")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1yqi7b8wmnvz0kgbb0pn1iwjr0l72crxfbch37b315g08wkwcn3z"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags '(list "--pyargs"
+                          "tests"
+                          ;; We don't have tensorboard
+                          "--ignore=tests/tensorboard_test.py"
+                          ;; These tests are failing bacause flax might only work
+                          ;; on CPUs that have AVX support.
+                          "--ignore=tests/serialization_test.py"
+                          "--ignore=tests/linen/linen_test.py"
+                          "--ignore=tests/linen/linen_recurrent_test.py"
+                          "--ignore=tests/linen/linen_dtypes_test.py"
+                          ;; These tests try to use a fixed number of CPUs that may
+                          ;; exceed the number of CPUs available at build time.
+                          "--ignore=tests/jax_utils_test.py")
+      #:phases '(modify-phases %standard-phases
+                  (add-after 'unpack 'ignore-deprecations
+                    (lambda _
+                      (substitute* "pyproject.toml"
+                        (("\"error\",")
+                         "")))))))
+    (propagated-inputs (list python-einops
+                             python-jax
+                             python-optax
+                             python-orbax-checkpoint
+                             python-msgpack
+                             python-numpy
+                             python-pyyaml
+                             python-rich
+                             python-tensorstore
+                             python-typing-extensions))
+    (native-inputs (list opencv
+                         python-nbstripout
+                         python-ml-collections
+                         python-mypy
+                         python-pytorch
+                         python-pytest
+                         python-pytest-cov
+                         python-pytest-xdist
+                         python-setuptools-scm
+                         python-tensorflow))
+    (home-page "https://github.com/google/flax")
+    (synopsis "Neural network library for JAX designed for flexibility")
+    (description "Flax is a neural network library for JAX that is
+designed for flexibility.")
     (license license:asl2.0)))
