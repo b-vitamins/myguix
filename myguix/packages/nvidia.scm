@@ -10,22 +10,6 @@
 ;;; Copyright © 2024 Ayan Das <bvits@riseup.net>
 
 (define-module (myguix packages nvidia)
-  #:use-module (guix packages)
-  #:use-module (guix deprecation)
-  #:use-module (guix download)
-  #:use-module (guix gexp)
-  #:use-module (guix git-download)
-  #:use-module (guix utils)
-  #:use-module ((guix licenses)
-                #:prefix license-gnu:)
-  #:use-module ((myguix licenses)
-                #:prefix license:)
-  #:use-module (guix build-system linux-module)
-  #:use-module (guix build-system cmake)
-  #:use-module (guix build-system copy)
-  #:use-module (guix build-system gnu)
-  #:use-module (guix build-system python)
-  #:use-module (guix build-system trivial)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages bootstrap)
@@ -50,6 +34,22 @@
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages xorg)
+  #:use-module (guix build-system linux-module)
+  #:use-module (guix build-system cmake)
+  #:use-module (guix build-system copy)
+  #:use-module (guix build-system gnu)
+  #:use-module (guix build-system python)
+  #:use-module (guix build-system trivial)
+  #:use-module (guix deprecation)
+  #:use-module (guix download)
+  #:use-module (guix gexp)
+  #:use-module (guix git-download)
+  #:use-module ((guix licenses)
+                #:prefix license:)
+  #:use-module ((myguix licenses)
+                #:prefix license:)
+  #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (myguix packages linux)
   #:use-module (ice-9 match))
 
@@ -662,7 +662,7 @@ actually use these modules, also add @code{modprobe.blacklist=nouveau} to
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
-      (license license-gnu:gpl2))))
+      (license license:gpl2))))
 
 
 ;;;
@@ -738,7 +738,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
      "This package provides Nvidia driver control panel for monitor
 configuration, creating application profiles, gpu monitoring and more.")
     (home-page "https://github.com/NVIDIA/nvidia-settings")
-    (license license-gnu:gpl2)))
+    (license license:gpl2)))
 
 
 ;;;
@@ -905,7 +905,7 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (description
      "This package provides an utility to monitor NVIDIA GPU status
 and usage.")
-    (license license-gnu:expat)))
+    (license license:expat)))
 
 (define-public nvidia-exec
   (package
@@ -945,7 +945,7 @@ and usage.")
     (description
      "This package provides GPU switching without login out for Nvidia Optimus
 laptops.")
-    (license license-gnu:gpl3+)))
+    (license license:gpl3+)))
 
 (define-public nvidia-htop
   (package
@@ -973,7 +973,7 @@ laptops.")
     (synopsis "Tool to enrich the output of nvidia-smi")
     (description "This package provides tool for enriching the output of
 nvidia-smi.")
-    (license license-gnu:bsd-3)))
+    (license license:bsd-3)))
 
 (define-public nvidia-nvml
   (package
@@ -1055,7 +1055,7 @@ simultaneous NVML calls from multiple threads.")
     (synopsis "Task manager for Nvidia graphics cards")
     (description
      "This package provides a task manager for Nvidia graphics cards.")
-    (license license-gnu:expat)))
+    (license license:expat)))
 
 (define-public python-nvidia-ml-py
   (package
@@ -1083,7 +1083,7 @@ simultaneous NVML calls from multiple threads.")
     (description
      "This package provides official Python Bindings for the NVIDIA
 Management Library")
-    (license license-gnu:bsd-3)))
+    (license license:bsd-3)))
 
 (define-public python-py3nvml
   (package
@@ -1110,4 +1110,4 @@ Management Library")
     (synopsis "Unoffcial Python 3 Bindings for the NVIDIA Management Library")
     (description "This package provides unofficial Python 3 Bindings for the
 NVIDIA Management Library")
-    (license license-gnu:bsd-3)))
+    (license license:bsd-3)))
