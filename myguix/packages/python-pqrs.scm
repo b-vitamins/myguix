@@ -1162,3 +1162,32 @@ implementation of the Earth Mover's Distance.")
     (description "This package provides optimized @code{PyTree}
 utilities.")
     (license license:asl2.0)))
+
+(define-public python-pyamg
+  (package
+    (name "python-pyamg")
+    (version "4.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyamg" version))
+       (sha256
+        (base32 "12m32pqymb9w94kqgijrfj2fvj4r2nbg51llfm77fabfv3zkisrw"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-before 'build 'set-home
+                    (lambda _
+                      ;; The build process expects HOME to be set
+                      ;; to a writable directory.
+                      (setenv "HOME"
+                              (getcwd)) #t)))))
+
+    ;; Things only needed for tests.
+    (native-inputs (list python-pytest))
+    (inputs (list pybind11 python-numpy python-scipy))
+    (synopsis "PyAMG library for python.")
+    (description
+     "PyAMG is a library of Algebraic Multigrid (AMG) solvers with a convenient Python interface.")
+    (home-page "https://github.com/pyamg/pyamg")
+    (license license:gpl3+)))
