@@ -1220,3 +1220,31 @@ utilities.")
     (description "This package provides tool for enriching the output of
 nvidia-smi.")
     (license license:bsd-3)))
+
+(define-public python-py3nvml
+  (package
+    (name "python-py3nvml")
+    (version "0.2.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "py3nvml" version))
+       (sha256
+        (base32 "0wxxky9amy38q7qjsdmmznk1kqdzwd680ps64i76cvlab421vvh9"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'fix-libnvidia
+                     (lambda _
+                       (substitute* "py3nvml/py3nvml.py"
+                         (("libnvidia-ml.so.1")
+                          (string-append #$(this-package-input "nvidia-driver")
+                                         "/lib/libnvidia-ml.so.1"))))))))
+    (propagated-inputs (list nvidia-driver python-xmltodict))
+    (home-page "https://github.com/fbcotter/py3nvml")
+    (synopsis "Unoffcial Python 3 Bindings for the NVIDIA Management Library")
+    (description "This package provides unofficial Python 3 Bindings for the
+NVIDIA Management Library")
+    (license license:bsd-3)))
+
