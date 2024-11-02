@@ -544,91 +544,92 @@ build models quickly by plugging together building blocks and a
 subclassing API with an imperative style for advanced research.")
       (license license:asl2.0))))
 
-(define jaxlib-system-libs
-  (list "absl_py"
-        "com_github_grpc_grpc"
-        "curl"
-        "cython"
-        "double_conversion"
-        "flatbuffers"
-        "gast_archive"
-        "gif"
-        "hwloc"
-        "icu"
-        "jsoncpp_git"
-        "libjpeg_turbo"
-        "lmdb"
-        "zlib"))
-
 (define python-jaxlib/wheel
-  (package
-    (name "python-jaxlib")
-    (version "0.4.20")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/google/jax")
-             (commit (string-append "jaxlib-v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "15dmxmfjybg1289v822cmk9raagl9mcbkjk990xa0f91sx91gdjq"))))
-    (build-system bazel-build-system)
-    (arguments
-     (list
-      #:tests? #f ;there are none
-      #:bazel-configuration #~(setenv "TF_SYSTEM_LIBS"
-                                      (string-join '#$jaxlib-system-libs ","))
-      #:fetch-targets '(list "//jaxlib/tools:build_wheel"
-                             "@mkl_dnn_v1//:mkl_dnn")
-      #:build-targets '(list "//jaxlib/tools:build_wheel")
-      #:run-command #~(list (string-append "--output_path="
-                                           #$output)
-                            (string-append "--cpu="
-                                           #$(match (or (%current-target-system)
-                                                        (%current-system))
-                                               ("x86_64-linux" "x86_64")
-                                               ("i686-linux" "i686")
-                                               ("mips64el-linux" "mips64")
-                                               ("aarch64-linux" "aarch64"))))
-      #:bazel-arguments #~(list "-c"
-                                "opt"
-                                ;; We need a more recent version of platforms, because the
-                                ;; included cpu package does not define cpu:wasm32.
-                                (string-append
-                                 "--override_repository=platforms="
-                                 #$(this-package-native-input
-                                    "bazel-platforms"))
-                                "--config=mkl_open_source_only"
-                                (string-append "--define="
-                                               "PROTOBUF_INCLUDE_PATH="
-                                               #$static-protobuf "/include"))
-      #:vendored-inputs-hash
-      "1fa4f8qx0765zdwmqaz1jnc60nvb3j4qxqy0mxrpqj58qdclycfs"
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack-vendored-inputs 'configure
-                     (lambda _
-                       ;; XXX: Our version of protobuf leads to "File already
-                       ;; exists in database" when loading jax in Python.
-                       ;; Using the static library is what Nix does, but it
-                       ;; doesn't help us.
-                       (let ((bazel-out (string-append (getenv "NIX_BUILD_TOP")
-                                                       "/output")))
-                         (setenv "JAXLIB_RELEASE" "1")
-                         (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
-                         (setenv "TF_SYSTEM_LIBS"
-                                 (string-join '#$jaxlib-system-libs ","))
-                         (call-with-output-file ".jax_configure.bazelrc"
-                           (lambda (port)
-                             ;; build --define PROTOBUF_INCLUDE_PATH=" #$(this-package-input "protobuf") "/include
-                             (display (string-append
-                                       "
+  (let ((jaxlib-system-libs (list "absl_py"
+                                  "com_github_grpc_grpc"
+                                  "curl"
+                                  "cython"
+                                  "double_conversion"
+                                  "flatbuffers"
+                                  "gast_archive"
+                                  "gif"
+                                  "hwloc"
+                                  "icu"
+                                  "jsoncpp_git"
+                                  "libjpeg_turbo"
+                                  "lmdb"
+                                  "zlib")))
+    (package
+      (name "python-jaxlib")
+      (version "0.4.20")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/google/jax")
+               (commit (string-append "jaxlib-v" version))))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "15dmxmfjybg1289v822cmk9raagl9mcbkjk990xa0f91sx91gdjq"))))
+      (build-system bazel-build-system)
+      (arguments
+       (list
+        #:tests? #f ;there are none
+        #:bazel-configuration #~(setenv "TF_SYSTEM_LIBS"
+                                        (string-join '#$jaxlib-system-libs ","))
+        #:fetch-targets '(list "//jaxlib/tools:build_wheel"
+                               "@mkl_dnn_v1//:mkl_dnn")
+        #:build-targets '(list "//jaxlib/tools:build_wheel")
+        #:run-command #~(list (string-append "--output_path="
+                                             #$output)
+                              (string-append "--cpu="
+                                             #$(match (or (%current-target-system)
+                                                          (%current-system))
+                                                 ("x86_64-linux" "x86_64")
+                                                 ("i686-linux" "i686")
+                                                 ("mips64el-linux" "mips64")
+                                                 ("aarch64-linux" "aarch64"))))
+        #:bazel-arguments #~(list "-c"
+                                  "opt"
+                                  ;; We need a more recent version of platforms, because the
+                                  ;; included cpu package does not define cpu:wasm32.
+                                  (string-append
+                                   "--override_repository=platforms="
+                                   #$(this-package-native-input
+                                      "bazel-platforms"))
+                                  "--config=mkl_open_source_only"
+                                  (string-append "--define="
+                                                 "PROTOBUF_INCLUDE_PATH="
+                                                 #$static-protobuf "/include"))
+        #:vendored-inputs-hash
+        "1fa4f8qx0765zdwmqaz1jnc60nvb3j4qxqy0mxrpqj58qdclycfs"
+        #:phases #~(modify-phases %standard-phases
+                     (add-after 'unpack-vendored-inputs 'configure
+                       (lambda _
+                         ;; XXX: Our version of protobuf leads to "File already
+                         ;; exists in database" when loading jax in Python.
+                         ;; Using the static library is what Nix does, but it
+                         ;; doesn't help us.
+                         (let ((bazel-out (string-append (getenv
+                                                          "NIX_BUILD_TOP")
+                                                         "/output")))
+                           (setenv "JAXLIB_RELEASE" "1")
+                           (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
+                           (setenv "TF_SYSTEM_LIBS"
+                                   (string-join '#$jaxlib-system-libs ","))
+                           (call-with-output-file ".jax_configure.bazelrc"
+                             (lambda (port)
+                               ;; build --define PROTOBUF_INCLUDE_PATH=" #$(this-package-input "protobuf") "/include
+                               (display (string-append
+                                         "
 build --strategy=Genrule=standalone
 build --repo_env PYTHON_BIN_PATH="
-                                       #$(this-package-input "python-wrapper")
-                                       "/bin/python\nbuild --python_path="
-                                       #$(this-package-input "python-wrapper")
-                                       "/bin/python
+                                         #$(this-package-input
+                                            "python-wrapper")
+                                         "/bin/python\nbuild --python_path="
+                                         #$(this-package-input
+                                            "python-wrapper")
+                                         "/bin/python
 build --distinct_host_configuration=false
 build --features=-layering_check
 build --experimental_strict_java_deps=off
@@ -638,63 +639,64 @@ build --toolchain_resolution_debug=\".*\"
 build --local_ram_resources=HOST_RAM*.5
 build --local_cpu_resources=HOST_CPUS*.75
 ")
-                                      port)))))))))
-    (inputs (list curl
-                  double-conversion
-                  flatbuffers
-                  giflib
-                  grpc
-                  hwloc
-                  icu4c
-                  jsoncpp
-                  libjpeg-turbo
-                  openssl
-                  ;; XXX: With our own version of Protobuf we see this error
-                  ;; on "import jax" (downstream of this package):
-                  ;;
-                  ;; [libprotobuf ERROR google/protobuf/descriptor_database.cc:642] File already exists in database: xla/xla_data.proto
-                  ;; [libprotobuf FATAL google/protobuf/descriptor.cc:1984] CHECK failed: GeneratedDatabase()->Add(encoded_file_descriptor, size):
-                  ;; terminate called after throwing an instance of 'google::protobuf::FatalException'
-                  ;; what():  CHECK failed: GeneratedDatabase()->Add(encoded_file_descriptor, size):
-                  ;; protobuf-3.20
-                  ;; `(,protobuf-3.20 "static")
-                  pybind11
-                  python-absl-py
-                  python-numpy
-                  python-scipy
-                  python-six
-                  python-wrapper
-                  ;; Wrong version of snappy?
-                  ;; external/tsl/tsl/platform/default/port.cc:328:11: error:
-                  ;; 'RawCompressFromIOVec' is not a member of 'snappy'; did
-                  ;; you mean 'RawUncompressToIOVec'?
-                  ;; snappy
-                  zlib))
-    (propagated-inputs (list python-absl-py
-                             python-importlib-metadata
-                             python-gast
-                             python-ml-dtypes
-                             python-numpy
-                             python-opt-einsum
-                             python-protobuf-for-tensorflow-2
-                             python-scipy))
-    (native-inputs `(("python-pypa-build" ,python-pypa-build)
-                     ("python-setuptools" ,python-setuptools)
-                     ("python-wheel" ,python-wheel)
-                     ("bazel-platforms" ,(origin
-                                           (method git-fetch)
-                                           (uri (git-reference (url
-                                                                "https://github.com/bazelbuild/platforms")
-                                                               (commit "0.0.8")))
-                                           (file-name (git-file-name
-                                                       "bazel-platforms"
-                                                       "0.0.8"))
-                                           (sha256 (base32
-                                                    "1wx2348w49vxr3z9kjfls5zsrwr0div6r3irbvdlawan87sx5yfs"))))))
-    (home-page "https://github.com/google/jax")
-    (synopsis "Differentiate, compile, and transform Numpy code.")
-    (description
-     "JAX is Autograd and XLA, brought together for
+                                        port)))))))))
+      (inputs (list curl
+                    double-conversion
+                    flatbuffers
+                    giflib
+                    grpc
+                    hwloc
+                    icu4c
+                    jsoncpp
+                    libjpeg-turbo
+                    openssl
+                    ;; XXX: With our own version of Protobuf we see this error
+                    ;; on "import jax" (downstream of this package):
+                    ;;
+                    ;; [libprotobuf ERROR google/protobuf/descriptor_database.cc:642] File already exists in database: xla/xla_data.proto
+                    ;; [libprotobuf FATAL google/protobuf/descriptor.cc:1984] CHECK failed: GeneratedDatabase()->Add(encoded_file_descriptor, size):
+                    ;; terminate called after throwing an instance of 'google::protobuf::FatalException'
+                    ;; what():  CHECK failed: GeneratedDatabase()->Add(encoded_file_descriptor, size):
+                    ;; protobuf-3.20
+                    ;; `(,protobuf-3.20 "static")
+                    pybind11
+                    python-absl-py
+                    python-numpy
+                    python-scipy
+                    python-six
+                    python-wrapper
+                    ;; Wrong version of snappy?
+                    ;; external/tsl/tsl/platform/default/port.cc:328:11: error:
+                    ;; 'RawCompressFromIOVec' is not a member of 'snappy'; did
+                    ;; you mean 'RawUncompressToIOVec'?
+                    ;; snappy
+                    zlib))
+      (propagated-inputs (list python-absl-py
+                               python-importlib-metadata
+                               python-gast
+                               python-ml-dtypes
+                               python-numpy
+                               python-opt-einsum
+                               python-protobuf-for-tensorflow-2
+                               python-scipy))
+      (native-inputs `(("python-pypa-build" ,python-pypa-build)
+                       ("python-setuptools" ,python-setuptools)
+                       ("python-wheel" ,python-wheel)
+                       ("bazel-platforms" ,(origin
+                                             (method git-fetch)
+                                             (uri (git-reference (url
+                                                                  "https://github.com/bazelbuild/platforms")
+                                                                 (commit
+                                                                  "0.0.8")))
+                                             (file-name (git-file-name
+                                                         "bazel-platforms"
+                                                         "0.0.8"))
+                                             (sha256 (base32
+                                                      "1wx2348w49vxr3z9kjfls5zsrwr0div6r3irbvdlawan87sx5yfs"))))))
+      (home-page "https://github.com/google/jax")
+      (synopsis "Differentiate, compile, and transform Numpy code.")
+      (description
+       "JAX is Autograd and XLA, brought together for
 high-performance numerical computing, including large-scale machine
 learning research.  With its updated version of Autograd, JAX can
 automatically differentiate native Python and NumPy functions. It can
@@ -703,7 +705,7 @@ can take derivatives of derivatives of derivatives. It supports
 reverse-mode differentiation (a.k.a. backpropagation) via grad as well
 as forward-mode differentiation, and the two can be composed
 arbitrarily to any order.")
-    (license license:asl2.0)))
+      (license license:asl2.0))))
 
 (define-public python-jaxlib
   (package
