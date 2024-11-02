@@ -3,6 +3,7 @@
                 #:prefix license:)
   #:use-module (gnu packages)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
@@ -1135,3 +1136,29 @@ Some features:
 implementation of the Earth Mover's Distance.")
     (license license:expat)))
 
+(define-public python-optree
+  (package
+    (name "python-optree")
+    (version "0.10.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "optree" version))
+       (sha256
+        (base32 "13n98dzpyavzbj1cibkimxvki0whqx0x310p361m0dlpz608hznw"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags
+      ;; These all need a "helpers" module that is not included.
+      '(list "--ignore=tests/test_ops.py" "--ignore=tests/test_typing.py"
+             "--ignore=tests/test_treespec.py"
+             "--ignore=tests/test_prefix_errors.py")))
+    (propagated-inputs (list python-typing-extensions))
+    (native-inputs (list cmake-minimal pybind11 python-pytest
+                         python-pytest-cov python-pytest-xdist))
+    (home-page "https://github.com/metaopt/optree")
+    (synopsis "Optimized PyTree utilities")
+    (description "This package provides optimized @code{PyTree}
+utilities.")
+    (license license:asl2.0)))
