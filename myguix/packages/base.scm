@@ -61,7 +61,6 @@
   #:use-module (gnu packages wget)
   #:use-module (gnu packages xiph)
   #:use-module (gnu packages xorg)
-  #:use-module (myguix packages cuda)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages mozilla)
@@ -296,7 +295,7 @@
 
 ;; NVIDIA GPU related packages
 (define %nvidia-gpu-packages
-  (list cuda-toolkit-12.4
+  (list cuda-toolkit
         nvidia-htop
         nvidia-system-monitor
         nvidia-settings
