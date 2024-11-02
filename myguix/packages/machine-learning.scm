@@ -243,9 +243,9 @@ NumPy @code{dtype} extensions used in machine learning libraries, including:
 
 ;; This one is self-contained to avoid problems when using a
 ;; mismatched version of the protobuf library.
-(define-public python-protobuf-for-tensorflow-2
+(define-public python-protobuf-for-tensorflow
   (package
-    (name "python-protobuf-for-tensorflow-2")
+    (name "python-protobuf-for-tensorflow")
     ;; This matches the C++ version 3.21.9.  I don't make the rules.
     (version "4.21.9")
     (source
@@ -930,7 +930,7 @@ Cflags: -I~a/include/tensorflow
                                python-opt-einsum
                                python-packaging
                                python-portpicker
-                               python-protobuf-for-tensorflow-2
+                               python-protobuf-for-tensorflow
                                python-psutil
                                python-pyasn1
                                python-requests
@@ -1272,7 +1272,7 @@ build --local_cpu_resources=HOST_CPUS*.75
                                python-ml-dtypes
                                python-numpy
                                python-opt-einsum
-                               python-protobuf-for-tensorflow-2
+                               python-protobuf-for-tensorflow
                                python-scipy))
       (native-inputs `(("python-pypa-build" ,python-pypa-build)
                        ("python-setuptools" ,python-setuptools)
