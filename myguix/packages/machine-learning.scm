@@ -270,6 +270,41 @@ mechanism for serializing structured data.")
 cleaning up argument parsing scripts.")
     (license license:expat)))
 
+(define-public python-keras-for-tensorflow
+  (package
+    (name "python-keras")
+    (version "2.13.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "keras" version))
+       (sha256
+        (base32 "0s6ciib94x5qinj4pdfr4774yx5jxv055d6xclds25d08712rwax"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;needs tensorflow
+      #:phases
+      ;; We need this for tensorflow, so we can't have tensorflow
+      ;; here, and this causes the sanity check to fail.  That fine,
+      ;; because this is not sane.
+      '(modify-phases %standard-phases
+         (delete 'sanity-check))))
+    (propagated-inputs (list python-absl-py
+                             python-dm-tree
+                             python-h5py
+                             python-namex
+                             python-numpy
+                             python-rich))
+    (home-page "https://github.com/keras-team/keras")
+    (synopsis "Deep learning API")
+    (description
+     "Keras is a deep learning API written in Python,
+running on top of the machine learning platform TensorFlow.  It was
+developed with a focus on enabling fast experimentation and providing
+a delightful developer experience.")
+    (license license:asl2.0)))
+
 (define jaxlib-system-libs
   (list "absl_py"
         "com_github_grpc_grpc"
