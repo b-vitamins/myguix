@@ -3,6 +3,7 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages machine-learning)
+  #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-science)
@@ -18,7 +19,6 @@
                 #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module (myguix packages cuda)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs))
 
@@ -70,6 +70,45 @@
     (description
      "This package provides a port to OpenAI's Whisper Automatic Speech Recognition Models. It requires model parameters to be downloaded independently and to be able to run a Whisper model.")
     (license license:expat)))
+
+(define-public llama-cpp
+  (let ((commit "e02b597be3702174e7b47b44cd03e1da1553284b")
+        (revision "4"))
+    (package
+      (name "llama-cpp")
+      (version (git-version "0.0.0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/ggerganov/llama.cpp")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1kz6w6faii7q6cmmvqykb9dsxclci4wxh8jmwv64h8y5lw11qnaj"))))
+      (build-system cmake-build-system)
+      (arguments
+       (list
+        #:configure-flags #~(list "-DBUILD_SHARED_LIBS=ON")
+        #:phases #~(modify-phases %standard-phases
+                     (add-after 'unpack 'disable-unrunable-tests
+                       (lambda _
+                         (substitute* '("examples/eval-callback/CMakeLists.txt")
+                           (("add_test")
+                            "#add_test"))
+                         (substitute* '("examples/eval-callback/CMakeLists.txt")
+                           (("set_property")
+                            "#set_property")))))))
+      (inputs (list python))
+      (native-inputs (list pkg-config))
+      (properties '((tunable? . #t)))
+      (home-page "https://github.com/ggerganov/llama.cpp")
+      (synopsis "Port of Facebook's LLaMA model in C/C++")
+      (description
+       "This package provides a port to Facebook's LLaMA collection
+of foundation language models.  It requires models parameters to be downloaded
+independently to be able to run a LLaMA model.")
+      (license license:expat))))
 
 (define-public python-morfessor
   (package
@@ -182,4 +221,3 @@ document indexing and similarity retrieval with large corpora.  The target
 audience is the natural language processing and information retrieval
 community.")
     (license license:lgpl2.1)))
-
