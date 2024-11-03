@@ -218,7 +218,7 @@
         lrzip))
 
 (define %media-consumption-packages
-  (list vlc audacious cozy ephoto))
+  (list vlc audacious ephoto))
 
 (define %audio-conversion-tools-packages
   (list abcde
