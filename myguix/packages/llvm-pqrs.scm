@@ -4,9 +4,6 @@
   #:use-module (guix packages)
   #:use-module (guix utils))
 
-(define-public llvm-with-bolt
-  llvm-with-bolt-18)
-
 (define-public llvm-with-bolt-17
   (package
     (inherit llvm-17)
@@ -30,3 +27,6 @@
                   ;; Add BOLT support
                   (list "-DLLVM_ENABLE_ASSERTIONS=ON"
                         "-DLLVM_ENABLE_PROJECTS=bolt")))))))
+
+(define-public llvm-with-bolt
+  llvm-with-bolt-18)
