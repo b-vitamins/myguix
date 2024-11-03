@@ -1010,11 +1010,11 @@ simultaneous NVML calls from multiple threads.")
 (define-public cuda-toolkit
   (package
     (name "cuda-toolkit")
-    (version "12.6.2")
+    (version "12.4.0")
     (source
      (origin
        (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda_12.6.2_560.35.03_linux.run")
+        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
        (sha256
         (base32 "0dxj9z2vl38g6iqqsnjqfxsyqai9sq8g3kqrcyjacz4gnnfaha9p"))
        (method url-fetch)))
@@ -1112,7 +1112,7 @@ simultaneous NVML calls from multiple threads.")
                      (lambda _
                        (delete-file (string-append #$output "/include/include")))))))
     (native-inputs (list which patchelf perl python-2))
-    (inputs `(("gcc:lib" ,gcc-13 "lib")))
+    (inputs `(("gcc:lib" ,gcc-11 "lib")))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "Compiler for the CUDA language and associated run-time support")
     (description
