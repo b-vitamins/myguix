@@ -14,7 +14,6 @@
   #:use-module (guix gexp)
   #:use-module (guix modules)
   #:use-module (guix utils)
-  #:use-module (myguix packages cuda)
   #:use-module (myguix packages nvidia)
   #:use-module (ice-9 match))
 
