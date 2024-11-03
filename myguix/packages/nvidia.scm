@@ -50,7 +50,7 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module ((myguix licenses)
-                #:prefix license:)
+                #:prefix nonfree:)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages linux)
@@ -545,7 +545,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
      "This package provides libraries of the proprietary NVIDIA driver.  It's
 mainly used as a dependency of other packages.  For user-facing purpose, use
 @code{nvda} instead.")
-    (license (license:nonfree (format #f
+    (license (nonfree:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
@@ -632,7 +632,7 @@ field of the @code{operating-system} configuration.
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
-    (license (license:nonfree (format #f
+    (license (nonfree:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
@@ -965,7 +965,7 @@ building 3rd party applications, and is also the underlying library for the
 NVIDIA-supported nvidia-smi tool.  NVML is thread-safe so it is safe to make
 simultaneous NVML calls from multiple threads.")
     ;; Doesn't have any specific LICENSE file, but see COPYRIGHT.txt for details.
-    (license (license:nonfree "file://COPYRIGHT.txt"))))
+    (license (nonfree:nonfree "file://COPYRIGHT.txt"))))
 
 (define-public nvidia-system-monitor
   (package
@@ -1121,7 +1121,7 @@ simultaneous NVML calls from multiple threads.")
     (description
      "This package provides the CUDA compiler and the CUDA run-time support
 libraries for NVIDIA GPUs, all of which are proprietary.")
-    (license (license:nonfree
+    (license (nonfree:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
 
 (define-public cudnn
@@ -1195,7 +1195,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "NVIDIA CUDA Deep Neural Network library (cuDNN)")
     (description "This package provides the CUDA Deep Neural Network library.")
-    (license (license:nonfree
+    (license (nonfree:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
 (define-public cutlass
@@ -1312,7 +1312,7 @@ multi-process (e.g., MPI) applications.")
     (synopsis "Nvidia cuTENSOR library")
     (description "This package provides the proprietary cuTENSOR
 library for NVIDIA GPUs.")
-    (license (license:nonfree
+    (license (nonfree:nonfree
               "https://docs.nvidia.com/cuda/cutensor/latest/license.html"))))
 
 (define-public no-float128
