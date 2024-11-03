@@ -1358,5 +1358,3 @@ of glibc and disable float128 support.  This is required allow the use of
 See also
 @url{https://devtalk.nvidia.com/default/topic/1023776/cuda-programming-and-performance/-request-add-nvcc-compatibility-with-glibc-2-26/1}.")
     (license license:gpl3+)))
-
-cuda-toolkit
