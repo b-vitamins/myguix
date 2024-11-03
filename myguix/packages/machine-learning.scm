@@ -434,7 +434,7 @@ cleaning up argument parsing scripts.")
       (build-system bazel-build-system)
       (arguments
        (list
-        #:modules '((guix-science build bazel-build-system)
+        #:modules '((myguix build bazel-build-system)
                     ((guix build pyproject-build-system)
                      #:prefix pyproject:)
                     (guix build utils))
@@ -516,7 +516,7 @@ cleaning up argument parsing scripts.")
                                                "python-wrapper") "/bin/python"))
         #:vendored-inputs-hash
         "1sdwk3fnf0gfk1h2fb5082r87ahzhswznj21p9d1y0g0x97hw6zk"
-        #:phases #~(modify-phases (@ (guix-science build bazel-build-system)
+        #:phases #~(modify-phases (@ (myguix build bazel-build-system)
                                      %standard-phases)
                      (add-after 'unpack 'patch-python-build-system
                        (lambda _
