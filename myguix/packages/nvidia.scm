@@ -32,7 +32,6 @@
   #:use-module (gnu packages qt)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages video)
-  #:use-module (gnu packages vulkan)
   #:use-module (gnu packages web)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xml)
@@ -72,17 +71,17 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "560.35.03")
+  "550.127.05")
 
 
 ;;;
 ;;; NVIDIA driver checkouts
 ;;;
 (define %nvidia-driver-hashes
-  '(("560.35.03" . "1qqzkzi1ms5x7yjbfsy2hmqsvw3k9zy57r0v6jrcahyxza92r4zj")))
+  '(("550.127.05" . "1sba12953gz35qf5lj5dlfa80gcpdmmfngbdagbnp29abm7z716k")))
 
 (define %nvidia-settings-hashes
-  '(("560.35.03" . "1yayvpi0826g3l04390wh284qzhxgc027c2r6i0cz2pi1472y2wi")))
+  '(("550.127.05" . "0a5zdkizqa1pxvj88bwcph1ck51f4yhzqy3nmfc4malyrd78wi3i")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -734,9 +733,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                   libxext
                   libxrandr
                   libxv
-                  libxxf86vm
-                  ;; Build fails in the absence of <vulkan/vulkan.h>.
-                  vulkan-headers))
+                  libxxf86vm))
     (synopsis "Nvidia driver control panel")
     (description
      "This package provides Nvidia driver control panel for monitor
