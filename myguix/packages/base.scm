@@ -95,7 +95,6 @@
                                   %desktop-utilities-packages
                                   %system-monitoring-packages
                                   %basic-filesystem-tools
-                                  %basic-filesystem-tools
                                   %ssd-tools
                                   %diagnostic-and-maintenance-tools
                                   %remote-storage-mount-packages
