@@ -71,17 +71,17 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "550.127.05")
+  "550.120")
 
 
 ;;;
 ;;; NVIDIA driver checkouts
 ;;;
 (define %nvidia-driver-hashes
-  '(("550.127.05" . "1sba12953gz35qf5lj5dlfa80gcpdmmfngbdagbnp29abm7z716k")))
+  '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
 
 (define %nvidia-settings-hashes
-  '(("550.127.05" . "0a5zdkizqa1pxvj88bwcph1ck51f4yhzqy3nmfc4malyrd78wi3i")))
+  '(("550.120" . "1d8rxpk2z9apkvm7vsr7j93rfizh8bgm4h6rlha3m2j818zwixvw")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -529,7 +529,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
     (native-inputs (list patchelf))
     (inputs (list egl-gbm
                   egl-wayland
-                  `(,gcc-13 "lib")
+                  `(,gcc-11 "lib")
                   glibc
                   libdrm
                   libglvnd-for-nvda
