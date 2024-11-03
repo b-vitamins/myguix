@@ -1124,14 +1124,14 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 (define-public cudnn
   (package
     (name "cudnn")
-    (version "9.5.1.17")
+    (version "9.2.1.18")
     (source
      (origin
        (uri (string-append
              "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
              version "_cuda12-archive.tar.xz"))
        (sha256
-        (base32 "1r1b4y1s4yk1h8x71yzsxjzx467kn5mgcdmci09aw943qswj1p9m"))
+        (base32 "16c34a0ymxhh3867pk53bwf81dicgci5cq5n723nc8isvnkxrqnn"))
        (method url-fetch)))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
@@ -1188,7 +1188,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                          (copy-recursively "lib" lib)
                          (copy-recursively "include" include)))))))
     (native-inputs (list patchelf))
-    (inputs `(("gcc:lib" ,gcc-13 "lib")))
+    (inputs `(("gcc:lib" ,gcc-11 "lib")))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "NVIDIA CUDA Deep Neural Network library (cuDNN)")
     (description "This package provides the CUDA Deep Neural Network library.")
