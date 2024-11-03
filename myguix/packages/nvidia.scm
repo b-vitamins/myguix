@@ -1019,7 +1019,7 @@ simultaneous NVML calls from multiple threads.")
        (uri
         "https://developer.download.nvidia.com/compute/cuda/12.6.2/local_installers/cuda_12.6.2_560.35.03_linux.run")
        (sha256
-        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
+        (base32 "0dxj9z2vl38g6iqqsnjqfxsyqai9sq8g3kqrcyjacz4gnnfaha9p"))
        (method url-fetch)))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
@@ -1358,3 +1358,5 @@ of glibc and disable float128 support.  This is required allow the use of
 See also
 @url{https://devtalk.nvidia.com/default/topic/1023776/cuda-programming-and-performance/-request-add-nvcc-compatibility-with-glibc-2-26/1}.")
     (license license:gpl3+)))
+
+cuda-toolkit
