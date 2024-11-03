@@ -77,70 +77,66 @@
     (license license:expat)))
 
 (define-public ffmpeg-cuda
-  (let ((ffmpeg-with-nvda (replace-mesa ffmpeg-7)))
-    (package
-      (inherit ffmpeg-with-nvda)
-      (name "ffmpeg-cuda")
-      (arguments
-       (substitute-keyword-arguments (package-arguments ffmpeg-with-nvda)
-         ((#:configure-flags flags)
-          #~(append #$flags
-                    (list "--enable-nonfree"
-                     "--enable-cuda-nvcc"
-                     "--enable-libnpp"
-                     "--enable-nvdec"
-                     "--enable-nvenc"
-                     "--enable-cuvid"
-                     "--enable-encoder=h264_nvenc"
-                     "--enable-decoder=h264_cuvid"
-                     "--enable-decoder=aac"
-                     "--enable-decoder=h264"
-                     "--enable-decoder=rawvideo"
-                     "--enable-indev=lavfi"
-                     "--enable-demuxer=mov"
-                     "--enable-muxer=mp4"
-                     "--enable-filter=scale"
-                     "--enable-filter=testsrc2"
-                     "--enable-protocol=file"
-                     "--enable-protocol=https"
-                     ;; https://docs.nvidia.com/video-technologies/video-codec-sdk/12.0/ffmpeg-with-nvidia-gpu/index.html
-                     ;;
-                     ;; nvcc from CUDA toolkit version 11.0 or higher does not support compiling for 'compute_30'. This will cause the configure script to fail with the message 'ERROR: failed checking for nvcc.'. To work around this error, use --nvccflags="-gencode arch=compute_52,code=sm_52 -O2" which overrides the default nvcc flags.
-                     "--nvccflags=-gencode arch=compute_80,code=sm_80 -O2")))
-         ((#:phases phases)
-          #~(modify-phases #$phases
-              (replace 'configure
-                (lambda* (#:key outputs inputs configure-flags
-                          #:allow-other-keys)
-                  (let ((out (assoc-ref outputs "out"))
-                        (cuda-lib64 (string-append (assoc-ref inputs
+  (package
+    (inherit ffmpeg-7)
+    (name "ffmpeg-cuda")
+    (arguments
+     (substitute-keyword-arguments (package-arguments ffmpeg-7)
+       ((#:configure-flags flags)
+        #~(append #$flags
+                  (list "--enable-nonfree"
+                        "--enable-cuda-nvcc"
+                        "--enable-libnpp"
+                        "--enable-nvdec"
+                        "--enable-nvenc"
+                        "--enable-cuvid"
+                        "--enable-encoder=h264_nvenc"
+                        "--enable-decoder=h264_cuvid"
+                        "--enable-decoder=aac"
+                        "--enable-decoder=h264"
+                        "--enable-decoder=rawvideo"
+                        "--enable-indev=lavfi"
+                        "--enable-demuxer=mov"
+                        "--enable-muxer=mp4"
+                        "--enable-filter=scale"
+                        "--enable-filter=testsrc2"
+                        "--enable-protocol=file"
+                        "--enable-protocol=https")))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (replace 'configure
+              (lambda* (#:key outputs inputs configure-flags
+                        #:allow-other-keys)
+                (let ((out (assoc-ref outputs "out"))
+                      (cuda-lib64 (string-append (assoc-ref inputs
+                                                            "cuda-toolkit")
+                                                 "/lib64"))
+                      (cuda-include (string-append (assoc-ref inputs
                                                               "cuda-toolkit")
-                                                   "/lib64"))
-                        (cuda-include (string-append (assoc-ref inputs
-                                                      "cuda-toolkit")
-                                                     "/include")))
-                    (substitute* "configure"
-                      (("#! /bin/sh")
-                       (string-append "#!"
-                                      (which "sh"))))
-                    (setenv "SHELL"
-                            (which "bash"))
-                    (setenv "CONFIG_SHELL"
-                            (which "bash"))
-                    (apply invoke
-                           "./configure"
-                           (string-append "--prefix=" out)
-                           ;; Add $libdir to the RUNPATH of all the binaries.
-                           (string-append "--extra-ldflags=-Wl,-rpath=" out
-                                          "/lib")
-                           (string-append "--extra-cflags=-I" cuda-include)
-                           (string-append "--extra-ldflags=-L" cuda-lib64)
-                           configure-flags))))))))
-      (inputs (modify-inputs (package-inputs ffmpeg-with-nvda)
-                (append cuda-toolkit nv-codec-headers)))
-      (description
-       "FFmpeg with NVIDIA hardware acceleration support using NVDEC and CUDA libraries.")
-      (synopsis "FFmpeg with NVIDIA GPU hardware decoding (NVDEC) support"))))
+                                                   "/include")))
+                  (substitute* "configure"
+                    (("#! /bin/sh")
+                     (string-append "#!"
+                                    (which "sh"))))
+                  (setenv "SHELL"
+                          (which "bash"))
+                  (setenv "CONFIG_SHELL"
+                          (which "bash"))
+                  (apply invoke
+                         "./configure"
+                         (string-append "--prefix=" out)
+                         ;; Add $libdir to the RUNPATH of all the binaries.
+                         (string-append "--extra-ldflags=-Wl,-rpath=" out
+                                        "/lib")
+                         (string-append "--extra-cflags=-I" cuda-include)
+                         (string-append "--extra-ldflags=-L" cuda-lib64)
+                         configure-flags))))))))
+    (inputs (modify-inputs (package-inputs ffmpeg)
+              (replace "mesa" nvda)
+              (append cuda-toolkit nv-codec-headers)))
+    (description
+     "FFmpeg with NVIDIA hardware acceleration support using NVDEC and CUDA libraries.")
+    (synopsis "FFmpeg with NVIDIA GPU hardware decoding (NVDEC) support")))
 
 (define-public mpv-cuda
   (package
@@ -150,4 +146,3 @@
                          (append nvda cuda-toolkit)
                          (replace "ffmpeg" ffmpeg-cuda)
                          (append nv-codec-headers)))))
-
