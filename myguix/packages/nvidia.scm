@@ -880,6 +880,15 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 (define-public replace-mesa
   (package-input-rewriting `((,mesa unquote mesa/fake))))
 
+(define-public (replace-mesa-from-propagated-inputs package)
+  ;; Apply replace-mesa to every package input.
+  (map (match-lambda
+         ((_ (? package? pkg))
+          (replace-mesa pkg))
+         ((_ (? package? pkg) output)
+          (replace-mesa (list pkg output))))
+       (package-propagated-inputs package)))
+
 
 ;;;
 ;;; Other packages
