@@ -89,7 +89,8 @@
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust)
   #:use-module (myguix packages video)
-  #:export (%system-core-packages %nvidia-gpu-packages
+  #:export (%system-core-packages %nvidia-core-packages
+                                  %cuda-accelerated-packages
                                   %terminal-tools-packages
                                   %secret-mgmt-packages
                                   %desktop-utilities-packages
@@ -148,14 +149,11 @@
         plocate
         fontconfig))
 
-(define %nvidia-gpu-packages
-  (list cuda-toolkit
-        nvidia-htop
-        nvidia-system-monitor
-        nvidia-settings
-        gpustat
-        ffmpeg-cuda
-        mpv-cuda))
+(define %nvidia-core-packages
+  (list cuda-toolkit nvidia-htop nvidia-system-monitor nvidia-settings gpustat))
+
+(define %cuda-accelerated-packages
+  (list ffmpeg-cuda mpv-cuda))
 
 (define %terminal-tools-packages
   (list parallel screen tmux alacritty))
