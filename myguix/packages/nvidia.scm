@@ -1025,7 +1025,7 @@ simultaneous NVML calls from multiple threads.")
        (uri
         "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
        (sha256
-        (base32 "0dxj9z2vl38g6iqqsnjqfxsyqai9sq8g3kqrcyjacz4gnnfaha9p"))
+        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
        (method url-fetch)))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
