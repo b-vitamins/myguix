@@ -32,6 +32,7 @@
   #:use-module (gnu packages qt)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages video)
+  #:use-module (gnu packages vulkan)
   #:use-module (gnu packages web)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xml)
@@ -71,18 +72,17 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "550.127.05")
+  "560.35.03")
 
 
 ;;;
 ;;; NVIDIA driver checkouts
 ;;;
-
 (define %nvidia-driver-hashes
-  '(("550.127.05" . "1sba12953gz35qf5lj5dlfa80gcpdmmfngbdagbnp29abm7z716k")))
+  '(("560.35.03" . "1qqzkzi1ms5x7yjbfsy2hmqsvw3k9zy57r0v6jrcahyxza92r4zj")))
 
 (define %nvidia-settings-hashes
-  '(("550.127.05" . "0a5zdkizqa1pxvj88bwcph1ck51f4yhzqy3nmfc4malyrd78wi3i")))
+  '(("560.35.03" . "1yayvpi0826g3l04390wh284qzhxgc027c2r6i0cz2pi1472y2wi")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -530,7 +530,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
     (native-inputs (list patchelf))
     (inputs (list egl-gbm
                   egl-wayland
-                  `(,gcc "lib")
+                  `(,gcc-13 "lib")
                   glibc
                   libdrm
                   libglvnd-for-nvda
@@ -554,7 +554,7 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
 
 
 ;;;
-;;; NVIDIA frimwares
+;;; NVIDIA firmwares
 ;;;
 
 (define-public nvidia-firmware
@@ -734,7 +734,9 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                   libxext
                   libxrandr
                   libxv
-                  libxxf86vm))
+                  libxxf86vm
+                  ;; Build fails in the absence of <vulkan/vulkan.h>.
+                  vulkan-headers))
     (synopsis "Nvidia driver control panel")
     (description
      "This package provides Nvidia driver control panel for monitor
