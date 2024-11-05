@@ -1861,19 +1861,20 @@ libraries to only contain device code for the specified targets.")
        (method url-fetch)
        (uri (cuda-module-url name version))
        (sha256
-        (base32
-         (match (or (%current-target-system) (%current-system))
-           ("x86_64-linux"
-            "0yriv3gcb4kpvpav3ilv8zyhravmz0blb0gv1c7pfq37r9m705dv")
-           ("aarch64-linux"
-            "0amp7qg64i6rfkqnjinizh9vhpajvqdpyan4jda9vqr7ckrdfq31")
-           ("powerpc64le-linux"
-            "10dwwhk2pfz6dcqpgjp2dryg5qb08ghnbxvbk4mfhvsajj9ik4wv"))))))
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0yriv3gcb4kpvpav3ilv8zyhravmz0blb0gv1c7pfq37r9m705dv")
+                  ("aarch64-linux"
+                   "0amp7qg64i6rfkqnjinizh9vhpajvqdpyan4jda9vqr7ckrdfq31")
+                  ("powerpc64le-linux"
+                   "10dwwhk2pfz6dcqpgjp2dryg5qb08ghnbxvbk4mfhvsajj9ik4wv"))))))
     (build-system cuda-build-system)
     (arguments
-     (list #:install-plan ''(("include" "include")
-                             ("lib" "lib")
-                             ("pkg-config" "share/pkg-config"))))
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))))
     (inputs (list `(,gcc "lib") glibc))
     (outputs (list "out" "static"))
     (synopsis "Runtime compilation library for CUDA C++")
@@ -1883,5 +1884,63 @@ creates handles that can be used to obtain the CUDA PTX, for further
 instrumentation with the CUDA Toolkit.  It allows to shrink compilation
 overhead and simplify application deployment.")
     (home-page "https://docs.nvidia.com/cuda/nvrtc/index.html")
+    (license (cuda-license name))))
+
+(define-public cuda-nvtx
+  (package
+    (name "cuda-nvtx")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1hpibjs9hpc1qhbxihgcpsf298cjwxh7qqsk0shhrwbv4hncg8lc")
+                  ("aarch64-linux"
+                   "1j841pl7n2waal2nclz076yxmzsibxssy8gnkb14yyc8sj657ajp")
+                  ("powerpc64le-linux"
+                   "1p0ml8p8dpzwp2kkgvv0yr4f61if33srpzbj1mjpzc70a0l55a31"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (synopsis "NVIDIA Tools Extension Library")
+    (description
+     "This package provides a cross-platform API for annotating source code to
+provide contextual information to developer tools.")
+    (home-page "https://docs.nvidia.com/nvtx/index.html")
+    (license (cuda-license name))))
+
+(define-public cuda-opencl
+  (package
+    (name "cuda-opencl")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32
+         (match (or (%current-target-system) (%current-system))
+           ("x86_64-linux"
+            "1k4ab28kg5plr0nn83amr6j7cqg54vpis00am9dpiy4kgj2izgcx"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list #:install-plan ''(("include" "include")
+                             ("lib" "lib")
+                             ("pkg-config" "share/pkg-config"))))
+    (synopsis "CUDA OpenCL API")
+    (description
+     "OpenCL (Open Computing Language) is a multi-vendor open standard for
+general-purpose parallel programming of heterogeneous systems that include
+CPUs, GPUs and other processors.  This package provides the API to use OpenCL
+on NVIDIA GPUs.")
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
     (license (cuda-license name))))
 
