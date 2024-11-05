@@ -1664,52 +1664,60 @@ binary and text NVVM IR inputs.")
     (name "cuda-nvcc")
     (arguments
      (list
-      #:strip-binaries? #f  ; XXX: breaks 'validate-runpath phase
+      #:strip-binaries? #f ;XXX: breaks 'validate-runpath phase
       #:patchelf-inputs ''("gcc" "glibc" "libnvvm")
       #:install-plan ''(("bin" "bin")
                         ("include" "include")
                         ("lib" "lib"))
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'unpack 'patch-nvcc.profile
-            (lambda _
-              (define (append-to-file name body)
-                (let ((file (open-file name "a")))
-                  (display body file)
-                  (close-port file)))
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'patch-nvcc.profile
+                     (lambda _
+                       (define (append-to-file name body)
+                         (let ((file (open-file name "a")))
+                           (display body file)
+                           (close-port file)))
 
-              (substitute* "bin/nvcc.profile"
-                (("\\$\\(TOP\\)/\\$\\(_NVVM_BRANCH_\\)")
-                 #$(this-package-input "libnvvm"))
-                (("\\$\\(TOP\\)/lib")
-                 (string-append #$output "/lib"))
-                (("\\$\\(TOP\\)/nvvm")
-                 (string-append #$output "/nvvm"))
-                (("\\$\\(TOP\\)/\\$\\(_TARGET_DIR_\\)/include")
-                 (string-append #$output "/include")))
-              (append-to-file
-               "bin/nvcc.profile"
-               (string-join
-                (list
-                 (string-append "PATH += " #$(this-package-input "gcc") "/bin")
-                 (string-append
-                  "LIBRARIES =+ -L"
-                  #$(this-package-input "cuda-cudart") "/lib -L"
-                  #$(this-package-input "cuda-cudart") "/lib/stubs -L"
-                  #$(this-package-input "libnvvm") "/lib")
-                 (string-append
-                  "INCLUDES =+ -I"
-                  #$(this-package-input "cuda-cudart") "/include -I"
-                  #$(this-package-input "libnvvm") "/include\n"))
-                "\n")))))))
-    (inputs (list cuda-cudart `(,gcc "lib") glibc libnvvm))
-    (synopsis
-     "Compiler for the CUDA language and associated run-time support")
+                       (substitute* "bin/nvcc.profile"
+                         (("\\$\\(TOP\\)/\\$\\(_NVVM_BRANCH_\\)")
+                          #$(this-package-input "libnvvm"))
+                         (("\\$\\(TOP\\)/lib")
+                          (string-append #$output "/lib"))
+                         (("\\$\\(TOP\\)/nvvm")
+                          (string-append #$output "/nvvm"))
+                         (("\\$\\(TOP\\)/\\$\\(_TARGET_DIR_\\)/include")
+                          (string-append #$output "/include")))
+                       (append-to-file "bin/nvcc.profile"
+                                       (string-join (list (string-append
+                                                           "PATH += "
+                                                           #$(this-package-input
+                                                              "gcc") "/bin")
+                                                          (string-append
+                                                           "LIBRARIES =+ -L"
+                                                           #$(this-package-input
+                                                              "cuda-cudart")
+                                                           "/lib -L"
+                                                           #$(this-package-input
+                                                              "cuda-cudart")
+                                                           "/lib/stubs -L"
+                                                           #$(this-package-input
+                                                              "libnvvm")
+                                                           "/lib")
+                                                          (string-append
+                                                           "INCLUDES =+ -I"
+                                                           #$(this-package-input
+                                                              "cuda-cudart")
+                                                           "/include -I"
+                                                           #$(this-package-input
+                                                              "libnvvm")
+                                                           "/include\n")) "\n")))))))
+    (inputs (list cuda-cudart
+                  `(,gcc "lib") glibc libnvvm))
+    (synopsis "Compiler for the CUDA language and associated run-time support")
     (description
      "This package provides the CUDA compiler and the CUDA run-time support
 libraries for NVIDIA GPUs, all of which are proprietary.")
-    (home-page "https://docs.nvidia.com/cuda/\
-cuda-compiler-driver-nvcc/index.html")
+    (home-page
+     "https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html")
     (license (cuda-license name))))
 
 (define-public cuda-nvml-dev
@@ -1721,20 +1729,21 @@ cuda-compiler-driver-nvcc/index.html")
        (method url-fetch)
        (uri (cuda-module-url name version))
        (sha256
-        (base32
-         (match (or (%current-target-system) (%current-system))
-           ("x86_64-linux"
-            "0zyp4c4zf4kjjdw0dzjncclyamazlg5z4lncl7y0g8bq3idpgbi0")
-           ("aarch64-linux"
-            "0wal0bjvhd9wr4cnvr4s9m330awj2mqqvpq0rh6wzaykas40zmcx")
-           ("powerpc64le-linux"
-            "1zjh6mmp5nl3s5wm5jwfzh9bazzhl2vr76c9cdfrjjryyd2pkr92"))))))
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0zyp4c4zf4kjjdw0dzjncclyamazlg5z4lncl7y0g8bq3idpgbi0")
+                  ("aarch64-linux"
+                   "0wal0bjvhd9wr4cnvr4s9m330awj2mqqvpq0rh6wzaykas40zmcx")
+                  ("powerpc64le-linux"
+                   "1zjh6mmp5nl3s5wm5jwfzh9bazzhl2vr76c9cdfrjjryyd2pkr92"))))))
     (build-system cuda-build-system)
     (arguments
-     (list #:install-plan ''(("include" "include")
-                             ("lib" "lib")
-                             ("nvml/example" "share/example")
-                             ("pkg-config" "share/pkg-config"))))
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("nvml/example" "share/example")
+                        ("pkg-config" "share/pkg-config"))))
     (inputs (list `(,gcc "lib") glibc))
     (outputs (list "out" "static"))
     (synopsis "NVIDIA Management Library Headers")
@@ -1745,3 +1754,36 @@ a direct access to the queries and commands exposed via @code{nvidia-smi}.")
     (home-page "https://developer.nvidia.com/management-library-nvml")
     (license (cuda-license name))))
 
+(define-public cuda-nvdisasm
+  (package
+    (name "cuda-nvdisasm")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1sd9wqf5y4xvz70yh58mdxxddwnkyfjfaj6nrykpvqrry79vyz7l")
+                  ("aarch64-linux"
+                   "0pnk1x1c7msz93r5kgkb218akf02ymjar2dz8s3sx08hicaslff2")
+                  ("powerpc64le-linux"
+                   "04xjcjj055ffs58gkf86jzryyzxia8c995g8xpj5nf2zhaw030hw"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("bin" "bin"))))
+    (synopsis "Extract information from CUDA cubin files")
+    (description
+     "This binary extracts information from standalone cubin files
+and presents them in human readable format.  The output of @code{nvdisasm}
+includes CUDA assembly code for each kernel, listing of ELF data sections and
+other CUDA specific sections.  Output style and options are controlled through
+nvdisasm command-line options.  @code{nvdisasm} also does control flow
+analysis to annotate jump/branch targets and makes the output easier to
+read.")
+    (home-page
+     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvdisasm")
+    (license (cuda-license name))))
