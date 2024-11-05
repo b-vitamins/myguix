@@ -2236,3 +2236,36 @@ In addition, cuSolver provides a new refactorization library useful for
 solving sequences of matrices with a shared sparsity pattern.")
     (home-page "https://docs.nvidia.com/cuda/cusolver/index.html")
     (license (cuda-license name))))
+
+(define-public libnvjitlink
+  (package
+    (name "libnvjitlink")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1d5ngmf10l37rm7814jlghgfpa0xjyqiis8vqg0y22cmrw365vi1")
+                  ("aarch64-linux"
+                   "15fbd3ygk41wbsjyzsharncd94pzn0ikwhq5fq5x7lyh9g0frkfz")
+                  ("powerpc64le-linux"
+                   "1gq93cp68x0nivajz9bh7mvykfzcfhim5l907lg1kp2jb3rnrssg"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("lib" "lib")
+                        ("pkg-config" "share/pkg-config")
+                        ("include" "include"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis "Link GPU devide code at runtime")
+    (description
+     "This package provides a set of APIs which can be used at runtime to link
+together GPU devide code.  It supports Link Time Optimization.")
+    (home-page "https://docs.nvidia.com/cuda/nvjitlink/index.html")
+    (license (cuda-license name))))
+
