@@ -1822,3 +1822,32 @@ and GPU, including kernel execution, memory transfers, memory set and CUDA API
 calls and events or metrics for CUDA kernels.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (license (cuda-license name))))
+
+(define-public cuda-nvprune
+  (package
+    (name "cuda-nvprune")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0qrisahad4n2g8n40i0gpq986ni8qjg53fd23vycmmmkggvb3wxa")
+                  ("aarch64-linux"
+                   "1hdih73ph80iwmjmz7dywz995626x64jkqfaybw7a908nxkjalpy")
+                  ("powerpc64le-linux"
+                   "0n92fcp5qms6dvg5hq1wl29wmh32wjfkykccjpqd8c40qrmd9ngh"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("bin" "bin"))))
+    (synopsis "Prune host NVIDIA binaries for the specified target")
+    (description
+     "This package provides a binary that prunes host object files and
+libraries to only contain device code for the specified targets.")
+    (home-page
+     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvprune")
+    (license (cuda-license name))))
