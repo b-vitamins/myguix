@@ -2127,3 +2127,44 @@ algorithm designed to fill an -dimensional space evenly.")
     (home-page "https://docs.nvidia.com/cuda/curand/index.html")
     (license (cuda-license name))))
 
+(define-public libcusolver
+  (package
+    (name "libcusolver")
+    (version "11.4.5.107")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1y34wk7xx9h0kj13rxb504yx5vchkapk1237ya7vs7z70409fsbi")
+                  ("aarch64-linux"
+                   "0wr8xa4hqay94gc1b9jzig24f7q3s2ykakppxv42pxp86dbjyp0q")
+                  ("powerpc64le-linux"
+                   "12jkky40g1xpjr1lkz925q93zbc84g559mhv94x70i4dmy6b4rj3"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))
+      #:patchelf-inputs ''("gcc" "glibc" "libcublas" "libcusparse"
+                           "libnvjitlink")))
+    (inputs (list `(,gcc "lib") glibc libcublas libcusparse libnvjitlink))
+    (outputs (list "out" "static"))
+    (synopsis
+     "GPU-accelerated library for decompositions and linear system solutions")
+    (description
+     "This package provides a high-level library based on the cuBLAS and
+cuSPARSE libraries.  It consists of two modules corresponding to two sets of
+API: the cuSolver API on a single GPU; and the cuSolverMG API on a single node
+multiGPU.  Each of these can be used independently or in concert with other
+toolkit libraries. The intent of cuSolver is to provide useful LAPACK-like
+features, such as common matrix factorization and triangular solve routines
+for dense matrices, a sparse least-squares solver and an eigenvalue solver.
+In addition, cuSolver provides a new refactorization library useful for
+solving sequences of matrices with a shared sparsity pattern.")
+    (home-page "https://docs.nvidia.com/cuda/cusolver/index.html")
+    (license (cuda-license name))))
