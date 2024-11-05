@@ -1133,9 +1133,9 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (nonfree:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
 
-(define-public cudnn
+(define-public nvidia-cudnn
   (package
-    (name "cudnn")
+    (name "nvidia-cudnn")
     (version "9.2.1.18")
     (source
      (origin
@@ -1251,9 +1251,9 @@ resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
     (license license:bsd-3)))
 
-(define-public nccl
+(define-public nvidia-nccl
   (package
-    (name "nccl")
+    (name "nvidia-nccl")
     (version "2.22.3-1")
     (source
      (origin
