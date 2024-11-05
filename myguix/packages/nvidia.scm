@@ -1787,3 +1787,38 @@ read.")
     (home-page
      "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvdisasm")
     (license (cuda-license name))))
+
+(define-public cuda-nvprof
+  (package
+    (name "cuda-nvprof")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "18z522w0rnrqbqymigsd88rscz29z9fg3bf5w6ri4yjr8a1ycdg9")
+                  ("powerpc64le-linux"
+                   "1sd9wbb2zdc29jx7m3m5qs29s67ww71g659228y2045nr340qjc4"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:strip-binaries? #f ;XXX: breaks 'validate-runpath phase
+      #:install-plan ''(("bin" "bin")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))
+      #:patchelf-inputs ''(("cuda-cudart" "/lib/stubs")
+                           "cuda-cupti" "gcc" "glibc")))
+    (inputs (list cuda-cudart cuda-cupti
+                  `(,gcc "lib") glibc))
+    (synopsis "Command-line NVIDIA GPU profiler")
+    (description
+     "This package provides a command-line tool to profile CUDA kernels.  It
+enables the collection of a timeline of CUDA-related activities on both CPU
+and GPU, including kernel execution, memory transfers, memory set and CUDA API
+calls and events or metrics for CUDA kernels.")
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (license (cuda-license name))))
