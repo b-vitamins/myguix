@@ -1539,3 +1539,44 @@ to a CUDA C++ name, or the original name itself.")
      "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#cu-filt")
     (license (cuda-license name))))
 
+(define-public cuda-cupti
+  (package
+    (name "cuda-cupti")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32
+         (match (or (%current-target-system) (%current-system))
+           ("x86_64-linux"
+            "0qy3pvqkvr16xp2l0jb202xxvgq1pxdwkqfrpm4ag6k102i98x9r")
+           ("aarch64-linux"
+            "14j7kb6izvvgmla92lxyhlw482v7hxqsfpcl4gvpg6nspa0p6vbs")
+           ("powerpc64le-linux"
+            "0rfkvvv0i8450bpmanbq72cg98grpskxdrwswj7zch9gwkh4qyhr"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list #:install-plan ''(("include" "include")
+                             ("doc" "share/doc")
+                             ("lib" "lib")
+                             ("samples" "share/samples"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis "CUDA Profiling Tools Interface")
+    (description
+     "This package enables the creation of profiling and tracing tools that
+target CUDA applications and give insight into the CPU and GPU behavior of
+CUDA applications.  It provides the following APIs:
+@itemize
+@item the Activity API,
+@item the Callback API,
+@item the Event API,
+@item the Metric API,
+@item the Profiling API,
+@item the PC Sampling API,
+@item the Checkpoint API.
+@end itemize")
+    (home-page "https://docs.nvidia.com/cuda/cupti/index.html")
+    (license (cuda-license name))))
