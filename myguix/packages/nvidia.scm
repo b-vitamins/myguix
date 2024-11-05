@@ -23,6 +23,7 @@
   #:use-module (gnu packages glib)
   #:use-module (gnu packages gtk)
   #:use-module (gnu packages linux)
+  #:use-module (gnu packages multiprecision)
   #:use-module (gnu packages m4)
   #:use-module (gnu packages lsof)
   #:use-module (gnu packages perl)
@@ -1471,5 +1472,37 @@ overhead and simplify application deployment.")
      "This package provides the CUDA run-time support libraries for NVIDIA
 GPUs, all of which are proprietary.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (license (cuda-license name))))
+
+(define-public cuda-cuobjdump
+  (package
+    (name "cuda-cuobjdump")
+    (version "12.1.111")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0lnsmz06kim978lcfbyl1n58883wq76wjri7kazrdr1bmj6vb60h")
+                  ("aarch64-linux"
+                   "0dqis4m2wlplp5hzjn92q65vs8gshn4nc7200gyvdr7midqcw0xz")
+                  ("powerpc64le-linux"
+                   "118ipzj28i4668jpr3svnzw5r3hgmwvg618s6y3axfn5picv4f4q"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("bin" "bin"))))
+    (synopsis "Extract information from CUDA binary files")
+    (description
+     "This binary extracts information from CUDA binary files (both standalone
+and those embedded in host binaries) and presents them in human readable
+format.  The output of @code{cuobjdump} includes CUDA assembly code for each
+kernel, CUDA ELF section headers, string tables, relocators and other CUDA
+specific sections.  It also extracts embedded ptx text from host binaries.")
+    (home-page
+     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#cuobjdump")
     (license (cuda-license name))))
 
