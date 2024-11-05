@@ -2314,3 +2314,40 @@ with parameters.  Encoding functionality will allocate temporary buffers using
 user-provided memory allocator.")
     (home-page "https://docs.nvidia.com/cuda/nvjpeg/index.html")
     (license (cuda-license name))))
+
+(define-public libnpp
+  (package
+    (name "libnpp")
+    (version "12.1.0.40")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1lcb8hdqv2h3i33iinfj6nljh6bhlvy4c3pgis5wy7lnqwr2xi2j")
+                  ("aarch64-linux"
+                   "048blkq0qibj54a70pwn49w4y525if35djkfqx7l7p7ibm47qx3h")
+                  ("powerpc64le-linux"
+                   "140w44a5q5pcfzkn0dl5ibkhshd3pb7jczgddpklqv2a5pkngd2y"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis "NVIDIA 2D Image and Signal Processing Performance Primitives")
+    (description
+     "This package provides a library of functions for performing CUDA
+accelerated 2D image and signal processing.
+
+The primary library focuses on image processing and is widely applicable for
+developers in these areas.  NPP will evolve over time to encompass more of the
+compute heavy tasks in a variety of problem domains.  The NPP library is
+written to maximize flexibility, while maintaining high performance.")
+    (home-page "https://docs.nvidia.com/cuda/npp/index.html")
+    (license (cuda-license name))))
