@@ -2358,34 +2358,32 @@ written to maximize flexibility, while maintaining high performance.")
   (package
     (name "cuda-toolkit")
     (version "12.1.1")
-    (source #f)
+    (source
+     #f)
     (build-system trivial-build-system)
     (arguments
      '(#:modules ((guix build union))
-       #:builder
-       (begin
-         (use-modules (ice-9 match)
-                      (guix build union))
-         (match %build-inputs
-           (((names . directories) ...)
-            (union-build (assoc-ref %outputs "out")
-                         directories))))))
-    (inputs
-     (list cuda-cccl
-           cuda-cudart
-           cuda-nvcc
-           cuda-nvml-dev
-           cuda-nvtx
-           cuda-nvrtc
-           libcublas
-           libcufft
-           libcurand
-           libcusolver
-           libcusparse
-           libnpp
-           libnvjitlink
-           libnvjpeg
-           libnvvm))
+       #:builder (begin
+                   (use-modules (ice-9 match)
+                                (guix build union))
+                   (match %build-inputs
+                     (((names . directories) ...)
+                      (union-build (assoc-ref %outputs "out") directories))))))
+    (inputs (list cuda-cccl
+                  cuda-cudart
+                  cuda-nvcc
+                  cuda-nvml-dev
+                  cuda-nvtx
+                  cuda-nvrtc
+                  libcublas
+                  libcufft
+                  libcurand
+                  libcusolver
+                  libcusparse
+                  libnpp
+                  libnvjitlink
+                  libnvjpeg
+                  libnvvm))
     (synopsis "Metapackage for CUDA")
     (description
      "This package provides the CUDA compiler and the CUDA run-time support
