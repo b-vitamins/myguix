@@ -1971,3 +1971,41 @@ on NVIDIA GPUs.")
      "This package provides a minimal low-level profiling API for CUDA.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (license (cuda-license name))))
+
+(define-public cuda-sanitizer-api
+  (package
+    (name "cuda-sanitizer-api")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "00m6mw9vw8xgjbm8xzbpgirw8xcrdb13bgwkp4hxayy313d13afz")
+                  ("aarch64-linux"
+                   "01iv9qawabr2llq7nwcrpc1fb03yp9a311p08bafhbakk272nwwq")
+                  ("powerpc64le-linux"
+                   "1hp1kd7q5dj8adyv4haaz119qcmmc5gqs3g8zqik5rnmck6qk3p3"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("compute-sanitizer" "compute-sanitizer")
+                        ("bin" "bin"))))
+    (synopsis "Functional correctness checking suite for CUDA")
+    (description
+     "This package provides a functional correctness checking suite included in
+the CUDA toolkit.  This suite contains multiple tools that can perform
+different type of checks.  The @code{memcheck} tool is capable of precisely
+detecting and attributing out of bounds and misaligned memory access errors in
+CUDA applications, and can also report hardware exceptions encountered by the
+GPU.  The @code{racecheck} tool can report shared memory data access hazards
+that can cause data races.  The @code{initcheck} tool can report cases where
+the GPU performs uninitialized accesses to global memory.  The
+@code{synccheck} tool can report cases where the application is attempting
+invalid usages of synchronization primitives.")
+    (home-page "https://docs.nvidia.com/cuda/compute-sanitizer/index.html")
+    (license (cuda-license name))))
+
