@@ -29,6 +29,7 @@
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (myguix packages video)
   #:use-module (myguix packages nvidia))
 
@@ -1270,3 +1271,148 @@ Management Library")
 and usage.")
     (license license:expat)))
 
+(define-public python-pot
+  (package
+    (name "python-pot")
+    (version "0.9.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pot" version))
+       (sha256
+        (base32 "1pay05bmnibdxl42y54rjc40qkikwgajvhv1j593fb4ryimv9y2c"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-numpy python-scipy))
+    (home-page "https://github.com/PythonOT/POT")
+    (synopsis "Python Optimal Transport Library")
+    (description "Python Optimal Transport Library.")
+    (license license:expat)))
+
+(define-public python-pyemd
+  (package
+    (name "python-pyemd")
+    (version "0.5.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyemd" version))
+       (sha256
+        (base32 "0w3yw014760ncm09ymbh0wnw4wwz7ph773dvvxcyaww5dw8w50gw"))))
+    (build-system python-build-system)
+    (propagated-inputs (list python-numpy))
+    (home-page "http://github.com/wmayner/pyemd")
+    (synopsis
+     "Wrapper for Pele and Werman's implementation of the Earth Mover's Distance")
+    (description
+     "This package provides a Python wrapper for Ofir Pele and Michael Werman's
+implementation of the Earth Mover's Distance.")
+    (license license:expat)))
+
+(define-public python-morfessor
+  (package
+    (name "python-morfessor")
+    (version "2.0.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "Morfessor" version))
+       (sha256
+        (base32 "1cmsxyd7ymlqlgam9a6va0x3fqhz0w1mixj0yv2j85rl6k1flfxv"))))
+    (build-system python-build-system)
+    (home-page "http://morpho.aalto.fi")
+    (synopsis "Morfessor")
+    (description "Morfessor")
+    (license license:bsd-3)))
+
+(define-public pybind11-2.6.1
+  (package
+    (inherit pybind11)
+    (name "pybind11")
+    (version "2.6.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pybind/pybind11")
+             (commit (string-append "v" version))))
+       (sha256
+        (base32 "1wh5b1xnywzxwxkyac2wvyqwzmy1qxs341jjk820r7b825wn6yad"))
+       (file-name (git-file-name name version))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments pybind11)
+       ((#:phases phases
+         #~%standard-phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'skip-failing-test
+              (lambda _
+                (substitute* "tests/test_exceptions.py"
+                  ;; This test fails with Python 3.10; skip it.
+                  (("^def test_python_alreadyset_in_destructor(.*)" _ rest)
+                   (string-append "def test_python_alreadyset_in_destructor"
+                                  rest "\n" "    return\n")))))))))))
+
+(define-public python-nmslib
+  (package
+    (name "python-nmslib")
+    (version "2.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "nmslib" version))
+       (sha256
+        (base32 "084wl5kl2grr2yi3bibc6i2ak5s7vanwi21wssbwd4bgfskr84lp"))))
+    (build-system python-build-system)
+    (propagated-inputs (list python-numpy python-psutil pybind11-2.6.1))
+    (home-page "https://github.com/nmslib/nmslib")
+    (synopsis "Non-Metric Space Library (NMSLIB)")
+    (description "Non-Metric Space Library (NMSLIB)")
+    (license license:asl2.0)))
+
+;; This package bundles 'multibuild'.
+(define-public python-gensim
+  (package
+    (name "python-gensim")
+    (version "4.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gensim" version))
+       (sha256
+        (base32 "1wgf6kzm3jc3i39kcrdhw89bzqj75whi1b5a030lf7d3f0lvsplr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags
+      ;; This fails for unknown reasons when trying to launch
+      ;; visdom.server.
+      '(list "-k" "not test_callback_update_graph"
+             ;; This needs access to the internet
+             "--ignore=gensim/test/test_api.py")
+      #:phases '(modify-phases %standard-phases
+                  (add-after 'unpack 'patch-build-system
+                    (lambda _
+                      (substitute* "setup.py"
+                        (("__builtins__.__NUMPY_SETUP__.*")
+                         ""))))
+                  (add-before 'check 'build-extensions
+                    (lambda _
+                      ;; Cython extensions have to be built before running the tests.
+                      (invoke "python" "setup.py" "build_ext" "--inplace")
+                      ;; Needed for some of the tests
+                      (setenv "HOME" "/tmp"))))))
+    (propagated-inputs (list python-pyemd python-numpy python-nmslib
+                             python-scipy python-smart-open))
+    (native-inputs (list python-cython
+                         python-mock
+                         python-pytest
+                         python-pytest-cov
+                         python-testfixtures
+                         python-visdom))
+    (home-page "https://radimrehurek.com/gensim/")
+    (synopsis "Python framework for fast vector space modelling")
+    (description
+     "This package provides a Python library for topic modelling,
+document indexing and similarity retrieval with large corpora.  The target
+audience is the natural language processing and information retrieval
+community.")
+    (license license:lgpl2.1)))
