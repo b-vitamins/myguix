@@ -2269,3 +2269,48 @@ together GPU devide code.  It supports Link Time Optimization.")
     (home-page "https://docs.nvidia.com/cuda/nvjitlink/index.html")
     (license (cuda-license name))))
 
+(define-public libnvjpeg
+  (package
+    (name "libnvjpeg")
+    (version "12.2.0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0xbzbhf7s7gsilr7gx4r7g2j1sxj977wr5zf7jjqg31ch9x2d4yj")
+                  ("powerpc64le-linux"
+                   "1z90kf95045s6q44rm2da3g31icb3hyh3jmv9a5s5bvx6flfs4lk"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis "GPU-accelerated JPEG codec library")
+    (description
+     "This package provides a high-performance, GPU accelerated JPEG decoding
+functionality for image formats commonly used in deep learning and hyperscale
+multimedia applications.  The library offers single and batched JPEG decoding
+capabilities which efficiently utilize the available GPU resources for optimum
+performance; and the flexibility for users to manage the memory allocation
+needed for decoding.
+
+The nvJPEG library enables the following functions: use the JPEG image data
+stream as input; retrieve the width and height of the image from the data
+stream, and use this retrieved information to manage the GPU memory allocation
+and the decoding.  A dedicated API is provided for retrieving the image
+information from the raw JPEG image data stream.
+
+The encoding functions of the nvJPEG library perform GPU-accelerated
+compression of user’s image data to the JPEG bitstream.  User can provide input
+data in a number of formats and colorspaces, and control the encoding process
+with parameters.  Encoding functionality will allocate temporary buffers using
+user-provided memory allocator.")
+    (home-page "https://docs.nvidia.com/cuda/nvjpeg/index.html")
+    (license (cuda-license name))))
