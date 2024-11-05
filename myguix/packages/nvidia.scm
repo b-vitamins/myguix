@@ -1712,3 +1712,36 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 cuda-compiler-driver-nvcc/index.html")
     (license (cuda-license name))))
 
+(define-public cuda-nvml-dev
+  (package
+    (name "cuda-nvml-dev")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32
+         (match (or (%current-target-system) (%current-system))
+           ("x86_64-linux"
+            "0zyp4c4zf4kjjdw0dzjncclyamazlg5z4lncl7y0g8bq3idpgbi0")
+           ("aarch64-linux"
+            "0wal0bjvhd9wr4cnvr4s9m330awj2mqqvpq0rh6wzaykas40zmcx")
+           ("powerpc64le-linux"
+            "1zjh6mmp5nl3s5wm5jwfzh9bazzhl2vr76c9cdfrjjryyd2pkr92"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list #:install-plan ''(("include" "include")
+                             ("lib" "lib")
+                             ("nvml/example" "share/example")
+                             ("pkg-config" "share/pkg-config"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis "NVIDIA Management Library Headers")
+    (description
+     "The NVIDIA Management Library Headers (NVML) is a C-based API for
+monitoring and managing various states of the NVIDIA GPU devices. It provides
+a direct access to the queries and commands exposed via @code{nvidia-smi}.")
+    (home-page "https://developer.nvidia.com/management-library-nvml")
+    (license (cuda-license name))))
+
