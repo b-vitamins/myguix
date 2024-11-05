@@ -30,6 +30,7 @@
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages python-check)
   #:use-module (gnu packages qt)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages video)
@@ -41,6 +42,7 @@
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system gnu)
+  #:use-module (guix build-system pyproject)
   #:use-module (guix build-system python)
   #:use-module (guix build-system trivial)
   #:use-module (guix deprecation)
@@ -2351,3 +2353,42 @@ compute heavy tasks in a variety of problem domains.  The NPP library is
 written to maximize flexibility, while maintaining high performance.")
     (home-page "https://docs.nvidia.com/cuda/npp/index.html")
     (license (cuda-license name))))
+
+(define-public cuda-toolkit
+  (package
+    (name "cuda-toolkit")
+    (version "12.1.1")
+    (source #f)
+    (build-system trivial-build-system)
+    (arguments
+     '(#:modules ((guix build union))
+       #:builder
+       (begin
+         (use-modules (ice-9 match)
+                      (guix build union))
+         (match %build-inputs
+           (((names . directories) ...)
+            (union-build (assoc-ref %outputs "out")
+                         directories))))))
+    (inputs
+     (list cuda-cccl
+           cuda-cudart
+           cuda-nvcc
+           cuda-nvml-dev
+           cuda-nvtx
+           cuda-nvrtc
+           libcublas
+           libcufft
+           libcurand
+           libcusolver
+           libcusparse
+           libnpp
+           libnvjitlink
+           libnvjpeg
+           libnvvm))
+    (synopsis "Metapackage for CUDA")
+    (description
+     "This package provides the CUDA compiler and the CUDA run-time support
+libraries for NVIDIA GPUs, all of which are proprietary.")
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (license (package-license cuda-cudart))))
