@@ -2009,3 +2009,40 @@ invalid usages of synchronization primitives.")
     (home-page "https://docs.nvidia.com/cuda/compute-sanitizer/index.html")
     (license (cuda-license name))))
 
+(define-public libcublas
+  (package
+    (name "libcublas")
+    (version "12.1.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1323rg663fvjl73j5ny249ndnii2qbrfc7qccz5k6ky4v1x4s14h")
+                  ("aarch64-linux"
+                   "1bzzxzppz3ypx6q3gg7w6sfnwnypl974ppmbxh0j2jafvwy5nf9f")
+                  ("powerpc64le-linux"
+                   "1wgrgkn9mvh9k1d58ka92gbq11ckl8pyhz7za8lsrhjpw6c8iw15"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config")
+                        ("src" "share/src"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis
+     "GPU-accelerated library for accelerating AI and HPC applications")
+    (description
+     "This package provides the NVIDIA cuBLAS library.  It includes several
+API extensions for providing drop-in industry standard BLAS APIs and GEMM APIs
+with support for fusions that are highly optimized for NVIDIA GPUs.  The
+cuBLAS library also contains extensions for batched operations, execution
+across multiple GPUs, and mixed- and low-precision execution with additional
+tuning for the best performance.")
+    (home-page "https://developer.nvidia.com/cublas")
+    (license (cuda-license name))))
