@@ -2046,3 +2046,47 @@ across multiple GPUs, and mixed- and low-precision execution with additional
 tuning for the best performance.")
     (home-page "https://developer.nvidia.com/cublas")
     (license (cuda-license name))))
+
+(define-public libcufft
+  (package
+    (name "libcufft")
+    (version "11.0.2.54")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "053vgq3lavrydna1gl7lry0lp78nby6iqh1gvclvq7vx5kac2dki")
+                  ("aarch64-linux"
+                   "0kmyxk9420vgm0ipr8a6fx1kcw19h8awy21l92lg4h7nzp58ig76")
+                  ("powerpc64le-linux"
+                   "02kklsdi43fvs2bi9s534rniqh43hqj9aq4i1m01yq6ya1cqqz1c"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis "CUDA Fast Fourier Transform library")
+    (description
+     "This package provides cuFFT, the NVIDIA® CUDA® Fast Fourier Transform
+(FFT) product.  It consists of two separate libraries: cuFFT and cuFFTW.  The
+cuFFT library is designed to provide high performance on NVIDIA GPUs.  The
+cuFFTW library is provided as a porting tool to enable users of FFTW to start
+using NVIDIA GPUs with a minimum amount of effort.
+
+The FFT is a divide-and-conquer algorithm for efficiently computing discrete
+Fourier transforms of complex or real-valued data sets.  It is one of the most
+important and widely used numerical algorithms in computational physics and
+general signal processing.  The cuFFT library provides a simple interface for
+computing FFTs on an NVIDIA GPU, which allows users to quickly leverage the
+floating-point power and parallelism of the GPU in a highly optimized and
+tested FFT library.   The cuFFTW library provides the FFTW3 API to facilitate
+porting of existing FFTW applications.")
+    (home-page "https://docs.nvidia.com/cuda/cufft/index.html")
+    (license (cuda-license name))))
