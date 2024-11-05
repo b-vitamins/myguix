@@ -1851,3 +1851,37 @@ libraries to only contain device code for the specified targets.")
     (home-page
      "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvprune")
     (license (cuda-license name))))
+
+(define-public cuda-nvrtc
+  (package
+    (name "cuda-nvrtc")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32
+         (match (or (%current-target-system) (%current-system))
+           ("x86_64-linux"
+            "0yriv3gcb4kpvpav3ilv8zyhravmz0blb0gv1c7pfq37r9m705dv")
+           ("aarch64-linux"
+            "0amp7qg64i6rfkqnjinizh9vhpajvqdpyan4jda9vqr7ckrdfq31")
+           ("powerpc64le-linux"
+            "10dwwhk2pfz6dcqpgjp2dryg5qb08ghnbxvbk4mfhvsajj9ik4wv"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list #:install-plan ''(("include" "include")
+                             ("lib" "lib")
+                             ("pkg-config" "share/pkg-config"))))
+    (inputs (list `(,gcc "lib") glibc))
+    (outputs (list "out" "static"))
+    (synopsis "Runtime compilation library for CUDA C++")
+    (description
+     "This package accepts CUDA C++ source code in character string form and
+creates handles that can be used to obtain the CUDA PTX, for further
+instrumentation with the CUDA Toolkit.  It allows to shrink compilation
+overhead and simplify application deployment.")
+    (home-page "https://docs.nvidia.com/cuda/nvrtc/index.html")
+    (license (cuda-license name))))
+
