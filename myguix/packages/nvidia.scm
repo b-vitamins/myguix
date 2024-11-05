@@ -1506,3 +1506,36 @@ specific sections.  It also extracts embedded ptx text from host binaries.")
      "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#cuobjdump")
     (license (cuda-license name))))
 
+(define-public cuda-cuxxfilt
+  (package
+    (name "cuda-cuxxfilt")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0va13gfay4as0fnc23n0gqhnylyhykp5cmmxjhlminfi735zki0x")
+                  ("aarch64-linux"
+                   "15jbqssx0nzi8l411m41393jpzc8kbd2qa0jri22cp5c4cnls9bz")
+                  ("powerpc64le-linux"
+                   "0m3nmsl59r2apd1dpm3a8ch788kq2krrl1x50agqk3z2wl8zhy1p"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("bin" "bin")
+                        ("include" "include")
+                        ("lib" "lib"))))
+    (synopsis "Decodes low-level CUDA C++ identifiers into readable names")
+    (description
+     "This package decodes (demangles) low-level identifiers that have been
+mangled by CUDA C++ into user readable names.  For every input alphanumeric
+word, the output of cu++filt is either the demangled name if the name decodes
+to a CUDA C++ name, or the original name itself.")
+    (home-page
+     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#cu-filt")
+    (license (cuda-license name))))
+
