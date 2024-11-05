@@ -1926,15 +1926,16 @@ provide contextual information to developer tools.")
        (method url-fetch)
        (uri (cuda-module-url name version))
        (sha256
-        (base32
-         (match (or (%current-target-system) (%current-system))
-           ("x86_64-linux"
-            "1k4ab28kg5plr0nn83amr6j7cqg54vpis00am9dpiy4kgj2izgcx"))))))
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1k4ab28kg5plr0nn83amr6j7cqg54vpis00am9dpiy4kgj2izgcx"))))))
     (build-system cuda-build-system)
     (arguments
-     (list #:install-plan ''(("include" "include")
-                             ("lib" "lib")
-                             ("pkg-config" "share/pkg-config"))))
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))))
     (synopsis "CUDA OpenCL API")
     (description
      "OpenCL (Open Computing Language) is a multi-vendor open standard for
@@ -1944,3 +1945,29 @@ on NVIDIA GPUs.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (license (cuda-license name))))
 
+(define-public cuda-profiler-api
+  (package
+    (name "cuda-profiler-api")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "187dngq2p66jz3yd5l6klqgcvjl6fkcjdjjz1dmzj10fxfv6rzrz")
+                  ("aarch64-linux"
+                   "1zq8qrh13ibm9c2km8lj4fmddc8smgh75ajpwb0l7rfg12dajnpr")
+                  ("powerpc64le-linux"
+                   "0mhk9cgac2jc4dmqic5ym34cwpz15b0qk824230bhgmwarjwzhiz"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include"))))
+    (synopsis "Low-level CUDA profiling API")
+    (description
+     "This package provides a minimal low-level profiling API for CUDA.")
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (license (cuda-license name))))
