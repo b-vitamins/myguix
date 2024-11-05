@@ -1548,20 +1548,21 @@ to a CUDA C++ name, or the original name itself.")
        (method url-fetch)
        (uri (cuda-module-url name version))
        (sha256
-        (base32
-         (match (or (%current-target-system) (%current-system))
-           ("x86_64-linux"
-            "0qy3pvqkvr16xp2l0jb202xxvgq1pxdwkqfrpm4ag6k102i98x9r")
-           ("aarch64-linux"
-            "14j7kb6izvvgmla92lxyhlw482v7hxqsfpcl4gvpg6nspa0p6vbs")
-           ("powerpc64le-linux"
-            "0rfkvvv0i8450bpmanbq72cg98grpskxdrwswj7zch9gwkh4qyhr"))))))
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0qy3pvqkvr16xp2l0jb202xxvgq1pxdwkqfrpm4ag6k102i98x9r")
+                  ("aarch64-linux"
+                   "14j7kb6izvvgmla92lxyhlw482v7hxqsfpcl4gvpg6nspa0p6vbs")
+                  ("powerpc64le-linux"
+                   "0rfkvvv0i8450bpmanbq72cg98grpskxdrwswj7zch9gwkh4qyhr"))))))
     (build-system cuda-build-system)
     (arguments
-     (list #:install-plan ''(("include" "include")
-                             ("doc" "share/doc")
-                             ("lib" "lib")
-                             ("samples" "share/samples"))))
+     (list
+      #:install-plan ''(("include" "include")
+                        ("doc" "share/doc")
+                        ("lib" "lib")
+                        ("samples" "share/samples"))))
     (inputs (list `(,gcc "lib") glibc))
     (outputs (list "out" "static"))
     (synopsis "CUDA Profiling Tools Interface")
@@ -1579,4 +1580,44 @@ CUDA applications.  It provides the following APIs:
 @item the Checkpoint API.
 @end itemize")
     (home-page "https://docs.nvidia.com/cuda/cupti/index.html")
+    (license (cuda-license name))))
+
+(define-public cuda-gdb
+  (package
+    (name "cuda-gdb")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0205f2ix06ry404l0ymrwx23k3nsnvhm1clg52hsnxmzqplfmgn4")
+                  ("aarch64-linux"
+                   "1v8cprz20yqjy8g1s9rbrvly1dr5icfam7c8rzqvzs25l8dcynjw")
+                  ("powerpc64le-linux"
+                   "1l2gl6pcvmdqcvd45513in915ij9cf9ljii5vfgh1y13apnk8ykz"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ``(("bin" "bin")
+                        ("extras/Debugger/include" "include")
+                        ("extras/Debugger/lib64" "lib")
+                        ("share/gdb/python" ,,(string-append "lib/python"
+                                               (version-major+minor (package-version
+                                                                     python))
+                                               "/site-packages/gdb")))
+      #:strip-binaries? #f ;FIXME breaks 'validate-runpath
+      #:patchelf-inputs ''("gcc" "glibc" "gmp")))
+    (inputs (list `(,gcc "lib") glibc gmp))
+    (synopsis "Tool for debugging CUDA applications")
+    (description
+     "This package provides the NVIDIA tool for debugging CUDA applications
+running.  CUDA-GDB is an extension to GDB, the GNU Project debugger.  The tool
+provides developers with a mechanism for debugging CUDA applications running
+on actual hardware.  This enables developers to debug applications without the
+potential variations introduced by simulation and emulation environments.")
+    (home-page "https://docs.nvidia.com/cuda/cuda-gdb/index.html")
     (license (cuda-license name))))
