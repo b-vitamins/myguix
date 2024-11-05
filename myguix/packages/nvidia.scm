@@ -52,6 +52,7 @@
                 #:prefix nonfree:)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (myguix build-system cuda)
   #:use-module (myguix packages linux)
   #:use-module (ice-9 match))
 
@@ -1363,3 +1364,38 @@ of glibc and disable float128 support.  This is required allow the use of
 See also
 @url{https://devtalk.nvidia.com/default/topic/1023776/cuda-programming-and-performance/-request-add-nvcc-compatibility-with-glibc-2-26/1}.")
     (license license:gpl3+)))
+
+(define-public cuda-cccl
+  (package
+    (name "cuda-cccl")
+    (version "12.1.109")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1ahvk632nh05m3mmjk8mhkxgkmry1ipq89dycw98kd617png6kmq")
+                  ("aarch64-linux"
+                   "1yc5irxn35ii0qal1qi8v6gq25ws4a7axjnmc5b20g0ypzxdlc2n")
+                  ("powerpc64le-linux"
+                   "0s6zidp5ajsqh519x3c38ihip4m1hkdzhrsdq04pybk8sfjh7z2l"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib"))))
+    (synopsis "C++ Core Compute Libraries for the CUDA language")
+    (description
+     "This package provides the CUDA C++ developers with building blocks that
+make it easier to write safe and efficient code.  It unifies three essential former
+CUDA C++ libraries into a single repository:
+@itemize
+@item Thrust (former repo)
+@item CUB (former repo)
+@item libcudacxx (former repo)
+@end itemize")
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (license (cuda-license name))))
