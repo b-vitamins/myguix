@@ -7,7 +7,7 @@
   #:use-module ((myguix build binary-build-system)
                 #:prefix binary:)
   #:use-module (guix build utils)
-  #:use-module (nonguix build utils)
+  #:use-module (myguix build utils)
   #:use-module (ice-9 ftw)
   #:use-module (ice-9 match)
   #:export (%standard-phases cuda-build))
