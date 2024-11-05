@@ -1621,3 +1621,39 @@ on actual hardware.  This enables developers to debug applications without the
 potential variations introduced by simulation and emulation environments.")
     (home-page "https://docs.nvidia.com/cuda/cuda-gdb/index.html")
     (license (cuda-license name))))
+
+;; This package must be defined before cuda-nvcc for inheritance.
+(define-public libnvvm
+  (package
+    (name "libnvvm")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url "cuda-nvcc" version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "0fq8w5jq2drckjwn2i30m7arybnffhy4j2qb2yysp23pw7pgg18b")
+                  ("aarch64-linux"
+                   "0di51rdd08fwg6as1fqixkw7g052qv3sx9f9y06dkdbq0i563y0n")
+                  ("powerpc64le-linux"
+                   "1830cvqpmjsv83wk1lfjpjlc8j3wdpaiyvvc03crqh241v4c9qp6"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:strip-binaries? #f ;XXX: breaks 'validate-runpath phase
+      #:install-plan ''(("nvvm/bin" "/bin")
+                        ("nvvm/include" "/include")
+                        ("nvvm/lib64" "/lib")
+                        ;; nvvm prefix is necessary for cmake
+                        ("nvvm/libdevice" "nvvm/libdevice"))))
+    (inputs (list cuda-cudart
+                  `(,gcc-12 "lib") glibc))
+    (synopsis "Generate CUDA PTX code from binary or text inputs")
+    (description
+     "This package provides an interface for generating PTX code from both
+binary and text NVVM IR inputs.")
+    (home-page "https://docs.nvidia.com/cuda/libnvvm-api/index.html")
+    (license (cuda-license name))))
