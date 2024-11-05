@@ -1017,9 +1017,9 @@ simultaneous NVML calls from multiple threads.")
      "This package provides a task manager for Nvidia graphics cards.")
     (license license:expat)))
 
-(define-public cuda-toolkit
+(define-public cuda-toolkit-next
   (package
-    (name "cuda-toolkit")
+    (name "cuda-toolkit-next")
     (version "12.4.0")
     (source
      (origin
