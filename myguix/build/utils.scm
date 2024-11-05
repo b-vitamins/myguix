@@ -116,3 +116,24 @@ contents:
   (call-with-output-file result
     (lambda (port)
       (for-each (cut dump <> port) files))))
+
+(define* (install-static-output #:key outputs #:allow-other-keys)
+  (let ((out (assoc-ref outputs "out"))
+        (static (assoc-ref outputs "static")))
+    (if static
+        (begin
+          (for-each (lambda (file)
+                      (if (eq? 'symlink
+                               (stat:type (lstat file)))
+                          (with-directory-excursion (string-append static
+                                                                   "/lib")
+                            (symlink (basename (readlink file))
+                                     (basename file)))
+                          (install-file file
+                                        (string-append static "/lib")))
+                      (delete-file file))
+                    (find-files (string-append out "/lib") "\\.a$"))
+          (for-each (cute install-file <>
+                          (string-append static "/include"))
+                    (find-files (string-append out "/include"))))
+        (format #t "no static output, nothing to be done~%"))))
