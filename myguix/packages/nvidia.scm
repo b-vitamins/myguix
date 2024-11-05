@@ -1433,3 +1433,43 @@ instrumentation with the CUDA Toolkit.  It allows to shrink compilation
 overhead and simplify application deployment.")
     (home-page "https://docs.nvidia.com/cuda/nvrtc/index.html")
     (license (cuda-license name))))
+
+(define-public cuda-cudart
+  (package
+    (name "cuda-cudart")
+    (version "12.1.105")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1nbbmd3x0dm3qpyr99cdmbw2gwffvvr9qvlwsdc34i4cij3yr5k0")
+                  ("aarch64-linux"
+                   "1q8mrsvj5w4v81w7fs73jq1z0ilishkfg5pq5ncb85yjg345hwya")
+                  ("powerpc64le-linux"
+                   "1ffqr6d28rpwzx9swmwj8s6p8llfvwrzpnnjcgjgskqygf5lfl2y"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config"))
+      #:phases #~(modify-phases %standard-phases
+                   (delete 'install-static)
+                   (add-after 'install 'add-symlink
+                     (lambda _
+                       (with-directory-excursion (string-append #$output
+                                                                "/lib/stubs")
+                         (symlink "libcuda.so" "libcuda.so.1")))))))
+    (inputs (list cuda-nvrtc
+                  `(,gcc "lib") glibc))
+    (synopsis "CUDA runtime")
+    (description
+     "This package provides the CUDA run-time support libraries for NVIDIA
+GPUs, all of which are proprietary.")
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (license (cuda-license name))))
+
