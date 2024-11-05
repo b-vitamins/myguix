@@ -1657,3 +1657,58 @@ potential variations introduced by simulation and emulation environments.")
 binary and text NVVM IR inputs.")
     (home-page "https://docs.nvidia.com/cuda/libnvvm-api/index.html")
     (license (cuda-license name))))
+
+(define-public cuda-nvcc
+  (package
+    (inherit libnvvm)
+    (name "cuda-nvcc")
+    (arguments
+     (list
+      #:strip-binaries? #f  ; XXX: breaks 'validate-runpath phase
+      #:patchelf-inputs ''("gcc" "glibc" "libnvvm")
+      #:install-plan ''(("bin" "bin")
+                        ("include" "include")
+                        ("lib" "lib"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'patch-nvcc.profile
+            (lambda _
+              (define (append-to-file name body)
+                (let ((file (open-file name "a")))
+                  (display body file)
+                  (close-port file)))
+
+              (substitute* "bin/nvcc.profile"
+                (("\\$\\(TOP\\)/\\$\\(_NVVM_BRANCH_\\)")
+                 #$(this-package-input "libnvvm"))
+                (("\\$\\(TOP\\)/lib")
+                 (string-append #$output "/lib"))
+                (("\\$\\(TOP\\)/nvvm")
+                 (string-append #$output "/nvvm"))
+                (("\\$\\(TOP\\)/\\$\\(_TARGET_DIR_\\)/include")
+                 (string-append #$output "/include")))
+              (append-to-file
+               "bin/nvcc.profile"
+               (string-join
+                (list
+                 (string-append "PATH += " #$(this-package-input "gcc") "/bin")
+                 (string-append
+                  "LIBRARIES =+ -L"
+                  #$(this-package-input "cuda-cudart") "/lib -L"
+                  #$(this-package-input "cuda-cudart") "/lib/stubs -L"
+                  #$(this-package-input "libnvvm") "/lib")
+                 (string-append
+                  "INCLUDES =+ -I"
+                  #$(this-package-input "cuda-cudart") "/include -I"
+                  #$(this-package-input "libnvvm") "/include\n"))
+                "\n")))))))
+    (inputs (list cuda-cudart `(,gcc "lib") glibc libnvvm))
+    (synopsis
+     "Compiler for the CUDA language and associated run-time support")
+    (description
+     "This package provides the CUDA compiler and the CUDA run-time support
+libraries for NVIDIA GPUs, all of which are proprietary.")
+    (home-page "https://docs.nvidia.com/cuda/\
+cuda-compiler-driver-nvcc/index.html")
+    (license (cuda-license name))))
+
