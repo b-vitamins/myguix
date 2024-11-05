@@ -9,7 +9,8 @@
   #:use-module (guix build utils)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26)
-  #:export (64-bit? make-wrapper concatenate-files build-paths-from-inputs))
+  #:export (64-bit? make-wrapper concatenate-files build-paths-from-inputs
+                    install-static-output))
 
 (define (64-bit? file)
   "Return true if ELF file is in 64-bit format, false otherwise.
