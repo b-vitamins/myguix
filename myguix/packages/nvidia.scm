@@ -2159,6 +2159,42 @@ together GPU devide code.  It supports Link Time Optimization.")
     (home-page "https://docs.nvidia.com/cuda/nvjitlink/index.html")
     (license (cuda-license name))))
 
+(define-public libcusparse
+  (package
+    (name "libcusparse")
+    (version "12.1.0.106")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (cuda-module-url name version))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "01rrz1wdsfmpz9wbvir7nwvlpdrqk6i1j987wdbb2lx7d96n07xf")
+                  ("aarch64-linux"
+                   "1vxmiw9qzg67sr4m9mpzhcy392z8vx2m09yl5h2bhb8kjxrdljik")
+                  ("powerpc64le-linux"
+                   "13ji6dlipzahlrri5sp00qyrfa3wgp9z5mv3075qksmnjhi7wxkv"))))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("pkg-config" "share/pkg-config")
+                        ("src" "share/src"))
+      #:patchelf-inputs ''("gcc" "glibc" "libnvjitlink")))
+    (inputs (list `(,gcc "lib") glibc libnvjitlink))
+    (outputs (list "out" "static"))
+    (synopsis "CUDA sparse matrix library")
+    (description
+     "This package provides a set of GPU-accelerated basic linear algebra
+subroutines used for handling sparse matrices that perform significantly
+faster than CPU-only alternatives.  Depending on the specific operation, the
+library targets matrices with sparsity ratios in the range between 70%-99.9%.")
+    (home-page "https://docs.nvidia.com/cuda/cusparse/index.html")
+    (license (cuda-license name))))
+
 (define-public libcusolver
   (package
     (name "libcusolver")
