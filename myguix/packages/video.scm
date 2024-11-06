@@ -120,6 +120,9 @@
                                     (which "sh"))))
                   (setenv "SHELL"
                           (which "bash"))
+                  (setenv "CUDACXX"
+                          #$(file-append (this-package-input "cuda-toolkit")
+                                         "/bin/nvcc"))
                   (setenv "CONFIG_SHELL"
                           (which "bash"))
                   (apply invoke
