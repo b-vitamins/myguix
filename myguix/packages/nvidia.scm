@@ -21,6 +21,7 @@
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages glib)
+  #:use-module (gnu packages graphviz)
   #:use-module (gnu packages gtk)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages multiprecision)
@@ -31,6 +32,8 @@
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages python-check)
+  #:use-module (gnu packages python-build)
+  #:use-module (gnu packages python-science)
   #:use-module (gnu packages qt)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages video)
@@ -1283,11 +1286,10 @@ CUDA toolkit.")
     (license (nonfree:nonfree
               "https://github.com/NVIDIA/cuda-python/blob/main/LICENSE"))))
 
-(define-public cutlass
+(define-public nvidia-cutlass
   (package
-    (name "cutlass")
+    (name "nvidia-cutlass")
     (version "3.5.1")
-    (home-page "https://github.com/NVIDIA/cutlass")
     (source
      (origin
        (method git-fetch)
@@ -1307,25 +1309,39 @@ CUDA toolkit.")
                                 "-DCUTLASS_LIBRARY_KERNELS=all"
                                 "-DCUTLASS_ENABLE_TESTS=NO"
                                 "-DCUTLASS_INSTALL_TESTS=NO")
-      #:validate-runpath? #f))
-    (native-inputs (list python))
+      #:phases #~(modify-phases %standard-phases
+                   (add-before 'build 'set_cuda_paths
+                     (lambda _
+                       (setenv "CUDACXX"
+                               #$(file-append (this-package-input
+                                               "cuda-toolkit") "/bin/nvcc"))))
+                   (add-after 'install 'cleanup
+                     (lambda _
+                       (delete-file-recursively (string-append #$output
+                                                               "/test")))))))
+    (native-inputs (list python python-setuptools))
     (inputs (list cuda-toolkit))
-    (synopsis
-     "CUDA C++ template abstractions for high-performance linear algebra")
+    (propagated-inputs (list cuda-python
+                             python-networkx
+                             python-numpy
+                             python-pydot
+                             python-scipy
+                             python-treelib))
+    (home-page "https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda")
+    (synopsis "CUDA Templates for Linear Algebra Subroutines")
     (description
-     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
-high-performance matrix-matrix multiplication (GEMM) and related computations
-at all levels and scales within CUDA.  It incorporates strategies for
-hierarchical decomposition and data movement similar to those used to
-implement cuBLAS and cuDNN.
-
-CUTLASS decomposes these ``moving parts'' into reusable, modular software
-components abstracted by C++ template classes.  Primitives for different
-levels of a conceptual parallelization hierarchy can be specialized and tuned
-via custom tiling sizes, data types, and other algorithmic policy.  The
-resulting flexibility simplifies their use as building blocks within custom
-kernels and applications.")
-    (license license:bsd-3)))
+     "This package provides a collection of CUDA C++ template abstractions for
+implementing high-performance matrix-matrix multiplication (GEMM) and related
+computations at all levels and scales within CUDA.  It incorporates strategies
+for hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.  CUTLASS decomposes these moving parts into
+reusable, modular software components abstracted by C++ template
+classes.  Primitives for different levels of a conceptual parallelization
+hierarchy can be specialized and tuned via custom tiling sizes, data types,
+and other algorithmic policy.  The resulting flexibility simplifies their use
+as building blocks within custom kernels and applications.")
+    (license (nonfree:nonfree
+              "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"))))
 
 (define-public nvidia-nccl
   (package
