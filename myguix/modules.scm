@@ -6,15 +6,13 @@
   #:export (import-myguix-module?))
 
 (define (myguix-module-name? name)
-  "Return true if NAME (a list of symbols) denotes a Guix or Myguix module."
+  "Return true if NAME (a list of symbols) denotes a Guix or myguix module."
   (match name
     (('guix _ ...)
      #t)
     (('gnu _ ...)
      #t)
     (('myguix _ ...)
-     #t)
-    (('nongnu _ ...)
      #t)
     (_ #f)))
 

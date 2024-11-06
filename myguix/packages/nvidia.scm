@@ -1128,9 +1128,9 @@ simultaneous NVML calls from multiple threads.")
      (list
       #:modules '((guix build gnu-build-system)
                   (guix build utils)
-                  (nonguix build utils))
+                  (myguix build utils))
       #:imported-modules `(,@%default-gnu-imported-modules (guix build utils)
-                           (nonguix build utils))
+                           (myguix build utils))
       #:test-target "all"
       #:phases #~(modify-phases %standard-phases
                    (replace 'configure
@@ -2481,7 +2481,7 @@ CUDA toolkit.")
       #:install-plan ''(("include" "include")
                         ("lib" "lib"))
       #:patchelf-inputs ''("gcc" "glibc" "out" "zlib")
-      #:modules '((nonguix build cuda-build-system)
+      #:modules '((myguix build cuda-build-system)
                   ((guix build gnu-build-system)
                    #:prefix gnu:)
                   (guix build union)
