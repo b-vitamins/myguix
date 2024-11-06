@@ -101,16 +101,20 @@
                         "--enable-filter=scale"
                         "--enable-filter=testsrc2"
                         "--enable-protocol=file"
-                        "--enable-protocol=https")))
+                        "--enable-protocol=https"
+                        "--nvccflags=-gencode arch=compute_80,code=sm_80 -O2")))
        ((#:phases phases)
         #~(modify-phases #$phases
             (replace 'configure
               (lambda* (#:key outputs inputs configure-flags
                         #:allow-other-keys)
                 (let ((out (assoc-ref outputs "out"))
-                      (cuda-lib64 (string-append (assoc-ref inputs
-                                                            "cuda-toolkit")
-                                                 "/lib64"))
+                      (cuda-bin (string-append (assoc-ref inputs
+                                                          "cuda-toolkit")
+                                               "/bin"))
+                      (cuda-lib (string-append (assoc-ref inputs
+                                                          "cuda-toolkit")
+                                               "/lib"))
                       (cuda-include (string-append (assoc-ref inputs
                                                               "cuda-toolkit")
                                                    "/include")))
@@ -120,9 +124,6 @@
                                     (which "sh"))))
                   (setenv "SHELL"
                           (which "bash"))
-                  (setenv "CUDACXX"
-                          #$(file-append (this-package-input "cuda-toolkit")
-                                         "/bin/nvcc"))
                   (setenv "CONFIG_SHELL"
                           (which "bash"))
                   (apply invoke
@@ -132,7 +133,8 @@
                          (string-append "--extra-ldflags=-Wl,-rpath=" out
                                         "/lib")
                          (string-append "--extra-cflags=-I" cuda-include)
-                         (string-append "--extra-ldflags=-L" cuda-lib64)
+                         (string-append "--extra-cflags=-I" cuda-bin)
+                         (string-append "--extra-ldflags=-L" cuda-lib)
                          configure-flags))))))))
     (inputs (modify-inputs (package-inputs ffmpeg)
               (replace "mesa" nvda)
