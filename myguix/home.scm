@@ -37,12 +37,16 @@
                                                              ("HISTSIZE" . "10000")
                                                              ("SAVEHIST" . "10000")
                                                              ("ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE" . "fg=4")))
-                                    (zshrc `(,(plain-file "add-zsh-hook"
-                                               "autoload -Uz add-zsh-hook\n") ,
-                                             (plain-file "compinit"
-                                                         (string-append
-                                                          "autoload -Uz compinit\n"
-                                                          "compinit -u\n"))
+                                    (zshrc `(,(plain-file "guix-profile"
+                                                          (string-append
+                                                           "GUIX_PROFILE=\"$HOME/.config/guix/current\" "
+                                                           "[ -f \"$GUIX_PROFILE/etc/profile\" ] && . \"$GUIX_PROFILE/etc/profile\" ")) ,
+                                             (plain-file "add-zsh-hook"
+                                              "autoload -Uz add-zsh-hook\n")
+                                             ,(plain-file "compinit"
+                                                          (string-append
+                                                           "autoload -Uz compinit\n"
+                                                           "compinit -u\n"))
                                              ,(plain-file "colors"
                                                "autoload -Uz colors && colors\n")
                                              ,(plain-file "setopt"
@@ -58,9 +62,8 @@
                                              ,(plain-file "rprompt"
                                                           (string-append
                                                            "function update_clock_precmd {\n"
-                                                           "    RPROMPT='%F{#88c0d0}%D{%d %b}%f %F{#ECBE7B}%D{%l:%M:%S}%f'
-"
-                                                           "}\n"
+                                                           "    RPROMPT='%F{#88c0d0}%D{%d %b}%f %F{#ECBE7B}%D{%l:%M:%S}%f' "
+                                                           "\n}\n"
                                                            "add-zsh-hook precmd update_clock_precmd\n"))
                                              ,(plain-file "trap-alarm"
                                                           (string-append
