@@ -1139,6 +1139,7 @@ simultaneous NVML calls from multiple threads.")
                                #$(this-package-input "cuda-toolkit"))
                        (setenv "PREFIX"
                                #$output)
+                       (setenv "NVCC_GENCODE" "-gencode=arch=compute_80,code=sm_80")
                        (substitute* "src/Makefile"
                          (("\\$\\(PREFIX\\)/lib/pkgconfig")
                           "$(PREFIX)/share/pkg-config"))))
