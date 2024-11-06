@@ -73,7 +73,8 @@
   #:use-module (gnu packages video)
   #:use-module (myguix packages wasm)
   #:use-module (gnu packages xdisorg)
-  #:use-module (gnu packages xorg))
+  #:use-module (gnu packages xorg)
+  #:use-module (srfi srfi-26))
 
 ;;; Define the versions of rust needed to build firefox, trying to match
 ;;; upstream.  See table at [0], `Uses' column for the specific version.
@@ -568,20 +569,23 @@ Release (ESR) version.")
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-build-id
-  "20240916090945")
+  "20241014032024")
 
 (define-public firefox
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "130.0.1")
+    (version "131.0.3")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
+       (patches (list (search-path (map (cut string-append <> "/patches")
+                                        %load-path)
+                                   "firefox-restore-desktop-files.patch")))
        (sha256
-        (base32 "0w4z3fq5zhm63a0wmhvmqrj263bvy962dir25q3z0x5hx6hjawh2"))))
+        (base32 "1l30y1pf2kkhnnnazj2x7j1hy3sxz6x9vjj3lbx3wi9pfzwz6zbs"))))
     (arguments
      (substitute-keyword-arguments (package-arguments firefox-esr)
        ((#:phases phases)
