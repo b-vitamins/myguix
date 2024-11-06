@@ -7,7 +7,7 @@
 ;;; Copyright © 2022, 2023 Petr Hodina <phodina@protonmail.com>
 ;;; Copyright © 2022 Alexey Abramov <levenson@mmer.org>
 ;;; Copyright © 2022, 2023, 2024 Hilton Chain <hako@ultrarare.space>
-;;; Copyright © 2024 Ayan Das <bvits@riseup.net>
+;;; Copyright © 2024 Nicolas Graves <ngraves@ngraves.fr>
 
 (define-module (myguix packages nvidia)
   #:use-module (gnu packages base)
