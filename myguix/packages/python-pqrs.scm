@@ -1271,23 +1271,6 @@ Management Library")
 and usage.")
     (license license:expat)))
 
-(define-public python-pot
-  (package
-    (name "python-pot")
-    (version "0.9.4")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "pot" version))
-       (sha256
-        (base32 "1pay05bmnibdxl42y54rjc40qkikwgajvhv1j593fb4ryimv9y2c"))))
-    (build-system pyproject-build-system)
-    (propagated-inputs (list python-numpy python-scipy))
-    (home-page "https://github.com/PythonOT/POT")
-    (synopsis "Python Optimal Transport Library")
-    (description "Python Optimal Transport Library.")
-    (license license:expat)))
-
 (define-public python-pyemd
   (package
     (name "python-pyemd")
