@@ -101,7 +101,8 @@
                         "--enable-filter=scale"
                         "--enable-filter=testsrc2"
                         "--enable-protocol=file"
-                        "--enable-protocol=https")))
+                        "--enable-protocol=https"
+                        "--nvccflags=-gencode arch=compute_52,code=sm_52 -O2")))
        ((#:phases phases)
         #~(modify-phases #$phases
             (replace 'configure
@@ -111,6 +112,9 @@
                       (cuda-bin (string-append (assoc-ref inputs
                                                           "cuda-toolkit")
                                                "/bin"))
+                      (cuda-nvcc (string-append (assoc-ref inputs
+                                                           "cuda-toolkit")
+                                                "/bin/nvcc"))
                       (cuda-lib (string-append (assoc-ref inputs
                                                           "cuda-toolkit")
                                                "/lib"))
@@ -125,6 +129,9 @@
                           (which "bash"))
                   (setenv "CONFIG_SHELL"
                           (which "bash"))
+
+                  (setenv "NVCCFLAGS"
+                          "-gencode arch=compute_80,code=sm_80 -O2")
                   (apply invoke
                          "./configure"
                          (string-append "--prefix=" out)
@@ -134,8 +141,7 @@
                          (string-append "--extra-cflags=-I" cuda-include)
                          (string-append "--extra-cflags=-I" cuda-bin)
                          (string-append "--extra-ldflags=-L" cuda-lib)
-                         (string-append "--nvccflags="
-                          "-gencode arch=compute_80,code=sm_80 -O2")
+                         (string-append "--nvcc=" cuda-nvcc)
                          configure-flags))))))))
     (inputs (modify-inputs (package-inputs ffmpeg)
               (replace "mesa" nvda)
