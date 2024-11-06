@@ -2,6 +2,7 @@
 ;;; Copyright © 2019 Pierre Neidhardt <mail@ambrevar.xyz>
 ;;; Copyright © 2020 Alex Griffin <a@ajgrf.com>
 ;;; Copyright © 2023 Giacomo Leidi <goodoldpaul@autistici.org>
+;;; Copyright © 2024 Nicolas Graves <ngraves@ngraves.fr>
 
 (define-module (myguix build utils)
   #:use-module (ice-9 match)
