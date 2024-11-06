@@ -1211,46 +1211,6 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (nonfree:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
-(define-public cuda-python
-  (package
-    (name "cuda-python")
-    (version "12.1.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/cuda-python")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0i0wvx5kxckphsf1n02rr86hrnc2r6p8wlrvq1n1w9c3l6m24d13"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f ;FIXME: most tests fail.
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-setup.py
-                     (lambda _
-                       (substitute* "setup.py"
-                         (("import versioneer" all)
-                          (format #f "~a~%import pyparsing" all)))))
-                   (add-before 'build 'set_cuda_paths
-                     (lambda _
-                       (setenv "CUDA_HOME"
-                               #$(this-package-input "cuda-dev"))
-                       (setenv "PARALLEL_LEVEL"
-                               (number->string (parallel-job-count))))))))
-    (native-inputs (list python-cython python-numpy python-pytest
-                         python-pytest-benchmark))
-    (inputs (list cuda-dev))
-    (propagated-inputs (list python-pyclibrary))
-    (home-page "https://github.com/NVIDIA/cuda-python")
-    (synopsis "CUDA Python low-level bindings")
-    (description "This package provides Python low-level bindings for NVIDIA
-CUDA toolkit.")
-    (license (nonfree:nonfree
-              "https://github.com/NVIDIA/cuda-python/blob/main/LICENSE"))))
-
 (define-public nvidia-cutlass
   (package
     (name "nvidia-cutlass")
@@ -2510,3 +2470,43 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 libraries for NVIDIA GPUs, all of which are proprietary.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (license (package-license cuda-cudart))))
+
+(define-public cuda-python
+  (package
+    (name "cuda-python")
+    (version "12.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cuda-python")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0i0wvx5kxckphsf1n02rr86hrnc2r6p8wlrvq1n1w9c3l6m24d13"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;FIXME: most tests fail.
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'fix-setup.py
+                     (lambda _
+                       (substitute* "setup.py"
+                         (("import versioneer" all)
+                          (format #f "~a~%import pyparsing" all)))))
+                   (add-before 'build 'set_cuda_paths
+                     (lambda _
+                       (setenv "CUDA_HOME"
+                               #$(this-package-input "cuda-dev"))
+                       (setenv "PARALLEL_LEVEL"
+                               (number->string (parallel-job-count))))))))
+    (native-inputs (list python-cython python-numpy python-pytest
+                         python-pytest-benchmark))
+    (inputs (list cuda-dev))
+    (propagated-inputs (list python-pyclibrary))
+    (home-page "https://github.com/NVIDIA/cuda-python")
+    (synopsis "CUDA Python low-level bindings")
+    (description "This package provides Python low-level bindings for NVIDIA
+CUDA toolkit.")
+    (license (nonfree:nonfree
+              "https://github.com/NVIDIA/cuda-python/blob/main/LICENSE"))))
