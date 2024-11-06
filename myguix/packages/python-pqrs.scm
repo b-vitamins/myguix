@@ -1399,3 +1399,22 @@ document indexing and similarity retrieval with large corpora.  The target
 audience is the natural language processing and information retrieval
 community.")
     (license license:lgpl2.1)))
+
+(define-public python-pyclibrary
+  (package
+    (name "python-pyclibrary")
+    (version "0.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyclibrary" version))
+       (sha256
+        (base32 "1xvm6l5fr14pdnz94s2w7jv85lsdxjal3ak2mdbnzf0v6vzgy0lr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
+    (propagated-inputs (list python-pyparsing))
+    (home-page "http://github.com/MatthieuDartiailh/pyclibrary")
+    (synopsis "C binding automation")
+    (description "C binding automation.")
+    (license license:expat)))
