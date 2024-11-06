@@ -1211,41 +1211,6 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (nonfree:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
-(define-public cuda-dev
-  (package
-    (name "cuda-dev")
-    (version "12.1.1")
-    (source
-     #f)
-    (build-system trivial-build-system)
-    (arguments
-     '(#:modules ((guix build union))
-       #:builder (begin
-                   (use-modules (ice-9 match)
-                                (guix build union))
-                   (match %build-inputs
-                     (((names . directories) ...)
-                      (union-build (assoc-ref %outputs "out") directories))))))
-    (inputs (list cuda-toolkit
-                  cuda-cuobjdump
-                  cuda-cupti
-                  cuda-cuxxfilt
-                  cuda-gdb
-                  cuda-nvdisasm
-                  cuda-nvprof
-                  cuda-nvprune
-                  ;; cuda-nvvp will be deprecated soon
-                  cuda-profiler-api
-                  ;; fabricmanager seems very specialized
-                  ;; imex is poorly documented
-                  cuda-sanitizer-api))
-    (synopsis "Metapackage for CUDA development")
-    (description
-     "This package provides the CUDA compiler and the CUDA run-time support
-libraries for NVIDIA GPUs, all of which are proprietary.")
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (license (package-license cuda-cudart))))
-
 (define-public cuda-python
   (package
     (name "cuda-python")
@@ -2477,6 +2442,38 @@ written to maximize flexibility, while maintaining high performance.")
                   libnvjpeg
                   libnvvm))
     (synopsis "Metapackage for CUDA")
+    (description
+     "This package provides the CUDA compiler and the CUDA run-time support
+libraries for NVIDIA GPUs, all of which are proprietary.")
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (license (package-license cuda-cudart))))
+
+(define-public cuda-dev
+  (package
+    (name "cuda-dev")
+    (version "12.1.1")
+    (source
+     #f)
+    (build-system trivial-build-system)
+    (arguments
+     '(#:modules ((guix build union))
+       #:builder (begin
+                   (use-modules (ice-9 match)
+                                (guix build union))
+                   (match %build-inputs
+                     (((names . directories) ...)
+                      (union-build (assoc-ref %outputs "out") directories))))))
+    (inputs (list cuda-toolkit
+                  cuda-cuobjdump
+                  cuda-cupti
+                  cuda-cuxxfilt
+                  cuda-gdb
+                  cuda-nvdisasm
+                  cuda-nvprof
+                  cuda-nvprune
+                  cuda-profiler-api
+                  cuda-sanitizer-api))
+    (synopsis "Metapackage for CUDA development")
     (description
      "This package provides the CUDA compiler and the CUDA run-time support
 libraries for NVIDIA GPUs, all of which are proprietary.")
