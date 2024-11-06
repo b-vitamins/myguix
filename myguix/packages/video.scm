@@ -101,8 +101,7 @@
                         "--enable-filter=scale"
                         "--enable-filter=testsrc2"
                         "--enable-protocol=file"
-                        "--enable-protocol=https"
-                        "--nvccflags=-gencode arch=compute_52,code=sm_52 -O2")))
+                        "--enable-protocol=https")))
        ((#:phases phases)
         #~(modify-phases #$phases
             (replace 'configure
