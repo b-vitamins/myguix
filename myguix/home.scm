@@ -39,14 +39,55 @@
                                                              ("ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE" . "fg=4")))
                                     (zshrc `(,(plain-file "guix-profile"
                                                           (string-append
-                                                           "GUIX_PROFILE=\"$HOME/.config/guix/current\" "
-                                                           "[ -f \"$GUIX_PROFILE/etc/profile\" ] && . \"$GUIX_PROFILE/etc/profile\" ")) ,
-                                             (plain-file "add-zsh-hook"
-                                              "autoload -Uz add-zsh-hook\n")
+                                                           "GUIX_PROFILE=\"$HOME/.config/guix/current\" 
+"
+                                                           "[ -f \"$GUIX_PROFILE/etc/profile\" ] && . \"$GUIX_PROFILE/etc/profile\" 
+")) ,
+                                             (plain-file "prompt-env"
+                                                         (string-append
+                                                          "function prompt_env_precmd {\n"
+                                                          "    if [ -n \"$GUIX_ENVIRONMENT\" ]; then\n"
+                                                          "        export PROMPT='%F{#ff9999}環境%f %F{#98be65}%2~%f %F{#51afef}>%f ' 
+"
+                                                          "    else\n"
+                                                          "        export PROMPT='%F{#ff6c6b}カオス%f %F{#98be65}%2~%f %F{#51afef}>%f ' 
+"
+                                                          "    fi\n"
+                                                          "}\n"
+                                                          "add-zsh-hook precmd prompt_env_precmd\n"))
+                                             ,(plain-file "add-zsh-hook"
+                                               "autoload -Uz add-zsh-hook\n")
                                              ,(plain-file "compinit"
                                                           (string-append
                                                            "autoload -Uz compinit\n"
                                                            "compinit -u\n"))
+                                             ,(plain-file "compinit"
+                                                          (string-append
+                                                           "autoload -Uz compinit\n"
+                                                           "compinit -u\n"
+                                                           "autoload -Uz bashcompinit && bashcompinit 
+"
+                                                           "if [ -d \"$HOME/.guix-profile/share/zsh/site-functions\" ]; then 
+"
+                                                           "    fpath+=($HOME/.guix-profile/share/zsh/site-functions) 
+"
+                                                           "fi\n"
+                                                           "if [ -d \"$HOME/.guix-home/profile/share/zsh/site-functions\" ]; then 
+"
+                                                           "    fpath+=($HOME/.guix-home/profile/share/zsh/site-functions) 
+"
+                                                           "fi\n"))
+                                             ,(plain-file "completion-options"
+                                               (string-append
+                                                "zstyle ':completion:*' menu select\n"
+                                                "zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
+"
+                                                "zstyle ':completion:*' list-colors ''\n"
+                                                "zstyle ':completion:*' list-suffixes 'yes'
+"
+                                                "zstyle ':completion:*' expand 'yes'\n"
+                                                "zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{A-Z}={a-z}'
+"))
                                              ,(plain-file "colors"
                                                "autoload -Uz colors && colors\n")
                                              ,(plain-file "setopt"
@@ -62,8 +103,9 @@
                                              ,(plain-file "rprompt"
                                                           (string-append
                                                            "function update_clock_precmd {\n"
-                                                           "    RPROMPT='%F{#88c0d0}%D{%d %b}%f %F{#ECBE7B}%D{%l:%M:%S}%f' "
-                                                           "\n}\n"
+                                                           "    RPROMPT='%F{#88c0d0}%D{%d %b}%f %F{#ECBE7B}%D{%l:%M:%S}%f'
+"
+                                                           "}\n"
                                                            "add-zsh-hook precmd update_clock_precmd\n"))
                                              ,(plain-file "trap-alarm"
                                                           (string-append
@@ -77,7 +119,8 @@
                                                            "alias diff='diff --color=auto'\n"
                                                            "alias ll='ls -lh'\n"
                                                            "alias la='ls -A'\n"
-                                                           "alias openaikey='export OPENAI_API_KEY=$(pass show apis/openai | head -n 1)'"))))))
+                                                           "alias openaikey='export OPENAI_API_KEY=$(pass show apis/openai | head -n 1)'
+"))))))
 
    (service home-inputrc-service-type
             (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")))
