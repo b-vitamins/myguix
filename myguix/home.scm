@@ -39,42 +39,26 @@
                                                              ("ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE" . "fg=4")))
                                     (zshrc `(,(plain-file "guix-profile"
                                                           (string-append
-                                                           "GUIX_PROFILE=\"$HOME/.config/guix/current\" 
+                                                           "GUIX_PROFILE=\"$HOME/.config/guix/current\"
 "
-                                                           "[ -f \"$GUIX_PROFILE/etc/profile\" ] && . \"$GUIX_PROFILE/etc/profile\" 
+                                                           "[ -f \"$GUIX_PROFILE/etc/profile\" ] && . \"$GUIX_PROFILE/etc/profile\"
 ")) ,
-                                             (plain-file "prompt-env"
-                                                         (string-append
-                                                          "function prompt_env_precmd {\n"
-                                                          "    if [ -n \"$GUIX_ENVIRONMENT\" ]; then\n"
-                                                          "        export PROMPT='%F{#ff9999}環境%f %F{#98be65}%2~%f %F{#51afef}>%f ' 
-"
-                                                          "    else\n"
-                                                          "        export PROMPT='%F{#ff6c6b}カオス%f %F{#98be65}%2~%f %F{#51afef}>%f ' 
-"
-                                                          "    fi\n"
-                                                          "}\n"
-                                                          "add-zsh-hook precmd prompt_env_precmd\n"))
-                                             ,(plain-file "add-zsh-hook"
-                                               "autoload -Uz add-zsh-hook\n")
-                                             ,(plain-file "compinit"
-                                                          (string-append
-                                                           "autoload -Uz compinit\n"
-                                                           "compinit -u\n"))
+                                             (plain-file "add-zsh-hook"
+                                              "autoload -Uz add-zsh-hook\n")
                                              ,(plain-file "compinit"
                                                           (string-append
                                                            "autoload -Uz compinit\n"
                                                            "compinit -u\n"
-                                                           "autoload -Uz bashcompinit && bashcompinit 
+                                                           "autoload -Uz bashcompinit && bashcompinit
 "
-                                                           "if [ -d \"$HOME/.guix-profile/share/zsh/site-functions\" ]; then 
+                                                           "if [ -d \"$HOME/.guix-profile/share/zsh/site-functions\" ]; then
 "
-                                                           "    fpath+=($HOME/.guix-profile/share/zsh/site-functions) 
+                                                           "    fpath+=($HOME/.guix-profile/share/zsh/site-functions)
 "
                                                            "fi\n"
-                                                           "if [ -d \"$HOME/.guix-home/profile/share/zsh/site-functions\" ]; then 
+                                                           "if [ -d \"$HOME/.guix-home/profile/share/zsh/site-functions\" ]; then
 "
-                                                           "    fpath+=($HOME/.guix-home/profile/share/zsh/site-functions) 
+                                                           "    fpath+=($HOME/.guix-home/profile/share/zsh/site-functions)
 "
                                                            "fi\n"))
                                              ,(plain-file "completion-options"
@@ -87,9 +71,10 @@
 "
                                                 "zstyle ':completion:*' expand 'yes'\n"
                                                 "zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{A-Z}={a-z}'
+"
+                                                "zstyle ':completion:*' use-cache on\n"
+                                                "zstyle ':completion:*' cache-path \"$HOME/.zcompdump\"
 "))
-                                             ,(plain-file "colors"
-                                               "autoload -Uz colors && colors\n")
                                              ,(plain-file "setopt"
                                                           (string-append
                                                            "setopt "
@@ -99,7 +84,22 @@
                                                            "SHARE_HISTORY "
                                                            "HIST_IGNORE_DUPS "
                                                            "HIST_IGNORE_SPACE "
-                                                           "INC_APPEND_HISTORY\n"))
+                                                           "INC_APPEND_HISTORY "
+                                                           "CORRECT_ALL\n"))
+                                             ,(plain-file "colors"
+                                               "autoload -Uz colors && colors\n")
+                                             ,(plain-file "prompt-env"
+                                                          (string-append
+                                                           "function prompt_env_precmd {\n"
+                                                           "    if [ -n \"$GUIX_ENVIRONMENT\" ]; then\n"
+                                                           "        export PROMPT='%F{#ff9999}環境%f %F{#98be65}%2~%f %F{#51afef}>%f '
+"
+                                                           "    else\n"
+                                                           "        export PROMPT='%F{#ff6c6b}カオス%f %F{#98be65}%2~%f %F{#51afef}>%f '
+"
+                                                           "    fi\n"
+                                                           "}\n"
+                                                           "add-zsh-hook precmd prompt_env_precmd\n"))
                                              ,(plain-file "rprompt"
                                                           (string-append
                                                            "function update_clock_precmd {\n"
@@ -107,6 +107,10 @@
 "
                                                            "}\n"
                                                            "add-zsh-hook precmd update_clock_precmd\n"))
+                                             ,(plain-file "history-search"
+                                                          (string-append
+                                                           "bindkey '^[[A' history-search-backward\n"
+                                                           "bindkey '^[[B' history-search-forward\n"))
                                              ,(plain-file "trap-alarm"
                                                           (string-append
                                                            "TRAPALRM() {\n"
