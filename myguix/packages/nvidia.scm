@@ -2419,12 +2419,12 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                    (add-before 'build 'set_cuda_paths
                      (lambda _
                        (setenv "CUDA_HOME"
-                               #$(this-package-input "cuda-dev"))
+                               #$(this-package-input "cuda-toolkit"))
                        (setenv "PARALLEL_LEVEL"
                                (number->string (parallel-job-count))))))))
     (native-inputs (list python-cython python-numpy python-pytest
                          python-pytest-benchmark))
-    (inputs (list cuda-dev))
+    (inputs (list cuda-toolkit))
     (propagated-inputs (list python-pyclibrary))
     (home-page "https://github.com/NVIDIA/cuda-python")
     (synopsis "CUDA Python low-level bindings")
