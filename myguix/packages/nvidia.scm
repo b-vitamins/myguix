@@ -1023,120 +1023,6 @@ simultaneous NVML calls from multiple threads.")
      "This package provides a task manager for Nvidia graphics cards.")
     (license license:expat)))
 
-(define-public cuda-toolkit-next
-  (package
-    (name "cuda-toolkit-next")
-    (version "12.4.0")
-    (source
-     (origin
-       (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
-       (sha256
-        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
-       (method url-fetch)))
-    (supported-systems '("x86_64-linux"))
-    (build-system gnu-build-system)
-    (outputs '("out"))
-    (arguments
-     (list
-      #:modules '((guix build utils)
-                  (guix build gnu-build-system)
-                  (ice-9 match)
-                  (ice-9 ftw))
-      #:substitutable? #f
-      #:strip-binaries? #f
-      #:validate-runpath? #f
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'unpack
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (define ld.so
-                         (search-input-file inputs
-                                            #$(glibc-dynamic-linker)))
-                       (let ((source (assoc-ref inputs "source")))
-                         (invoke "sh" source "--keep" "--noexec")
-                         (chdir "pkg"))))
-                   (delete 'configure)
-                   (delete 'check)
-                   (replace 'build
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (define libc
-                         (assoc-ref inputs "libc"))
-                       (define gcc-lib
-                         (assoc-ref inputs "gcc:lib"))
-                       (define ld.so
-                         (search-input-file inputs
-                                            #$(glibc-dynamic-linker)))
-                       (define rpath
-                         (string-join (list "$ORIGIN"
-                                            (string-append #$output "/lib")
-                                            (string-append #$output
-                                                           "/nvvm/lib64")
-                                            (string-append libc "/lib")
-                                            (string-append gcc-lib "/lib"))
-                                      ":"))
-                       (define (patch-elf file)
-                         (make-file-writable file)
-                         (format #t "Setting RPATH on '~a'...~%" file)
-                         ;; RPATH should be modified before the interpreter. If
-                         ;; done the other way around, it nukes the resulting
-                         ;; binary.
-                         (invoke "patchelf" "--set-rpath" rpath
-                                 "--force-rpath" file)
-                         (unless (string-contains file ".so")
-                           (format #t "Setting interpreter on '~a'...~%" file)
-                           (invoke "patchelf" "--set-interpreter" ld.so file)))
-                       (for-each (lambda (file)
-                                   (when (elf-file? file)
-                                     (patch-elf file)))
-                                 (find-files "."
-                                             (lambda (file stat)
-                                               (eq? 'regular
-                                                    (stat:type stat)))))))
-                   (replace 'install
-                     (lambda _
-                       (define (copy-from-directory directory)
-                         (for-each (lambda (entry)
-                                     (define sub-directory
-                                       (string-append directory "/" entry))
-
-                                     (define target
-                                       (string-append #$output "/"
-                                                      (basename entry)))
-
-                                     (when (file-exists? sub-directory)
-                                       (copy-recursively sub-directory target)))
-                                   '("bin" "targets/x86_64-linux/lib"
-                                     "targets/x86_64-linux/include" "nvvm/bin"
-                                     "nvvm/include" "nvvm/lib64")))
-
-                       (setenv "COLUMNS" "200")
-                       (with-directory-excursion "builds"
-                         (for-each copy-from-directory
-                                   (scandir "."
-                                            (match-lambda
-                                              ((or "." "..")
-                                               #f)
-                                              (_ #t))))
-                         (copy-recursively "cuda_nvcc/nvvm/libdevice"
-                                           (string-append #$output
-                                                          "/nvvm/libdevice")))))
-                   (add-after 'install 'install-cupti
-                     (lambda _
-                       (copy-recursively "builds/cuda_cupti/extras/CUPTI"
-                                         #$output)))
-                   (add-after 'install 'delete-stray-symlinks
-                     (lambda _
-                       (delete-file (string-append #$output "/include/include")))))))
-    (native-inputs (list which patchelf perl python-2))
-    (inputs `(("gcc:lib" ,gcc-11 "lib")))
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (synopsis "Compiler for the CUDA language and associated run-time support")
-    (description
-     "This package provides the CUDA compiler and the CUDA run-time support
-libraries for NVIDIA GPUs, all of which are proprietary.")
-    (license (nonfree:nonfree
-              "https://developer.nvidia.com/nvidia-cuda-license"))))
-
 (define-public nvidia-cudnn
   (package
     (name "nvidia-cudnn")
@@ -1210,63 +1096,6 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (description "This package provides the CUDA Deep Neural Network library.")
     (license (nonfree:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
-
-(define-public nvidia-cutlass
-  (package
-    (name "nvidia-cutlass")
-    (version "3.5.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/cutlass")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))
-    (build-system cmake-build-system)
-    (arguments
-     (list
-      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
-                                               #$(package-source googletest))
-                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
-                                "-DCUTLASS_NVCC_ARCHS=80"
-                                "-DCUTLASS_LIBRARY_KERNELS=all"
-                                "-DCUTLASS_ENABLE_TESTS=NO"
-                                "-DCUTLASS_INSTALL_TESTS=NO")
-      #:phases #~(modify-phases %standard-phases
-                   (add-before 'build 'set_cuda_paths
-                     (lambda _
-                       (setenv "CUDACXX"
-                               #$(file-append (this-package-input
-                                               "cuda-toolkit") "/bin/nvcc"))))
-                   (add-after 'install 'cleanup
-                     (lambda _
-                       (delete-file-recursively (string-append #$output
-                                                               "/test")))))))
-    (native-inputs (list python python-setuptools))
-    (inputs (list cuda-toolkit))
-    (propagated-inputs (list cuda-python
-                             python-networkx
-                             python-numpy
-                             python-pydot
-                             python-scipy
-                             python-treelib))
-    (home-page "https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda")
-    (synopsis "CUDA Templates for Linear Algebra Subroutines")
-    (description
-     "This package provides a collection of CUDA C++ template abstractions for
-implementing high-performance matrix-matrix multiplication (GEMM) and related
-computations at all levels and scales within CUDA.  It incorporates strategies
-for hierarchical decomposition and data movement similar to those used to
-implement cuBLAS and cuDNN.  CUTLASS decomposes these moving parts into
-reusable, modular software components abstracted by C++ template
-classes.  Primitives for different levels of a conceptual parallelization
-hierarchy can be specialized and tuned via custom tiling sizes, data types,
-and other algorithmic policy.  The resulting flexibility simplifies their use
-as building blocks within custom kernels and applications.")
-    (license (nonfree:nonfree
-              "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"))))
 
 (define nvidia-nccl-tests
   (let* ((name "nvidia-nccl-tests")
@@ -2471,6 +2300,120 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (license (package-license cuda-cudart))))
 
+(define-public cuda-toolkit-next
+  (package
+    (name "cuda-toolkit-next")
+    (version "12.4.0")
+    (source
+     (origin
+       (uri
+        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
+       (sha256
+        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
+       (method url-fetch)))
+    (supported-systems '("x86_64-linux"))
+    (build-system gnu-build-system)
+    (outputs '("out"))
+    (arguments
+     (list
+      #:modules '((guix build utils)
+                  (guix build gnu-build-system)
+                  (ice-9 match)
+                  (ice-9 ftw))
+      #:substitutable? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases #~(modify-phases %standard-phases
+                   (replace 'unpack
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (define ld.so
+                         (search-input-file inputs
+                                            #$(glibc-dynamic-linker)))
+                       (let ((source (assoc-ref inputs "source")))
+                         (invoke "sh" source "--keep" "--noexec")
+                         (chdir "pkg"))))
+                   (delete 'configure)
+                   (delete 'check)
+                   (replace 'build
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (define libc
+                         (assoc-ref inputs "libc"))
+                       (define gcc-lib
+                         (assoc-ref inputs "gcc:lib"))
+                       (define ld.so
+                         (search-input-file inputs
+                                            #$(glibc-dynamic-linker)))
+                       (define rpath
+                         (string-join (list "$ORIGIN"
+                                            (string-append #$output "/lib")
+                                            (string-append #$output
+                                                           "/nvvm/lib64")
+                                            (string-append libc "/lib")
+                                            (string-append gcc-lib "/lib"))
+                                      ":"))
+                       (define (patch-elf file)
+                         (make-file-writable file)
+                         (format #t "Setting RPATH on '~a'...~%" file)
+                         ;; RPATH should be modified before the interpreter. If
+                         ;; done the other way around, it nukes the resulting
+                         ;; binary.
+                         (invoke "patchelf" "--set-rpath" rpath
+                                 "--force-rpath" file)
+                         (unless (string-contains file ".so")
+                           (format #t "Setting interpreter on '~a'...~%" file)
+                           (invoke "patchelf" "--set-interpreter" ld.so file)))
+                       (for-each (lambda (file)
+                                   (when (elf-file? file)
+                                     (patch-elf file)))
+                                 (find-files "."
+                                             (lambda (file stat)
+                                               (eq? 'regular
+                                                    (stat:type stat)))))))
+                   (replace 'install
+                     (lambda _
+                       (define (copy-from-directory directory)
+                         (for-each (lambda (entry)
+                                     (define sub-directory
+                                       (string-append directory "/" entry))
+
+                                     (define target
+                                       (string-append #$output "/"
+                                                      (basename entry)))
+
+                                     (when (file-exists? sub-directory)
+                                       (copy-recursively sub-directory target)))
+                                   '("bin" "targets/x86_64-linux/lib"
+                                     "targets/x86_64-linux/include" "nvvm/bin"
+                                     "nvvm/include" "nvvm/lib64")))
+
+                       (setenv "COLUMNS" "200")
+                       (with-directory-excursion "builds"
+                         (for-each copy-from-directory
+                                   (scandir "."
+                                            (match-lambda
+                                              ((or "." "..")
+                                               #f)
+                                              (_ #t))))
+                         (copy-recursively "cuda_nvcc/nvvm/libdevice"
+                                           (string-append #$output
+                                                          "/nvvm/libdevice")))))
+                   (add-after 'install 'install-cupti
+                     (lambda _
+                       (copy-recursively "builds/cuda_cupti/extras/CUPTI"
+                                         #$output)))
+                   (add-after 'install 'delete-stray-symlinks
+                     (lambda _
+                       (delete-file (string-append #$output "/include/include")))))))
+    (native-inputs (list which patchelf perl python-2))
+    (inputs `(("gcc:lib" ,gcc-11 "lib")))
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (synopsis "Compiler for the CUDA language and associated run-time support")
+    (description
+     "This package provides the CUDA compiler and the CUDA run-time support
+libraries for NVIDIA GPUs, all of which are proprietary.")
+    (license (nonfree:nonfree
+              "https://developer.nvidia.com/nvidia-cuda-license"))))
+
 (define-public cuda-python
   (package
     (name "cuda-python")
@@ -2510,3 +2453,140 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 CUDA toolkit.")
     (license (nonfree:nonfree
               "https://github.com/NVIDIA/cuda-python/blob/main/LICENSE"))))
+
+(define (nvidia-cudnn-samples system version)
+  (origin
+    (method url-fetch)
+    (uri (format #f
+          "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn_samples/~a/cudnn_samples-~a-~a_cuda12-archive.tar.xz"
+          system system version))
+    (sha256 (base32 "01drxcyj8r4zsrc7i9cwczd185dcacxgwllipf9w612byzrs9afk"))))
+
+(define-public nvidia-cudnn
+  (package
+    (name "nvidia-cudnn")
+    (version "8.9.7.29")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (let ((system (cuda-current-system)))
+              (format #f
+               "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/~a/cudnn-~a-~a_cuda12-archive.tar.xz"
+               system system version)))
+       (sha256
+        (base32 "1fz345pgngn1v4f0i80s7g4k0vhhd98ggcm07jpsfhkybii36ls7"))))
+    (build-system cuda-build-system)
+    (arguments
+     (list
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib"))
+      #:patchelf-inputs ''("gcc" "glibc" "out" "zlib")
+      #:modules '((nonguix build cuda-build-system)
+                  ((guix build gnu-build-system)
+                   #:prefix gnu:)
+                  (guix build union)
+                  (guix build utils)
+                  (ice-9 ftw))
+      #:imported-modules `(,@%cuda-build-system-modules (guix build
+                                                         gnu-build-system)
+                           (guix build union))
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'add-symlink 'prepare-tests
+                     (lambda* (#:key outputs #:allow-other-keys)
+                       (mkdir "tests")
+                       (with-directory-excursion "tests"
+                         ((assoc-ref gnu:%standard-phases
+                                     'unpack)
+                          #:source #$(nvidia-cudnn-samples (cuda-current-system)
+                                                           (package-version
+                                                            this-package))))
+                       (chdir "tests")
+                       (chdir (caddr (scandir ".")))
+                       (union-build "cuda+cudnn"
+                                    (list (assoc-ref outputs "out")
+                                          '#$(this-package-native-input
+                                              "cuda-toolkit")))
+                       (setenv "CUDA_PATH"
+                               (canonicalize-path "cuda+cudnn"))
+                       (chdir "src/cudnn_samples_v8")))
+                   (add-after 'prepare-tests 'check
+                     (lambda _
+                       (for-each (lambda (dir)
+                                   (format #t "Building ~a...~%" dir)
+                                   (with-directory-excursion dir
+                                     (assoc-ref gnu:%standard-phases
+                                                'build)))
+                                 (cdr (find-files "."
+                                                  (lambda (file stat)
+                                                    (eq? 'directory
+                                                         (stat:type stat)))
+                                                  #:directories? #t))))))))
+    (native-inputs (list cuda-toolkit))
+    (inputs (list `(,gcc "lib") glibc zlib))
+    (outputs (list "out" "static"))
+    (synopsis "NVIDIA CUDA Deep Neural Network library (cuDNN)")
+    (description
+     "This package provides a GPU-accelerated library of primitives for deep
+neural networks, with highly tuned implementations for standard routines such
+as forward and backward convolution, attention, matmul, pooling, and
+normalization.")
+    (home-page "https://developer.nvidia.com/cudnn")
+    (license (nonfree:nonfree
+              "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/LICENSE.txt"))))
+
+(define-public nvidia-cutlass
+  (package
+    (name "nvidia-cutlass")
+    (version "3.5.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cutlass")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
+                                               #$(package-source googletest))
+                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
+                                "-DCUTLASS_NVCC_ARCHS=80"
+                                "-DCUTLASS_LIBRARY_KERNELS=all"
+                                "-DCUTLASS_ENABLE_TESTS=NO"
+                                "-DCUTLASS_INSTALL_TESTS=NO")
+      #:phases #~(modify-phases %standard-phases
+                   (add-before 'build 'set_cuda_paths
+                     (lambda _
+                       (setenv "CUDACXX"
+                               #$(file-append (this-package-input
+                                               "cuda-toolkit") "/bin/nvcc"))))
+                   (add-after 'install 'cleanup
+                     (lambda _
+                       (delete-file-recursively (string-append #$output
+                                                               "/test")))))))
+    (native-inputs (list python python-setuptools))
+    (inputs (list cuda-toolkit))
+    (propagated-inputs (list cuda-python
+                             python-networkx
+                             python-numpy
+                             python-pydot
+                             python-scipy
+                             python-treelib))
+    (home-page "https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda")
+    (synopsis "CUDA Templates for Linear Algebra Subroutines")
+    (description
+     "This package provides a collection of CUDA C++ template abstractions for
+implementing high-performance matrix-matrix multiplication (GEMM) and related
+computations at all levels and scales within CUDA.  It incorporates strategies
+for hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.  CUTLASS decomposes these moving parts into
+reusable, modular software components abstracted by C++ template
+classes.  Primitives for different levels of a conceptual parallelization
+hierarchy can be specialized and tuned via custom tiling sizes, data types,
+and other algorithmic policy.  The resulting flexibility simplifies their use
+as building blocks within custom kernels and applications.")
+    (license (nonfree:nonfree
+              "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"))))
