@@ -1340,50 +1340,81 @@ as building blocks within custom kernels and applications.")
     (license (nonfree:nonfree
               "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"))))
 
+(define nvidia-nccl-tests
+  (let* ((name "nvidia-nccl-tests")
+         (revision "0")
+         ;; Commit at the date of the version of nvidia-nccl
+         (commit "e98ef24bc03bef33054c3bc690ce622576c803b6")
+         (version (git-version "2.18.1" revision commit)))
+    (origin
+      (method git-fetch)
+      (uri (git-reference (url "https://github.com/nvidia/nccl-tests")
+                          (commit commit)))
+      (file-name (git-file-name name version))
+      (sha256 (base32 "07z26jivpc7iwx8dirs520g6db3b3r0rckqq1g47242f312f5h1s")))))
+
 (define-public nvidia-nccl
   (package
     (name "nvidia-nccl")
-    (version "2.22.3-1")
+    (version "2.18.1")
     (source
      (origin
        (method git-fetch)
-       (file-name (git-file-name name version))
        (uri (git-reference
              (url "https://github.com/NVIDIA/nccl")
-             (commit (string-append "v" version))))
+             (commit (string-append "v" version "-1"))))
+       (file-name (git-file-name name version))
        (sha256
-        (base32 "1kwh4950q953c2sr7ir2inyw34mwh5av7cq93j852yd2sqxyyk3v"))))
+        (base32 "10w5gkfac5jdi2dlavvlb7v6fq1cz08bs943kjvqy0sa2kjcwbk6"))))
     (build-system gnu-build-system)
     (arguments
      (list
-      #:make-flags #~(list (string-append "CUDA_HOME="
-                                          #$(this-package-input "cuda-toolkit")))
-      ;; No tests in source.
-      #:tests? #f
+      #:modules '((guix build gnu-build-system)
+                  (guix build utils)
+                  (nonguix build utils))
+      #:imported-modules `(,@%default-gnu-imported-modules (guix build utils)
+                           (nonguix build utils))
+      #:test-target "all"
       #:phases #~(modify-phases %standard-phases
-                   ;; No configure script.
-                   (delete 'configure)
-                   (add-before 'install 'set-prefix
+                   (replace 'configure
                      (lambda _
+                       (setenv "CUDA_HOME"
+                               #$(this-package-input "cuda-toolkit"))
                        (setenv "PREFIX"
-                               #$output))))))
-    (native-inputs (list python which))
+                               #$output)
+                       (substitute* "src/Makefile"
+                         (("\\$\\(PREFIX\\)/lib/pkgconfig")
+                          "$(PREFIX)/share/pkg-config"))))
+                   (add-after 'install 'install-static
+                     install-static-output)
+                   (add-after 'build 'prepare-tests
+                     (lambda* (#:key outputs #:allow-other-keys)
+                       (mkdir "tests")
+                       (with-directory-excursion "tests"
+                         ((assoc-ref %standard-phases
+                                     'unpack)
+                          #:source #$nvidia-nccl-tests))
+                       (setenv "NCCL_HOME"
+                               (canonicalize-path "build"))
+                       (chdir "tests/source")))
+                   (add-after 'check 'step-out-of-tests
+                     (lambda _
+                       (chdir "../.."))))))
+    (native-inputs (list which))
     (inputs (list cuda-toolkit))
+    (outputs (list "out" "static"))
     (home-page "https://developer.nvidia.com/nccl")
-    (synopsis
-     "Optimized primitives for collective multi-GPU communication between
-NVIDIA GPUs")
+    (synopsis "NVIDIA Collective Communications Library (NCCL)")
     (description
-     "NCCL (pronounced \"Nickel\") is a stand-alone library of standard
-communication routines for NVIDIA GPUs, implementing all-reduce,
-all-gather, reduce, broadcast, reduce-scatter, as well as any
-send/receive based communication pattern. It has been optimized to
-achieve high bandwidth on platforms using PCIe, NVLink, NVswitch, as
-well as networking using InfiniBand Verbs or TCP/IP sockets. NCCL
-supports an arbitrary number of GPUs installed in a single node or
-across multiple nodes, and can be used in either single- or
-multi-process (e.g., MPI) applications.")
-    (license license:bsd-3)))
+     "The NVIDIA Collective Communication Library (NCCL)
+implements multi-GPU and multi-node communication primitives optimized for
+NVIDIA GPUs and Networking.  NCCL provides routines such as all-gather,
+all-reduce, broadcast, reduce, reduce-scatter as well as point-to-point send
+and receive that are optimized to achieve high bandwidth and low latency over
+PCIe and NVLink high-speed interconnects within a node and over NVIDIA
+Mellanox Network across nodes.")
+    (license (nonfree:nonfree
+              "https://github.com/NVIDIA/nccl/blob/master/LICENSE.txt"))))
 
 (define-public cutensor
   (package
