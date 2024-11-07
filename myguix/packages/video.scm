@@ -2,6 +2,7 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (gnu packages)
+  #:use-module (gnu packages gl)
   #:use-module (gnu packages video)
   #:use-module (gnu packages python)
   #:use-module (gnu packages pkg-config)
@@ -151,7 +152,20 @@
   (package
     (inherit mpv)
     (name "mpv-cuda")
+    (arguments
+     (substitute-keyword-arguments (package-arguments mpv)
+       ((#:configure-flags flags)
+        #~(append #$flags
+                  ;; Disable OpenGL and GLX which are provided by Mesa
+                  (list "-Dgl=disabled"
+                        "-Degl-drm=disabled"
+                        "-Degl-x11=disabled"
+                        ;; Enable NVIDIA-specific support
+                        "-Degl=enabled"
+                        "-Dvdpau=enabled"
+                        "-Dvaapi=enabled"
+                        "-Dvulkan=enabled")))))
     (propagated-inputs (modify-inputs (package-propagated-inputs mpv)
-                         (append nvda cuda-toolkit)
+                         (replace "mesa" nvda)
                          (replace "ffmpeg" ffmpeg-cuda)
-                         (append nv-codec-headers)))))
+                         (append cuda-toolkit nv-codec-headers)))))
