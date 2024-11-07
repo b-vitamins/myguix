@@ -39,12 +39,18 @@
                                                              ("ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE" . "fg=4")))
                                     (zshrc `(,(plain-file "guix-profile"
                                                           (string-append
-                                                           "GUIX_PROFILE=\"$HOME/.config/guix/current\"
+                                                           "if [ -d \"$HOME/.guix-profile\" ]; then\n"
+                                                           "    export GUIX_PROFILE=\"$HOME/.guix-profile\"
 "
-                                                           "[ -f \"$GUIX_PROFILE/etc/profile\" ] && . \"$GUIX_PROFILE/etc/profile\"
-")) ,
-                                             (plain-file "add-zsh-hook"
-                                              "autoload -Uz add-zsh-hook\n")
+                                                           "    source \"$GUIX_PROFILE/etc/profile\"\n"
+                                                           "elif [ -d \"$HOME/.config/guix/current\" ]; then
+"
+                                                           "    export GUIX_PROFILE=\"$HOME/.config/guix/current\"
+"
+                                                           "    source \"$GUIX_PROFILE/etc/profile\"\n"
+                                                           "fi\n")) ,(plain-file
+                                                                      "add-zsh-hook"
+                                                                      "autoload -Uz add-zsh-hook\n")
                                              ,(plain-file "compinit"
                                                           (string-append
                                                            "autoload -Uz compinit\n"
