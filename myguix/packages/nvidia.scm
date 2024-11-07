@@ -1023,1265 +1023,9 @@ simultaneous NVML calls from multiple threads.")
      "This package provides a task manager for Nvidia graphics cards.")
     (license license:expat)))
 
-(define-public nvidia-cudnn
-  (package
-    (name "nvidia-cudnn")
-    (version "9.2.1.18")
-    (source
-     (origin
-       (uri (string-append
-             "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
-             version "_cuda12-archive.tar.xz"))
-       (sha256
-        (base32 "16c34a0ymxhh3867pk53bwf81dicgci5cq5n723nc8isvnkxrqnn"))
-       (method url-fetch)))
-    (supported-systems '("x86_64-linux"))
-    (build-system gnu-build-system)
-    (arguments
-     (list
-      #:modules '((guix build utils)
-                  (guix build gnu-build-system)
-                  (ice-9 match))
-      #:substitutable? #f
-      #:strip-binaries? #f
-      #:validate-runpath? #f
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'configure)
-                   (delete 'check)
-                   (replace 'build
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (define libc
-                         (assoc-ref inputs "libc"))
-                       (define gcc-lib
-                         (assoc-ref inputs "gcc:lib"))
-                       (define ld.so
-                         (search-input-file inputs
-                                            #$(glibc-dynamic-linker)))
-                       (define rpath
-                         (string-join (list "$ORIGIN"
-                                            (string-append #$output "/lib")
-                                            (string-append #$output
-                                                           "/nvvm/lib64")
-                                            (string-append libc "/lib")
-                                            (string-append gcc-lib "/lib"))
-                                      ":"))
-
-                       (define (patch-elf file)
-                         (make-file-writable file)
-                         (unless (string-contains file ".so")
-                           (format #t "Setting interpreter on '~a'...~%" file)
-                           (invoke "patchelf" "--set-interpreter" ld.so file))
-                         (format #t "Setting RPATH on '~a'...~%" file)
-                         (invoke "patchelf" "--set-rpath" rpath
-                                 "--force-rpath" file))
-
-                       (for-each (lambda (file)
-                                   (when (elf-file? file)
-                                     (patch-elf file)))
-                                 (find-files "."
-                                             (lambda (file stat)
-                                               (eq? 'regular
-                                                    (stat:type stat)))))))
-                   (replace 'install
-                     (lambda _
-                       (let ((lib (string-append #$output "/lib"))
-                             (include (string-append #$output "/include")))
-                         (mkdir-p #$output)
-                         (copy-recursively "lib" lib)
-                         (copy-recursively "include" include)))))))
-    (native-inputs (list patchelf))
-    (inputs `(("gcc:lib" ,gcc-11 "lib")))
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (synopsis "NVIDIA CUDA Deep Neural Network library (cuDNN)")
-    (description "This package provides the CUDA Deep Neural Network library.")
-    (license (nonfree:nonfree
-              "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
-
-(define nvidia-nccl-tests
-  (let* ((name "nvidia-nccl-tests")
-         (revision "0")
-         ;; Commit at the date of the version of nvidia-nccl
-         (commit "e98ef24bc03bef33054c3bc690ce622576c803b6")
-         (version (git-version "2.18.1" revision commit)))
-    (origin
-      (method git-fetch)
-      (uri (git-reference (url "https://github.com/nvidia/nccl-tests")
-                          (commit commit)))
-      (file-name (git-file-name name version))
-      (sha256 (base32 "07z26jivpc7iwx8dirs520g6db3b3r0rckqq1g47242f312f5h1s")))))
-
-(define-public nvidia-nccl
-  (package
-    (name "nvidia-nccl")
-    (version "2.18.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/nccl")
-             (commit (string-append "v" version "-1"))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "10w5gkfac5jdi2dlavvlb7v6fq1cz08bs943kjvqy0sa2kjcwbk6"))))
-    (build-system gnu-build-system)
-    (arguments
-     (list
-      #:modules '((guix build gnu-build-system)
-                  (guix build utils)
-                  (myguix build utils))
-      #:imported-modules `(,@%default-gnu-imported-modules (guix build utils)
-                           (myguix build utils))
-      #:test-target "all"
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'configure
-                     (lambda _
-                       (setenv "CUDA_HOME"
-                               #$(this-package-input "cuda-toolkit"))
-                       (setenv "PREFIX"
-                               #$output)
-                       (setenv "NVCC_GENCODE"
-                               "-gencode=arch=compute_80,code=sm_80")
-                       (substitute* "src/Makefile"
-                         (("\\$\\(PREFIX\\)/lib/pkgconfig")
-                          "$(PREFIX)/share/pkg-config"))))
-                   (add-after 'install 'install-static
-                     install-static-output)
-                   (add-after 'build 'prepare-tests
-                     (lambda* (#:key outputs #:allow-other-keys)
-                       (mkdir "tests")
-                       (with-directory-excursion "tests"
-                         ((assoc-ref %standard-phases
-                                     'unpack)
-                          #:source #$nvidia-nccl-tests))
-                       (setenv "NCCL_HOME"
-                               (canonicalize-path "build"))
-                       (chdir "tests/source")))
-                   (add-after 'check 'step-out-of-tests
-                     (lambda _
-                       (chdir "../.."))))))
-    (native-inputs (list which))
-    (inputs (list cuda-toolkit))
-    (outputs (list "out" "static"))
-    (home-page "https://developer.nvidia.com/nccl")
-    (synopsis "NVIDIA Collective Communications Library (NCCL)")
-    (description
-     "The NVIDIA Collective Communication Library (NCCL)
-implements multi-GPU and multi-node communication primitives optimized for
-NVIDIA GPUs and Networking.  NCCL provides routines such as all-gather,
-all-reduce, broadcast, reduce, reduce-scatter as well as point-to-point send
-and receive that are optimized to achieve high bandwidth and low latency over
-PCIe and NVLink high-speed interconnects within a node and over NVIDIA
-Mellanox Network across nodes.")
-    (license (nonfree:nonfree
-              "https://github.com/NVIDIA/nccl/blob/master/LICENSE.txt"))))
-
-(define-public cutensor
-  (package
-    (name "cutensor")
-    (version "2.0.1.2")
-    (home-page "https://developer.nvidia.com/cutensor")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (string-append
-             "https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-x86_64/libcutensor-linux-x86_64-"
-             version "-archive.tar.xz"))
-       (sha256
-        (base32 "18l6qmfjcn75jsyzlsj66mji8lgab2ih19d0drqavfi2lqna3vgd"))))
-    (build-system copy-build-system)
-    (arguments
-     (list
-      #:substitutable? #f
-      #:strip-binaries? #f
-      #:validate-runpath? #f
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("LICENSE" "LICENSE"))))
-    (synopsis "Nvidia cuTENSOR library")
-    (description "This package provides the proprietary cuTENSOR
-library for NVIDIA GPUs.")
-    (license (nonfree:nonfree
-              "https://docs.nvidia.com/cuda/cutensor/latest/license.html"))))
-
-(define-public no-float128
-  ;; FIXME: We cannot simply add it to 'propagated-inputs' of cuda-toolkit
-  ;; because then it would come after glibc in CPLUS_INCLUDE_PATH.
-  (package
-    (name "no-float128")
-    (version "0")
-    (source
-     #f)
-    (build-system trivial-build-system)
-    (arguments
-     (list
-      #:modules '((guix build utils))
-      #:builder #~(begin
-                    (use-modules (guix build utils))
-
-                    (let* ((header "/include/bits/floatn.h")
-                           (target (string-append #$output
-                                                  (dirname header)))
-                           (libc #$(this-package-input "libc")))
-                      (mkdir-p target)
-                      (install-file (string-append libc header) target)
-                      (substitute* (string-append target "/"
-                                                  (basename header))
-                        (("#([[:blank:]]*)define __HAVE_FLOAT128[[:blank:]]+1"
-                          _ space)
-                         (string-append "#" space "define __HAVE_FLOAT128 0")))))))
-    (inputs `(("libc" ,glibc)))
-    (home-page "https://hpc.guix.info")
-    (synopsis "@file{<bits/floatn.h>} header that disables float128 support")
-    (description
-     "This package provides a @file{<bits/floatn.h>} header to override that
-of glibc and disable float128 support.  This is required allow the use of
-@command{nvcc} with CUDA 8.0 and glibc 2.26+.  Otherwise, @command{nvcc} fails like this:
-
-@example
-/gnu/store/…-glibc-2.26.105-g0890d5379c/include/bits/floatn.h(61): error: invalid argument to attribute \"__mode__\"
-
-/gnu/store/…-glibc-2.26.105-g0890d5379c/include/bits/floatn.h(73): error: identifier \"__float128\" is undefined
-@end example
-
-See also
-@url{https://devtalk.nvidia.com/default/topic/1023776/cuda-programming-and-performance/-request-add-nvcc-compatibility-with-glibc-2-26/1}.")
-    (license license:gpl3+)))
-
-(define-public cuda-cccl
-  (package
-    (name "cuda-cccl")
-    (version "12.1.109")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1ahvk632nh05m3mmjk8mhkxgkmry1ipq89dycw98kd617png6kmq")
-                  ("aarch64-linux"
-                   "1yc5irxn35ii0qal1qi8v6gq25ws4a7axjnmc5b20g0ypzxdlc2n")
-                  ("powerpc64le-linux"
-                   "0s6zidp5ajsqh519x3c38ihip4m1hkdzhrsdq04pybk8sfjh7z2l"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib"))))
-    (synopsis "C++ Core Compute Libraries for the CUDA language")
-    (description
-     "This package provides the CUDA C++ developers with building blocks that
-make it easier to write safe and efficient code.  It unifies three essential former
-CUDA C++ libraries into a single repository:
-@itemize
-@item Thrust (former repo)
-@item CUB (former repo)
-@item libcudacxx (former repo)
-@end itemize")
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (license (cuda-license name))))
-
-(define-public cuda-nvrtc
-  (package
-    (name "cuda-nvrtc")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0yriv3gcb4kpvpav3ilv8zyhravmz0blb0gv1c7pfq37r9m705dv")
-                  ("aarch64-linux"
-                   "0amp7qg64i6rfkqnjinizh9vhpajvqdpyan4jda9vqr7ckrdfq31")
-                  ("powerpc64le-linux"
-                   "10dwwhk2pfz6dcqpgjp2dryg5qb08ghnbxvbk4mfhvsajj9ik4wv"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "Runtime compilation library for CUDA C++")
-    (description
-     "This package accepts CUDA C++ source code in character string form and
-creates handles that can be used to obtain the CUDA PTX, for further
-instrumentation with the CUDA Toolkit.  It allows to shrink compilation
-overhead and simplify application deployment.")
-    (home-page "https://docs.nvidia.com/cuda/nvrtc/index.html")
-    (license (cuda-license name))))
-
-(define-public cuda-cudart
-  (package
-    (name "cuda-cudart")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1nbbmd3x0dm3qpyr99cdmbw2gwffvvr9qvlwsdc34i4cij3yr5k0")
-                  ("aarch64-linux"
-                   "1q8mrsvj5w4v81w7fs73jq1z0ilishkfg5pq5ncb85yjg345hwya")
-                  ("powerpc64le-linux"
-                   "1ffqr6d28rpwzx9swmwj8s6p8llfvwrzpnnjcgjgskqygf5lfl2y"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'install-static)
-                   (add-after 'install 'add-symlink
-                     (lambda _
-                       (with-directory-excursion (string-append #$output
-                                                                "/lib/stubs")
-                         (symlink "libcuda.so" "libcuda.so.1")))))))
-    (inputs (list cuda-nvrtc
-                  `(,gcc "lib") glibc))
-    (synopsis "CUDA runtime")
-    (description
-     "This package provides the CUDA run-time support libraries for NVIDIA
-GPUs, all of which are proprietary.")
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (license (cuda-license name))))
-
-(define-public cuda-cuobjdump
-  (package
-    (name "cuda-cuobjdump")
-    (version "12.1.111")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0lnsmz06kim978lcfbyl1n58883wq76wjri7kazrdr1bmj6vb60h")
-                  ("aarch64-linux"
-                   "0dqis4m2wlplp5hzjn92q65vs8gshn4nc7200gyvdr7midqcw0xz")
-                  ("powerpc64le-linux"
-                   "118ipzj28i4668jpr3svnzw5r3hgmwvg618s6y3axfn5picv4f4q"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("bin" "bin"))))
-    (synopsis "Extract information from CUDA binary files")
-    (description
-     "This binary extracts information from CUDA binary files (both standalone
-and those embedded in host binaries) and presents them in human readable
-format.  The output of @code{cuobjdump} includes CUDA assembly code for each
-kernel, CUDA ELF section headers, string tables, relocators and other CUDA
-specific sections.  It also extracts embedded ptx text from host binaries.")
-    (home-page
-     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#cuobjdump")
-    (license (cuda-license name))))
-
-(define-public cuda-cuxxfilt
-  (package
-    (name "cuda-cuxxfilt")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0va13gfay4as0fnc23n0gqhnylyhykp5cmmxjhlminfi735zki0x")
-                  ("aarch64-linux"
-                   "15jbqssx0nzi8l411m41393jpzc8kbd2qa0jri22cp5c4cnls9bz")
-                  ("powerpc64le-linux"
-                   "0m3nmsl59r2apd1dpm3a8ch788kq2krrl1x50agqk3z2wl8zhy1p"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("bin" "bin")
-                        ("include" "include")
-                        ("lib" "lib"))))
-    (synopsis "Decodes low-level CUDA C++ identifiers into readable names")
-    (description
-     "This package decodes (demangles) low-level identifiers that have been
-mangled by CUDA C++ into user readable names.  For every input alphanumeric
-word, the output of cu++filt is either the demangled name if the name decodes
-to a CUDA C++ name, or the original name itself.")
-    (home-page
-     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#cu-filt")
-    (license (cuda-license name))))
-
-(define-public cuda-cupti
-  (package
-    (name "cuda-cupti")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0qy3pvqkvr16xp2l0jb202xxvgq1pxdwkqfrpm4ag6k102i98x9r")
-                  ("aarch64-linux"
-                   "14j7kb6izvvgmla92lxyhlw482v7hxqsfpcl4gvpg6nspa0p6vbs")
-                  ("powerpc64le-linux"
-                   "0rfkvvv0i8450bpmanbq72cg98grpskxdrwswj7zch9gwkh4qyhr"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("doc" "share/doc")
-                        ("lib" "lib")
-                        ("samples" "share/samples"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "CUDA Profiling Tools Interface")
-    (description
-     "This package enables the creation of profiling and tracing tools that
-target CUDA applications and give insight into the CPU and GPU behavior of
-CUDA applications.  It provides the following APIs:
-@itemize
-@item the Activity API,
-@item the Callback API,
-@item the Event API,
-@item the Metric API,
-@item the Profiling API,
-@item the PC Sampling API,
-@item the Checkpoint API.
-@end itemize")
-    (home-page "https://docs.nvidia.com/cuda/cupti/index.html")
-    (license (cuda-license name))))
-
-(define-public cuda-gdb
-  (package
-    (name "cuda-gdb")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0205f2ix06ry404l0ymrwx23k3nsnvhm1clg52hsnxmzqplfmgn4")
-                  ("aarch64-linux"
-                   "1v8cprz20yqjy8g1s9rbrvly1dr5icfam7c8rzqvzs25l8dcynjw")
-                  ("powerpc64le-linux"
-                   "1l2gl6pcvmdqcvd45513in915ij9cf9ljii5vfgh1y13apnk8ykz"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ``(("bin" "bin")
-                        ("extras/Debugger/include" "include")
-                        ("extras/Debugger/lib64" "lib")
-                        ("share/gdb/python" ,,(string-append "lib/python"
-                                               (version-major+minor (package-version
-                                                                     python))
-                                               "/site-packages/gdb")))
-      #:strip-binaries? #f ;FIXME breaks 'validate-runpath
-      #:patchelf-inputs ''("gcc" "glibc" "gmp")))
-    (inputs (list `(,gcc "lib") glibc gmp))
-    (synopsis "Tool for debugging CUDA applications")
-    (description
-     "This package provides the NVIDIA tool for debugging CUDA applications
-running.  CUDA-GDB is an extension to GDB, the GNU Project debugger.  The tool
-provides developers with a mechanism for debugging CUDA applications running
-on actual hardware.  This enables developers to debug applications without the
-potential variations introduced by simulation and emulation environments.")
-    (home-page "https://docs.nvidia.com/cuda/cuda-gdb/index.html")
-    (license (cuda-license name))))
-
-;; This package must be defined before cuda-nvcc for inheritance.
-(define-public libnvvm
-  (package
-    (name "libnvvm")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url "cuda-nvcc" version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0fq8w5jq2drckjwn2i30m7arybnffhy4j2qb2yysp23pw7pgg18b")
-                  ("aarch64-linux"
-                   "0di51rdd08fwg6as1fqixkw7g052qv3sx9f9y06dkdbq0i563y0n")
-                  ("powerpc64le-linux"
-                   "1830cvqpmjsv83wk1lfjpjlc8j3wdpaiyvvc03crqh241v4c9qp6"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:strip-binaries? #f ;XXX: breaks 'validate-runpath phase
-      #:install-plan ''(("nvvm/bin" "/bin")
-                        ("nvvm/include" "/include")
-                        ("nvvm/lib64" "/lib")
-                        ;; nvvm prefix is necessary for cmake
-                        ("nvvm/libdevice" "nvvm/libdevice"))))
-    (inputs (list cuda-cudart
-                  `(,gcc-12 "lib") glibc))
-    (synopsis "Generate CUDA PTX code from binary or text inputs")
-    (description
-     "This package provides an interface for generating PTX code from both
-binary and text NVVM IR inputs.")
-    (home-page "https://docs.nvidia.com/cuda/libnvvm-api/index.html")
-    (license (cuda-license name))))
-
-(define-public cuda-nvcc
-  (package
-    (inherit libnvvm)
-    (name "cuda-nvcc")
-    (arguments
-     (list
-      #:strip-binaries? #f ;XXX: breaks 'validate-runpath phase
-      #:patchelf-inputs ''("gcc" "glibc" "libnvvm")
-      #:install-plan ''(("bin" "bin")
-                        ("include" "include")
-                        ("lib" "lib"))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'patch-nvcc.profile
-                     (lambda _
-                       (define (append-to-file name body)
-                         (let ((file (open-file name "a")))
-                           (display body file)
-                           (close-port file)))
-
-                       (substitute* "bin/nvcc.profile"
-                         (("\\$\\(TOP\\)/\\$\\(_NVVM_BRANCH_\\)")
-                          #$(this-package-input "libnvvm"))
-                         (("\\$\\(TOP\\)/lib")
-                          (string-append #$output "/lib"))
-                         (("\\$\\(TOP\\)/nvvm")
-                          (string-append #$output "/nvvm"))
-                         (("\\$\\(TOP\\)/\\$\\(_TARGET_DIR_\\)/include")
-                          (string-append #$output "/include")))
-                       (append-to-file "bin/nvcc.profile"
-                                       (string-join (list (string-append
-                                                           "PATH += "
-                                                           #$(this-package-input
-                                                              "gcc") "/bin")
-                                                          (string-append
-                                                           "LIBRARIES =+ -L"
-                                                           #$(this-package-input
-                                                              "cuda-cudart")
-                                                           "/lib -L"
-                                                           #$(this-package-input
-                                                              "cuda-cudart")
-                                                           "/lib/stubs -L"
-                                                           #$(this-package-input
-                                                              "libnvvm")
-                                                           "/lib")
-                                                          (string-append
-                                                           "INCLUDES =+ -I"
-                                                           #$(this-package-input
-                                                              "cuda-cudart")
-                                                           "/include -I"
-                                                           #$(this-package-input
-                                                              "libnvvm")
-                                                           "/include\n")) "\n")))))))
-    (inputs (list cuda-cudart
-                  `(,gcc "lib") glibc libnvvm))
-    (synopsis "Compiler for the CUDA language and associated run-time support")
-    (description
-     "This package provides the CUDA compiler and the CUDA run-time support
-libraries for NVIDIA GPUs, all of which are proprietary.")
-    (home-page
-     "https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html")
-    (license (cuda-license name))))
-
-(define-public cuda-nvml-dev
-  (package
-    (name "cuda-nvml-dev")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0zyp4c4zf4kjjdw0dzjncclyamazlg5z4lncl7y0g8bq3idpgbi0")
-                  ("aarch64-linux"
-                   "0wal0bjvhd9wr4cnvr4s9m330awj2mqqvpq0rh6wzaykas40zmcx")
-                  ("powerpc64le-linux"
-                   "1zjh6mmp5nl3s5wm5jwfzh9bazzhl2vr76c9cdfrjjryyd2pkr92"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("nvml/example" "share/example")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "NVIDIA Management Library Headers")
-    (description
-     "The NVIDIA Management Library Headers (NVML) is a C-based API for
-monitoring and managing various states of the NVIDIA GPU devices. It provides
-a direct access to the queries and commands exposed via @code{nvidia-smi}.")
-    (home-page "https://developer.nvidia.com/management-library-nvml")
-    (license (cuda-license name))))
-
-(define-public cuda-nvdisasm
-  (package
-    (name "cuda-nvdisasm")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1sd9wqf5y4xvz70yh58mdxxddwnkyfjfaj6nrykpvqrry79vyz7l")
-                  ("aarch64-linux"
-                   "0pnk1x1c7msz93r5kgkb218akf02ymjar2dz8s3sx08hicaslff2")
-                  ("powerpc64le-linux"
-                   "04xjcjj055ffs58gkf86jzryyzxia8c995g8xpj5nf2zhaw030hw"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("bin" "bin"))))
-    (synopsis "Extract information from CUDA cubin files")
-    (description
-     "This binary extracts information from standalone cubin files
-and presents them in human readable format.  The output of @code{nvdisasm}
-includes CUDA assembly code for each kernel, listing of ELF data sections and
-other CUDA specific sections.  Output style and options are controlled through
-nvdisasm command-line options.  @code{nvdisasm} also does control flow
-analysis to annotate jump/branch targets and makes the output easier to
-read.")
-    (home-page
-     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvdisasm")
-    (license (cuda-license name))))
-
-(define-public cuda-nvprof
-  (package
-    (name "cuda-nvprof")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "18z522w0rnrqbqymigsd88rscz29z9fg3bf5w6ri4yjr8a1ycdg9")
-                  ("powerpc64le-linux"
-                   "1sd9wbb2zdc29jx7m3m5qs29s67ww71g659228y2045nr340qjc4"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:strip-binaries? #f ;XXX: breaks 'validate-runpath phase
-      #:install-plan ''(("bin" "bin")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))
-      #:patchelf-inputs ''(("cuda-cudart" "/lib/stubs")
-                           "cuda-cupti" "gcc" "glibc")))
-    (inputs (list cuda-cudart cuda-cupti
-                  `(,gcc "lib") glibc))
-    (synopsis "Command-line NVIDIA GPU profiler")
-    (description
-     "This package provides a command-line tool to profile CUDA kernels.  It
-enables the collection of a timeline of CUDA-related activities on both CPU
-and GPU, including kernel execution, memory transfers, memory set and CUDA API
-calls and events or metrics for CUDA kernels.")
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (license (cuda-license name))))
-
-(define-public cuda-nvprune
-  (package
-    (name "cuda-nvprune")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0qrisahad4n2g8n40i0gpq986ni8qjg53fd23vycmmmkggvb3wxa")
-                  ("aarch64-linux"
-                   "1hdih73ph80iwmjmz7dywz995626x64jkqfaybw7a908nxkjalpy")
-                  ("powerpc64le-linux"
-                   "0n92fcp5qms6dvg5hq1wl29wmh32wjfkykccjpqd8c40qrmd9ngh"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("bin" "bin"))))
-    (synopsis "Prune host NVIDIA binaries for the specified target")
-    (description
-     "This package provides a binary that prunes host object files and
-libraries to only contain device code for the specified targets.")
-    (home-page
-     "https://docs.nvidia.com/cuda/cuda-binary-utilities/index.html#nvprune")
-    (license (cuda-license name))))
-
-(define-public cuda-nvrtc
-  (package
-    (name "cuda-nvrtc")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0yriv3gcb4kpvpav3ilv8zyhravmz0blb0gv1c7pfq37r9m705dv")
-                  ("aarch64-linux"
-                   "0amp7qg64i6rfkqnjinizh9vhpajvqdpyan4jda9vqr7ckrdfq31")
-                  ("powerpc64le-linux"
-                   "10dwwhk2pfz6dcqpgjp2dryg5qb08ghnbxvbk4mfhvsajj9ik4wv"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "Runtime compilation library for CUDA C++")
-    (description
-     "This package accepts CUDA C++ source code in character string form and
-creates handles that can be used to obtain the CUDA PTX, for further
-instrumentation with the CUDA Toolkit.  It allows to shrink compilation
-overhead and simplify application deployment.")
-    (home-page "https://docs.nvidia.com/cuda/nvrtc/index.html")
-    (license (cuda-license name))))
-
-(define-public cuda-nvtx
-  (package
-    (name "cuda-nvtx")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1hpibjs9hpc1qhbxihgcpsf298cjwxh7qqsk0shhrwbv4hncg8lc")
-                  ("aarch64-linux"
-                   "1j841pl7n2waal2nclz076yxmzsibxssy8gnkb14yyc8sj657ajp")
-                  ("powerpc64le-linux"
-                   "1p0ml8p8dpzwp2kkgvv0yr4f61if33srpzbj1mjpzc70a0l55a31"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (synopsis "NVIDIA Tools Extension Library")
-    (description
-     "This package provides a cross-platform API for annotating source code to
-provide contextual information to developer tools.")
-    (home-page "https://docs.nvidia.com/nvtx/index.html")
-    (license (cuda-license name))))
-
-(define-public cuda-opencl
-  (package
-    (name "cuda-opencl")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1k4ab28kg5plr0nn83amr6j7cqg54vpis00am9dpiy4kgj2izgcx"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (synopsis "CUDA OpenCL API")
-    (description
-     "OpenCL (Open Computing Language) is a multi-vendor open standard for
-general-purpose parallel programming of heterogeneous systems that include
-CPUs, GPUs and other processors.  This package provides the API to use OpenCL
-on NVIDIA GPUs.")
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (license (cuda-license name))))
-
-(define-public cuda-profiler-api
-  (package
-    (name "cuda-profiler-api")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "187dngq2p66jz3yd5l6klqgcvjl6fkcjdjjz1dmzj10fxfv6rzrz")
-                  ("aarch64-linux"
-                   "1zq8qrh13ibm9c2km8lj4fmddc8smgh75ajpwb0l7rfg12dajnpr")
-                  ("powerpc64le-linux"
-                   "0mhk9cgac2jc4dmqic5ym34cwpz15b0qk824230bhgmwarjwzhiz"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include"))))
-    (synopsis "Low-level CUDA profiling API")
-    (description
-     "This package provides a minimal low-level profiling API for CUDA.")
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (license (cuda-license name))))
-
-(define-public cuda-sanitizer-api
-  (package
-    (name "cuda-sanitizer-api")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "00m6mw9vw8xgjbm8xzbpgirw8xcrdb13bgwkp4hxayy313d13afz")
-                  ("aarch64-linux"
-                   "01iv9qawabr2llq7nwcrpc1fb03yp9a311p08bafhbakk272nwwq")
-                  ("powerpc64le-linux"
-                   "1hp1kd7q5dj8adyv4haaz119qcmmc5gqs3g8zqik5rnmck6qk3p3"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("compute-sanitizer" "compute-sanitizer")
-                        ("bin" "bin"))))
-    (synopsis "Functional correctness checking suite for CUDA")
-    (description
-     "This package provides a functional correctness checking suite included in
-the CUDA toolkit.  This suite contains multiple tools that can perform
-different type of checks.  The @code{memcheck} tool is capable of precisely
-detecting and attributing out of bounds and misaligned memory access errors in
-CUDA applications, and can also report hardware exceptions encountered by the
-GPU.  The @code{racecheck} tool can report shared memory data access hazards
-that can cause data races.  The @code{initcheck} tool can report cases where
-the GPU performs uninitialized accesses to global memory.  The
-@code{synccheck} tool can report cases where the application is attempting
-invalid usages of synchronization primitives.")
-    (home-page "https://docs.nvidia.com/cuda/compute-sanitizer/index.html")
-    (license (cuda-license name))))
-
-(define-public libcublas
-  (package
-    (name "libcublas")
-    (version "12.1.3.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1323rg663fvjl73j5ny249ndnii2qbrfc7qccz5k6ky4v1x4s14h")
-                  ("aarch64-linux"
-                   "1bzzxzppz3ypx6q3gg7w6sfnwnypl974ppmbxh0j2jafvwy5nf9f")
-                  ("powerpc64le-linux"
-                   "1wgrgkn9mvh9k1d58ka92gbq11ckl8pyhz7za8lsrhjpw6c8iw15"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config")
-                        ("src" "share/src"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis
-     "GPU-accelerated library for accelerating AI and HPC applications")
-    (description
-     "This package provides the NVIDIA cuBLAS library.  It includes several
-API extensions for providing drop-in industry standard BLAS APIs and GEMM APIs
-with support for fusions that are highly optimized for NVIDIA GPUs.  The
-cuBLAS library also contains extensions for batched operations, execution
-across multiple GPUs, and mixed- and low-precision execution with additional
-tuning for the best performance.")
-    (home-page "https://developer.nvidia.com/cublas")
-    (license (cuda-license name))))
-
-(define-public libcufft
-  (package
-    (name "libcufft")
-    (version "11.0.2.54")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "053vgq3lavrydna1gl7lry0lp78nby6iqh1gvclvq7vx5kac2dki")
-                  ("aarch64-linux"
-                   "0kmyxk9420vgm0ipr8a6fx1kcw19h8awy21l92lg4h7nzp58ig76")
-                  ("powerpc64le-linux"
-                   "02kklsdi43fvs2bi9s534rniqh43hqj9aq4i1m01yq6ya1cqqz1c"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "CUDA Fast Fourier Transform library")
-    (description
-     "This package provides cuFFT, the NVIDIA® CUDA® Fast Fourier Transform
-(FFT) product.  It consists of two separate libraries: cuFFT and cuFFTW.  The
-cuFFT library is designed to provide high performance on NVIDIA GPUs.  The
-cuFFTW library is provided as a porting tool to enable users of FFTW to start
-using NVIDIA GPUs with a minimum amount of effort.
-
-The FFT is a divide-and-conquer algorithm for efficiently computing discrete
-Fourier transforms of complex or real-valued data sets.  It is one of the most
-important and widely used numerical algorithms in computational physics and
-general signal processing.  The cuFFT library provides a simple interface for
-computing FFTs on an NVIDIA GPU, which allows users to quickly leverage the
-floating-point power and parallelism of the GPU in a highly optimized and
-tested FFT library.   The cuFFTW library provides the FFTW3 API to facilitate
-porting of existing FFTW applications.")
-    (home-page "https://docs.nvidia.com/cuda/cufft/index.html")
-    (license (cuda-license name))))
-
-(define-public libcurand
-  (package
-    (name "libcurand")
-    (version "10.3.2.106")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1pk4ngmqdhigg2889h3521kzxvvp3m1yxlnvf9hrwh9dmmpj2hcr")
-                  ("aarch64-linux"
-                   "0lw53j57g1094bzlx43dyq7iwwpljdkg17dnl8lk7n5vyrvjk4j3")
-                  ("powerpc64le-linux"
-                   "05r8fcam75m9zv853vl0zzp67jy0yacq09q8xx5ymxx7pcj58g7s"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "CUDA random number generation library")
-    (description
-     "This package provides facilities that focus on the simple and efficient
-generation of high-quality pseudorandom and quasirandom numbers.  A
-pseudorandom sequence of numbers satisfies most of the statistical properties
-of a truly random sequence but is generated by a deterministic algorithm.  A
-quasirandom sequence of -dimensional points is generated by a deterministic
-algorithm designed to fill an -dimensional space evenly.")
-    (home-page "https://docs.nvidia.com/cuda/curand/index.html")
-    (license (cuda-license name))))
-
-(define-public libnvjitlink
-  (package
-    (name "libnvjitlink")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1d5ngmf10l37rm7814jlghgfpa0xjyqiis8vqg0y22cmrw365vi1")
-                  ("aarch64-linux"
-                   "15fbd3ygk41wbsjyzsharncd94pzn0ikwhq5fq5x7lyh9g0frkfz")
-                  ("powerpc64le-linux"
-                   "1gq93cp68x0nivajz9bh7mvykfzcfhim5l907lg1kp2jb3rnrssg"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("lib" "lib")
-                        ("pkg-config" "share/pkg-config")
-                        ("include" "include"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "Link GPU devide code at runtime")
-    (description
-     "This package provides a set of APIs which can be used at runtime to link
-together GPU devide code.  It supports Link Time Optimization.")
-    (home-page "https://docs.nvidia.com/cuda/nvjitlink/index.html")
-    (license (cuda-license name))))
-
-(define-public libcusparse
-  (package
-    (name "libcusparse")
-    (version "12.1.0.106")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "01rrz1wdsfmpz9wbvir7nwvlpdrqk6i1j987wdbb2lx7d96n07xf")
-                  ("aarch64-linux"
-                   "1vxmiw9qzg67sr4m9mpzhcy392z8vx2m09yl5h2bhb8kjxrdljik")
-                  ("powerpc64le-linux"
-                   "13ji6dlipzahlrri5sp00qyrfa3wgp9z5mv3075qksmnjhi7wxkv"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config")
-                        ("src" "share/src"))
-      #:patchelf-inputs ''("gcc" "glibc" "libnvjitlink")))
-    (inputs (list `(,gcc "lib") glibc libnvjitlink))
-    (outputs (list "out" "static"))
-    (synopsis "CUDA sparse matrix library")
-    (description
-     "This package provides a set of GPU-accelerated basic linear algebra
-subroutines used for handling sparse matrices that perform significantly
-faster than CPU-only alternatives.  Depending on the specific operation, the
-library targets matrices with sparsity ratios in the range between 70%-99.9%.")
-    (home-page "https://docs.nvidia.com/cuda/cusparse/index.html")
-    (license (cuda-license name))))
-
-(define-public libcusolver
-  (package
-    (name "libcusolver")
-    (version "11.4.5.107")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1y34wk7xx9h0kj13rxb504yx5vchkapk1237ya7vs7z70409fsbi")
-                  ("aarch64-linux"
-                   "0wr8xa4hqay94gc1b9jzig24f7q3s2ykakppxv42pxp86dbjyp0q")
-                  ("powerpc64le-linux"
-                   "12jkky40g1xpjr1lkz925q93zbc84g559mhv94x70i4dmy6b4rj3"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))
-      #:patchelf-inputs ''("gcc" "glibc" "libcublas" "libcusparse"
-                           "libnvjitlink")))
-    (inputs (list `(,gcc "lib") glibc libcublas libcusparse libnvjitlink))
-    (outputs (list "out" "static"))
-    (synopsis
-     "GPU-accelerated library for decompositions and linear system solutions")
-    (description
-     "This package provides a high-level library based on the cuBLAS and
-cuSPARSE libraries.  It consists of two modules corresponding to two sets of
-API: the cuSolver API on a single GPU; and the cuSolverMG API on a single node
-multiGPU.  Each of these can be used independently or in concert with other
-toolkit libraries. The intent of cuSolver is to provide useful LAPACK-like
-features, such as common matrix factorization and triangular solve routines
-for dense matrices, a sparse least-squares solver and an eigenvalue solver.
-In addition, cuSolver provides a new refactorization library useful for
-solving sequences of matrices with a shared sparsity pattern.")
-    (home-page "https://docs.nvidia.com/cuda/cusolver/index.html")
-    (license (cuda-license name))))
-
-(define-public libnvjitlink
-  (package
-    (name "libnvjitlink")
-    (version "12.1.105")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1d5ngmf10l37rm7814jlghgfpa0xjyqiis8vqg0y22cmrw365vi1")
-                  ("aarch64-linux"
-                   "15fbd3ygk41wbsjyzsharncd94pzn0ikwhq5fq5x7lyh9g0frkfz")
-                  ("powerpc64le-linux"
-                   "1gq93cp68x0nivajz9bh7mvykfzcfhim5l907lg1kp2jb3rnrssg"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("lib" "lib")
-                        ("pkg-config" "share/pkg-config")
-                        ("include" "include"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "Link GPU devide code at runtime")
-    (description
-     "This package provides a set of APIs which can be used at runtime to link
-together GPU devide code.  It supports Link Time Optimization.")
-    (home-page "https://docs.nvidia.com/cuda/nvjitlink/index.html")
-    (license (cuda-license name))))
-
-(define-public libnvjpeg
-  (package
-    (name "libnvjpeg")
-    (version "12.2.0.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "0xbzbhf7s7gsilr7gx4r7g2j1sxj977wr5zf7jjqg31ch9x2d4yj")
-                  ("powerpc64le-linux"
-                   "1z90kf95045s6q44rm2da3g31icb3hyh3jmv9a5s5bvx6flfs4lk"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "GPU-accelerated JPEG codec library")
-    (description
-     "This package provides a high-performance, GPU accelerated JPEG decoding
-functionality for image formats commonly used in deep learning and hyperscale
-multimedia applications.  The library offers single and batched JPEG decoding
-capabilities which efficiently utilize the available GPU resources for optimum
-performance; and the flexibility for users to manage the memory allocation
-needed for decoding.
-
-The nvJPEG library enables the following functions: use the JPEG image data
-stream as input; retrieve the width and height of the image from the data
-stream, and use this retrieved information to manage the GPU memory allocation
-and the decoding.  A dedicated API is provided for retrieving the image
-information from the raw JPEG image data stream.
-
-The encoding functions of the nvJPEG library perform GPU-accelerated
-compression of user’s image data to the JPEG bitstream.  User can provide input
-data in a number of formats and colorspaces, and control the encoding process
-with parameters.  Encoding functionality will allocate temporary buffers using
-user-provided memory allocator.")
-    (home-page "https://docs.nvidia.com/cuda/nvjpeg/index.html")
-    (license (cuda-license name))))
-
-(define-public libnpp
-  (package
-    (name "libnpp")
-    (version "12.1.0.40")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (cuda-module-url name version))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "1lcb8hdqv2h3i33iinfj6nljh6bhlvy4c3pgis5wy7lnqwr2xi2j")
-                  ("aarch64-linux"
-                   "048blkq0qibj54a70pwn49w4y525if35djkfqx7l7p7ibm47qx3h")
-                  ("powerpc64le-linux"
-                   "140w44a5q5pcfzkn0dl5ibkhshd3pb7jczgddpklqv2a5pkngd2y"))))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib")
-                        ("pkg-config" "share/pkg-config"))))
-    (inputs (list `(,gcc "lib") glibc))
-    (outputs (list "out" "static"))
-    (synopsis "NVIDIA 2D Image and Signal Processing Performance Primitives")
-    (description
-     "This package provides a library of functions for performing CUDA
-accelerated 2D image and signal processing.
-
-The primary library focuses on image processing and is widely applicable for
-developers in these areas.  NPP will evolve over time to encompass more of the
-compute heavy tasks in a variety of problem domains.  The NPP library is
-written to maximize flexibility, while maintaining high performance.")
-    (home-page "https://docs.nvidia.com/cuda/npp/index.html")
-    (license (cuda-license name))))
-
 (define-public cuda-toolkit
   (package
     (name "cuda-toolkit")
-    (version "12.1.1")
-    (source
-     #f)
-    (build-system trivial-build-system)
-    (arguments
-     '(#:modules ((guix build union))
-       #:builder (begin
-                   (use-modules (ice-9 match)
-                                (guix build union))
-                   (match %build-inputs
-                     (((names . directories) ...)
-                      (union-build (assoc-ref %outputs "out") directories))))))
-    (inputs (list cuda-cccl
-                  cuda-cudart
-                  cuda-nvcc
-                  cuda-nvml-dev
-                  cuda-nvtx
-                  cuda-nvrtc
-                  cuda-cuobjdump
-                  cuda-cupti
-                  cuda-cuxxfilt
-                  cuda-gdb
-                  cuda-nvdisasm
-                  cuda-nvprof
-                  cuda-nvprune
-                  cuda-profiler-api
-                  cuda-sanitizer-api
-                  libcublas
-                  libcufft
-                  libcurand
-                  libcusolver
-                  libcusparse
-                  libnpp
-                  libnvjitlink
-                  libnvjpeg
-                  libnvvm))
-    (synopsis "Metapackage for CUDA")
-    (description
-     "This package provides the CUDA compiler and the CUDA run-time support
-libraries for NVIDIA GPUs, all of which are proprietary.")
-    (home-page "https://developer.nvidia.com/cuda-toolkit")
-    (license (package-license cuda-cudart))))
-
-(define-public cuda-toolkit-next
-  (package
-    (name "cuda-toolkit-next")
     (version "12.4.0")
     (source
      (origin
@@ -2393,130 +1137,85 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (nonfree:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
 
-(define-public cuda-python
+(define-public cudnn
   (package
-    (name "cuda-python")
-    (version "12.1.0")
+    (name "cudnn")
+    (version "9.2.1.18")
     (source
      (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/cuda-python")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
+             version "_cuda12-archive.tar.xz"))
        (sha256
-        (base32 "0i0wvx5kxckphsf1n02rr86hrnc2r6p8wlrvq1n1w9c3l6m24d13"))))
-    (build-system pyproject-build-system)
+        (base32 "16c34a0ymxhh3867pk53bwf81dicgci5cq5n723nc8isvnkxrqnn"))
+       (method url-fetch)))
+    (supported-systems '("x86_64-linux"))
+    (build-system gnu-build-system)
     (arguments
      (list
-      #:tests? #f ;FIXME: most tests fail.
+      #:modules '((guix build utils)
+                  (guix build gnu-build-system)
+                  (ice-9 match))
+      #:substitutable? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
       #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-setup.py
-                     (lambda _
-                       (substitute* "setup.py"
-                         (("import versioneer" all)
-                          (format #f "~a~%import pyparsing" all)))))
-                   (add-before 'build 'set_cuda_paths
-                     (lambda _
-                       (setenv "CUDA_HOME"
-                               #$(this-package-input "cuda-toolkit"))
-                       (setenv "PARALLEL_LEVEL"
-                               (number->string (parallel-job-count))))))))
-    (native-inputs (list python-cython python-numpy python-pytest
-                         python-pytest-benchmark))
-    (inputs (list cuda-toolkit))
-    (propagated-inputs (list python-pyclibrary))
-    (home-page "https://github.com/NVIDIA/cuda-python")
-    (synopsis "CUDA Python low-level bindings")
-    (description "This package provides Python low-level bindings for NVIDIA
-CUDA toolkit.")
-    (license (nonfree:nonfree
-              "https://github.com/NVIDIA/cuda-python/blob/main/LICENSE"))))
+                   (delete 'configure)
+                   (delete 'check)
+                   (replace 'build
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (define libc
+                         (assoc-ref inputs "libc"))
+                       (define gcc-lib
+                         (assoc-ref inputs "gcc:lib"))
+                       (define ld.so
+                         (search-input-file inputs
+                                            #$(glibc-dynamic-linker)))
+                       (define rpath
+                         (string-join (list "$ORIGIN"
+                                            (string-append #$output "/lib")
+                                            (string-append #$output
+                                                           "/nvvm/lib64")
+                                            (string-append libc "/lib")
+                                            (string-append gcc-lib "/lib"))
+                                      ":"))
 
-(define (nvidia-cudnn-samples system version)
-  (origin
-    (method url-fetch)
-    (uri (format #f
-          "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn_samples/~a/cudnn_samples-~a-~a_cuda12-archive.tar.xz"
-          system system version))
-    (sha256 (base32 "01drxcyj8r4zsrc7i9cwczd185dcacxgwllipf9w612byzrs9afk"))))
+                       (define (patch-elf file)
+                         (make-file-writable file)
+                         (unless (string-contains file ".so")
+                           (format #t "Setting interpreter on '~a'...~%" file)
+                           (invoke "patchelf" "--set-interpreter" ld.so file))
+                         (format #t "Setting RPATH on '~a'...~%" file)
+                         (invoke "patchelf" "--set-rpath" rpath
+                                 "--force-rpath" file))
 
-(define-public nvidia-cudnn
-  (package
-    (name "nvidia-cudnn")
-    (version "8.9.7.29")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (let ((system (cuda-current-system)))
-              (format #f
-               "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/~a/cudnn-~a-~a_cuda12-archive.tar.xz"
-               system system version)))
-       (sha256
-        (base32 "1fz345pgngn1v4f0i80s7g4k0vhhd98ggcm07jpsfhkybii36ls7"))))
-    (build-system cuda-build-system)
-    (arguments
-     (list
-      #:install-plan ''(("include" "include")
-                        ("lib" "lib"))
-      #:patchelf-inputs ''("gcc" "glibc" "out" "zlib")
-      #:modules '((myguix build cuda-build-system)
-                  ((guix build gnu-build-system)
-                   #:prefix gnu:)
-                  (guix build union)
-                  (guix build utils)
-                  (ice-9 ftw))
-      #:imported-modules `(,@%cuda-build-system-modules (guix build
-                                                         gnu-build-system)
-                           (guix build union))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'add-symlink 'prepare-tests
-                     (lambda* (#:key outputs #:allow-other-keys)
-                       (mkdir "tests")
-                       (with-directory-excursion "tests"
-                         ((assoc-ref gnu:%standard-phases
-                                     'unpack)
-                          #:source #$(nvidia-cudnn-samples (cuda-current-system)
-                                                           (package-version
-                                                            this-package))))
-                       (chdir "tests")
-                       (chdir (caddr (scandir ".")))
-                       (union-build "cuda+cudnn"
-                                    (list (assoc-ref outputs "out")
-                                          '#$(this-package-native-input
-                                              "cuda-toolkit")))
-                       (setenv "CUDA_PATH"
-                               (canonicalize-path "cuda+cudnn"))
-                       (chdir "src/cudnn_samples_v8")))
-                   (add-after 'prepare-tests 'check
+                       (for-each (lambda (file)
+                                   (when (elf-file? file)
+                                     (patch-elf file)))
+                                 (find-files "."
+                                             (lambda (file stat)
+                                               (eq? 'regular
+                                                    (stat:type stat)))))))
+                   (replace 'install
                      (lambda _
-                       (for-each (lambda (dir)
-                                   (format #t "Building ~a...~%" dir)
-                                   (with-directory-excursion dir
-                                     (assoc-ref gnu:%standard-phases
-                                                'build)))
-                                 (cdr (find-files "."
-                                                  (lambda (file stat)
-                                                    (eq? 'directory
-                                                         (stat:type stat)))
-                                                  #:directories? #t))))))))
-    (native-inputs (list cuda-toolkit))
-    (inputs (list `(,gcc "lib") glibc zlib))
-    (outputs (list "out" "static"))
+                       (let ((lib (string-append #$output "/lib"))
+                             (include (string-append #$output "/include")))
+                         (mkdir-p #$output)
+                         (copy-recursively "lib" lib)
+                         (copy-recursively "include" include)))))))
+    (native-inputs (list patchelf))
+    (inputs `(("gcc:lib" ,gcc-11 "lib")))
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "NVIDIA CUDA Deep Neural Network library (cuDNN)")
-    (description
-     "This package provides a GPU-accelerated library of primitives for deep
-neural networks, with highly tuned implementations for standard routines such
-as forward and backward convolution, attention, matmul, pooling, and
-normalization.")
-    (home-page "https://developer.nvidia.com/cudnn")
+    (description "This package provides the CUDA Deep Neural Network library.")
     (license (nonfree:nonfree
-              "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/LICENSE.txt"))))
+              "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
-(define-public nvidia-cutlass
+(define-public cutlass
   (package
-    (name "nvidia-cutlass")
+    (name "cutlass")
     (version "3.5.1")
+    (home-page "https://github.com/NVIDIA/cutlass")
     (source
      (origin
        (method git-fetch)
@@ -2536,36 +1235,139 @@ normalization.")
                                 "-DCUTLASS_LIBRARY_KERNELS=all"
                                 "-DCUTLASS_ENABLE_TESTS=NO"
                                 "-DCUTLASS_INSTALL_TESTS=NO")
-      #:phases #~(modify-phases %standard-phases
-                   (add-before 'build 'set_cuda_paths
-                     (lambda _
-                       (setenv "CUDACXX"
-                               #$(file-append (this-package-input
-                                               "cuda-toolkit") "/bin/nvcc"))))
-                   (add-after 'install 'cleanup
-                     (lambda _
-                       (delete-file-recursively (string-append #$output
-                                                               "/test")))))))
-    (native-inputs (list python python-setuptools))
+      #:validate-runpath? #f))
+    (native-inputs (list python))
     (inputs (list cuda-toolkit))
-    (propagated-inputs (list cuda-python
-                             python-networkx
-                             python-numpy
-                             python-pydot
-                             python-scipy
-                             python-treelib))
-    (home-page "https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda")
-    (synopsis "CUDA Templates for Linear Algebra Subroutines")
+    (synopsis
+     "CUDA C++ template abstractions for high-performance linear algebra")
     (description
-     "This package provides a collection of CUDA C++ template abstractions for
-implementing high-performance matrix-matrix multiplication (GEMM) and related
-computations at all levels and scales within CUDA.  It incorporates strategies
-for hierarchical decomposition and data movement similar to those used to
-implement cuBLAS and cuDNN.  CUTLASS decomposes these moving parts into
-reusable, modular software components abstracted by C++ template
-classes.  Primitives for different levels of a conceptual parallelization
-hierarchy can be specialized and tuned via custom tiling sizes, data types,
-and other algorithmic policy.  The resulting flexibility simplifies their use
-as building blocks within custom kernels and applications.")
+     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
+high-performance matrix-matrix multiplication (GEMM) and related computations
+at all levels and scales within CUDA.  It incorporates strategies for
+hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.
+
+CUTLASS decomposes these ``moving parts'' into reusable, modular software
+components abstracted by C++ template classes.  Primitives for different
+levels of a conceptual parallelization hierarchy can be specialized and tuned
+via custom tiling sizes, data types, and other algorithmic policy.  The
+resulting flexibility simplifies their use as building blocks within custom
+kernels and applications.")
+    (license license:bsd-3)))
+
+(define-public nccl
+  (package
+    (name "nccl")
+    (version "2.22.3-1")
+    (source
+     (origin
+       (method git-fetch)
+       (file-name (git-file-name name version))
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nccl")
+             (commit (string-append "v" version))))
+       (sha256
+        (base32 "1kwh4950q953c2sr7ir2inyw34mwh5av7cq93j852yd2sqxyyk3v"))))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:make-flags #~(list (string-append "CUDA_HOME="
+                                          #$(this-package-input "cuda-toolkit")))
+      ;; No tests in source.
+      #:tests? #f
+      #:phases #~(modify-phases %standard-phases
+                   ;; No configure script.
+                   (delete 'configure)
+                   (add-before 'install 'set-prefix
+                     (lambda _
+                       (setenv "PREFIX"
+                               #$output))))))
+    (native-inputs (list python which))
+    (inputs (list cuda-toolkit))
+    (home-page "https://developer.nvidia.com/nccl")
+    (synopsis
+     "Optimized primitives for collective multi-GPU communication between
+NVIDIA GPUs")
+    (description
+     "NCCL (pronounced \"Nickel\") is a stand-alone library of standard
+communication routines for NVIDIA GPUs, implementing all-reduce,
+all-gather, reduce, broadcast, reduce-scatter, as well as any
+send/receive based communication pattern. It has been optimized to
+achieve high bandwidth on platforms using PCIe, NVLink, NVswitch, as
+well as networking using InfiniBand Verbs or TCP/IP sockets. NCCL
+supports an arbitrary number of GPUs installed in a single node or
+across multiple nodes, and can be used in either single- or
+multi-process (e.g., MPI) applications.")
+    (license license:bsd-3)))
+
+(define-public cutensor
+  (package
+    (name "cutensor")
+    (version "2.0.1.2")
+    (home-page "https://developer.nvidia.com/cutensor")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-x86_64/libcutensor-linux-x86_64-"
+             version "-archive.tar.xz"))
+       (sha256
+        (base32 "18l6qmfjcn75jsyzlsj66mji8lgab2ih19d0drqavfi2lqna3vgd"))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:substitutable? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("LICENSE" "LICENSE"))))
+    (synopsis "Nvidia cuTENSOR library")
+    (description "This package provides the proprietary cuTENSOR
+library for NVIDIA GPUs.")
     (license (nonfree:nonfree
-              "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"))))
+              "https://docs.nvidia.com/cuda/cutensor/latest/license.html"))))
+
+(define-public no-float128
+  ;; FIXME: We cannot simply add it to 'propagated-inputs' of cuda-toolkit
+  ;; because then it would come after glibc in CPLUS_INCLUDE_PATH.
+  (package
+    (name "no-float128")
+    (version "0")
+    (source
+     #f)
+    (build-system trivial-build-system)
+    (arguments
+     (list
+      #:modules '((guix build utils))
+      #:builder #~(begin
+                    (use-modules (guix build utils))
+
+                    (let* ((header "/include/bits/floatn.h")
+                           (target (string-append #$output
+                                                  (dirname header)))
+                           (libc #$(this-package-input "libc")))
+                      (mkdir-p target)
+                      (install-file (string-append libc header) target)
+                      (substitute* (string-append target "/"
+                                                  (basename header))
+                        (("#([[:blank:]]*)define __HAVE_FLOAT128[[:blank:]]+1"
+                          _ space)
+                         (string-append "#" space "define __HAVE_FLOAT128 0")))))))
+    (inputs `(("libc" ,glibc)))
+    (home-page "https://hpc.guix.info")
+    (synopsis "@file{<bits/floatn.h>} header that disables float128 support")
+    (description
+     "This package provides a @file{<bits/floatn.h>} header to override that
+of glibc and disable float128 support.  This is required allow the use of
+@command{nvcc} with CUDA 8.0 and glibc 2.26+.  Otherwise, @command{nvcc} fails like this:
+
+@example
+/gnu/store/…-glibc-2.26.105-g0890d5379c/include/bits/floatn.h(61): error: invalid argument to attribute \"__mode__\"
+
+/gnu/store/…-glibc-2.26.105-g0890d5379c/include/bits/floatn.h(73): error: identifier \"__float128\" is undefined
+@end example
+
+See also
+@url{https://devtalk.nvidia.com/default/topic/1023776/cuda-programming-and-performance/-request-add-nvcc-compatibility-with-glibc-2-26/1}.")
+    (license license:gpl3+)))
