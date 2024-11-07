@@ -127,22 +127,21 @@
 "))))))
 
    (service home-inputrc-service-type
-            (home-inputrc-configuration
-             (key-bindings `(("Control-l" . "clear-screen")
-                             ("Meta-b" . "backward-word")
-                             ("Meta-f" . "forward-word")
-                             ("Control-u" . "unix-line-discard")
-                             ("Control-w" . "unix-word-rubout")))
-             (variables `(("bell-style" . "visible")
-                          ("colored-completion-prefix" . #t)
-                          ("editing-mode" . "emacs")
-                          ("show-all-if-ambiguous" . #t)
-                          ("mark-symlinked-directories" . #t)
-                          ("meta-flag" . #t)
-                          ("input-meta" . #t)
-                          ("convert-meta" . #f)
-                          ("output-meta" . #t)
-                          ("enable-bracketed-paste" . #t)))))
+            (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")
+                                                        ("Meta-b" . "backward-word")
+                                                        ("Meta-f" . "forward-word")
+                                                        ("Control-u" . "unix-line-discard")
+                                                        ("Control-w" . "unix-word-rubout")))
+                                        (variables `(("bell-style" . "visible")
+                                                     ("colored-completion-prefix" . #t)
+                                                     ("editing-mode" . "emacs")
+                                                     ("show-all-if-ambiguous" . #t)
+                                                     ("mark-symlinked-directories" . #t)
+                                                     ("meta-flag" . #t)
+                                                     ("input-meta" . #t)
+                                                     ("convert-meta" . #f)
+                                                     ("output-meta" . #t)
+                                                     ("enable-bracketed-paste" . #t)))))
 
    ;; GNU Privacy Guard
    (service home-gpg-agent-service-type
