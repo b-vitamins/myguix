@@ -61,6 +61,10 @@
 "
                                                            "    fpath+=($HOME/.guix-profile/share/zsh/site-functions)
 "
+                                                           "elif [ -d \"$HOME/.config/guix/current/share/zsh/site-functions\" ]; then
+"
+                                                           "    fpath+=($HOME/.config/guix/current/share/zsh/site-functions)
+"
                                                            "fi\n"
                                                            "if [ -d \"$HOME/.guix-home/profile/share/zsh/site-functions\" ]; then
 "
