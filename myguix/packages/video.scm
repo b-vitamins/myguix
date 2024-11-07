@@ -129,8 +129,6 @@
                   (setenv "CONFIG_SHELL"
                           (which "bash"))
 
-                  (setenv "NVCCFLAGS"
-                          "-gencode arch=compute_80,code=sm_80 -O2")
                   (apply invoke
                          "./configure"
                          (string-append "--prefix=" out)
