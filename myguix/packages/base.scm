@@ -292,7 +292,12 @@
         miniupnpc))
 
 (define %network-utilities-packages
-  (list net-tools whois openssl libnatpmp python-nodriver))
+  (list net-tools
+        whois
+        openssl
+        libnatpmp
+        python-nodriver
+        blueman))
 
 (define %general-purpose-fonts
   (list font-dejavu font-bitstream-vera font-abattis-cantarell font-liberation
