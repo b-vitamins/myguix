@@ -96,15 +96,17 @@ The inputs are optional when the file is an executable."
           (maybe-make-rpath inputs name extra-path)
           (error (format #f "`~a' not found among the inputs nor the outputs."
                          name))))
+
+    (unless (string-contains binary ".so")
+      ;; Use `system*' and not `invoke' since this may raise an error if
+      ;; library does not end with .so.
+      (system* "patchelf" "--set-interpreter" interpreter binary))
     (when runpath
       (let ((rpath (string-join (map (match-lambda
                                        ((name extra-path)
                                         (make-rpath name extra-path))
                                        (name (make-rpath name))) runpath) ":")))
-        (invoke "patchelf" "--set-rpath" rpath "--force-rpath" binary)))
-    (unless (string-contains binary ".so")
-      (format #t "Setting interpreter on '~a'...~%" binary)
-      (invoke "patchelf" "--set-interpreter" interpreter binary))
+        (invoke "patchelf" "--set-rpath" rpath binary)))
     #t)
 
   (when (and patchelf-plan
