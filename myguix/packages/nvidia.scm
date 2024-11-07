@@ -58,7 +58,6 @@
                 #:prefix nonfree:)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module (myguix build-system cuda)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages python-pqrs)
   #:use-module (ice-9 match))
