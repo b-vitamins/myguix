@@ -39,6 +39,8 @@
                                                              ("ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE" . "fg=4")))
                                     (zshrc `(,(plain-file "guix-profile"
                                                           (string-append
+                                                           "if [ -d \"/etc/profile\" ]; then\n"
+                                                           "    source /etc/profile\"\n"
                                                            "if [ -d \"$HOME/.guix-profile\" ]; then\n"
                                                            "    export GUIX_PROFILE=\"$HOME/.guix-profile\"
 "
