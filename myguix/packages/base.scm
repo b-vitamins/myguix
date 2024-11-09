@@ -267,7 +267,10 @@
         psutils
         ghostscript
         pdfposter
-        poppler))
+        poppler
+        calibre
+        xapian
+        xapers))
 
 (define %file-transfer-tools-packages
   (list wget
