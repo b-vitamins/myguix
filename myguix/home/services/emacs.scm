@@ -124,7 +124,8 @@
         emacs-elfeed-score
         emacs-elfeed-goodies
         emacs-elfeed-protocol
-        emacs-elfeed-org))
+        emacs-elfeed-org
+        emacs-nov-el))
 
 (define my-home-emacs-service-type
   (service-type (name 'home-emacs)
