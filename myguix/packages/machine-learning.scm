@@ -37,6 +37,7 @@
   #:use-module (gnu packages video)
   #:use-module (gnu packages web)
   #:use-module (gnu packages xml)
+  #:use-module (guix build-system cmake)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
@@ -49,6 +50,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix build-system bazel)
+  #:use-module (myguix packages nvidia)
   #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages bazel)
   #:use-module (ice-9 match))
@@ -1728,3 +1730,39 @@ learning applications.
 As the solvers are implemented in PyTorch, algorithms in this repository are
 fully supported to run on the GPU.")
     (license license:expat)))
+
+(define-public gloo-cuda
+  (let ((version "0.0.0")
+        (commit "5354032ea08eadd7fc4456477f7f7c6308818509")
+        (revision "20231203"))
+    (package
+      (name "gloo-cuda")
+      (version (git-version version revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/facebookincubator/gloo")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1xw1lj8gyq4gfhhsj8syv4przqw2nk59hhwyhjf3gvik4k3yvhi4"))))
+      (build-system cmake-build-system)
+      (native-inputs (list googletest))
+      (inputs (modify-inputs (package-inputs gloo)
+                (append cuda-toolkit nccl)))
+      (arguments
+       (substitute-keyword-arguments (package-arguments gloo)
+         ((#:configure-flags flags
+           ''())
+          #~(cons "-DUSE_CUDA=ON"
+                  #$flags))))
+      (synopsis "Collective communications library")
+      (description
+       "Gloo is a collective communications library.  It comes with a
+number of collective algorithms useful for machine learning applications.
+These include a barrier, broadcast, and allreduce.
+
+Note: This package provides NVIDIA GPU support.")
+      (home-page "https://github.com/facebookincubator/gloo")
+      (license license:bsd-3))))
