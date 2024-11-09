@@ -269,8 +269,7 @@
         pdfposter
         poppler
         calibre
-        xapian
-        xapers))
+        xapian))
 
 (define %file-transfer-tools-packages
   (list wget
