@@ -1234,7 +1234,7 @@ NVIDIA Management Library")
                      (lambda _
                        (delete-file (string-append #$output "/include/include")))))))
     (native-inputs (list which patchelf perl python-2))
-    (inputs `(("gcc:lib" ,gcc-11 "lib")))
+    (inputs `(("gcc:lib" ,gcc "lib")))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "Compiler for the CUDA language and associated run-time support")
     (description
