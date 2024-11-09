@@ -150,7 +150,13 @@
         fontconfig))
 
 (define %nvidia-core-packages
-  (list cuda-toolkit nvidia-htop nvidia-system-monitor nvidia-settings gpustat))
+  (list nvidia-system-monitor
+        nvidia-settings
+        nvda
+        cuda-toolkit
+        cudnn
+        nvidia-htop
+        gpustat))
 
 (define %cuda-accelerated-packages
   (list ffmpeg-cuda mpv-cuda))
