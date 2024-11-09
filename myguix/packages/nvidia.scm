@@ -78,17 +78,18 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "550.127.05")
+  "550.120")
 
 
 ;;;
 ;;; NVIDIA driver checkouts
 ;;;
+
 (define %nvidia-driver-hashes
-  '(("550.127.05" . "1sba12953gz35qf5lj5dlfa80gcpdmmfngbdagbnp29abm7z716k")))
+  '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
 
 (define %nvidia-settings-hashes
-  '(("550.127.05" . "0a5zdkizqa1pxvj88bwcph1ck51f4yhzqy3nmfc4malyrd78wi3i")))
+  '(("550.120" . "1d8rxpk2z9apkvm7vsr7j93rfizh8bgm4h6rlha3m2j818zwixvw")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -536,7 +537,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
     (native-inputs (list patchelf))
     (inputs (list egl-gbm
                   egl-wayland
-                  `(,gcc-11 "lib")
+                  `(,gcc "lib")
                   glibc
                   libdrm
                   libglvnd-for-nvda
@@ -560,7 +561,7 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
 
 
 ;;;
-;;; NVIDIA firmwares
+;;; NVIDIA frimwares
 ;;;
 
 (define-public nvidia-firmware
@@ -601,7 +602,7 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
     (build-system linux-module-build-system)
     (arguments
      (list
-      #:linux linux
+      #:linux linux-lts
       #:source-directory "kernel"
       #:tests? #f
       #:make-flags #~(list (string-append "CC="
@@ -860,7 +861,7 @@ configuration, creating application profiles, gpu monitoring and more.")
       (search-path-specification
        (variable "XDG_DATA_DIRS")
        (files '("share")))))
-    (synopsis "NVIDIA driver package")
+    (synopsis "Myguix's user-facing NVIDIA driver package")
     (description
      "This package provides a drop-in replacement for @code{mesa} and is
 intended to be installed by @code{nvidia-service-type}.
@@ -901,6 +902,29 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 ;;; Other packages
 ;;;
 
+(define-public gpustat
+  (package
+    (name "gpustat")
+    (version "1.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gpustat" version))
+       (sha256
+        (base32 "1wg3yikkqdrcxp5xscyb9rxifgfwv7qh73xv4airab63b3w8y7jq"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:tests? #f))
+    (propagated-inputs (list python-blessed python-nvidia-ml-py python-psutil
+                             python-six))
+    (native-inputs (list python-mock python-pytest python-pytest-runner))
+    (home-page "https://github.com/wookayin/gpustat")
+    (synopsis "Utility to monitor NVIDIA GPU status and usage")
+    (description
+     "This package provides an utility to monitor NVIDIA GPU status
+and usage.")
+    (license license:expat)))
+
 (define-public nvidia-exec
   (package
     (name "nvidia-exec")
@@ -940,6 +964,34 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
      "This package provides GPU switching without login out for Nvidia Optimus
 laptops.")
     (license license:gpl3+)))
+
+(define-public nvidia-htop
+  (package
+    (name "nvidia-htop")
+    (version "1.0.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "nvidia-htop" version))
+       (sha256
+        (base32 "0lv9cpccpkbg0d577irm1lp9rx6pacyk2pk9v41k9s9hyl4b7hvx"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'fix-libnvidia
+                     (lambda _
+                       (substitute* "nvidia-htop.py"
+                         (("nvidia-smi")
+                          (string-append #$(this-package-input "nvidia-driver")
+                                         "/bin/nvidia-smi"))))))))
+    (inputs (list nvidia-driver))
+    (propagated-inputs (list python-termcolor))
+    (home-page "https://github.com/peci1/nvidia-htop")
+    (synopsis "Tool to enrich the output of nvidia-smi")
+    (description "This package provides tool for enriching the output of
+nvidia-smi.")
+    (license license:bsd-3)))
 
 (define-public nvidia-nvml
   (package
@@ -1021,6 +1073,61 @@ simultaneous NVML calls from multiple threads.")
     (description
      "This package provides a task manager for Nvidia graphics cards.")
     (license license:expat)))
+
+(define-public python-nvidia-ml-py
+  (package
+    (name "python-nvidia-ml-py")
+    (version "11.495.46")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "nvidia-ml-py" version))
+       (sha256
+        (base32 "09cnb7xasd7brby52j70y7fqsfm9n6gvgqf769v0cmj74ypy2s4g"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'fix-libnvidia
+                     (lambda _
+                       (substitute* "pynvml.py"
+                         (("libnvidia-ml.so.1")
+                          (string-append #$(this-package-input "nvidia-driver")
+                                         "/lib/libnvidia-ml.so.1"))))))))
+    (inputs (list nvidia-driver))
+    (home-page "https://forums.developer.nvidia.com")
+    (synopsis "Python Bindings for the NVIDIA Management Library")
+    (description
+     "This package provides official Python Bindings for the NVIDIA
+Management Library")
+    (license license:bsd-3)))
+
+(define-public python-py3nvml
+  (package
+    (name "python-py3nvml")
+    (version "0.2.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "py3nvml" version))
+       (sha256
+        (base32 "0wxxky9amy38q7qjsdmmznk1kqdzwd680ps64i76cvlab421vvh9"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'fix-libnvidia
+                     (lambda _
+                       (substitute* "py3nvml/py3nvml.py"
+                         (("libnvidia-ml.so.1")
+                          (string-append #$(this-package-input "nvidia-driver")
+                                         "/lib/libnvidia-ml.so.1"))))))))
+    (propagated-inputs (list nvidia-driver python-xmltodict))
+    (home-page "https://github.com/fbcotter/py3nvml")
+    (synopsis "Unoffcial Python 3 Bindings for the NVIDIA Management Library")
+    (description "This package provides unofficial Python 3 Bindings for the
+NVIDIA Management Library")
+    (license license:bsd-3)))
 
 (define-public cuda-toolkit
   (package
