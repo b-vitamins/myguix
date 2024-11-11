@@ -1,9 +1,13 @@
 (define-module (myguix services oci-containers)
   #:use-module (gnu)
   #:use-module (gnu services docker)
-  #:export (oci-grobid-service-type oci-meilisearch-service-type
-                                    oci-weaviate-service-type
-                                    oci-neo4j-service-type))
+  #:use-module (ice-9 rdelim)
+  #:use-module (rnrs files)
+  #:use-module (rnrs io simple)
+  #:export (get-meili-master-key meili-master-key oci-grobid-service-type
+                                 oci-meilisearch-service-type
+                                 oci-weaviate-service-type
+                                 oci-neo4j-service-type))
 
 ;; Function to read MEILI_MASTER_KEY from the credentials file
 (define (get-meili-master-key)
