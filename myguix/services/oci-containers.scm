@@ -5,6 +5,17 @@
                                     oci-weaviate-service-type
                                     oci-neo4j-service-type))
 
+;; Function to read MEILI_MASTER_KEY from the credentials file
+(define (get-meili-master-key)
+  (if (file-exists? "/root/meili.credentials")
+      (call-with-input-file "/root/meili.credentials"
+        read-line) ""))
+;; Return empty string if the file does not exist
+
+;; Retrieve the MEILI_MASTER_KEY from pass for injection
+(define meili-master-key
+  (get-meili-master-key))
+
 ;; Define an OCI container service for GROBID, a machine learning library for extracting
 ;; information from scholarly documents.
 (define oci-grobid-service-type
@@ -17,7 +28,9 @@
   (oci-container-configuration (image "getmeili/meilisearch:latest")
                                (network "host")
                                (ports '(("7700" . "7700")))
-                               (environment (list '("MEILI_NO_ANALYTICS" . "true")))
+                               (environment (list '("MEILI_NO_ANALYTICS" . "true")
+                                                  `("MEILI_MASTER_KEY" unquote
+                                                    meili-master-key)))
                                (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
 
 ;; Define an OCI container service for Weaviate, an open-source vector search engine.
