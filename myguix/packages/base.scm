@@ -396,12 +396,7 @@
   (list font-gnu-freefont font-gnu-unifont font-ipa font-ipa-ex))
 
 (define %version-control-packages
-  (list git
-        git-lfs
-        git-tools
-        git-remote-gcrypt
-        git-crypt
-        pass-git-helper))
+  (list git git-lfs git-tools git-crypt pass-git-helper))
 
 (define %build-system-packages
   (list cmake
