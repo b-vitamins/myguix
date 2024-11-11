@@ -581,8 +581,8 @@ Release (ESR) version.")
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
-       (patches (list (search-path (map (cut string-append <> "/patches")
-                                        %load-path)
+       (patches (list (search-path (map (cut string-append <>
+                                             "/myguix/patches") %load-path)
                                    "firefox-restore-desktop-files.patch")))
        (sha256
         (base32 "1l30y1pf2kkhnnnazj2x7j1hy3sxz6x9vjj3lbx3wi9pfzwz6zbs"))))
