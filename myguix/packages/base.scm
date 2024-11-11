@@ -421,7 +421,7 @@
         tree-sitter-scheme))
 
 (define %guile-development-packages
-  (list guile-3.0 guile-readline guile-colorized))
+  (list guile-3.0 guile-readline guile-colorized guile-lib))
 
 (define %rust-development-packages
   (list rust rust-analyzer))
