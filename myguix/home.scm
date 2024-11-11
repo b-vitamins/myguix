@@ -49,20 +49,8 @@
 "
                                                            "    source \"$GUIX_PROFILE/etc/profile\"\n"
                                                            "fi\n")) ,(plain-file
-                                                                      "guile-load-path"
-                                                                      (string-append
-                                                                       "if [ -d \"$HOME/.config/guix/current/share/guile/site/3.0\" ]; then
-"
-                                                                       "    export GUILE_LOAD_PATH=\"$HOME/.config/guix/current/share/guile/site/3.0\"
-"
-                                                                       "fi\n"
-                                                                       "if [ -d \"$HOME/.config/guix/current/lib/guile/3.0/site-ccache\" ]; then
-"
-                                                                       "    export GUILE_LOAD_COMPILED_PATH=\"$HOME/.config/guix/current/lib/guile/3.0/site-ccache\"
-"
-                                                                       "fi\n"))
-                                             ,(plain-file "add-zsh-hook"
-                                               "autoload -Uz add-zsh-hook\n")
+                                                                      "add-zsh-hook"
+                                                                      "autoload -Uz add-zsh-hook\n")
                                              ,(plain-file "compinit"
                                                           (string-append
                                                            "autoload -Uz compinit\n"
