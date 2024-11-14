@@ -1,0 +1,39 @@
+From 0c16ed53cae242b02069a1f6fed463dc819526e0 Mon Sep 17 00:00:00 2001
+From: Nicolas Graves <ngraves@ngraves.fr>
+Date: Thu, 25 Jul 2024 14:58:42 +0200
+Subject: [PATCH] Use absolute store cudnn.so path.
+
+---
+ python/cudnn/__init__.py | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
+
+diff --git a/python/cudnn/__init__.py b/python/cudnn/__init__.py
+index 35eb883..39dc047 100644
+--- a/python/cudnn/__init__.py
++++ b/python/cudnn/__init__.py
+@@ -137,21 +137,7 @@ pygraph.execute_plan_at_index = _execute_plan_at_index
+ 
+ 
+ def _dlopen_cudnn():
+-    # First look at python site packages
+-    lib_path = glob.glob(
+-        os.path.join(
+-            sysconfig.get_path("purelib"), "nvidia/cudnn/lib/libcudnn.so.*[0-9]"
+-        )
+-    )
+-
+-    if lib_path:
+-        assert (
+-            len(lib_path) == 1
+-        ), f"Found {len(lib_path)} libcudnn.so.x in nvidia-cudnn-cuXX."
+-        lib = ctypes.CDLL(lib_path[0])
+-    else:  # Fallback
+-        lib = ctypes.CDLL("libcudnn.so")
+-
++    lib = ctypes.CDLL(@store-cudnn.so-path@)
+     handle = ctypes.cast(lib._handle, ctypes.c_void_p).value
+     _compiled_module._set_dlhandle_cudnn(handle)
+ 
+-- 
+2.45.2
+

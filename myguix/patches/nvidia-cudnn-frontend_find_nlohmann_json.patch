@@ -1,0 +1,36 @@
+From 3f7a23cc5a84af36442c4035db78e616d884b540 Mon Sep 17 00:00:00 2001
+From: Nicolas Graves <ngraves@ngraves.fr>
+Date: Thu, 25 Jul 2024 16:43:12 +0200
+Subject: [PATCH] Find unbundled nlohmann-json package.
+
+---
+ CMakeLists.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index adf22fc..8211fcd 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -16,6 +16,11 @@ endif()
+ 
+ add_library(cudnn_frontend INTERFACE)
+ 
++# Find the nlohmann_json package
++if(NOT CUDNN_FRONTEND_SKIP_NLOHMANN_JSON)
++    find_package(nlohmann_json CONFIG REQUIRED)
++endif()
++
+ target_compile_definitions(
+     cudnn_frontend INTERFACE
+     $<$<BOOL:${CUDNN_FRONTEND_SKIP_JSON_LIB}>:CUDNN_FRONTEND_SKIP_JSON_LIB>
+@@ -25,6 +30,7 @@ target_include_directories(
+     cudnn_frontend INTERFACE
+     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
++    $<$<NOT:$<BOOL:${CUDNN_FRONTEND_SKIP_NLOHMANN_JSON}>>:$<TARGET_PROPERTY:nlohmann_json::nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>>
+ )
+ 
+ # Find the cuda compiler
+-- 
+2.45.2
+

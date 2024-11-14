@@ -1,0 +1,43 @@
+From 1b73d8d74b3ec7949e21d926d28385543c202dc7 Mon Sep 17 00:00:00 2001
+From: Nicolas Graves <ngraves@ngraves.fr>
+Date: Thu, 25 Jul 2024 14:33:24 +0200
+Subject: [PATCH] Find dlpack package instead of building it.
+
+---
+ python/CMakeLists.txt | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
+
+diff --git a/python/CMakeLists.txt b/python/CMakeLists.txt
+index cdfbf55..4168411 100644
+--- a/python/CMakeLists.txt
++++ b/python/CMakeLists.txt
+@@ -2,15 +2,8 @@ cmake_minimum_required(VERSION 3.18)
+ 
+ Include(FetchContent)
+ 
+-# Fetch and build dlpack
+-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+-set(BUILD_MOCK OFF)
+-FetchContent_Declare(
+-  dlpack
+-  GIT_REPOSITORY https://github.com/dmlc/dlpack
+-  GIT_TAG        v0.8
+-)
+-FetchContent_MakeAvailable(dlpack)
++# Find dlpack
++find_package(dlpack CONFIG REQUIRED)
+ 
+ # Find python
+ find_package(Python 3.8 COMPONENTS Interpreter Development.Module REQUIRED)
+@@ -60,7 +53,7 @@ target_compile_definitions(_compiled_module PRIVATE NV_CUDNN_FRONTEND_USE_DYNAMI
+ target_link_libraries(
+     _compiled_module
+     
+-    PRIVATE dlpack
++    PRIVATE dlpack::dlpack
+ )
+ 
+ set_target_properties(
+-- 
+2.45.2
+
