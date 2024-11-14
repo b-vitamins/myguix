@@ -1802,3 +1802,39 @@ machine learning")
 rich objects from one process to another while using the fastest transport for
 the tensors contained therein.")
       (license license:bsd-3))))
+
+(define-public dlpack
+  (package
+    (name "dlpack")
+    (version "0.8")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/dmlc/dlpack")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1jmfvdrx8dn9b0ksm04ixha0jnrk35ip796qg98kfz6g7niw5ir1"))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;no tests.
+    (home-page "https://github.com/dmlc/dlpack")
+    (synopsis "In Memory Tensor Structure")
+    (description
+     "This package provides an open in-memory tensor structure for
+sharing tensors among frameworks.  DLPack enables
+@itemize
+@item Easier sharing of operators between deep learning frameworks.
+@item Easier wrapping of vendor level operator implementations, allowing
+collaboration when introducing new devices/ops.
+@item Quick swapping of backend implementations, like different version of
+BLAS
+@item For final users,this could bring more operators, and possibility of
+mixing usage between frameworks.
+@end itemize
+
+This package does not intend to implement Tensor and Ops, but instead use this
+as common bridge to reuse tensor and ops across frameworks.")
+    (license license:asl2.0)))
