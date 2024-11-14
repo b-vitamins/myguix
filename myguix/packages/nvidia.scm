@@ -1393,8 +1393,7 @@ autotuning.")
 (define-public cutlass
   (package
     (name "cutlass")
-    (version "3.5.1")
-    (home-page "https://github.com/NVIDIA/cutlass")
+    (version "3.4.0")
     (source
      (origin
        (method git-fetch)
@@ -1403,36 +1402,53 @@ autotuning.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))
+        (base32 "1pgwiz7sfnjnhaz15gnm0wkmd1h76knyv4hpqj71g1vwp82nygxf"))
+       (patches (parameterize ((%patch-path (map (lambda (directory)
+                                                   (string-append directory
+                                                    "/myguix/patches"))
+                                                 %load-path)))
+                  (search-patches
+                   "nvidia-cutlass-3.4.0_disable_static_lib.patch")))))
     (build-system cmake-build-system)
     (arguments
      (list
-      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
-                                               #$(package-source googletest))
-                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
-                                "-DCUTLASS_NVCC_ARCHS=80"
-                                "-DCUTLASS_LIBRARY_KERNELS=all"
-                                "-DCUTLASS_ENABLE_TESTS=NO"
-                                "-DCUTLASS_INSTALL_TESTS=NO")
-      #:validate-runpath? #f))
-    (native-inputs (list python))
+      ;; XXX: Cutlass is incredibly heavy to build when not specifying target
+      ;; GPU architecture (4G), avoid tests, examples and static library.
+      ;; Setting the contrary often runs out of RAM even on beefy laptops.
+      #:configure-flags ''("-DCUTLASS_ENABLE_TESTS=OFF"
+                           "-DCUTLASS_INSTALL_TESTS=OFF"
+                           "-DCUTLASS_BUILD_STATIC_LIBRARY=OFF"
+                           "-DCUTLASS_ENABLE_EXAMPLES=OFF"
+                           "-DCUTLASS_UNITY_BUILD_ENABLED=ON")
+      #:phases #~(modify-phases %standard-phases
+                   (add-before 'build 'set_cuda_paths
+                     (lambda _
+                       (setenv "CUDACXX"
+                               #$(file-append (this-package-input
+                                               "cuda-toolkit") "/bin/nvcc"))))
+                   (add-after 'install 'cleanup
+                     (lambda _
+                       (delete-file-recursively (string-append #$output
+                                                               "/test")))))))
+    (native-inputs (list python python-setuptools))
     (inputs (list cuda-toolkit))
-    (synopsis
-     "CUDA C++ template abstractions for high-performance linear algebra")
+    (propagated-inputs (list python-networkx python-numpy python-pydot
+                             python-scipy python-treelib))
+    (home-page "https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda")
+    (synopsis "CUDA Templates for Linear Algebra Subroutines")
     (description
-     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
-high-performance matrix-matrix multiplication (GEMM) and related computations
-at all levels and scales within CUDA.  It incorporates strategies for
-hierarchical decomposition and data movement similar to those used to
-implement cuBLAS and cuDNN.
-
-CUTLASS decomposes these ``moving parts'' into reusable, modular software
-components abstracted by C++ template classes.  Primitives for different
-levels of a conceptual parallelization hierarchy can be specialized and tuned
-via custom tiling sizes, data types, and other algorithmic policy.  The
-resulting flexibility simplifies their use as building blocks within custom
-kernels and applications.")
-    (license license:bsd-3)))
+     "This package provides a collection of CUDA C++ template abstractions for
+implementing high-performance matrix-matrix multiplication (GEMM) and related
+computations at all levels and scales within CUDA.  It incorporates strategies
+for hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.  CUTLASS decomposes these moving parts into
+reusable, modular software components abstracted by C++ template
+classes.  Primitives for different levels of a conceptual parallelization
+hierarchy can be specialized and tuned via custom tiling sizes, data types,
+and other algorithmic policy.  The resulting flexibility simplifies their use
+as building blocks within custom kernels and applications.")
+    (license (nonfree:nonfree
+              "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"))))
 
 (define-public nccl
   (package
