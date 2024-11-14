@@ -10,11 +10,14 @@
 ;;; Copyright © 2024 Nicolas Graves <ngraves@ngraves.fr>
 
 (define-module (myguix packages nvidia)
+  #:use-module (gnu packages)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages cpp)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gawk)
@@ -60,6 +63,7 @@
   #:use-module (guix utils)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages machine-learning)
   #:use-module (ice-9 match))
 
 (define-public %nvidia-environment-variable-regexps
@@ -1316,6 +1320,75 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (description "This package provides the CUDA Deep Neural Network library.")
     (license (nonfree:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
+
+(define-public cudnn-frontend
+  (package
+    (name "cudnn-frontend")
+    (version "1.5.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cudnn-frontend")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "04aglaxh4mgm94qwia293gqn7gmlw5w6mk8nky4k6l1m2615swyd"))
+       (modules '((guix build utils)))
+       (snippet #~(begin
+                    (delete-file-recursively
+                     "include/cudnn_frontend/thirdparty")
+                    (substitute* (find-files "include" "\\.(cpp|h|hpp)")
+                      (("\"cudnn_frontend/thirdparty/nlohmann/json\\.hpp\"")
+                       "<nlohmann/json.hpp>"))))
+       (patches (parameterize ((%patch-path (map (lambda (directory)
+                                                   (string-append directory
+                                                    "/myguix/patches"))
+                                                 %load-path)))
+                  (search-patches
+                   "nvidia-cudnn-frontend_find_built_dlpack.patch"
+                   "nvidia-cudnn-frontend_find_nlohmann_json.patch"
+                   "nvidia-cudnn-frontend_use_store_so.patch")))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:modules '((guix build pyproject-build-system)
+                  (guix build union)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build union))
+      #:phases #~(modify-phases %standard-phases
+                   (add-before 'build 'set_cuda_paths
+                     (lambda _
+                       (substitute* "python/cudnn/__init__.py"
+                         (("@store-cudnn\\.so-path@")
+                          (format #f "\"~a/lib/libcudnn.so\""
+                                  #$(this-package-input "cudnn"))))
+                       (setenv "CUDA_PATH"
+                               #$(this-package-input "cuda-toolkit"))
+                       (setenv "CUDNN_PATH"
+                               #$(this-package-input "cudnn"))
+                       (setenv "CUDNN_FRONTEND_FETCH_PYBINDS_IN_CMAKE" "0")
+                       (setenv "CMAKE_BUILD_PARALLEL_LEVEL"
+                               (number->string (parallel-job-count)))))
+                   (add-after 'install 'post-install
+                     (lambda _
+                       (union-build (string-append #$output "/include")
+                                    (find-files (string-append #$output "/lib")
+                                                (lambda (file stat)
+                                                  (string-suffix? "include"
+                                                                  file))
+                                                #:directories? #t)))))))
+    (native-inputs (list cmake dlpack pybind11))
+    (inputs (list cuda-toolkit nlohmann-json cudnn))
+    (home-page "https://github.com/NVIDIA/cudnn-frontend")
+    (synopsis "cuDNN API header-only library")
+    (description
+     "This package provides a C++ header-only library that wraps
+the NVIDIA CUDA Deep Neural Network library (cuDNN) C backend API.  This entry
+point to the same API is less verbose (without loss of control), and adds
+functionality on top of the backend API, such as errata filters and
+autotuning.")
+    (license license:expat)))
 
 (define-public cutlass
   (package
