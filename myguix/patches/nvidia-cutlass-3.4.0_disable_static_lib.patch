@@ -1,0 +1,82 @@
+From ce4a14ae4041d6cfb69987fef5a65c50754c89b6 Mon Sep 17 00:00:00 2001
+From: Nicolas Graves <ngraves@ngraves.fr>
+Date: Sun, 28 Jul 2024 16:57:16 +0200
+Subject: [PATCH] Add option CUTLASS_BUILD_STATIC_LIBRARY
+
+---
+ tools/library/CMakeLists.txt | 26 +++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/tools/library/CMakeLists.txt b/tools/library/CMakeLists.txt
+index 60a6cca5..f096c84d 100644
+--- a/tools/library/CMakeLists.txt
++++ b/tools/library/CMakeLists.txt
+@@ -34,6 +34,7 @@ include(GNUInstallDirs)
+ 
+ set(CUTLASS_BUILD_MONO_LIBRARY OFF CACHE BOOL 
+   "Determines whether the cutlass library is generated as a single file or multiple files.")
++option(CUTLASS_BUILD_STATIC_LIBRARY "Build static libary for CUTLASS" ON)
+ 
+ ################################################################################
+ 
+@@ -126,7 +127,9 @@ function(cutlass_add_cutlass_library)
+     # simply link the generated object files to the default library. 
+ 
+     target_link_libraries(${DEFAULT_NAME} PRIVATE $<BUILD_INTERFACE:${__NAME}_objs>)
+-    target_link_libraries(${DEFAULT_NAME}_static PRIVATE $<BUILD_INTERFACE:${__NAME}_objs>)
++    if (CUTLASS_BUILD_STATIC_LIBRARY)
++        target_link_libraries(${DEFAULT_NAME}_static PRIVATE $<BUILD_INTERFACE:${__NAME}_objs>)
++    endif()
+ 
+   else()
+ 
+@@ -154,7 +157,7 @@ function(cutlass_add_cutlass_library)
+       )
+     
+     set_target_properties(${__NAME} PROPERTIES DEBUG_POSTFIX "${CUTLASS_LIBRARY_DEBUG_POSTFIX}")
+-    
++    if (CUTLASS_BUILD_STATIC_LIBRARY)
+     cutlass_add_library(
+       ${__NAME}_static
+       STATIC
+@@ -193,6 +196,15 @@ function(cutlass_add_cutlass_library)
+       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+       )
++    else()
++    install(
++      TARGETS ${__NAME}
++      EXPORT NvidiaCutlass
++      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++      )
++    endif()
+     
+     if (__SUFFIX)
+     
+@@ -201,7 +213,9 @@ function(cutlass_add_cutlass_library)
+       # commands to pull in all kernels by default.
+     
+       target_link_libraries(${DEFAULT_NAME} PUBLIC ${__NAME})
+-      target_link_libraries(${DEFAULT_NAME}_static PUBLIC ${__NAME}_static)
++      if (CUTLASS_BUILD_STATIC_LIBRARY)
++         target_link_libraries(${DEFAULT_NAME}_static PUBLIC ${__NAME}_static)
++      endif()
+     
+     endif()
+ 
+@@ -250,7 +264,9 @@ cutlass_add_cutlass_library(
+ 
+ # For backward compatibility with the old name
+ add_library(cutlass_lib ALIAS cutlass_library)
+-add_library(cutlass_lib_static ALIAS cutlass_library_static)
++if (CUTLASS_BUILD_STATIC_LIBRARY)
++   add_library(cutlass_lib_static ALIAS cutlass_library_static)
++endif()
+ 
+ ################################################################################
+ 
+-- 
+2.45.2
+
