@@ -1565,6 +1565,13 @@ as forward-mode differentiation, and the two can be composed
 arbitrarily to any order.")
     (license license:asl2.0)))
 
+(define-public python-jax-cuda
+  (package
+    (inherit python-jax)
+    (name "python-jax-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-jax)
+                         (replace "python-jaxlib" python-jaxlib-cuda)))))
+
 (define-public python-jmp
   (package
     (name "python-jmp")
