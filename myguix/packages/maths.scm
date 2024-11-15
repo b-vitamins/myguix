@@ -38,7 +38,7 @@
     (supported-systems '("x86_64-linux"))
     (build-system cmake-build-system)
     (native-inputs (list patchelf which python perl pkg-config))
-    (inputs (list gcc cuda-toolkit openblas))
+    (inputs (list gcc cuda-toolkit-12.4 openblas))
     (arguments
      (list
       #:validate-runpath? #f
