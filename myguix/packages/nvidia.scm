@@ -1461,6 +1461,21 @@ resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
     (license license:bsd-3)))
 
+(define-public cutlass-3.5
+  (package
+    (inherit cutlass-3.4)
+    (name "cutlass")
+    (version "3.5.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cutlass")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))))
+
 (define-public nccl
   (package
     (name "nccl")
