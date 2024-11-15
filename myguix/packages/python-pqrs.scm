@@ -1345,3 +1345,30 @@ community.")
     (description
      "Python package to work with Document Object Identifier (doi).")
     (license license:gpl3)))
+
+(define-public python-scihub
+  (let ((commit "130200ce038632980597f38c19424c9c363a60a0")
+        (version "20190411"))
+    (package
+      (name "python-scihub")
+      (version version)
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/alejandrogallo/python-scihub")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1b44z21w23y0w39gk9kqr32w2qwmbci8hn80yr7agk7q0l4mvxqn"))))
+      (build-system pyproject-build-system)
+      (arguments
+       '(#:tests? #f))
+      (propagated-inputs (list python-beautifulsoup4 python-requests
+                               python-retrying python-doi))
+      (home-page "https://github.com/alejandrogallo/python-scihub")
+      (synopsis "Unofficial scihub API")
+      (description
+       "scihub is an unofficial API for sci-hub.cc. scihub can download papers from sci-hub. 
+If you believe in open access to scientific papers, please donate to Sci-Hub.")
+      (license license:expat))))
