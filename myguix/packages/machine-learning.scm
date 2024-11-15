@@ -9,6 +9,7 @@
   #:use-module (gnu packages curl)
   #:use-module (gnu packages docker)
   #:use-module (gnu packages elf)
+  #:use-module (gnu packages gcc)
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages image-processing)
@@ -2050,9 +2051,3 @@ mixing usage between frameworks.
 This package does not intend to implement Tensor and Ops, but instead use this
 as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
-
-gloo-cuda
-tensorpipe-cuda
-python-jaxlib/wheel-cuda
-python-jaxlib-cuda
-python-jax-cuda
