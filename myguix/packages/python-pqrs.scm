@@ -7,13 +7,15 @@
   #:use-module (gnu packages compression)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
+  #:use-module (gnu packages image)
   #:use-module (gnu packages time)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
   #:use-module ((gnu packages python-web)
                 #:hide (python-httpcore python-httpx))
-  #:use-module (gnu packages python-build)
+  #:use-module ((gnu packages python-build)
+                #:hide (python-pypa-build))
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-crypto)
@@ -1023,8 +1025,9 @@ OpenAI API.")
      (list
       #:tests? #f))
     (inputs (list python-poetry-core python-pytest pre-commit
-                  python-pytest-cov python-pydantic-2))
-    (propagated-inputs (list python-camel-converter python-requests))
+                  python-pytest-cov))
+    (propagated-inputs (list python-camel-converter python-requests
+                             python-pydantic-2))
     (home-page "https://github.com/meilisearch/meilisearch-python")
     (synopsis "The python client for Meilisearch API.")
     (description "The python client for Meilisearch API.")
@@ -1311,4 +1314,34 @@ community.")
     (home-page "http://github.com/MatthieuDartiailh/pyclibrary")
     (synopsis "C binding automation")
     (description "C binding automation.")
+    (license license:expat)))
+
+(define-public python-pypa-build
+  (package
+    (name "python-pypa-build")
+    (version "1.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "build" version))
+       (sha256
+        (base32 "135c0y56kjhc9br62h9s5950chig7fhpg0s3hdj9ivxdcas2z6qi"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-flit
+                             python-flit-core
+                             python-flit-core-bootstrap
+                             python-pyproject-hooks
+                             python-packaging-bootstrap
+                             python-pep517
+                             python-toml))
+    (home-page "https://pypa-build.readthedocs.io/en/latest/")
+    (synopsis "Simple Python PEP 517 package builder")
+    (description
+     "The @command{build} command invokes the PEP 517 hooks to
+build a distribution package.  It is a simple build tool and does not perform
+any dependency management.  It aims to keep dependencies to a minimum, in
+order to make bootstrapping easier.")
     (license license:expat)))
