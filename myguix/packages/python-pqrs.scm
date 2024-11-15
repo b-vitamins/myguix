@@ -1316,32 +1316,32 @@ community.")
     (description "C binding automation.")
     (license license:expat)))
 
-(define-public python-pypa-build
+(define-public python-doi
   (package
-    (name "python-pypa-build")
-    (version "1.2.2")
+    (name "python-doi")
+    (version "0.2.0")
     (source
      (origin
        (method url-fetch)
-       (uri (pypi-uri "build" version))
+       (uri (pypi-uri "python-doi" version))
        (sha256
-        (base32 "135c0y56kjhc9br62h9s5950chig7fhpg0s3hdj9ivxdcas2z6qi"))))
-    (build-system pyproject-build-system)
+        (base32 "16pxc7llqb14f2n5ccd88pz4sygwl51slssqm2g23g8rndpya09f"))))
     (arguments
-     (list
-      #:tests? #f))
-    (propagated-inputs (list python-flit
-                             python-flit-core
-                             python-flit-core-bootstrap
-                             python-pyproject-hooks
-                             python-packaging-bootstrap
-                             python-pep517
-                             python-toml))
-    (home-page "https://pypa-build.readthedocs.io/en/latest/")
-    (synopsis "Simple Python PEP 517 package builder")
+     '(#:tests? #f))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-coverage
+                         python-flake8
+                         python-pep8
+                         python-pytest
+                         python-pytest-cov
+                         python-pytest-xdist
+                         python-sphinx
+                         python-sphinx-autobuild
+                         python-sphinx-rtd-theme
+                         python-twine
+                         python-wheel))
+    (home-page "https://github.com/papis/python-doi")
+    (synopsis "Python package to work with Document Object Identifier (doi)")
     (description
-     "The @command{build} command invokes the PEP 517 hooks to
-build a distribution package.  It is a simple build tool and does not perform
-any dependency management.  It aims to keep dependencies to a minimum, in
-order to make bootstrapping easier.")
-    (license license:expat)))
+     "Python package to work with Document Object Identifier (doi).")
+    (license license:gpl3)))
