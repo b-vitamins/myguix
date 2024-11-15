@@ -398,6 +398,9 @@
                               (pulseaudio-lib (string-append (assoc-ref inputs
                                                               "pulseaudio")
                                                              "/lib"))
+                              ;; For sharing on Wayland
+                              (pipewire-lib (string-append (assoc-ref inputs
+                                                            "pipewire") "/lib"))
                               ;; For U2F and WebAuthn
                               (eudev-lib (string-append (assoc-ref inputs
                                                                    "eudev")
@@ -411,7 +414,8 @@
                               ,libva-lib
                               ,pulseaudio-lib
                               ,eudev-lib
-                              ,@rdd-whitelist))
+                              ,@rdd-whitelist
+                              ,pipewire-lib))
                            `("XDG_DATA_DIRS" prefix
                              (,gtk-share))
                            `("MOZ_LEGACY_PROFILES" =
