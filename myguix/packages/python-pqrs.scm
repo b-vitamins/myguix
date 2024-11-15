@@ -1372,3 +1372,36 @@ community.")
        "scihub is an unofficial API for sci-hub.cc. scihub can download papers from sci-hub. 
 If you believe in open access to scientific papers, please donate to Sci-Hub.")
       (license license:expat))))
+
+(define-public python-scihub-py
+  (let ((commit "82532fc4fe9b405e1286f60676b776696f4bc844")
+        (version "20200619"))
+    (package
+      (name "python-scihub-py")
+      (version version)
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/zaytoun/scihub.py")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1p8dy1y8sihdjzqyjc7clvm41m3mmz9ybkxmqg1q8vb6yxkpr837"))))
+      (build-system pyproject-build-system)
+      (arguments
+       '(#:tests? #f))
+      (propagated-inputs (list python-beautifulsoup4 python-requests
+                               python-retrying))
+      (home-page "https://github.com/zaytoun/scihub.py")
+      (synopsis "Unofficial scihub API")
+      (description
+       "@code{scihub.py} is an unofficial API for Sci-hub. @code{scihub.py} can search for papers on Google Scholars and download papers from Sci-hub.
+It can be imported independently or used from the command-line. If you believe in open access to scientific papers, please donate to Sci-Hub. Features:
+@itemize
+@item Download specific articles directly or via Sci-hub.
+@item Download a collection of articles by passing in file of article identifiers.
+@item Search for articles on Google Scholars and download them
+@end itemize
+Note: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.")
+      (license license:expat))))
