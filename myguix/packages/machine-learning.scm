@@ -1306,6 +1306,171 @@ as forward-mode differentiation, and the two can be composed
 arbitrarily to any order.")
       (license license:asl2.0))))
 
+(define python-jaxlib/wheel-cuda
+  (let ((base python-jaxlib/wheel))
+    (package
+      (inherit base)
+      (name "python-jaxlib-cuda")
+      (arguments
+       (substitute-keyword-arguments (package-arguments base)
+         ((#:fetch-targets _)
+          '(list "//jaxlib/tools:build_wheel"
+                 "//jaxlib/tools:build_gpu_plugin_wheel"
+                 "@mkl_dnn_v1//:mkl_dnn"))
+         ((#:vendored-inputs-hash _)
+          "0n4p27rsb0hz7prk4lm2z9qlbi5vsrdvmd0a04kiw1kl7qzkkxxs")
+         ((#:bazel-configuration conf)
+          #~(begin
+              #$conf
+              ;; When building with CUDA, Bazel uses ldconfig and
+              ;; complains that it can't open /etc/ld.so.cache.
+              ;; So we fake ldconfig.
+              (mkdir-p "/tmp/dummy-ldconfig")
+              (symlink (which "true") "/tmp/dummy-ldconfig/ldconfig")
+              (setenv "PATH"
+                      (string-append "/tmp/dummy-ldconfig:"
+                                     (getenv "PATH")))))
+         ((#:bazel-arguments args)
+          #~(append #$args
+                    (list "--config=cuda"
+                          (string-append "--action_env=CUDA_TOOLKIT_PATH="
+                                         #$(this-package-input "cuda-toolkit"))
+                          (string-append "--action_env=CUDNN_INSTALL_PATH="
+                                         #$(this-package-input "cudnn"))
+                          (string-append "--action_env=TF_CUDA_PATHS="
+                                         #$(this-package-input "cuda-toolkit")
+                                         ","
+                                         #$(this-package-input "cudnn"))
+                          (string-append "--action_env=TF_CUDA_VERSION="
+                                         #$(version-major+minor (package-version
+                                                                 (this-package-input
+                                                                  "cuda-toolkit"))))
+                          (string-append "--action_env=TF_CUDNN_VERSION="
+                                         #$(version-major (package-version (this-package-input
+                                                                            "cudnn")))))))
+         ((#:run-command cmd)
+          #~(list (string-append "--output_path="
+                                 #$output)
+                  (string-append "--cpu="
+                                 #$(match (or (%current-target-system)
+                                              (%current-system))
+                                     ("x86_64-linux" "x86_64")
+                                     ("i686-linux" "i686")
+                                     ("mips64el-linux" "mips64")
+                                     ("aarch64-linux" "aarch64")
+                                     ;; Prevent errors when querying this
+                                     ;; package on unsupported platforms,
+                                     ;; e.g. when running "guix package
+                                     ;; --search="
+                                     (_ "UNSUPPORTED")))))
+         ((#:phases phases)
+          (with-imported-modules (source-module-closure '((guix build utils)
+                                                          (guix build union)
+                                                          (guix build
+                                                           gnu-build-system)
+                                                          (guix-science build
+                                                           bazel-build-system)))
+                                 #~(modify-phases #$phases
+                                     (add-before 'configure 'patch-compiler-wrapper
+                                       (lambda _
+                                         (let ((bazel-out (string-append (getenv
+                                                                          "NIX_BUILD_TOP")
+                                                           "/output")))
+                                           (patch-shebang (string-append
+                                                           bazel-out
+                                                           "/external/xla/third_party/tsl/third_party/gpus/crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl"))
+
+                                           ;; This wrapper insists on passing
+                                           ;; no-canonical-prefixes, which makes it
+                                           ;; impossible for GCC to find
+                                           ;; architecture-specific headers like
+                                           ;; bits/c++config.h.
+                                           (substitute* (string-append
+                                                         bazel-out
+                                                         "/external/xla/third_party/tsl/third_party/gpus/crosstool/cc_toolchain_config.bzl.tpl")
+                                             (("\"-no-canonical-prefixes\",")
+                                              "")))))
+                                     ;; XXX: this should be a function of the features
+                                     ;; supported by the given CUDA library version.  Our
+                                     ;; CUDA 11 version does not support the virtual
+                                     ;; architecture "compute_90", for example.
+                                     (add-after 'configure 'set-cuda-capabilities
+                                       (lambda _
+                                         (setenv
+                                          "TF_CUDA_COMPUTE_CAPABILITIES"
+                                          "sm_52,sm_60,sm_70,sm_80")))
+                                     (add-after 'set-cuda-capabilities 'configure-with-cuda
+                                       (lambda _
+                                         ;; When building with CUDA, Bazel uses ldconfig and
+                                         ;; complains that it can't open /etc/ld.so.cache.
+                                         ;; So we fake ldconfig.
+                                         (mkdir-p "/tmp/dummy-ldconfig")
+                                         (symlink (which "true")
+                                          "/tmp/dummy-ldconfig/ldconfig")
+                                         (setenv "PATH"
+                                                 (string-append
+                                                  "/tmp/dummy-ldconfig:"
+                                                  (getenv "PATH")))
+
+                                         ;; Bazel expects the GCC and CUDA toolchains to be
+                                         ;; under the same prefix.
+                                         (use-modules (guix build union))
+                                         (let ((toolchain (string-append (getenv
+                                                                          "NIX_BUILD_TOP")
+                                                           "/toolchain")))
+                                           (union-build toolchain
+                                                        (cons #$(this-package-input
+                                                                 "cuda-toolkit")
+                                                              (match '#$(standard-packages)
+                                                                (((labels directories . rest)
+                                                                  ...)
+                                                                 directories))))
+                                           (setenv "GCC_HOST_COMPILER_PREFIX"
+                                                   (string-append toolchain
+                                                                  "/bin"))
+                                           (setenv "GCC_HOST_COMPILER_PATH"
+                                                   (string-append toolchain
+                                                                  "/bin/gcc")))
+                                         (call-with-output-file ".jax_configure.bazelrc"
+                                           (lambda (port)
+                                             ;; Append at the end of this file
+                                             (seek port 0 SEEK_END)
+                                             (display (string-append
+                                                       "build --config=cuda\n"
+                                                       "build:cuda --action_env TF_CUDA_COMPUTE_CAPABILITIES="
+                                                       (getenv
+                                                        "TF_CUDA_COMPUTE_CAPABILITIES")
+                                                       "\n"
+                                                       "build --action_env CUDA_TOOLKIT_PATH="
+                                                       #$(this-package-input
+                                                          "cuda-toolkit")
+                                                       "\n"
+                                                       "build --action_env CUDNN_INSTALL_PATH="
+                                                       #$(this-package-input
+                                                          "cudnn")
+                                                       "\n"
+                                                       "build --action_env TF_CUDA_PATHS="
+                                                       #$(this-package-input
+                                                          "cuda-toolkit")
+                                                       ","
+                                                       #$(this-package-input
+                                                          "cudnn")
+                                                       "\n"
+                                                       "build --action_env TF_CUDA_VERSION="
+                                                       #$(version-major+minor (package-version
+                                                                               (this-package-input
+                                                                                "cuda-toolkit")))
+                                                       "\n"
+                                                       "build --action_env TF_CUDNN_VERSION="
+                                                       #$(version-major (package-version
+                                                                         (this-package-input
+                                                                          "cudnn"))))
+                                                      port))))))))))
+      (inputs (modify-inputs (package-inputs base)
+                (append cuda-toolkit-11.8 cudnn-8.9)))
+      (native-inputs (modify-inputs (package-native-inputs base)
+                       (append python-wrapper))))))
+
 (define-public python-jaxlib
   (package
     (inherit python-jaxlib/wheel)
@@ -1752,7 +1917,7 @@ fully supported to run on the GPU.")
       (build-system cmake-build-system)
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
-                (append cuda-toolkit nccl)))
+                (append cuda-toolkit-12.1 nccl)))
       (arguments
        (substitute-keyword-arguments (package-arguments gloo)
          ((#:configure-flags flags
@@ -1792,7 +1957,7 @@ Note: This package provides NVIDIA GPU support.")
         #:configure-flags ''("-DBUILD_SHARED_LIBS=ON" "-DTP_USE_CUDA=ON")
         ;; There are no tests
         #:tests? #f))
-      (inputs (list cuda-toolkit libuv))
+      (inputs (list cuda-toolkit-12.1 libuv))
       (native-inputs (list googletest pkg-config pybind11 libnop))
       (home-page "https://github.com/pytorch/tensorpipe")
       (synopsis "Tensor-aware point-to-point communication primitive for
@@ -1838,3 +2003,9 @@ mixing usage between frameworks.
 This package does not intend to implement Tensor and Ops, but instead use this
 as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
+
+gloo-cuda
+tensorpipe-cuda
+python-jaxlib/wheel-cuda
+python-jaxlib-cuda
+python-jax-cuda
