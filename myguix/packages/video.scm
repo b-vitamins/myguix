@@ -143,7 +143,7 @@
                          configure-flags))))))))
     (inputs (modify-inputs (package-inputs ffmpeg)
               (replace "mesa" nvda)
-              (append cuda-toolkit nv-codec-headers)))
+              (append cuda-toolkit-12.4 nv-codec-headers)))
     (description
      "FFmpeg with NVIDIA hardware acceleration support using NVDEC and CUDA libraries.")
     (synopsis "FFmpeg with NVIDIA GPU hardware decoding (NVDEC) support")))
@@ -168,4 +168,4 @@
     (propagated-inputs (modify-inputs (package-propagated-inputs mpv)
                          (replace "mesa" nvda)
                          (replace "ffmpeg" ffmpeg-cuda)
-                         (append cuda-toolkit nv-codec-headers)))))
+                         (append cuda-toolkit-12.4 nv-codec-headers)))))
