@@ -1455,11 +1455,11 @@ autotuning.")
      (list
       #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
                                                #$(package-source googletest))
-                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
-                                "-DCUTLASS_NVCC_ARCHS=80"
-                                "-DCUTLASS_LIBRARY_KERNELS=all"
-                                "-DCUTLASS_ENABLE_TESTS=NO"
-                                "-DCUTLASS_INSTALL_TESTS=NO")
+                                "-DCUTLASS_ENABLE_TESTS=OFF"
+                                "-DCUTLASS_INSTALL_TESTS=OFF"
+                                "-DCUTLASS_BUILD_STATIC_LIBRARY=OFF"
+                                "-DCUTLASS_ENABLE_EXAMPLES=OFF"
+                                "-DCUTLASS_UNITY_BUILD_ENABLED=ON")
       #:phases #~(modify-phases %standard-phases
                    ;; XXX: This phase is not necessary on earlier versions.
                    ;; Remove it when updating.
