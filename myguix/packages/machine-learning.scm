@@ -1984,7 +1984,6 @@ Note: This package provides NVIDIA GPU support.")
         (revision "20211227"))
     (package
       (name "tensorpipe-cuda")
-      n
       (version (git-version "0" revision commit))
       (source
        (origin
