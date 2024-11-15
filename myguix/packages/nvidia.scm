@@ -1390,10 +1390,11 @@ functionality on top of the backend API, such as errata filters and
 autotuning.")
     (license license:expat)))
 
-(define-public cutlass
+(define-public cutlass-3.4
   (package
     (name "cutlass")
     (version "3.4.0")
+    (home-page "https://github.com/NVIDIA/cutlass")
     (source
      (origin
        (method git-fetch)
@@ -1412,15 +1413,24 @@ autotuning.")
     (build-system cmake-build-system)
     (arguments
      (list
-      ;; XXX: Cutlass is incredibly heavy to build when not specifying target
-      ;; GPU architecture (4G), avoid tests, examples and static library.
-      ;; Setting the contrary often runs out of RAM even on beefy laptops.
-      #:configure-flags ''("-DCUTLASS_ENABLE_TESTS=OFF"
-                           "-DCUTLASS_INSTALL_TESTS=OFF"
-                           "-DCUTLASS_BUILD_STATIC_LIBRARY=OFF"
-                           "-DCUTLASS_ENABLE_EXAMPLES=OFF"
-                           "-DCUTLASS_UNITY_BUILD_ENABLED=ON")
+      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
+                                               #$(package-source googletest))
+                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
+                                "-DCUTLASS_NVCC_ARCHS=80"
+                                "-DCUTLASS_LIBRARY_KERNELS=all"
+                                "-DCUTLASS_ENABLE_TESTS=NO"
+                                "-DCUTLASS_INSTALL_TESTS=NO")
       #:phases #~(modify-phases %standard-phases
+                   ;; XXX: This phase is not necessary on earlier versions.
+                   ;; Remove it when updating.
+                   (add-after 'unpack 'fix-cuda-build
+                     (lambda _
+                       (substitute* "CMakeLists.txt"
+                         (("--user")
+                          (string-append "--prefix="
+                                         #$output)))
+                       (setenv "PYTHONPATH"
+                               (string-append (getcwd) "/python"))))
                    (add-before 'build 'set_cuda_paths
                      (lambda _
                        (setenv "CUDACXX"
@@ -1434,21 +1444,22 @@ autotuning.")
     (inputs (list cuda-toolkit))
     (propagated-inputs (list python-networkx python-numpy python-pydot
                              python-scipy python-treelib))
-    (home-page "https://developer.nvidia.com/blog/cutlass-linear-algebra-cuda")
-    (synopsis "CUDA Templates for Linear Algebra Subroutines")
+    (synopsis
+     "CUDA C++ template abstractions for high-performance linear algebra")
     (description
-     "This package provides a collection of CUDA C++ template abstractions for
-implementing high-performance matrix-matrix multiplication (GEMM) and related
-computations at all levels and scales within CUDA.  It incorporates strategies
-for hierarchical decomposition and data movement similar to those used to
-implement cuBLAS and cuDNN.  CUTLASS decomposes these moving parts into
-reusable, modular software components abstracted by C++ template
-classes.  Primitives for different levels of a conceptual parallelization
-hierarchy can be specialized and tuned via custom tiling sizes, data types,
-and other algorithmic policy.  The resulting flexibility simplifies their use
-as building blocks within custom kernels and applications.")
-    (license (nonfree:nonfree
-              "https://github.com/NVIDIA/cutlass/blob/main/LICENSE.txt"))))
+     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
+high-performance matrix-matrix multiplication (GEMM) and related computations
+at all levels and scales within CUDA.  It incorporates strategies for
+hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.
+
+CUTLASS decomposes these ``moving parts'' into reusable, modular software
+components abstracted by C++ template classes.  Primitives for different
+levels of a conceptual parallelization hierarchy can be specialized and tuned
+via custom tiling sizes, data types, and other algorithmic policy.  The
+resulting flexibility simplifies their use as building blocks within custom
+kernels and applications.")
+    (license license:bsd-3)))
 
 (define-public nccl
   (package
