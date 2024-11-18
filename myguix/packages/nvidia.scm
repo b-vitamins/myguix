@@ -1230,6 +1230,12 @@ NVIDIA Management Library")
                          (copy-recursively "cuda_nvcc/nvvm/libdevice"
                                            (string-append #$output
                                                           "/nvvm/libdevice")))))
+                   (add-after 'install 'symlink-libcuda
+                     (lambda _
+                       (with-directory-excursion (string-append #$output
+                                                                "/lib/stubs")
+                         (symlink "libcuda.so" "libcuda.so.1"))))
+
                    (add-after 'install 'install-cupti
                      (lambda _
                        (copy-recursively "builds/cuda_cupti/extras/CUPTI"
