@@ -1462,9 +1462,11 @@ autotuning.")
       #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
                                                #$(package-source googletest))
                                 "-DCUTLASS_ENABLE_TESTS=OFF"
-                                "-DCUTLASS_INSTALL_TESTS=OFF"
                                 "-DCUTLASS_BUILD_STATIC_LIBRARY=OFF"
                                 "-DCUTLASS_ENABLE_EXAMPLES=OFF"
+                                "-DCUTLASS_NVCC_ARCHS=86"
+                                "-DCUTLASS_LIBRARY_KERNELS=all"
+                                "-DCUTLASS_INSTALL_TESTS=OFF"
                                 "-DCUTLASS_UNITY_BUILD_ENABLED=ON")
       #:phases #~(modify-phases %standard-phases
                    ;; XXX: This phase is not necessary on earlier versions.
@@ -1521,8 +1523,7 @@ kernels and applications.")
        (file-name (git-file-name name version))
        (sha256
         (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))
-    (inputs (modify-inputs (package-inputs cutlass-3.4)
-              (replace "cuda-toolkit" cuda-toolkit-12.4)))))
+    (inputs (list cuda-toolkit-12.4))))
 
 (define-public nccl
   (package
