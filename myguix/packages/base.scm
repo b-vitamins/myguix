@@ -292,12 +292,7 @@
   (list nmap tcpdump wireshark traceroute speedtest-cli))
 
 (define %p2p-file-sharing-packages
-  (list deluge
-        qbittorrent-enhanced
-        transmission
-        aria2
-        nicotine+
-        miniupnpc))
+  (list qbittorrent-enhanced aria2 nicotine+ miniupnpc))
 
 (define %network-utilities-packages
   (list net-tools
