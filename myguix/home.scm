@@ -132,9 +132,7 @@
                                                            "alias grep='grep --color=auto'\n"
                                                            "alias diff='diff --color=auto'\n"
                                                            "alias ll='ls -lh'\n"
-                                                           "alias la='ls -A'\n"
-                                                           "alias openaikey='export OPENAI_API_KEY=$(pass show apis/openai | head -n 1)'
-"))))))
+                                                           "alias la='ls -A'\n"))))))
 
    (service home-inputrc-service-type
             (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")
