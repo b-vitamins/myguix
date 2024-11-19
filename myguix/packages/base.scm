@@ -79,6 +79,7 @@
   #:use-module (gnu packages upnp)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
+  #:use-module (gnu packages vpn)
   #:use-module (gnu packages wget)
   #:use-module (gnu packages xiph)
   #:use-module (gnu packages xorg)
