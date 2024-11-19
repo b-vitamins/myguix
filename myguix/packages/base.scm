@@ -153,7 +153,6 @@
 (define %nvidia-core-packages
   (list nvidia-system-monitor
         nvidia-settings
-        nvda
         cuda-toolkit-12.4
         cudnn-9.5
         nvidia-htop
