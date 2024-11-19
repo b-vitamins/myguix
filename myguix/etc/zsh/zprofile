@@ -1,0 +1,15 @@
+# Set up the system, user profile, and related variables.
+[[ -f /etc/profile ]] && source /etc/profile
+
+# Set up the home environment profile.
+[[ -f ~/.profile ]] && source ~/.profile
+
+# Merge search-paths from multiple profiles, the order matters.
+eval "$(guix package --search-paths \
+-p $HOME/.config/guix/current \
+-p $HOME/.guix-home/profile \
+-p $HOME/.guix-profile \
+-p /run/current-system/profile)"
+
+# Prepend setuid programs.
+export PATH=/run/setuid-programs:$PATH
