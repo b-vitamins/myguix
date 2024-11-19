@@ -300,7 +300,8 @@
         openssl
         libnatpmp
         python-nodriver
-        blueman))
+        blueman
+        protonvpn-cli))
 
 (define %general-purpose-fonts
   (list font-dejavu font-bitstream-vera font-abattis-cantarell font-liberation
