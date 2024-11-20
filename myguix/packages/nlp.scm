@@ -87,7 +87,7 @@
                                                                   line) file))))
                                   (find-files bindir))))))))
     (inputs (list openblas))
-    (native-inputs (list git-minimal patchelf python pkg-config))
+    (native-inputs (list git-minimal patchelf-0.16 python pkg-config))
     (home-page "https://github.com/ggerganov/whisper.cpp")
     (synopsis "Port of OpenAI's Whisper model in C/C++")
     (description
