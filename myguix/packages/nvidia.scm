@@ -1243,7 +1243,7 @@ NVIDIA Management Library")
                    (add-after 'install 'delete-stray-symlinks
                      (lambda _
                        (delete-file (string-append #$output "/include/include")))))))
-    (native-inputs (list which patchelf perl python-2))
+    (native-inputs (list which patchelf-0.16 perl python-2))
     (inputs `(("gcc:lib" ,gcc "lib")))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "Compiler for the CUDA language and associated run-time support")
