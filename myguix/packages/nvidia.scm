@@ -1230,12 +1230,39 @@ NVIDIA Management Library")
                          (copy-recursively "cuda_nvcc/nvvm/libdevice"
                                            (string-append #$output
                                                           "/nvvm/libdevice")))))
-                   (add-after 'install 'symlink-libcuda
+                   (add-after 'install 'symlink-shared-libs
                      (lambda _
                        (with-directory-excursion (string-append #$output
                                                                 "/lib/stubs")
-                         (symlink "libcuda.so" "libcuda.so.1"))))
-
+                         (let ((libs '(("libcuda.so" "libcuda.so.1")
+                                       ("libnvjpeg.so" "libnvjpeg.so.12")
+                                       ("libnvJitLink.so" "libnvJitLink.so.12")
+                                       ("libnvfatbin.so" "libnvfatbin.so.12")
+                                       ("libnppc.so" "libnppc.so.12")
+                                       ("libnppist.so" "libnppist.so.12")
+                                       ("libnpps.so" "libnpps.so.12")
+                                       ("libnppial.so" "libnppial.so.12")
+                                       ("libnppim.so" "libnppim.so.12")
+                                       ("libnppitc.so" "libnppitc.so.12")
+                                       ("libnppig.so" "libnppig.so.12")
+                                       ("libnppidei.so" "libnppidei.so.12")
+                                       ("libnppisu.so" "libnppisu.so.12")
+                                       ("libnppif.so" "libnppif.so.12")
+                                       ("libnppicc.so" "libnppicc.so.12")
+                                       ("libcusparse.so" "libcusparse.so.12")
+                                       ("libcusolver.so" "libcusolver.so.11")
+                                       ("libcusolverMg.so"
+                                        "libcusolverMg.so.11")
+                                       ("libcurand.so" "libcurand.so.10")
+                                       ("libcufft.so" "libcufft.so.11")
+                                       ("libcufftw.so" "libcufftw.so.11")
+                                       ("libcublas.so" "libcublas.so.12")
+                                       ("libcublasLt.so" "libcublasLt.so.12")
+                                       ("libnvrtc.so" "libnvrtc.so.12")
+                                       ("libnvidia-ml.so" "libnvidia-ml.so.1"))))
+                           (for-each (lambda (pair)
+                                       (symlink (car pair)
+                                                (cdr pair))) libs)))))
                    (add-after 'install 'install-cupti
                      (lambda _
                        (copy-recursively "builds/cuda_cupti/extras/CUPTI"
