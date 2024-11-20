@@ -56,9 +56,9 @@
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module ((guix licenses)
-                #:prefix license:)
+                #:prefix license-gnu:)
   #:use-module ((myguix licenses)
-                #:prefix nonfree:)
+                #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages linux)
@@ -538,7 +538,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                                                    (list soname base))))))
                                  (find-files #$output "\\.so\\.")))))))
     (supported-systems '("i686-linux" "x86_64-linux"))
-    (native-inputs (list patchelf))
+    (native-inputs (list patchelf-0.16))
     (inputs (list egl-gbm
                   egl-wayland
                   `(,gcc "lib")
@@ -556,7 +556,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
      "This package provides libraries of the proprietary NVIDIA driver.  It's
 mainly used as a dependency of other packages.  For user-facing purpose, use
 @code{nvda} instead.")
-    (license (nonfree:nonfree (format #f
+    (license (license:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
@@ -643,7 +643,7 @@ field of the @code{operating-system} configuration.
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
-    (license (nonfree:nonfree (format #f
+    (license (license:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
@@ -675,7 +675,7 @@ actually use these modules, also add @code{modprobe.blacklist=nouveau} to
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
-      (license license:gpl2))))
+      (license license-gnu:gpl2))))
 
 
 ;;;
@@ -751,7 +751,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
      "This package provides Nvidia driver control panel for monitor
 configuration, creating application profiles, gpu monitoring and more.")
     (home-page "https://github.com/NVIDIA/nvidia-settings")
-    (license license:gpl2)))
+    (license license-gnu:gpl2)))
 
 
 ;;;
@@ -927,7 +927,7 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (description
      "This package provides an utility to monitor NVIDIA GPU status
 and usage.")
-    (license license:expat)))
+    (license license-gnu:expat)))
 
 (define-public nvidia-exec
   (package
@@ -967,7 +967,7 @@ and usage.")
     (description
      "This package provides GPU switching without login out for Nvidia Optimus
 laptops.")
-    (license license:gpl3+)))
+    (license license-gnu:gpl3+)))
 
 (define-public nvidia-htop
   (package
@@ -995,7 +995,7 @@ laptops.")
     (synopsis "Tool to enrich the output of nvidia-smi")
     (description "This package provides tool for enriching the output of
 nvidia-smi.")
-    (license license:bsd-3)))
+    (license license-gnu:bsd-3)))
 
 (define-public nvidia-nvml
   (package
@@ -1033,7 +1033,7 @@ building 3rd party applications, and is also the underlying library for the
 NVIDIA-supported nvidia-smi tool.  NVML is thread-safe so it is safe to make
 simultaneous NVML calls from multiple threads.")
     ;; Doesn't have any specific LICENSE file, but see COPYRIGHT.txt for details.
-    (license (nonfree:nonfree "file://COPYRIGHT.txt"))))
+    (license (license:nonfree "file://COPYRIGHT.txt"))))
 
 (define-public nvidia-system-monitor
   (package
@@ -1076,7 +1076,7 @@ simultaneous NVML calls from multiple threads.")
     (synopsis "Task manager for Nvidia graphics cards")
     (description
      "This package provides a task manager for Nvidia graphics cards.")
-    (license license:expat)))
+    (license license-gnu:expat)))
 
 (define-public python-nvidia-ml-py
   (package
@@ -1104,7 +1104,7 @@ simultaneous NVML calls from multiple threads.")
     (description
      "This package provides official Python Bindings for the NVIDIA
 Management Library")
-    (license license:bsd-3)))
+    (license license-gnu:bsd-3)))
 
 (define-public python-py3nvml
   (package
@@ -1131,7 +1131,7 @@ Management Library")
     (synopsis "Unoffcial Python 3 Bindings for the NVIDIA Management Library")
     (description "This package provides unofficial Python 3 Bindings for the
 NVIDIA Management Library")
-    (license license:bsd-3)))
+    (license license-gnu:bsd-3)))
 
 (define-public cuda-toolkit-11.8
   (package
@@ -1250,7 +1250,7 @@ NVIDIA Management Library")
     (description
      "This package provides the CUDA compiler and the CUDA run-time support
 libraries for NVIDIA GPUs, all of which are proprietary.")
-    (license (nonfree:nonfree
+    (license (license:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
 
 (define-public cuda-toolkit-12.1
@@ -1350,7 +1350,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "NVIDIA CUDA Deep Neural Network library (cuDNN)")
     (description "This package provides the CUDA Deep Neural Network library.")
-    (license (nonfree:nonfree
+    (license (license:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
 (define-public cudnn-9.5
@@ -1595,7 +1595,7 @@ multi-process (e.g., MPI) applications.")
     (synopsis "Nvidia cuTENSOR library")
     (description "This package provides the proprietary cuTENSOR
 library for NVIDIA GPUs.")
-    (license (nonfree:nonfree
+    (license (license:nonfree
               "https://docs.nvidia.com/cuda/cutensor/latest/license.html"))))
 
 (define-public no-float128
