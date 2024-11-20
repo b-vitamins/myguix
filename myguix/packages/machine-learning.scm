@@ -2048,3 +2048,10 @@ mixing usage between frameworks.
 This package does not intend to implement Tensor and Ops, but instead use this
 as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
+
+;; Refer these when packaging CUDA variants of PyTorch, Torchvision:
+;; https://gitlab.com/ngraves/nonguix/-/tree/cuda?ref_type=heads
+;; https://gitlab.archlinux.org/archlinux/packaging/packages/python-pytorch
+;; https://gitlab.archlinux.org/archlinux/packaging/packages/torchvision
+
+;; Will need to package CUDA variants of oneDNN too (https://github.com/oneapi-src/oneDNN). Guix has a non CUDA variant named oneapi-dnnl
