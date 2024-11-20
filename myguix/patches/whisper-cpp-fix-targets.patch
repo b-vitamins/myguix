@@ -1,0 +1,33 @@
+diff --git a/Makefile b/Makefile
+index a3835dd..b768eb6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -3,11 +3,15 @@ BUILD_TARGETS = \
+ 	main \
+ 	bench \
+ 	quantize \
+-	server
++	server \
++  command \
++  stream \
++  lsp \
++  talk-llama
+ 
+ # Binaries only useful for tests
+ TEST_TARGETS = \
+-	tests/test-c.o
++	tests
+ 
+ # Deprecation aliases
+ ifdef WHISPER_CUBLAS
+@@ -1120,9 +1124,7 @@ talk-llama: examples/talk-llama/talk-llama.cpp examples/talk-llama/llama.cpp exa
+ # Tests
+ #
+ 
+-tests: $(TEST_TARGETS)
+-
+-tests/test-c.o: tests/test-c.c include/whisper.h
++tests: tests/test-c.c include/whisper.h
+ 	$(CC) $(CFLAGS) -c $(filter-out %.h,$^) -o $@
+ 
+ #
