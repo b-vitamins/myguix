@@ -1434,7 +1434,7 @@ the NVIDIA CUDA Deep Neural Network library (cuDNN) C backend API.  This entry
 point to the same API is less verbose (without loss of control), and adds
 functionality on top of the backend API, such as errata filters and
 autotuning.")
-    (license license:expat)))
+    (license license-gnu:expat)))
 
 (define-public cutlass-3.4
   (package
@@ -1507,7 +1507,7 @@ levels of a conceptual parallelization hierarchy can be specialized and tuned
 via custom tiling sizes, data types, and other algorithmic policy.  The
 resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
-    (license license:bsd-3)))
+    (license license-gnu:bsd-3)))
 
 (define-public cutlass-3.5
   (package
@@ -1568,7 +1568,7 @@ well as networking using InfiniBand Verbs or TCP/IP sockets. NCCL
 supports an arbitrary number of GPUs installed in a single node or
 across multiple nodes, and can be used in either single- or
 multi-process (e.g., MPI) applications.")
-    (license license:bsd-3)))
+    (license license-gnu:bsd-3)))
 
 (define-public cutensor
   (package
@@ -1640,4 +1640,4 @@ of glibc and disable float128 support.  This is required allow the use of
 
 See also
 @url{https://devtalk.nvidia.com/default/topic/1023776/cuda-programming-and-performance/-request-add-nvcc-compatibility-with-glibc-2-26/1}.")
-    (license license:gpl3+)))
+    (license license-gnu:gpl3+)))
