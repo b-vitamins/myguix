@@ -37,7 +37,7 @@
         (base32 "0ad657bhlmqynk17hqwwz9qmw41ydgc48s214l88zr1k8vmq35fi"))))
     (supported-systems '("x86_64-linux"))
     (build-system cmake-build-system)
-    (native-inputs (list patchelf which python perl pkg-config))
+    (native-inputs (list patchelf-0.16 which python perl pkg-config))
     (inputs (list gcc cuda-toolkit-12.4 openblas))
     (arguments
      (list
