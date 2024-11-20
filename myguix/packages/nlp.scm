@@ -44,7 +44,9 @@
     (build-system cmake-build-system)
     (arguments
      `(#:tests? #f ;No tests.
-       #:configure-flags '("-DBUILD_SHARED_LIBS=ON")
+       #:configure-flags '("-DBUILD_SHARED_LIBS=ON" "-DGGML_AVX=ON"
+                           "-DGGML_AVX2=ON" "-DGGML_F16C=ON" "-DGGML_BLAS=ON"
+                           "-DGGML_BLAS_VENDOR=OpenBLAS")
        #:modules ((guix build utils)
                   (guix build cmake-build-system)
                   (ice-9 rdelim)
@@ -84,6 +86,7 @@
                                                    (string-append libdir ":"
                                                                   line) file))))
                                   (find-files bindir))))))))
+    (inputs (list openblas))
     (native-inputs (list git-minimal patchelf python pkg-config))
     (home-page "https://github.com/ggerganov/whisper.cpp")
     (synopsis "Port of OpenAI's Whisper model in C/C++")
