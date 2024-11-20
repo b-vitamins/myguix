@@ -257,33 +257,32 @@ GPU architectures.")
 ;; https://gitlab.archlinux.org/archlinux/packaging/packages/intel-oneapi-basekit
 ;; https://gitlab.archlinux.org/archlinux/packaging/packages/magma
 
-(define (intel-mkl-url subpackage version superversion debversion suffix)
-  (string-append
-   "https://apt.repos.intel.com/oneapi/pool/main/intel-oneapi-mkl-"
-   subpackage
-   "-"
-   version
-   "-"
-   superversion
-   "-"
-   debversion
-   "_"
-   suffix
-   ".deb"))
+(define (intel-url subpackage version superversion debversion suffix)
+  (string-append "https://apt.repos.intel.com/oneapi/pool/main/intel-oneapi-"
+                 subpackage
+                 "-"
+                 version
+                 "-"
+                 superversion
+                 "-"
+                 debversion
+                 "_"
+                 suffix
+                 ".deb"))
 
-(define (make-intel-oneapi-mkl subpackage
-                               version
-                               superversion
-                               debversion
-                               suffix
-                               hash)
+(define (make-intel-oneapi subpackage
+                           version
+                           superversion
+                           debversion
+                           suffix
+                           hash)
   (package
-    (name (string-append "intel-oneapi-mkl-" subpackage))
+    (name (string-append "intel-oneapi-" subpackage))
     (version version)
     (source
      (origin
        (method url-fetch)
-       (uri (intel-mkl-url subpackage version superversion debversion suffix))
+       (uri (intel-url subpackage version superversion debversion suffix))
        (sha256
         hash)))
     (native-inputs (list tar gzip cpio))
@@ -334,145 +333,145 @@ require maximum performance.")
                                "end-user-license-agreement.html")))))
 
 (define-public intel-oneapi-mkl-classic
-  (make-intel-oneapi-mkl "classic"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "07cmn9x1frfql0blghmqhbx28pj4aw7v4022hhcrhj584kdcq5pl")))
+  (make-intel-oneapi "mkl-classic"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "07cmn9x1frfql0blghmqhbx28pj4aw7v4022hhcrhj584kdcq5pl")))
 
 (define-public intel-oneapi-mkl-classic-include
-  (make-intel-oneapi-mkl "classic-include"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "090sjzkvicxinj26rpp75zcpf3vn3rsbmz4xp0rv7njfi5441lja")))
+  (make-intel-oneapi "mkl-classic-include"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "090sjzkvicxinj26rpp75zcpf3vn3rsbmz4xp0rv7njfi5441lja")))
 
 (define-public intel-oneapi-mkl-classic-include-common
-  (make-intel-oneapi-mkl "classic-include-common"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "all"
-                         (base32
-                          "08g40zab9wdwaqmjsdafqgqp78l8jg7zbfshavlp50fxl7cw05kh")))
+  (make-intel-oneapi "mkl-classic-include-common"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "all"
+                     (base32
+                      "08g40zab9wdwaqmjsdafqgqp78l8jg7zbfshavlp50fxl7cw05kh")))
 
 (define-public intel-oneapi-mkl-core
-  (make-intel-oneapi-mkl "core"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "13xhp025x956zfwq5c25lga04wddjydyvl0ymngq1d6f4iz21i1f")))
+  (make-intel-oneapi "mkl-core"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "13xhp025x956zfwq5c25lga04wddjydyvl0ymngq1d6f4iz21i1f")))
 
 (define intel-oneapi-mkl-core-common
-  (make-intel-oneapi-mkl "core-common"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "all"
-                         (base32
-                          "0w7hflyppn9pv825bjf902p0g1v4s60bc50lmxj15hcsiwd0cnla")))
+  (make-intel-oneapi "mkl-core-common"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "all"
+                     (base32
+                      "0w7hflyppn9pv825bjf902p0g1v4s60bc50lmxj15hcsiwd0cnla")))
 
 (define intel-oneapi-mkl-core-devel
-  (make-intel-oneapi-mkl "core-devel"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "1z4sxw28nkjwfqiqmhfmxn6lz44diy94r0rcgdr3iykw1gyc1qrv")))
+  (make-intel-oneapi "mkl-core-devel"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "1z4sxw28nkjwfqiqmhfmxn6lz44diy94r0rcgdr3iykw1gyc1qrv")))
 
 (define intel-oneapi-mkl-core-devel-common
-  (make-intel-oneapi-mkl "core-devel-common"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "all"
-                         (base32
-                          "194xabclwhl19zvn9nlxdx518xx9gwm5pn1hlm7s1x4wi3g93598")))
+  (make-intel-oneapi "mkl-core-devel-common"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "all"
+                     (base32
+                      "194xabclwhl19zvn9nlxdx518xx9gwm5pn1hlm7s1x4wi3g93598")))
 
 (define intel-oneapi-mkl-cluster
-  (make-intel-oneapi-mkl "cluster"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "0lzzhf91w4qjgkv1gvxlw7hdn9pakij9h4688ndvz6jws3wvrfjw")))
+  (make-intel-oneapi "mkl-cluster"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "0lzzhf91w4qjgkv1gvxlw7hdn9pakij9h4688ndvz6jws3wvrfjw")))
 
 (define intel-oneapi-mkl-cluster-devel
-  (make-intel-oneapi-mkl "cluster-devel"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "0fc19c1q73gf0sxcl0rb6i44jnllkfq5ivn3v9jp351aamjqdl3f")))
+  (make-intel-oneapi "mkl-cluster-devel"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "0fc19c1q73gf0sxcl0rb6i44jnllkfq5ivn3v9jp351aamjqdl3f")))
 
 (define intel-oneapi-mkl-cluster-devel-common
-  (make-intel-oneapi-mkl "cluster-devel-common"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "all"
-                         (base32
-                          "0n00k4iiayshj5rjmh8azzrjbnj2k9jz151sxp5m4j63scrv8386")))
+  (make-intel-oneapi "mkl-cluster-devel-common"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "all"
+                     (base32
+                      "0n00k4iiayshj5rjmh8azzrjbnj2k9jz151sxp5m4j63scrv8386")))
 
 (define intel-oneapi-mkl-sycl
-  (make-intel-oneapi-mkl "sycl"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "18yrgksqm1p7bg148wn5mm0vxh5qvivnqd25mbvywbfpw78b6kiz")))
+  (make-intel-oneapi "mkl-sycl"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "18yrgksqm1p7bg148wn5mm0vxh5qvivnqd25mbvywbfpw78b6kiz")))
 
 (define intel-oneapi-mkl-sycl-blas
-  (make-intel-oneapi-mkl "sycl-blas"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "11dalggxrg7wglcf88n1sfkcmz2r5d2fqd88j5x9mghxdcpv9nkc")))
+  (make-intel-oneapi "mkl-sycl-blas"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "11dalggxrg7wglcf88n1sfkcmz2r5d2fqd88j5x9mghxdcpv9nkc")))
 
 (define intel-oneapi-mkl-sycl-lapack
-  (make-intel-oneapi-mkl "sycl-lapack"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "1hgbr3n90x3f3a2xgwhicyllcg3z2623kswhscgfys4ln5wzj6hz")))
+  (make-intel-oneapi "mkl-sycl-lapack"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "1hgbr3n90x3f3a2xgwhicyllcg3z2623kswhscgfys4ln5wzj6hz")))
 
 (define intel-oneapi-mkl-sycl-dft
-  (make-intel-oneapi-mkl "sycl-dft"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "1zsq2kywpaqw933xxmqicgp03bxwkhph21brljpc96rrlax106sz")))
+  (make-intel-oneapi "mkl-sycl-dft"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "1zsq2kywpaqw933xxmqicgp03bxwkhph21brljpc96rrlax106sz")))
 
 (define intel-oneapi-mkl-sycl-sparse
-  (make-intel-oneapi-mkl "sycl-sparse"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "1mvj95z4k72ipsj1wj9bp439q3lgqbwwg64clcggrca74b8bjyvx")))
+  (make-intel-oneapi "mkl-sycl-sparse"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "1mvj95z4k72ipsj1wj9bp439q3lgqbwwg64clcggrca74b8bjyvx")))
 
 (define intel-oneapi-mkl-sycl-data-fitting
-  (make-intel-oneapi-mkl "sycl-data-fitting"
-                         "2024.1"
-                         "2024.1.0"
-                         "691"
-                         "amd64"
-                         (base32
-                          "1ci8wdbccd0bwdnd0z7gmgyxh0hibv1ig3alwmhh9pkq2rv33ny5")))
+  (make-intel-oneapi "mkl-sycl-data-fitting"
+                     "2024.1"
+                     "2024.1.0"
+                     "691"
+                     "amd64"
+                     (base32
+                      "1ci8wdbccd0bwdnd0z7gmgyxh0hibv1ig3alwmhh9pkq2rv33ny5")))
