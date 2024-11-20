@@ -114,6 +114,36 @@
                     "-DGGML_CUDA_GRAPHS=ON")
                   #$flags))))))
 
+(define-public llama-cpp-cuda
+  (package
+    (inherit llama-cpp)
+    (name "llama-cpp-cuda")
+    (inputs (list python))
+    (propagated-inputs (list cuda-toolkit-12.4 python-numpy python-pytorch
+                             python-sentencepiece openblas))
+    (native-inputs (list git-minimal pkg-config))
+    (arguments
+     (substitute-keyword-arguments (package-arguments llama-cpp)
+       ((#:configure-flags flags
+         ''())
+        #~(list "-DBUILD_SHARED_LIBS=ON"
+                "-DGGML_NATIVE=OFF"
+                "-DGGML_FMA=ON"
+                "-DGGML_AVX=ON"
+                "-DGGML_AVX2=ON"
+                "-DGGML_F16C=ON"
+                "-DGGML_BLAS=ON"
+                "-DGGML_BLAS_VENDOR=OpenBLAS"
+                "-DGGML_AVX512=OFF"
+                "-DGGML_AVX512_VBMI=OFF"
+                "-DGGML_AVX512_VNNI=OFF"
+                "-DGGML_CUDA=ON"
+                "-DCMAKE_CUDA_ARCHITECTURES=61;70;75;80;86"
+                "-DGGML_CUDA_FA_ALL_QUANTS=true"
+                "-DGGML_CUDA_FORCE_MMQ=OFF"
+                "-DGGML_CUDA_FORCE_CUBLAS=OFF"
+                "-DGGML_CUDA_F16=ON"))))))
+
 (define-public python-morfessor
   (package
     (name "python-morfessor")
