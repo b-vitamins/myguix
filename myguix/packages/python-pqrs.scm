@@ -1044,17 +1044,13 @@ OpenAI API.")
        (sha256
         (base32 "07m2jc0fzg1v24ljx1yi01lviy0qmb7z6zn05fr7vni46b3lwsn9"))))
     (build-system pyproject-build-system)
-    (native-inputs (list python-hatchling))
+    (native-inputs (list python-hatchling python-wheel python-mypy))
     (propagated-inputs (list python-numpy
-                             python-mypy
                              python-pillow
                              python-pytest
                              python-pytest-cov
                              python-pytest-rerunfailures
-                             python-pyvirtualdisplay
-                             python-sphinx
-                             python-twine
-                             python-wheel))
+                             python-pyvirtualdisplay))
     (arguments
      (list
       #:tests? #f
