@@ -71,8 +71,6 @@
      (modify-services (operating-system-user-services installation-os)
        (guix-service-type config =>
                           (guix-configuration (inherit config)
-                                              (guix (guix-for-channels
-                                                     %my-channels))
                                               (channels %my-channels)
                                               (authorized-keys
                                                %my-authorized-keys)
