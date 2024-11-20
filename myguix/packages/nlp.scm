@@ -94,44 +94,25 @@
      "This package provides a port to OpenAI's Whisper Automatic Speech Recognition Models. It requires model parameters to be downloaded independently and to be able to run a Whisper model.")
     (license license:expat)))
 
-(define-public llama-cpp
-  (let ((commit "e02b597be3702174e7b47b44cd03e1da1553284b")
-        (revision "4"))
-    (package
-      (name "llama-cpp")
-      (version (git-version "0.0.0" revision commit))
-      (source
-       (origin
-         (method git-fetch)
-         (uri (git-reference
-               (url "https://github.com/ggerganov/llama.cpp")
-               (commit commit)))
-         (file-name (git-file-name name version))
-         (sha256
-          (base32 "1kz6w6faii7q6cmmvqykb9dsxclci4wxh8jmwv64h8y5lw11qnaj"))))
-      (build-system cmake-build-system)
-      (arguments
-       (list
-        #:configure-flags #~(list "-DBUILD_SHARED_LIBS=ON")
-        #:phases #~(modify-phases %standard-phases
-                     (add-after 'unpack 'disable-unrunable-tests
-                       (lambda _
-                         (substitute* '("examples/eval-callback/CMakeLists.txt")
-                           (("add_test")
-                            "#add_test"))
-                         (substitute* '("examples/eval-callback/CMakeLists.txt")
-                           (("set_property")
-                            "#set_property")))))))
-      (inputs (list python))
-      (native-inputs (list pkg-config))
-      (properties '((tunable? . #t)))
-      (home-page "https://github.com/ggerganov/llama.cpp")
-      (synopsis "Port of Facebook's LLaMA model in C/C++")
-      (description
-       "This package provides a port to Facebook's LLaMA collection
-of foundation language models.  It requires models parameters to be downloaded
-independently to be able to run a LLaMA model.")
-      (license license:expat))))
+(define-public whisper-cpp-cuda
+  (package
+    (inherit whisper-cpp)
+    (name "whisper-cpp-cuda")
+    (inputs (list cuda-toolkit-12.4 openblas))
+    (arguments
+     (substitute-keyword-arguments (package-arguments whisper-cpp)
+       ((#:configure-flags flags
+         ''())
+        #~(append '("-DGGML_CUDA=ON"
+                    "-DCMAKE_CUDA_ARCHITECTURES=61;70;75;80;86"
+                    "-DGGML_CUDA_FA_ALL_QUANTS=true"
+                    "-DGGML_CUDA_FORCE_DMMV=OFF"
+                    "-DGGML_CUDA_FORCE_MMQ=OFF"
+                    "-DGGML_CUDA_FORCE_CUBLAS=OFF"
+                    "-DGGML_CUDA_F16=ON"
+                    "-DGGML_CUDA_NO_PEER_COPY=OFF"
+                    "-DGGML_CUDA_GRAPHS=ON")
+                  #$flags))))))
 
 (define-public python-morfessor
   (package
