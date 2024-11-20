@@ -1,14 +1,20 @@
 (define-module (myguix packages nlp)
   #:use-module (gnu packages base)
+  #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages elf)
+  #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages machine-learning)
+  #:use-module (gnu packages maths)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages version-control)
+  #:use-module (guix build utils)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system python)
@@ -25,7 +31,7 @@
 (define-public whisper-cpp
   (package
     (name "whisper-cpp")
-    (version "1.6.2")
+    (version "1.7.2")
     (source
      (origin
        (method git-fetch)
@@ -34,19 +40,17 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "01q4j602wkvsf9vw0nsazzgvjppf4fhpy90vqnm9affynyxhi0c4"))))
+        (base32 "0fbxf43dfz0wgc2qx57gm7a56nqpbmvkzgk68jfj1pa5r9qijzfb"))))
     (build-system cmake-build-system)
     (arguments
-     `(#:tests? #t
+     `(#:tests? #f ;No tests.
        #:configure-flags '("-DBUILD_SHARED_LIBS=ON")
-       #:validate-runpath? #f
+       #:modules ((guix build utils)
+                  (guix build cmake-build-system)
+                  (ice-9 rdelim)
+                  (ice-9 popen))
        #:phases (modify-phases %standard-phases
-                  (add-after 'configure 'fix-runpath
-                    (lambda* (#:key inputs outputs #:allow-other-keys)
-                      (setenv "LDFLAGS"
-                              (string-append "-Wl,-rpath="
-                                             (assoc-ref outputs "out") "/lib"))))
-                  (add-after 'install 'install-main
+                  (add-after 'install 'install-binaries
                     (lambda* (#:key outputs #:allow-other-keys)
                       (let ((bin (string-append (assoc-ref outputs "out")
                                                 "/bin"))
@@ -54,17 +58,33 @@
                         (for-each (lambda (file)
                                     (let ((orig-file (string-append build-dir
                                                                     file))
-                                          (new-file (string-append build-dir
-                                                                   (string-append
-                                                                    "whisper-"
-                                                                    file)))
-                                          (dest-file (string-append bin
-                                                      "/whisper-" file)))
+                                          (new-file (if (string=? file "main")
+                                                        (string-append
+                                                         build-dir "/whisper")
+                                                        (string-append
+                                                         build-dir "/whisper-"
+                                                         file))))
                                       (invoke "mv" orig-file new-file)
-                                      (install-file new-file dest-file)))
-                                  '("main" "bench" "server" "quantize"))))))))
-    (outputs '("out"))
-    (inputs (list python))
+                                      (install-file new-file bin)))
+                                  '("main" "bench" "server" "quantize")))))
+                  (add-after 'install-binaries 'fix-rpath
+                    (lambda* (#:key outputs #:allow-other-keys)
+                      (let ((libdir (string-append (assoc-ref outputs "out")
+                                                   "/lib"))
+                            (bindir (string-append (assoc-ref outputs "out")
+                                                   "/bin")))
+                        (for-each (lambda (file)
+                                    (let* ((pipe (open-pipe* OPEN_READ
+                                                             "patchelf"
+                                                             "--print-rpath"
+                                                             file))
+                                           (line (read-line pipe)))
+                                      (and (zero? (close-pipe pipe))
+                                           (invoke "patchelf" "--set-rpath"
+                                                   (string-append libdir ":"
+                                                                  line) file))))
+                                  (find-files bindir))))))))
+    (native-inputs (list git-minimal patchelf python pkg-config))
     (home-page "https://github.com/ggerganov/whisper.cpp")
     (synopsis "Port of OpenAI's Whisper model in C/C++")
     (description
