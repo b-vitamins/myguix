@@ -40,6 +40,7 @@
   #:use-module (gnu packages qt)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages video)
+  #:use-module (gnu packages vulkan)
   #:use-module (gnu packages web)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xml)
@@ -94,6 +95,9 @@
 
 (define %nvidia-driver-next-hashes
   '(("560.35.03" . "1qqzkzi1ms5x7yjbfsy2hmqsvw3k9zy57r0v6jrcahyxza92r4zj")))
+
+(define %nvidia-settings-next-hashes
+  '(("560.35.03" . "1yayvpi0826g3l04390wh284qzhxgc027c2r6i0cz2pi1472y2wi")))
 
 (define %nvidia-driver-hashes
   '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
@@ -770,6 +774,25 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 configuration, creating application profiles, gpu monitoring and more.")
     (home-page "https://github.com/NVIDIA/nvidia-settings")
     (license license-gnu:gpl2)))
+
+(define-public nvidia-settings-next
+  (package
+    (inherit nvidia-settings)
+    (name "nvidia-settings")
+    (version nvidia-next-version)
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-settings")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (modules '((guix build utils)))
+       (snippet '(delete-file-recursively "src/jansson"))
+       (sha256
+        (base32 (assoc-ref %nvidia-settings-next-hashes version)))))
+    (inputs (modify-inputs (package-inputs nvidia-settings)
+              (append vulkan-memory-allocator vulkan-headers)))))
 
 
 ;;;
