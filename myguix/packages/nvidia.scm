@@ -81,6 +81,9 @@
     ;; GSYNC control for Vulkan direct-to-display applications.
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
+(define-public nvidia-next-version
+  "560.35.03")
+
 (define-public nvidia-version
   "550.120")
 
@@ -88,6 +91,9 @@
 ;;;
 ;;; NVIDIA driver checkouts
 ;;;
+
+(define %nvidia-driver-next-hashes
+  '(("560.35.03" . "1qqzkzi1ms5x7yjbfsy2hmqsvw3k9zy57r0v6jrcahyxza92r4zj")))
 
 (define %nvidia-driver-hashes
   '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
@@ -165,6 +171,11 @@ VERSION as argument and returns a G-expression."
                                                                                ("."
                                                                                 ".."))))))
                                                              #$output)))))))
+
+(define-public nvidia-next-source
+  (make-nvidia-source nvidia-next-version
+                      (base32 (assoc-ref %nvidia-driver-next-hashes
+                                         nvidia-next-version))))
 
 (define-public nvidia-source
   (make-nvidia-source nvidia-version
@@ -559,6 +570,13 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
     (license (license:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
+
+(define-public nvidia-driver-next
+  (package
+    (inherit nvidia-driver)
+    (version nvidia-next-version)
+    (source
+     nvidia-next-source)))
 
 (define-public nvidia-libs
   (deprecated-package "nvidia-libs" nvidia-driver))
