@@ -105,6 +105,9 @@
 (define %nvidia-driver-recommended-hashes
   '(("550.135" . "1ac8hy0rwk5dgfj28h7gj1mwm59189dsah91fq76j1a0ckslf80i")))
 
+(define %nvidia-settings-recommended-hashes
+  '(("550.135" . "0m6g6lx4pzqqz9bscva9qgydbrdn1shwg0q90zzsq3mih11va7p0")))
+
 (define %nvidia-driver-hashes
   '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
 
@@ -811,6 +814,23 @@ configuration, creating application profiles, gpu monitoring and more.")
         (base32 (assoc-ref %nvidia-settings-next-hashes version)))))
     (inputs (modify-inputs (package-inputs nvidia-settings)
               (append vulkan-memory-allocator vulkan-headers)))))
+
+(define-public nvidia-settings-recommended
+  (package
+    (inherit nvidia-settings)
+    (name "nvidia-settings")
+    (version nvidia-recommended-version)
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-settings")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (modules '((guix build utils)))
+       (snippet '(delete-file-recursively "src/jansson"))
+       (sha256
+        (base32 (assoc-ref %nvidia-settings-recommended-hashes version)))))))
 
 
 ;;;
