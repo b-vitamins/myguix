@@ -85,6 +85,9 @@
 (define-public nvidia-next-version
   "560.35.03")
 
+(define-public nvidia-recommended-version
+  "550.135")
+
 (define-public nvidia-version
   "550.120")
 
@@ -98,6 +101,9 @@
 
 (define %nvidia-settings-next-hashes
   '(("560.35.03" . "1yayvpi0826g3l04390wh284qzhxgc027c2r6i0cz2pi1472y2wi")))
+
+(define %nvidia-driver-recommended-hashes
+  '(("550.135" . "1ac8hy0rwk5dgfj28h7gj1mwm59189dsah91fq76j1a0ckslf80i")))
 
 (define %nvidia-driver-hashes
   '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
@@ -180,6 +186,11 @@ VERSION as argument and returns a G-expression."
   (make-nvidia-source nvidia-next-version
                       (base32 (assoc-ref %nvidia-driver-next-hashes
                                          nvidia-next-version))))
+
+(define-public nvidia-recommended-source
+  (make-nvidia-source nvidia-recommended-version
+                      (base32 (assoc-ref %nvidia-driver-recommended-hashes
+                                         nvidia-recommended-version))))
 
 (define-public nvidia-source
   (make-nvidia-source nvidia-version
@@ -574,6 +585,13 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
     (license (license:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
+
+(define-public nvidia-driver-recommended
+  (package
+    (inherit nvidia-driver)
+    (version nvidia-recommended-version)
+    (source
+     nvidia-recommended-source)))
 
 (define-public nvidia-driver-next
   (package
