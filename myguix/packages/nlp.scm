@@ -45,8 +45,7 @@
     (arguments
      `(#:tests? #f ;No tests.
        #:configure-flags '("-DBUILD_SHARED_LIBS=ON" "-DGGML_AVX=ON"
-                           "-DGGML_AVX2=ON" "-DGGML_F16C=ON" "-DGGML_BLAS=ON"
-                           "-DGGML_BLAS_VENDOR=OpenBLAS")
+                           "-DGGML_BLAS=ON" "-DGGML_BLAS_VENDOR=OpenBLAS")
        #:modules ((guix build utils)
                   (guix build cmake-build-system)
                   (ice-9 rdelim)
