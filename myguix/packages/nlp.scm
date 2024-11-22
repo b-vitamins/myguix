@@ -103,14 +103,8 @@
        ((#:configure-flags flags
          ''())
         #~(append '("-DGGML_CUDA=ON"
-                    "-DCMAKE_CUDA_ARCHITECTURES=61;70;75;80;86"
-                    "-DGGML_CUDA_FA_ALL_QUANTS=true"
-                    "-DGGML_CUDA_FORCE_DMMV=OFF"
-                    "-DGGML_CUDA_FORCE_MMQ=OFF"
-                    "-DGGML_CUDA_FORCE_CUBLAS=OFF"
-                    "-DGGML_CUDA_F16=ON"
-                    "-DGGML_CUDA_NO_PEER_COPY=OFF"
-                    "-DGGML_CUDA_GRAPHS=ON")
+                    "-DCMAKE_CUDA_ARCHITECTURES=75;80;86"
+                    "-DGGML_CUDA_FA_ALL_QUANTS=true")
                   #$flags))))))
 
 (define-public llama-cpp-cuda
