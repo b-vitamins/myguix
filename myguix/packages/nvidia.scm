@@ -1916,3 +1916,32 @@ of glibc and disable float128 support.  This is required allow the use of
 See also
 @url{https://devtalk.nvidia.com/default/topic/1023776/cuda-programming-and-performance/-request-add-nvcc-compatibility-with-glibc-2-26/1}.")
     (license license-gnu:gpl3+)))
+
+(define-public cusparselt
+  (package
+    (name "cusparselt")
+    (version "0.6.3.2")
+    (home-page "https://docs.nvidia.com/cuda/cusparselt/")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cusparselt/redist/libcusparse_lt/linux-x86_64/libcusparse_lt-linux-x86_64-"
+             version "-archive.tar.xz"))
+       (sha256
+        (base32 "0cfcfvkzz1662nvgrmdpifzk1vd5ckf9w77gplwcbxa3i7kmdy52"))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:substitutable? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("LICENSE" "LICENSE"))))
+    (synopsis
+     "A High-Performance CUDA Library for Sparse Matrix-Matrix Multiplication")
+    (description
+     "NVIDIA cuSPARSELt is a high-performance CUDA library dedicated to general matrix-matrix operations in which at least one operand is a sparse matrix. The cuSPARSELt APIs allow flexibility in the algorithm/operation selection, epilogue, and matrix characteristics, including memory layout, alignment, and data types.")
+    (license (license:nonfree
+              "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
