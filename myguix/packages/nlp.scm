@@ -44,8 +44,8 @@
     (build-system cmake-build-system)
     (arguments
      `(#:tests? #f ;No tests.
-       #:configure-flags '("-DBUILD_SHARED_LIBS=ON" "-DGGML_AVX=ON"
-                           "-DGGML_BLAS=ON" "-DGGML_BLAS_VENDOR=OpenBLAS")
+       #:configure-flags '("-DBUILD_SHARED_LIBS=ON" "-DGGML_BLAS=ON"
+                           "-DGGML_BLAS_VENDOR=OpenBLAS")
        #:modules ((guix build utils)
                   (guix build cmake-build-system)
                   (ice-9 rdelim)
@@ -102,8 +102,7 @@
      (substitute-keyword-arguments (package-arguments whisper-cpp)
        ((#:configure-flags flags
          ''())
-        #~(append '("-DGGML_CUDA=ON"
-                    "-DCMAKE_CUDA_ARCHITECTURES=75;80;86"
+        #~(append '("-DGGML_CUDA=ON" "-DCMAKE_CUDA_ARCHITECTURES=75;80;86"
                     "-DGGML_CUDA_FA_ALL_QUANTS=true")
                   #$flags))))))
 
