@@ -635,6 +635,30 @@ product.
 To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
 @code{kernel-arguments} field of the @code{operating-system} configuration."))))
 
+(define-public nvidia-firmware-recommended
+  (let ((base nvidia-driver-recommended))
+    (package
+      (inherit base)
+      (name "nvidia-firmware")
+      (arguments
+       (list
+        #:install-plan #~'(("firmware" #$(string-append "lib/firmware/nvidia/"
+                                          (package-version this-package))))
+        #:phases #~(modify-phases %standard-phases
+                     (delete 'strip))))
+      (propagated-inputs '())
+      (inputs '())
+      (native-inputs '())
+      (synopsis "Proprietary NVIDIA driver (GSP firmwares)")
+      (description
+       "This package provides firmwares for NVIDIA's GPU System Processor.
+Firmware installation can be done with @code{nvidia-service-type}, however
+whether GSP mode is enabled by default or not depends on the specific GPU
+product.
+
+To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
+@code{kernel-arguments} field of the @code{operating-system} configuration."))))
+
 
 ;;;
 ;;; NVIDIA kernel modules
