@@ -1,24 +1,24 @@
 # Load necessary Zsh functions
-autoload -Uz add-zsh-hook
-autoload -Uz compinit colors
+autoload -Uz compinit add-zsh-hook colors
 
-# Initialize completion and compatibility
+# Initialize completion system and disable insecure warning
 compinit -u
 
 # Zsh options
-setopt NO_BEEP            # Disable terminal beeping
-setopt EXTENDED_GLOB      # Enable advanced globbing patterns
-setopt NO_CLOBBER         # Prevent overwriting files with redirection
-setopt NO_SHARE_HISTORY   # Disable shared history across sessions
-setopt APPEND_HISTORY     # Append commands to the history file, instead of overwriting
-setopt HIST_IGNORE_DUPS   # Ignore duplicate commands in history
-setopt HIST_IGNORE_SPACE  # Ignore commands starting with a space
-setopt INC_APPEND_HISTORY # Immediately append commands to history
-setopt HIST_REDUCE_BLANKS # Remove extra blanks from commands before saving
+setopt NO_BEEP               # Disable terminal beeping
+setopt EXTENDED_GLOB         # Enable advanced globbing patterns
+setopt NO_CLOBBER            # Prevent overwriting files with redirection
+setopt NO_SHARE_HISTORY      # Disable shared history across sessions
+setopt APPEND_HISTORY        # Append commands to the history file, instead of overwriting
+setopt INC_APPEND_HISTORY    # Immediately append commands to the history
+setopt HIST_IGNORE_DUPS      # Ignore duplicate commands in history
+setopt HIST_IGNORE_SPACE     # Ignore commands starting with a space
+setopt HIST_REDUCE_BLANKS    # Remove extra blanks from commands before saving
 
 # Configure completion system
-zstyle ':completion:*' menu select          # Enable menu-based completion selection
-zstyle ':completion:*' list-suffixes 'yes'  # Show file extensions in completion
+zstyle ':completion:*' menu select=1         # Enable interactive menu selection
+zstyle ':completion:*' list-suffixes 'yes'   # Show file extensions in completion
+zstyle ':completion:*' select-prompt '%SScrolling: <TAB> to continue%u'
 
 # Enable colors
 colors
@@ -41,7 +41,7 @@ function update_clock_precmd {
 add-zsh-hook precmd prompt_env_precmd
 add-zsh-hook precmd update_clock_precmd
 
-# Timer configuration for dynamic prompt refreshing
+# Set a timer for prompt refreshing (optional)
 TRAPALRM() {
     zle reset-prompt
 }
@@ -55,28 +55,47 @@ alias ll='ls -lh'
 alias la='ls -A'
 
 # Key bindings for navigation and history search
-bindkey '^[[A' history-search-backward           # Search history backward with Up Arrow
-bindkey '^[[B' history-search-forward            # Search history forward with Down Arrow
-bindkey "^[[H" beginning-of-line                 # Move to the beginning of the line
-bindkey "^[[4~" end-of-line                      # Move to the end of the line
-bindkey '^[[1;5D' backward-word                  # Navigate backward by word (Ctrl+Left)
-bindkey '^[[1;5C' forward-word                   # Navigate forward by word (Ctrl+Right)
-bindkey '^H' backward-kill-word                  # Delete the previous word (Ctrl+Backspace)
+bindkey '^[[A' history-search-backward          # Search history backward with Up Arrow
+bindkey '^[[B' history-search-forward           # Search history forward with Down Arrow
+bindkey '^[[H' beginning-of-line                # Move to the beginning of the line
+bindkey '^[[F' end-of-line                      # Move to the end of the line
+bindkey '^[[1;5D' backward-word                 # Navigate backward by word (Ctrl+Left)
+bindkey '^[[1;5C' forward-word                  # Navigate forward by word (Ctrl+Right)
+bindkey '^H' backward-kill-word                 # Delete the previous word (Ctrl+Backspace)
 
-# Enable vim-like key bindings in menu selection
+# Page Up / Page Down for history navigation
+bindkey "^[[5~" beginning-of-history            # Jump to beginning of history
+bindkey "^[[6~" end-of-history                  # Jump to end of history
+
+# Menu selection key bindings (interactive completion)
+bindkey -M menuselect '^[[A' up-line-or-history
+bindkey -M menuselect '^[[B' down-line-or-history
+bindkey -M menuselect '^[[D' backward-char
+bindkey -M menuselect '^[[C' forward-char
 bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 
-# Page Up / Page Down for history navigation
-bindkey "^[[5~" beginning-of-history             # Jump to beginning of history
-bindkey "^[[6~" end-of-history                   # Jump to end of history
+# Ensure compatibility with vi-like key bindings (optional)
+bindkey -v
 
-# Add overwrite mode (Insert key functionality)
-bindkey "^[[4h" overwrite-mode
+# Correct potential errors from missing compdump
+if [[ ! -d ~/.zcompdump ]]; then
+    mkdir -p ~/.zcompdump
+fi
 
-# Ensure autoloading for editing command line in Vim buffer (if desired)
-# autoload -Uz edit-command-line
-# zle -N edit-command-line
-# bindkey '^v' edit-command-line
+# Load and apply settings safely
+if [[ ! -w ~/.zcompdump ]]; then
+    compinit
+else
+    compinit -C
+fi
+
+# Overwrite mode (Insert key functionality)
+bindkey '^[[4h' overwrite-mode
+
+# Vim-style editing of command line (optional)
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^v' edit-command-line
