@@ -738,12 +738,19 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
+(define-public nvidia-module-recommended
+  (package
+    (inherit nvidia-module)
+    (version nvidia-recommended-version)
+    (source
+     nvidia-recommended-source)))
+
 (define-public nvidia-module-next
   (package
     (inherit nvidia-module)
     (version nvidia-next-version)
     (source
-     nvidia-next-version)))
+     nvidia-next-source)))
 
 (define-public nvidia-module-open
   (let ((base nvidia-module))
