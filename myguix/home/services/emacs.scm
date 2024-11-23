@@ -31,7 +31,6 @@
         emacs-citar-org-roam
         emacs-citre
         emacs-cmake-mode
-        emacs-combat
         emacs-compat
         emacs-combobulate
         emacs-consult
