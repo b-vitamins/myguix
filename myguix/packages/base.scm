@@ -56,6 +56,7 @@
   #:use-module (gnu packages pdf)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages photo)
+  #:use-module (gnu packages pulseaudio)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
@@ -93,6 +94,7 @@
   #:export (%system-core-packages %nvidia-core-packages
                                   %cuda-accelerated-packages
                                   %bluetooth-packages
+                                  %sound-system-packages
                                   %terminal-tools-packages
                                   %secret-mgmt-packages
                                   %desktop-utilities-packages
@@ -138,6 +140,14 @@
                                   %python-development-packages
                                   %perl-development-packages
                                   %opencog-packages))
+
+(define %sound-system-packages
+  pulseaudio
+  pavucontrol
+  pulsemixer
+  alsa-plugins
+  pipewire
+  wireplumber)
 
 (define %system-core-packages
   (list clamav
@@ -255,7 +265,7 @@
   (list gimp inkscape imagemagick graphicsmagick))
 
 (define %audio-production-packages
-  (list ardour audacity ecasound soundtouch))
+  (list ardour audacity ecasound soundtouch kwave))
 
 (define %video-production-packages
   (list blender kdenlive obs))
@@ -296,7 +306,7 @@
   (list qbittorrent-enhanced aria2 nicotine+ miniupnpc))
 
 (define %bluetooth-packages
-  bluez-alsa bluez pulseaudio blueman sbc)
+  bluez-alsa bluez blueman sbc)
 
 (define %network-utilities-packages
   (list net-tools
