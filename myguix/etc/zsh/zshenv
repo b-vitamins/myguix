@@ -1,5 +1,5 @@
-export PROMPT="%F{#ff6c6b}カオス%f %F{#98be65}%2~%f %F{#51afef}>%f "
-export RPROMPT="%F{#88c0d0}%D{%d %b}%f %F{#ECBE7B}%D{%l:%M:%S}%f"
+PROMPT="$%F{39}%n@%m%f %F{34}%~%f %F{160}>%f "
+export GUILE_AUTO_COMPILE="0"
 export HISTFILE="$XDG_STATE_HOME/zsh/.zhistory"
 export HISTSIZE="20000"
 export SAVEHIST="10000"
