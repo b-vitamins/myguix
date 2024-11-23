@@ -5,6 +5,7 @@
   #:use-module (gnu packages audio)
   #:use-module (gnu packages backup)
   #:use-module (gnu packages base)
+  #:use-module (gnu packages bluetooth)
   #:use-module (gnu packages bittorrent)
   #:use-module (gnu packages cdrom)
   #:use-module (gnu packages chromium)
@@ -145,31 +146,28 @@
                                   %opencog-packages))
 
 (define %search-and-index-packages
-  xapian
-  omega
-  tocc
-  searx
-  bool
-  dataparksearch
-  fsearch
-  recoll
-  hyperestraier
-  mlocate
-  plocate
-  swish-e
-  xapers
-  ugrep
-  ripgrep
-  the-silver-searcher
-  cloc)
+  (list xapian
+        omega
+        tocc
+        searx
+        bool
+        dataparksearch
+        fsearch
+        recoll
+        plocate
+        xapers
+        ugrep
+        ripgrep
+        the-silver-searcher
+        cloc))
 
 (define %sound-system-packages
-  pulseaudio
-  pavucontrol
-  pulsemixer
-  alsa-plugins
-  pipewire
-  wireplumber)
+  (list pulseaudio
+        pavucontrol
+        pulsemixer
+        alsa-plugins
+        pipewire
+        wireplumber))
 
 (define %system-core-packages
   (list clamav
@@ -327,7 +325,7 @@
   (list qbittorrent-enhanced aria2 nicotine+ miniupnpc))
 
 (define %bluetooth-packages
-  bluez-alsa bluez blueman sbc)
+  (list bluez-alsa bluez blueman sbc))
 
 (define %network-utilities-packages
   (list net-tools
