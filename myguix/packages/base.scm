@@ -447,8 +447,20 @@
   (list node openjdk))
 
 (define %tree-sitter-packages
-  (list tree-sitter tree-sitter-cli tree-sitter-rust tree-sitter-python
-        tree-sitter-scheme))
+  (list tree-sitter
+        tree-sitter-cli
+        tree-sitter-rust
+        tree-sitter-python
+        tree-sitter-scheme
+        tree-sitter-org
+        tree-sitter-markdown
+        tree-sitter-latex
+        tree-sitter-json
+        tree-sitter-html
+        tree-sitter-css
+        tree-sitter-cmake
+        tree-sitter-bibtex
+        tree-sitter-c))
 
 (define %guile-development-packages
   (list guile-3.0 guile-readline guile-colorized guile-lib))
@@ -464,4 +476,9 @@
   (list perl perl-critic perltidy))
 
 (define %opencog-packages
-  (list opencog cogutil cogserver attention atomspace))
+  (list agi-bio
+        opencog
+        cogutil
+        cogserver
+        attention
+        atomspace))
