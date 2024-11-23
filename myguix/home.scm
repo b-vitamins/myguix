@@ -11,10 +11,15 @@
   #:use-module (guix gexp)
   #:export (%my-home-services))
 
+(define %my-xdefaults
+  (plain-file "Xdefaults" "XTerm*utf8: always
+XTerm*metaSendsEscape: false
+"))
+
 (define %my-home-services
   (list (service home-files-service-type
                  `((".guile" ,%default-dotguile)
-                   (".Xdefaults" ,%default-xdefaults)))
+                   (".Xdefaults" ,%my-xdefaults)))
 
         (service home-xdg-configuration-files-service-type
                  `(("gdb/gdbinit" ,%default-gdbinit)
