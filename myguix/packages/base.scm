@@ -9,6 +9,7 @@
   #:use-module (gnu packages cdrom)
   #:use-module (gnu packages chromium)
   #:use-module (gnu packages cmake)
+  #:use-module (gnu packages code)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages curl)
@@ -64,6 +65,7 @@
   #:use-module (gnu packages rsync)
   #:use-module ((gnu packages rust)
                 #:hide (rust))
+  #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages samba)
   #:use-module (gnu packages screen)
   #:use-module (gnu packages scribus)
@@ -95,6 +97,7 @@
                                   %cuda-accelerated-packages
                                   %bluetooth-packages
                                   %sound-system-packages
+                                  %search-and-index-packages
                                   %terminal-tools-packages
                                   %secret-mgmt-packages
                                   %desktop-utilities-packages
@@ -140,6 +143,25 @@
                                   %python-development-packages
                                   %perl-development-packages
                                   %opencog-packages))
+
+(define %search-and-index-packages
+  xapian
+  omega
+  tocc
+  searx
+  bool
+  dataparksearch
+  fsearch
+  recoll
+  hyperestraier
+  mlocate
+  plocate
+  swish-e
+  xapers
+  ugrep
+  ripgrep
+  the-silver-searcher
+  cloc)
 
 (define %sound-system-packages
   pulseaudio
@@ -285,8 +307,7 @@
         ghostscript
         pdfposter
         poppler
-        calibre
-        xapian))
+        calibre))
 
 (define %file-transfer-tools-packages
   (list wget
