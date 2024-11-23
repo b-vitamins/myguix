@@ -109,6 +109,8 @@
         emacs-restart-emacs
         emacs-ripgrep
         emacs-rg
+        emacs-deadgrep
+        emacs-dumb-jump
         emacs-corfu-candidate-overlay
         emacs-cape
         emacs-ac-geiser
@@ -125,7 +127,8 @@
         emacs-elfeed-goodies
         emacs-elfeed-protocol
         emacs-elfeed-org
-        emacs-nov-el))
+        emacs-nov-el
+        emacs-hyperspace))
 
 (define my-home-emacs-service-type
   (service-type (name 'home-emacs)
