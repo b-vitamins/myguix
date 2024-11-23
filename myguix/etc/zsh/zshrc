@@ -1,4 +1,4 @@
-autoload -Uz compinit colors add-zsh-hook edit-command-line
+autoload -Uz compinit colors add-zsh-hook
 compinit -u
 
 setopt NO_BEEP
@@ -13,9 +13,7 @@ setopt HIST_REDUCE_BLANKS
 
 zstyle ':completion:*' menu select=1
 zstyle ':completion:*' list-suffixes 'yes'
-zstyle ':completion:*' select-prompt '%SScrolling: <TAB> to continue%u'
 zstyle ':completion:*' expand 'yes'
-zstyle ':completion:*' rehash true
 
 colors
 
@@ -57,8 +55,6 @@ TMOUT=1
 
 add-zsh-hook precmd prompt_env_precmd
 
-zle -N edit-command-line
-bindkey '^X^E' edit-command-line
 bindkey -e
 bindkey '^A' beginning-of-line
 bindkey '^E' end-of-line

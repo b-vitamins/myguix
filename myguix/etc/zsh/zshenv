@@ -3,4 +3,3 @@ export GUILE_AUTO_COMPILE="0"
 export HISTFILE="$XDG_STATE_HOME/zsh/.zhistory"
 export HISTSIZE="20000"
 export SAVEHIST="10000"
-[ -n "$SSH_CLIENT" ] && source /etc/profile
