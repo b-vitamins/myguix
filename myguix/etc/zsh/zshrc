@@ -56,6 +56,9 @@ function toggle_timestamp {
 zle -N toggle_timestamp
 bindkey '^@' toggle_timestamp
 
+TRAPALRM() { zle reset-prompt }
+TMOUT=1
+
 add-zsh-hook precmd prompt_env_precmd
 
 bindkey -e
