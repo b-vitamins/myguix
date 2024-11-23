@@ -12,12 +12,12 @@
 (define (my-home-emacs-profile-service-type config)
   (list emacs
         emacs-0x0
-        emacs-aio
         emacs-ac-geiser
         emacs-academic-phrases
         emacs-ace-window
         emacs-adaptive-wrap
         emacs-ag
+        emacs-aio
         emacs-all-the-icons
         emacs-arei
         emacs-arxiv-mode
@@ -26,13 +26,13 @@
         emacs-auth-source-pass
         emacs-auto-complete
         emacs-blacken
-        emacs-bui
+        emacs-cape
         emacs-citar
         emacs-citar-org-roam
         emacs-citre
         emacs-cmake-mode
-        emacs-compat
         emacs-combobulate
+        emacs-compat
         emacs-consult
         emacs-consult-bibtex
         emacs-consult-dir
@@ -44,40 +44,40 @@
         emacs-corfu-candidate-overlay
         emacs-ctrlf
         emacs-dash
+        emacs-dashboard
         emacs-deadgrep
         emacs-devil
-        emacs-dimmer
         emacs-dired-hacks
         emacs-dockerfile-mode
         emacs-doom-modeline
         emacs-doom-themes
         emacs-dumb-jump
-        emacs-elegant-agenda-mode
         emacs-eldoc
+        emacs-elegant-agenda-mode
         emacs-elfeed
         emacs-elfeed-goodies
         emacs-elfeed-org
         emacs-elfeed-protocol
         emacs-elfeed-score
         emacs-emacsql
-        emacs-engine-mode
+        emacs-embark
         emacs-eval-in-repl-geiser
         emacs-exec-path-from-shell
         emacs-f
-        emacs-focus
-        emacs-frecency
         emacs-flycheck
         emacs-flycheck-guile
         emacs-flycheck-haskell
         emacs-flycheck-inline
         emacs-flycheck-package
         emacs-flycheck-rust
-        emacs-gnuplot
-        emacs-god-mode
-        emacs-gptel
+        emacs-focus
+        emacs-frecency
         emacs-geiser
         emacs-geiser-guile
         emacs-geiser-racket
+        emacs-gnuplot
+        emacs-god-mode
+        emacs-gptel
         emacs-guix
         emacs-haskell-mode
         emacs-helpful
@@ -89,10 +89,9 @@
         emacs-json-mode
         emacs-julia-mode
         emacs-kind-icon
+        emacs-let-alist
         emacs-lispy
-        emacs-log4e
         emacs-logview
-        emacs-lsp-consult-lsp
         emacs-lsp-docker
         emacs-lsp-haskell
         emacs-lsp-jedi
@@ -100,24 +99,26 @@
         emacs-lsp-treemacs
         emacs-lsp-ui
         emacs-lua-mode
-        emacs-lua-mode
         emacs-magit
-        emacs-markdown-mode
         emacs-marginalia
+        emacs-markdown-mode
         emacs-memory-usage
         emacs-mjolnir-mode
+        emacs-modus-themes
         emacs-multiple-cursors
-        emacs-nnreddit
-        emacs-no-littering
-        emacs-nov-el
         emacs-nerd-icons
         emacs-nerd-icons-completion
         emacs-nerd-icons-corfu
         emacs-nerd-icons-dired
         emacs-nerd-icons-ibuffer
+        emacs-nnreddit
+        emacs-no-littering
+        emacs-nov-el
         emacs-oauth2
+        emacs-ob-racket
         emacs-olivetti
         emacs-openwith
+        emacs-orderless
         emacs-org-fragtog
         emacs-org-modern
         emacs-org-node
@@ -125,27 +126,21 @@
         emacs-org-roam-bibtex
         emacs-org-roam-ui
         emacs-org-super-agenda
-        emacs-orderless
         emacs-paredit
         emacs-password-store
         emacs-pdf-tools
-        emacs-pdfgrep
-        emacs-pg
-        emacs-pgmacs
         emacs-pinentry
         emacs-prescient
         emacs-projectile
-        emacs-ripgrep
-        emacs-rg
-        emacs-restart-emacs
-        emacs-refactor
         emacs-rainbow-delimiters
         emacs-rainbow-mode
-        emacs-rust-mode
-        emacs-rustic
+        emacs-restart-emacs
+        emacs-rg
+        emacs-ripgrep
         emacs-s
         emacs-seq
         emacs-setup
+        emacs-simple-httpd
         emacs-smartparens
         emacs-spinner
         emacs-tablist
@@ -154,15 +149,14 @@
         emacs-transmission
         emacs-treemacs
         emacs-treemacs-extra
-        emacs-vterm
-        emacs-vterm-toggle
         emacs-vertico
         emacs-vertico-posframe
+        emacs-vterm
+        emacs-vterm-toggle
         emacs-web-mode
         emacs-websocket
         emacs-which-key
         emacs-windsize
-        emacs-xdg-recent-files
         emacs-xref
         emacs-xref-union
         emacs-yaml-mode
