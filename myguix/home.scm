@@ -27,20 +27,24 @@
                                          (zshrc (list (local-file
                                                        "etc/zsh/zshrc")
                                                       (mixed-text-file "zshrc"
-                                                                       "source " zsh-syntax-highlighting
-                                                                       "/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh")
+                                                       "source "
+                                                       zsh-syntax-highlighting
+                                                       "/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh")
                                                       (mixed-text-file "zshrc"
-                                                                       "source " zsh-history-substring-search
-                                                                       "/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh")
+                                                       "source "
+                                                       zsh-history-substring-search
+                                                       "/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh")
                                                       (mixed-text-file "zshrc"
-                                                                       "fpath+=\"${0:A:h}" zsh-completions
-                                                                       "share/zsh/site-functions/\"")
+                                                       "fpath+=\"${0:A:h}"
+                                                       zsh-completions
+                                                       "share/zsh/site-functions/\"")
                                                       (mixed-text-file "zshrc"
-                                                                       "source " zsh-autosuggestions
-                                                                       "/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh")
+                                                       "source "
+                                                       zsh-autosuggestions
+                                                       "/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh")
                                                       (mixed-text-file "zshrc"
-                                                                       "source " zsh-autopair
-                                                                       "/share/zsh/plugins/zsh-autopair/zsh-autopair.zsh")))))
+                                                       "source " zsh-autopair
+                                                       "/share/zsh/plugins/zsh-autopair/zsh-autopair.zsh")))))
 
         (service home-inputrc-service-type
                  (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")
