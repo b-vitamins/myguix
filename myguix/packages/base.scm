@@ -5,7 +5,6 @@
   #:use-module (gnu packages audio)
   #:use-module (gnu packages backup)
   #:use-module (gnu packages base)
-  #:use-module (gnu packages bluetooth)
   #:use-module (gnu packages bittorrent)
   #:use-module (gnu packages cdrom)
   #:use-module (gnu packages chromium)
