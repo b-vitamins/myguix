@@ -92,6 +92,7 @@
   #:use-module (myguix packages video)
   #:export (%system-core-packages %nvidia-core-packages
                                   %cuda-accelerated-packages
+                                  %bluetooth-packages
                                   %terminal-tools-packages
                                   %secret-mgmt-packages
                                   %desktop-utilities-packages
@@ -294,13 +295,15 @@
 (define %p2p-file-sharing-packages
   (list qbittorrent-enhanced aria2 nicotine+ miniupnpc))
 
+(define %bluetooth-packages
+  bluez-alsa bluez pulseaudio blueman sbc)
+
 (define %network-utilities-packages
   (list net-tools
         whois
         openssl
         libnatpmp
         python-nodriver
-        blueman
         protonvpn-cli))
 
 (define %general-purpose-fonts
