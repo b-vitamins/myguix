@@ -284,7 +284,7 @@
   (list gimp inkscape imagemagick graphicsmagick))
 
 (define %audio-production-packages
-  (list ardour audacity ecasound soundtouch kwave))
+  (list ardour audacity ecasound soundtouch))
 
 (define %video-production-packages
   (list blender kdenlive obs))
