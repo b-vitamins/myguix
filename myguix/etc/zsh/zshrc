@@ -1,4 +1,3 @@
-source $HOME/.profile
 autoload -Uz compinit colors add-zsh-hook
 compinit -u
 
@@ -15,30 +14,36 @@ setopt HIST_REDUCE_BLANKS
 zstyle ':completion:*' menu select=1
 zstyle ':completion:*' list-suffixes 'yes'
 zstyle ':completion:*' expand 'yes'
+zstyle ':completion:*' use-cache on
+: ${XDG_STATE_HOME:=$HOME/.local/state}  # Fallback for XDG_STATE_HOME
+zstyle ':completion:*' cache-path $XDG_STATE_HOME/zsh
+zstyle ':completion:*' accept-exact '*(N)'
+zstyle ':completion:*' rehash true
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 colors
 
 SHOW_TIMESTAMP=1
 
 function is_utf8_locale {
-    [[ "$LC_ALL" =~ [Uu][Tt][Ff]-?8$ ]] || [[ "$LANG" =~ [Uu][Tt][Ff]-?8$ ]] || [[ "$GDM_LANG" =~ [Uu][Tt][Ff]-?8$ ]]
+    locale charmap | grep -qi 'utf-8'
 }
 
 function prompt_env_precmd {
     local display_time
-    [[ "$SHOW_TIMESTAMP" -eq 1 ]] && display_time="%F{#ECBE7B}%D{%H:%M:%S}%f %F{#88c0d0}%D{%d %b}%f"
+    [[ "$SHOW_TIMESTAMP" -eq 1 ]] && display_time="%F{#ECBE7B}%D{%H:%M:%S}%f %F{#88c0d0}%D{%d %b}%f "
 
     if is_utf8_locale; then
         if [[ -n "$GUIX_ENVIRONMENT" ]]; then
-            export PROMPT="${display_time} %F{#51afef}環境%f %F{#98be65}%2~%f %F{#ff6c6b}>%f "
+            export PROMPT="${display_time}%F{#51afef}環境%f %F{#98be65}%2~%f %F{#ff6c6b}>%f "
         else
-            export PROMPT="${display_time} %F{#ff6c6b}カオス%f %F{#98be65}%2~%f %F{#51afef}>%f "
+            export PROMPT="${display_time}%F{#ff6c6b}カオス%f %F{#98be65}%2~%f %F{#51afef}>%f "
         fi
     else
         if [[ -n "$GUIX_ENVIRONMENT" ]]; then
-            export PROMPT="${display_time} %F{39}%n@%m%f %F{34}%~%f %F{220}[env]%f %F{160}>%f "
+            export PROMPT="${display_time}%F{39}%n@%m%f %F{34}%~%f %F{220}[env]%f %F{160}>%f "
         else
-            export PROMPT="${display_time} %F{39}%n@%m%f %F{34}%~%f %F{160}>%f "
+            export PROMPT="${display_time}%F{39}%n@%m%f %F{34}%~%f %F{160}>%f "
         fi
     fi
 }
@@ -50,9 +55,6 @@ function toggle_timestamp {
 }
 zle -N toggle_timestamp
 bindkey '^@' toggle_timestamp
-
-TRAPALRM() { zle reset-prompt }
-TMOUT=1
 
 add-zsh-hook precmd prompt_env_precmd
 
@@ -66,11 +68,15 @@ bindkey '^[d' kill-word
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
-alias ls='ls --color=auto'
-alias ll='ls -lh --color=auto'
-alias la='ls -A --color=auto'
+# Safe aliases with compatibility checks
+if command -v dircolors &> /dev/null; then
+    alias ls='ls --color=auto'
+    alias ll='ls -lh --color=auto'
+    alias la='ls -A --color=auto'
+    alias grep='grep --color=auto'
+    alias diff='diff --color=auto'
+fi
+
 alias e='emacs'
 alias ec='emacsclient -c'
 alias em='emacs -nw'
-alias grep='grep --color=auto'
-alias diff='diff --color=auto'
