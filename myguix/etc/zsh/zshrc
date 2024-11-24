@@ -1,4 +1,5 @@
-autoload -Uz compinit colors add-zsh-hook
+source $XDG_CONFIG_HOME/zsh/.zprofile
+autoload -Uz add-zsh-hook compinit colors
 compinit -u
 
 setopt NO_BEEP
@@ -11,22 +12,19 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 
-zstyle ':completion:*' menu select=1
+zstyle ':completion:*' menu select
 zstyle ':completion:*' list-suffixes 'yes'
 zstyle ':completion:*' expand 'yes'
-zstyle ':completion:*' use-cache on
-: ${XDG_STATE_HOME:=$HOME/.local/state}  # Fallback for XDG_STATE_HOME
-zstyle ':completion:*' cache-path $XDG_STATE_HOME/zsh
-zstyle ':completion:*' accept-exact '*(N)'
-zstyle ':completion:*' rehash true
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$XDG_STATE_HOME/zsh"
 
 colors
 
 SHOW_TIMESTAMP=1
 
 function is_utf8_locale {
-    locale charmap | grep -qi 'utf-8'
+    [[ "$LC_ALL" =~ [Uu][Tt][Ff]-?8$|.utf8$ ]] || [[ "$LANG" =~ [Uu][Tt][Ff]-?8$|.utf8$ ]] || [[ "$GDM_LANG" =~ [Uu][Tt][Ff]-?8$|.utf8$ ]]
 }
 
 function prompt_env_precmd {
@@ -61,24 +59,14 @@ TMOUT=1
 
 add-zsh-hook precmd prompt_env_precmd
 
-bindkey -e
-bindkey '^A' beginning-of-line
-bindkey '^E' end-of-line
-bindkey '^K' kill-line
-bindkey '^[b' backward-word
-bindkey '^[f' forward-word
-bindkey '^[d' kill-word
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
-# Safe aliases with compatibility checks
-if command -v dircolors &> /dev/null; then
-    alias ls='ls --color=auto'
-    alias ll='ls -lh --color=auto'
-    alias la='ls -A --color=auto'
-    alias grep='grep --color=auto'
-    alias diff='diff --color=auto'
-fi
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias diff='diff --color=auto'
+alias ll='ls -lh --color=auto'
+alias la='ls -A --color=auto'
 
 alias e='emacs'
 alias ec='emacsclient -c'

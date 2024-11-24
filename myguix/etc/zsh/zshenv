@@ -1,5 +1,5 @@
 PROMPT="$%F{39}%n@%m%f %F{34}%~%f %F{160}>%f "
 export GUILE_AUTO_COMPILE="0"
-export HISTFILE="$XDG_STATE_HOME/zsh/.zhistory"
+export HISTFILE="$XDG_CONFIG_HOME/zsh/.zhistory"
 export HISTSIZE="20000"
 export SAVEHIST="10000"
