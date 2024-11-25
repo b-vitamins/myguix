@@ -1260,6 +1260,11 @@ laptops.")
 nvidia-smi.")
     (license license-gnu:bsd-3)))
 
+(define-public nvidia-htop-recommended
+  (package
+    (inherit nvidia-htop)
+    (inputs (list nvidia-driver-recommended))))
+
 (define-public nvidia-nvml
   (package
     (name "nvidia-nvml")
@@ -1928,3 +1933,4 @@ See also
      "NVIDIA cuSPARSELt is a high-performance CUDA library dedicated to general matrix-matrix operations in which at least one operand is a sparse matrix. The cuSPARSELt APIs allow flexibility in the algorithm/operation selection, epilogue, and matrix characteristics, including memory layout, alignment, and data types.")
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
+
