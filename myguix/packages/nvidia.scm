@@ -1421,6 +1421,11 @@ NVIDIA Management Library")
     (inherit python-py3nvml)
     (propagated-inputs (list nvidia-driver-recommended python-xmltodict))))
 
+(define-public python-py3nvml-next
+  (package
+    (inherit python-py3nvml)
+    (propagated-inputs (list nvidia-driver-next python-xmltodict))))
+
 (define-public cuda-toolkit-11.8
   (package
     (name "cuda-toolkit")
