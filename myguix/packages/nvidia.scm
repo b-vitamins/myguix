@@ -1925,7 +1925,7 @@ See also
     (build-system copy-build-system)
     (arguments
      (list
-      #:substitutable? #f
+      #:substitutable? #t
       #:strip-binaries? #f
       #:validate-runpath? #f
       #:install-plan ''(("include" "include")
