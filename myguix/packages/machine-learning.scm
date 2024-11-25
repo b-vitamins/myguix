@@ -1883,13 +1883,13 @@ fully supported to run on the GPU.")
       (build-system cmake-build-system)
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
-                (append cuda-toolkit-12.1 nccl)))
+                (append cuda-toolkit-12.4 nccl)))
       (arguments
        (substitute-keyword-arguments (package-arguments gloo)
          ((#:configure-flags flags
            ''())
-          #~(cons "-DUSE_CUDA=ON"
-                  #$flags))))
+          #~(append (list "-DUSE_CUDA=ON" "-DCUDA_ARCH_NAME=All")
+                    #$flags))))
       (synopsis "Collective communications library")
       (description
        "Gloo is a collective communications library.  It comes with a
@@ -1969,4 +1969,3 @@ mixing usage between frameworks.
 This package does not intend to implement Tensor and Ops, but instead use this
 as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
-
