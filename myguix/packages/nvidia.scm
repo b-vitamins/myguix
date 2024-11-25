@@ -40,6 +40,7 @@
   #:use-module (gnu packages qt)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages video)
+  #:use-module (gnu packages version-control)
   #:use-module (gnu packages vulkan)
   #:use-module (gnu packages web)
   #:use-module (gnu packages xdisorg)
@@ -1711,10 +1712,10 @@ functionality on top of the backend API, such as errata filters and
 autotuning.")
     (license license-gnu:expat)))
 
-(define-public cutlass-3.4
+(define-public cutlass
   (package
     (name "cutlass")
-    (version "3.4.0")
+    (version "3.5.1")
     (home-page "https://github.com/NVIDIA/cutlass")
     (source
      (origin
@@ -1724,20 +1725,26 @@ autotuning.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1pgwiz7sfnjnhaz15gnm0wkmd1h76knyv4hpqj71g1vwp82nygxf"))))
+        (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))
     (build-system cmake-build-system)
     (arguments
      (list
-      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
-                                               #$(package-source googletest))
-                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
-                                "-DCUTLASS_ENABLE_TESTS=NO"
-                                "-DCUTLASS_INSTALL_TESTS=NO"
-                                "-DCUTLASS_NVCC_ARCHS=80;86;89"
-                                "-DCUTLASS_LIBRARY_KERNELS=all")
+      #:configure-flags #~(list "-DCUTLASS_ENABLE_EXAMPLES=YES"
+                           "-DCUTLASS_ENABLE_TOOLS=YES"
+                           "-DCUTLASS_ENABLE_LIBRARY=YES"
+                           "-DCUTLASS_ENABLE_PROFILER=YES"
+                           "-DCUTLASS_ENABLE_PERFORMANCE=YES"
+                           "-DCUTLASS_ENABLE_CUDNN=YES"
+                           "-DCUTLASS_ENABLE_CUBLAS=YES"
+                           "-DCUTLASS_ENABLE_F16C=YES"
+                           "-DCUTLASS_ENABLE_TENSOR_CORE_MMA=YES"
+                           "-DCUTLASS_ENABLE_SM90_EXTENDED_MMA_SHAPES=YES"
+                           "-DCUTLASS_ENABLE_TESTS=NO"
+                           "-DCUTLASS_INSTALL_TESTS=NO"
+                           "-DCUTLASS_NVCC_ARCHS=80;86;89"
+                           "-DCUTLASS_LIBRARY_KERNELS=all"
+                           "-DCUTE_SM90_EXTENDED_MMA_SHAPES_ENABLED=YES")
       #:phases #~(modify-phases %standard-phases
-                   ;; XXX: This phase is not necessary on earlier versions.
-                   ;; Remove it when updating.
                    (add-after 'unpack 'fix-cuda-build
                      (lambda _
                        (substitute* "CMakeLists.txt"
@@ -1755,8 +1762,8 @@ autotuning.")
                      (lambda _
                        (delete-file-recursively (string-append #$output
                                                                "/test")))))))
-    (native-inputs (list python python-setuptools))
-    (inputs (list cuda-toolkit-12.1))
+    (native-inputs (list python python-setuptools git-minimal))
+    (inputs (list cuda-toolkit-12.4 cudnn-9.5))
     (propagated-inputs (list python-networkx python-numpy python-pydot
                              python-scipy python-treelib))
     (synopsis
@@ -1775,22 +1782,6 @@ via custom tiling sizes, data types, and other algorithmic policy.  The
 resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
     (license license-gnu:bsd-3)))
-
-(define-public cutlass-3.5
-  (package
-    (inherit cutlass-3.4)
-    (name "cutlass")
-    (version "3.5.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/cutlass")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0h1cvlvmm0mcvsij8382qdzzswy75zyaybgaxj84md73wqvrhcdi"))))
-    (inputs (list cuda-toolkit-12.4))))
 
 (define-public nccl
   (package
