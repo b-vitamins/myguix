@@ -1379,6 +1379,11 @@ simultaneous NVML calls from multiple threads.")
 Management Library")
     (license license-gnu:bsd-3)))
 
+(define-public python-nvidia-ml-py-recommended
+  (package
+    (inherit python-nvidia-ml-py)
+    (inputs (list nvidia-driver-recommended))))
+
 (define-public python-py3nvml
   (package
     (name "python-py3nvml")
