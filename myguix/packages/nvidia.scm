@@ -1416,6 +1416,11 @@ Management Library")
 NVIDIA Management Library")
     (license license-gnu:bsd-3)))
 
+(define-public python-py3nvml-recommended
+  (package
+    (inherit python-py3nvml)
+    (propagated-inputs (list nvidia-driver-recommended python-xmltodict))))
+
 (define-public cuda-toolkit-11.8
   (package
     (name "cuda-toolkit")
