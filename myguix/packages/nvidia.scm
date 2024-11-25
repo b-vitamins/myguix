@@ -1356,6 +1356,11 @@ simultaneous NVML calls from multiple threads.")
     (inherit nvidia-system-monitor)
     (inputs (list qtbase-5 qtdeclarative-5 nvidia-driver-recommended))))
 
+(define-public nvidia-system-monitor-next
+  (package
+    (inherit nvidia-system-monitor)
+    (inputs (list qtbase-5 qtdeclarative-5 nvidia-driver-next))))
+
 (define-public python-nvidia-ml-py
   (package
     (name "python-nvidia-ml-py")
