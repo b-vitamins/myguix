@@ -1362,7 +1362,7 @@ loaded by Linux.")
     (inherit psm2)
     (name "psm2-cuda")
     (inputs (modify-inputs (package-inputs psm2)
-              (append cuda-toolkit-12.1
+              (append cuda-toolkit-12.4
 
                       ;; This package provides the definition for
                       ;; 'HFI1_CAP_GPUDIRECT_OT', which psm2 relies on:
