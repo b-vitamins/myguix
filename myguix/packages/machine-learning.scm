@@ -1923,7 +1923,7 @@ Note: This package provides NVIDIA GPU support.")
         #:configure-flags ''("-DBUILD_SHARED_LIBS=ON" "-DTP_USE_CUDA=ON")
         ;; There are no tests
         #:tests? #f))
-      (inputs (list cuda-toolkit-12.1 libuv))
+      (inputs (list cuda-toolkit-12.4 libuv))
       (native-inputs (list googletest pkg-config pybind11 libnop))
       (home-page "https://github.com/pytorch/tensorpipe")
       (synopsis "Tensor-aware point-to-point communication primitive for
