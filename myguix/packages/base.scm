@@ -184,7 +184,7 @@
   (list nvidia-system-monitor
         nvidia-settings
         cuda-toolkit-12.1
-        cudnn-9.5
+        cudnn-8.9
         nvidia-htop
         gpustat))
 
