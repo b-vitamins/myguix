@@ -181,12 +181,14 @@
         fontconfig))
 
 (define %nvidia-core-packages
-  (list nvidia-system-monitor
-        nvidia-settings
-        cuda-toolkit-12.1
-        cudnn-8.9
-        nvidia-htop
-        gpustat))
+  (list nvidia-system-monitor-recommended
+        nvidia-settings-recommended
+        nvidia-htop-recommended
+        python-nvidia-ml-py-recommended
+        python-py3nvml-recommended
+        gpustat
+        cuda-toolkit-12.4
+        cudnn-9.5))
 
 (define %cuda-accelerated-packages
   (list ffmpeg-cuda mpv-cuda))
