@@ -1265,6 +1265,11 @@ nvidia-smi.")
     (inherit nvidia-htop)
     (inputs (list nvidia-driver-recommended))))
 
+(define-public nvidia-htop-next
+  (package
+    (inherit nvidia-htop)
+    (inputs (list nvidia-driver-next))))
+
 (define-public nvidia-nvml
   (package
     (name "nvidia-nvml")
