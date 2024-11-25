@@ -1795,7 +1795,7 @@ kernels and applications.")
 (define-public nccl
   (package
     (name "nccl")
-    (version "2.22.3-1")
+    (version "2.23.4-1")
     (source
      (origin
        (method git-fetch)
@@ -1804,7 +1804,7 @@ kernels and applications.")
              (url "https://github.com/NVIDIA/nccl")
              (commit (string-append "v" version))))
        (sha256
-        (base32 "1kwh4950q953c2sr7ir2inyw34mwh5av7cq93j852yd2sqxyyk3v"))))
+        (base32 "0z4lha40xnqf4z5if8cmi14w1psl9w9kj88rgkylw5xnnfa32lqf"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -1820,7 +1820,7 @@ kernels and applications.")
                        (setenv "PREFIX"
                                #$output))))))
     (native-inputs (list python which))
-    (inputs (list cuda-toolkit-12.1))
+    (inputs (list cuda-toolkit-12.4))
     (home-page "https://developer.nvidia.com/nccl")
     (synopsis
      "Optimized primitives for collective multi-GPU communication between
