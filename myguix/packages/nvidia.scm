@@ -1724,25 +1724,17 @@ autotuning.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1pgwiz7sfnjnhaz15gnm0wkmd1h76knyv4hpqj71g1vwp82nygxf"))
-       (patches (parameterize ((%patch-path (map (lambda (directory)
-                                                   (string-append directory
-                                                    "/myguix/patches"))
-                                                 %load-path)))
-                  (search-patches
-                   "nvidia-cutlass-3.4.0_disable_static_lib.patch")))))
+        (base32 "1pgwiz7sfnjnhaz15gnm0wkmd1h76knyv4hpqj71g1vwp82nygxf"))))
     (build-system cmake-build-system)
     (arguments
      (list
       #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
                                                #$(package-source googletest))
-                                "-DCUTLASS_ENABLE_TESTS=OFF"
-                                "-DCUTLASS_BUILD_STATIC_LIBRARY=OFF"
-                                "-DCUTLASS_ENABLE_EXAMPLES=OFF"
-                                "-DCUTLASS_NVCC_ARCHS=86"
-                                "-DCUTLASS_LIBRARY_KERNELS=all"
-                                "-DCUTLASS_INSTALL_TESTS=OFF"
-                                "-DCUTLASS_UNITY_BUILD_ENABLED=ON")
+                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
+                                "-DCUTLASS_ENABLE_TESTS=NO"
+                                "-DCUTLASS_INSTALL_TESTS=NO"
+                                "-DCUTLASS_NVCC_ARCHS=80;86;89"
+                                "-DCUTLASS_LIBRARY_KERNELS=all")
       #:phases #~(modify-phases %standard-phases
                    ;; XXX: This phase is not necessary on earlier versions.
                    ;; Remove it when updating.
