@@ -1573,7 +1573,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
       #:modules '((guix build utils)
                   (guix build gnu-build-system)
                   (ice-9 match))
-      #:substitutable? #f
+      #:substitutable? #t
       #:strip-binaries? #f
       #:validate-runpath? #f
       #:phases #~(modify-phases %standard-phases
