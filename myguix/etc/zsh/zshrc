@@ -24,7 +24,7 @@ colors
 SHOW_TIMESTAMP=1
 
 function is_utf8_locale {
-    [[ "$LC_ALL" =~ [Uu][Tt][Ff]-?8$|.utf8$ ]] || [[ "$LANG" =~ [Uu][Tt][Ff]-?8$|.utf8$ ]] || [[ "$GDM_LANG" =~ [Uu][Tt][Ff]-?8$|.utf8$ ]]
+    [[ "${LC_ALL:-}${LANG:-}${GDM_LANG:-}" =~ [Uu][Tt][Ff]-?8 ]]
 }
 
 function prompt_env_precmd {
