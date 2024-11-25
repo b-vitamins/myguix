@@ -1384,6 +1384,11 @@ Management Library")
     (inherit python-nvidia-ml-py)
     (inputs (list nvidia-driver-recommended))))
 
+(define-public python-nvidia-ml-py-next
+  (package
+    (inherit python-nvidia-ml-py)
+    (inputs (list nvidia-driver-next))))
+
 (define-public python-py3nvml
   (package
     (name "python-py3nvml")
