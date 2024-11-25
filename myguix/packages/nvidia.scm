@@ -1415,7 +1415,7 @@ NVIDIA Management Library")
                   (guix build gnu-build-system)
                   (ice-9 match)
                   (ice-9 ftw))
-      #:substitutable? #f
+      #:substitutable? #t
       #:strip-binaries? #f
       #:validate-runpath? #f
       #:phases #~(modify-phases %standard-phases
