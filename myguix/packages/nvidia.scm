@@ -1351,6 +1351,11 @@ simultaneous NVML calls from multiple threads.")
      "This package provides a task manager for Nvidia graphics cards.")
     (license license-gnu:expat)))
 
+(define-public nvidia-system-monitor-recommended
+  (package
+    (inherit nvidia-system-monitor)
+    (inputs (list qtbase-5 qtdeclarative-5 nvidia-driver-recommended))))
+
 (define-public python-nvidia-ml-py
   (package
     (name "python-nvidia-ml-py")
