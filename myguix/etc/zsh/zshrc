@@ -1,6 +1,6 @@
-source $XDG_CONFIG_HOME/zsh/.zprofile
+source $HOME/.profile
 autoload -Uz add-zsh-hook compinit colors
-compinit -u
+compinit -C
 
 setopt NO_BEEP
 setopt EXTENDED_GLOB
@@ -59,8 +59,18 @@ TMOUT=1
 
 add-zsh-hook precmd prompt_env_precmd
 
-bindkey '^[[A' history-search-backward
-bindkey '^[[B' history-search-forward
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
+bindkey -e
+bindkey '^A' beginning-of-line
+bindkey '^E' end-of-line
+bindkey '^K' kill-line
+bindkey '^[b' backward-word
+bindkey '^[f' forward-word
+bindkey '^[d' kill-word
+bindkey '^R' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
+
 
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
@@ -71,3 +81,6 @@ alias la='ls -A --color=auto'
 alias e='emacs'
 alias ec='emacsclient -c'
 alias em='emacs -nw'
+
+alias fmtmyguix='guile $MYGUIX/myguix/etc/style.gscm'
+alias fmtdotfiles='sh $DOTFILES/scripts/style.sh'
