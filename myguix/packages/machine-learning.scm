@@ -1926,6 +1926,7 @@ Note: This package provides NVIDIA GPU support.")
         #:tests? #f))
       (inputs (list cuda-toolkit-12.4 libuv))
       (native-inputs (list googletest pkg-config pybind11 libnop))
+      (propagated-inputs (list nvidia-driver-recommended))
       (home-page "https://github.com/pytorch/tensorpipe")
       (synopsis "Tensor-aware point-to-point communication primitive for
 machine learning")
