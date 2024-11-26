@@ -112,8 +112,12 @@
     (inherit llama-cpp)
     (name "llama-cpp-cuda")
     (inputs (list python))
-    (propagated-inputs (list cuda-toolkit-12.4 python-numpy python-pytorch
-                             python-sentencepiece openblas))
+    (propagated-inputs (list nvidia-driver-recommended
+                             cuda-toolkit-12.4
+                             python-numpy
+                             python-pytorch
+                             python-sentencepiece
+                             openblas))
     (native-inputs (list git-minimal pkg-config))
     (arguments
      (substitute-keyword-arguments (package-arguments llama-cpp)
@@ -123,6 +127,7 @@
                 "-DGGML_NATIVE=OFF"
                 "-DGGML_BLAS=ON"
                 "-DGGML_BLAS_VENDOR=OpenBLAS"
+                "-DGGML_OPENMP=ON"
                 "-DGGML_CUDA=ON"
                 "-DCMAKE_CUDA_ARCHITECTURES=75;80;86"
                 "-DGGML_CUDA_FA_ALL_QUANTS=true"))))))
