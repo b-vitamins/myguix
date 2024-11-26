@@ -34,7 +34,7 @@
 ;;; MAGMA.
 ;;;
 
-(define-public magma
+(define-public magma-cuda
   (package
     (name "magma")
     (version "2.8.0")
@@ -51,6 +51,7 @@
     (build-system cmake-build-system)
     (native-inputs (list patchelf-0.16 which python perl pkg-config))
     (inputs (list gcc cuda-toolkit-12.4 openblas))
+    (propagated-inputs (list nvidia-driver-recommended))
     (arguments
      (list
       #:validate-runpath? #f
