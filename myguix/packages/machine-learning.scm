@@ -1467,7 +1467,7 @@ arbitrarily to any order.")
                                                                        (this-package-input
                                                                         "cudnn"))))
                                                     port))))))))))
-    (inputs (list cuda-toolkit-11.8 cudnn-8.9))
+    (inputs (list cuda-toolkit-11.8 cudnn-8.9 python-numpy))
     (native-inputs (modify-inputs (package-native-inputs python-jaxlib/wheel)
                      (append python-wrapper)))))
 
