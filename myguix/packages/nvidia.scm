@@ -1871,6 +1871,7 @@ kernels and applications.")
                                #$output))))))
     (native-inputs (list python which))
     (inputs (list cuda-toolkit-12.4))
+    (propagated-inputs (list nvidia-driver-recommended))
     (home-page "https://developer.nvidia.com/nccl")
     (synopsis
      "Optimized primitives for collective multi-GPU communication between
