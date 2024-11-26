@@ -1199,6 +1199,13 @@ and usage.")
                          (replace "python-nvidia-ml-py"
                                   python-nvidia-ml-py-recommended)))))
 
+(define-public gpustat-next
+  (package
+    (inherit gpustat)
+    (propagated-inputs (modify-inputs (package-propagated-inputs gpustat)
+                         (replace "python-nvidia-ml-py"
+                                  python-nvidia-ml-py-next)))))
+
 (define-public nvidia-exec
   (package
     (name "nvidia-exec")
