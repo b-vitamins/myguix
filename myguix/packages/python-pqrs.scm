@@ -1443,3 +1443,23 @@ Note: A known limitation of scihub.py is that captchas show up every now and the
     (description
      "This package provides a tiny LRU cache implementation and decorator.")
     (license (custom:nonfree "http://www.repoze.org/LICENSE.txt"))))
+
+(define-public python-legacy-cgi
+  (package
+    (name "python-legacy-cgi")
+    (version "2.6.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "legacy_cgi" version))
+       (sha256
+        (base32 "0hksizyq7awmwh3337zy0rmj47x6b5igzam6ffj74gbwfjfakbgj"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-poetry-core python-pytest))
+    (home-page "https://github.com/jackrosenthal/legacy-cgi")
+    (synopsis
+     "Fork of the standard library cgi and cgitb modules, being deprecated in PEP-594")
+    (description
+     "Fork of the standard library cgi and cgitb modules, being deprecated in PEP-594.")
+    (license (custom:nonfree
+              "https://github.com/jackrosenthal/legacy-cgi/blob/main/LICENSE"))))
