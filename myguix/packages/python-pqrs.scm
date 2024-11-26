@@ -1401,3 +1401,25 @@ It can be imported independently or used from the command-line. If you believe i
 @end itemize
 Note: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.")
       (license license:expat))))
+
+(define-public python-strictyaml
+  (package
+    (name "python-strictyaml")
+    (version "1.7.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/crdoconnor/strictyaml")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0q5nscnqdwlj3hgck6dj9wqwj590zb844b3wab5cix90bgw5j2h0"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
+    (propagated-inputs (list python-dateutil))
+    (home-page "")
+    (synopsis "Strict, typed YAML parser")
+    (description "Strict, typed YAML parser.")
+    (license license:expat)))
