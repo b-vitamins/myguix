@@ -1330,47 +1330,6 @@ arbitrarily to any order.")
                                                       "\\.whl$")) "dist"))))))
     (native-inputs (list python-jaxlib/wheel))))
 
-(define-public python-jaxlib-cuda
-  (package
-    (inherit python-jaxlib/wheel-cuda)
-    (source
-     #f)
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'unpack)
-                   (replace 'build
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (mkdir-p "dist")
-                       (let ((wheel (car (find-files (assoc-ref inputs
-                                                      "python-jaxlib-cuda")
-                                                     "jaxlib-.*\\.whl$"))))
-                         (install-file wheel "dist"))))
-                   ;; XXX: python-jaxlib/wheel-cuda builds libraries
-                   ;; without RUNPATH.
-                   (add-after 'install 'fix-rpath
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (let ((libdir (string-append #$output "/lib"))
-                             (rpath (string-append #$output
-                                     "/lib/python3.10/site-packages/jaxlib/mlir/_mlir_libs/:"
-                                     (string-join (map (lambda (label+dir)
-                                                         (string-append (cdr
-                                                                         label+dir)
-                                                          "/lib")) inputs) ":"))))
-                         (for-each (lambda (file)
-                                     (invoke "patchelf" "--set-rpath" rpath
-                                             file)
-                                     ;; .so files should be executable
-                                     (chmod file #o555))
-                                   (find-files libdir ".*\\.so$"))))))))
-    ;; XXX: for fix-rpath phase only
-    (inputs `(("gcc:lib" ,gcc "lib")
-              ,@(package-inputs python-jaxlib/wheel-cuda)))
-    (native-inputs (list patchelf python-jaxlib/wheel-cuda))))
-
-;; Keep in sync with jaxlib above
 (define-public python-jax
   (package
     (name "python-jax")
