@@ -5,7 +5,8 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
-  #:use-module (myguix packages machine-learning))
+  #:use-module (myguix packages machine-learning)
+  #:use-module (myguix packages nvidia))
 
 (define-public python-lion-pytorch
   (package
@@ -23,3 +24,10 @@
     (synopsis "Lion Optimizer - Pytorch")
     (description "Lion Optimizer - Pytorch.")
     (license license:expat)))
+
+(define-public python-lion-pytorch-cuda
+  (package
+    (inherit python-lion-pytorch)
+    (name "python-lion-pytorch-cuda")
+    (propagated-inputs (list python-torch-cuda cuda-toolkit-12.4
+                             nvidia-driver-recommended))))
