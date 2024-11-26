@@ -1972,15 +1972,15 @@ This package does not intend to implement Tensor and Ops, but instead use this
 as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
 
-(define %python-pytorch-version
+(define %python-torch-version
   "2.4.0")
 
-(define %python-pytorch-src
+(define %python-torch-src
   (origin
     (method git-fetch)
     (uri (git-reference (url "https://github.com/pytorch/pytorch")
-                        (commit (string-append "v" %python-pytorch-version))))
-    (file-name (git-file-name "python-pytorch" %python-pytorch-version))
+                        (commit (string-append "v" %python-torch-version))))
+    (file-name (git-file-name "python-pytorch" %python-torch-version))
     (sha256 (base32 "18hdhzr12brj0b7ppyiscax0dbra30207qx0cckw78midfkcn7cn"))
     (patches (search-patches "python-pytorch-system-libraries.patch"
                              "python-pytorch-runpath.patch"
@@ -2018,12 +2018,12 @@ as common bridge to reuse tensor and ops across frameworks.")
     (inherit python-pytorch)
     (name "python-torch")))
 
-(define-public python-pytorch-cuda
+(define-public python-torch-cuda
   (package
-    (name "python-pytorch-cuda")
-    (version %python-pytorch-version)
+    (name "python-torch-cuda")
+    (version %python-torch-version)
     (source
-     %python-pytorch-src)
+     %python-torch-src)
     (build-system python-build-system)
     (arguments
      (substitute-keyword-arguments (package-arguments python-pytorch)
@@ -2102,10 +2102,11 @@ as common bridge to reuse tensor and ops across frameworks.")
               (replace "gloo" gloo-cuda)))
     (propagated-inputs (modify-inputs (package-propagated-inputs
                                        python-pytorch)
-                         (append cudnn-9.5
-                                 cudnn-frontend
+                         (append nvidia-driver-recommended
                                  cuda-toolkit-12.4
-                                 magma
+                                 cudnn-9.5
+                                 cudnn-frontend
+                                 magma-cuda
                                  nlohmann-json
                                  cutlass
                                  nccl)))
