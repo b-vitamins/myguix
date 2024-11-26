@@ -5,6 +5,7 @@
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-xyz)
+  #:use-module (guix utils)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix download)
@@ -62,7 +63,16 @@
                    (add-before 'build 'configure
                      (lambda _
                        (invoke "cmake" "-DCOMPUTE_BACKEND=cpu" "-S" ".")
-                       (invoke "make"))))))
+                       (invoke "make")))
+                   (delete 'strip-binaries)
+                   (add-after 'install 'add-libbitsandbytes_cpu.so
+                     (lambda _
+                       (let* ((site (string-append #$output "/lib/python"
+                                     #$(version-major+minor (package-version
+                                                             python))
+                                     "/site-packages/bitsandbytes")))
+                         (install-file "bitsandbytes/libbitsandbytes_cpu.so"
+                                       site)))))))
     (inputs (list python-setuptools
                   python-pytest
                   python-lion-pytorch
