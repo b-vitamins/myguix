@@ -1192,6 +1192,13 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 and usage.")
     (license license-gnu:expat)))
 
+(define-public gpustat-recommended
+  (package
+    (inherit gpustat)
+    (propagated-inputs (modify-inputs (package-propagated-inputs gpustat)
+                         (replace "python-nvidia-ml-py"
+                                  python-nvidia-ml-py-recommended)))))
+
 (define-public nvidia-exec
   (package
     (name "nvidia-exec")
@@ -1968,4 +1975,3 @@ See also
      "NVIDIA cuSPARSELt is a high-performance CUDA library dedicated to general matrix-matrix operations in which at least one operand is a sparse matrix. The cuSPARSELt APIs allow flexibility in the algorithm/operation selection, epilogue, and matrix characteristics, including memory layout, alignment, and data types.")
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
-
