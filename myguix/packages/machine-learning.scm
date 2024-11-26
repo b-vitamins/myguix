@@ -2013,6 +2013,11 @@ as common bridge to reuse tensor and ops across frameworks.")
                             "torch/csrc/jit/serialization/mobile_bytecode_generated.h"))
                 (delete-file-recursively ".github")))))
 
+(define-public python-torch
+  (package
+    (inherit python-pytorch)
+    (name "python-torch")))
+
 (define-public python-pytorch-cuda
   (package
     (name "python-pytorch-cuda")
