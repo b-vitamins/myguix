@@ -152,7 +152,7 @@
   (package
     (inherit ffmpeg-cuda)
     (inputs (modify-inputs (package-inputs ffmpeg-cuda)
-              (replace nvda nvda-recommended)
+              (replace "nvda" nvda-recommended)
               (append cuda-toolkit-12.4 nv-codec-headers)))))
 
 (define-public mpv-cuda
@@ -176,3 +176,12 @@
                          (replace "mesa" nvda)
                          (replace "ffmpeg" ffmpeg-cuda)
                          (append cuda-toolkit-12.4 nv-codec-headers)))))
+
+(define-public mpv-cuda-recommended
+  (package
+    (inherit mpv-cuda)
+    (propagated-inputs (modify-inputs (package-propagated-inputs mpv-cuda)
+                         (replace "nvda" nvda-recommended)
+                         (replace "ffmpeg-cuda" ffmpeg-cuda-recommended)
+                         (append cuda-toolkit-12.4 nv-codec-headers)))))
+
