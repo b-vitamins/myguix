@@ -1819,8 +1819,12 @@ autotuning.")
                                                                "/test")))))))
     (native-inputs (list python python-setuptools git-minimal))
     (inputs (list cuda-toolkit-12.4 cudnn-9.5))
-    (propagated-inputs (list python-networkx python-numpy python-pydot
-                             python-scipy python-treelib))
+    (propagated-inputs (list nvidia-driver-recommended
+                             python-networkx
+                             python-numpy
+                             python-pydot
+                             python-scipy
+                             python-treelib))
     (synopsis
      "CUDA C++ template abstractions for high-performance linear algebra")
     (description
