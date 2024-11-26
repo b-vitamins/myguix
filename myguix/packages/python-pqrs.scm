@@ -1,6 +1,8 @@
 (define-module (myguix packages python-pqrs)
   #:use-module ((guix licenses)
                 #:prefix license:)
+  #:use-module ((myguix licenses)
+                #:prefix custom:)
   #:use-module (gnu packages)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
@@ -1423,3 +1425,21 @@ Note: A known limitation of scihub.py is that captchas show up every now and the
     (synopsis "Strict, typed YAML parser")
     (description "Strict, typed YAML parser.")
     (license license:expat)))
+
+(define-public python-repoze.lru
+  (package
+    (name "python-repoze.lru")
+    (version "0.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "repoze.lru" version))
+       (sha256
+        (base32 "0xzz1aw2smy8hdszrq8yhnklx6w1r1mf55061kalw3iq35gafa84"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-coverage python-nose))
+    (home-page "http://www.repoze.org")
+    (synopsis "A tiny LRU cache implementation and decorator")
+    (description
+     "This package provides a tiny LRU cache implementation and decorator.")
+    (license (custom:nonfree "http://www.repoze.org/LICENSE.txt"))))
