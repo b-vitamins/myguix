@@ -98,6 +98,7 @@
     (inherit whisper-cpp)
     (name "whisper-cpp-cuda")
     (inputs (list cuda-toolkit-12.4 openblas))
+    (propagated-inputs (list nvidia-driver-recommended))
     (arguments
      (substitute-keyword-arguments (package-arguments whisper-cpp)
        ((#:configure-flags flags
