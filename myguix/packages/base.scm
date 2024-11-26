@@ -186,7 +186,7 @@
         nvidia-htop-recommended
         python-nvidia-ml-py-recommended
         python-py3nvml-recommended
-        gpustat
+        gpustat-recommended
         cuda-toolkit-12.4
         cudnn-9.5))
 
