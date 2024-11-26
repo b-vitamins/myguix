@@ -152,8 +152,8 @@
   (package
     (inherit ffmpeg-cuda)
     (inputs (modify-inputs (package-inputs ffmpeg-cuda)
-              (replace "nvda" nvda-recommended)
-              (append cuda-toolkit-12.4 nv-codec-headers)))))
+              (delete nvda)
+              (append cuda-toolkit-12.4 nv-codec-headers nvda-recommended)))))
 
 (define-public mpv-cuda
   (package
@@ -181,7 +181,8 @@
   (package
     (inherit mpv-cuda)
     (propagated-inputs (modify-inputs (package-propagated-inputs mpv-cuda)
-                         (replace "nvda" nvda-recommended)
-                         (replace "ffmpeg-cuda" ffmpeg-cuda-recommended)
-                         (append cuda-toolkit-12.4 nv-codec-headers)))))
+                         (delete nvda)
+                         (delete ffmpeg-cuda)
+                         (append nvda-recommended ffmpeg-cuda-recommended
+                                 cuda-toolkit-12.4 nv-codec-headers)))))
 
