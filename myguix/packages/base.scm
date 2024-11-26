@@ -191,7 +191,7 @@
         cudnn-9.5))
 
 (define %cuda-accelerated-packages
-  (list ffmpeg-cuda mpv-cuda))
+  (list ffmpeg-cuda-recommended mpv-cuda-recommended))
 
 (define %terminal-tools-packages
   (list parallel screen tmux alacritty))
