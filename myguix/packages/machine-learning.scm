@@ -1469,8 +1469,7 @@ arbitrarily to any order.")
                                                     port))))))))))
     (inputs (list cuda-toolkit-11.8 cudnn-8.9))
     (native-inputs (modify-inputs (package-native-inputs python-jaxlib/wheel)
-                     (append python-wrapper)))
-    (propagated-inputs (list nvidia-driver-recommended))))
+                     (append python-wrapper)))))
 
 (define-public python-jaxlib
   (package
