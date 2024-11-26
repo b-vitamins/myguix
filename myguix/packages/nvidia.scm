@@ -1784,7 +1784,7 @@ autotuning.")
     (build-system cmake-build-system)
     (arguments
      (list
-      #:configure-flags #~(list "-DCUTLASS_ENABLE_EXAMPLES=YES"
+      #:configure-flags #~(list "-DCUTLASS_ENABLE_EXAMPLES=NO"
                            "-DCUTLASS_ENABLE_TOOLS=YES"
                            "-DCUTLASS_ENABLE_LIBRARY=YES"
                            "-DCUTLASS_ENABLE_PROFILER=YES"
