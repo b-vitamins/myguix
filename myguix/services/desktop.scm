@@ -5,6 +5,7 @@
   #:use-module (gnu packages gnome-xyz)
   #:use-module (gnu packages suckless)
   #:use-module (gnu packages xdisorg)
+  #:use-module (gnu services)
   #:use-module (gnu services mcron)
   #:use-module (gnu services networking)
   #:use-module (gnu services admin)
