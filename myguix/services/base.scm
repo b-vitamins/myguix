@@ -25,10 +25,9 @@
                                              "coreutils") "/bin/env"))))
    (service console-font-service-type
             (map (lambda (tty)
-                   (cons tty
-                         (file-append (specification->package "font-terminus")
-                                      "/share/consolefonts/ter-132n")))
+                   (cons tty %default-console-font))
                  '("tty1" "tty2" "tty3")))
+
    (service login-service-type)
    (service virtual-terminal-service-type)
    (service agetty-service-type
