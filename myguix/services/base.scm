@@ -41,22 +41,19 @@
                                   (hardware-acceleration? #t)
                                   (keyboard-layout (keyboard-layout "us"
                                                     "altgr-intl"
-                                                    #:options '("ctrl:nocaps"
-                                                                "altwin:swap_alt_win")))))
+                                                    #:options '("ctrl:nocaps")))))
    (service kmscon-service-type
             (kmscon-configuration (virtual-terminal "tty2")
                                   (hardware-acceleration? #t)
                                   (keyboard-layout (keyboard-layout "us"
                                                     "altgr-intl"
-                                                    #:options '("ctrl:nocaps"
-                                                                "altwin:swap_alt_win")))))
+                                                    #:options '("ctrl:nocaps")))))
    (service kmscon-service-type
             (kmscon-configuration (virtual-terminal "tty3")
                                   (hardware-acceleration? #t)
                                   (keyboard-layout (keyboard-layout "us"
                                                     "altgr-intl"
-                                                    #:options '("ctrl:nocaps"
-                                                                "altwin:swap_alt_win")))))
+                                                    #:options '("ctrl:nocaps")))))
    (service nscd-service-type)
    (service syslog-service-type)
    (service guix-service-type
