@@ -1,5 +1,7 @@
 (define-module (myguix services desktop)
   #:use-module (gnu)
+  #:use-module (gnu packages suckless)
+  #:use-module (gnu packages xdisorg)
   #:use-module (gnu services mcron)
   #:use-module (gnu services admin)
   #:use-module (gnu services xorg)
@@ -37,13 +39,17 @@
            gdm-file-system-service
            fontconfig-file-system-service
            (service x11-socket-directory-service-type)
+
+           ;; Screen lockers
            (service screen-locker-service-type
-                    (screen-locker-configuration (name "xlockmore")
-                                                 (program (file-append (specification->package
-                                                                        "xlockmore")
-                                                           "/bin/xlockmore"))
-                                                 (using-pam? #t)
-                                                 (using-setuid? #f)))
+                    (screen-locker-configuration (name "slock")
+                                                 (program (file-append slock
+                                                           "/bin/slock"))))
+           (service screen-locker-service-type
+                    (screen-locker-configuration (name "xlock")
+                                                 (program (file-append
+                                                           xlockmore
+                                                           "/bin/xlock"))))
 
            ;; Printing Services
            (service cups-pk-helper-service-type)
