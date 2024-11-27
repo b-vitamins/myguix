@@ -1,5 +1,8 @@
 (define-module (myguix services desktop)
   #:use-module (gnu)
+  #:use-module (gnu packages fonts)
+  #:use-module (gnu packages gnome)
+  #:use-module (gnu packages gnome-xyz)
   #:use-module (gnu packages suckless)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu services mcron)
@@ -12,17 +15,18 @@
   #:export (%my-gnome-shell-assets %my-desktop-services))
 
 (define %my-gnome-shell-assets
-  (list (specification->package "gnome-tweaks")
-        (specification->package "gnome-shell-extensions")
-        (specification->package "gnome-shell-extension-dash-to-dock")
-        (specification->package "gnome-shell-extension-vitals")
-        (specification->package "gnome-shell-extension-just-perfection")
-        (specification->package "adwaita-icon-theme")
-        (specification->package "font-abattis-cantarell")
-        (specification->package "flat-remix-icon-theme")
-        (specification->package "flat-remix-gtk-theme")
-        (specification->package "flat-remix-gnome-theme")
-        (specification->package "bibata-cursor-theme")))
+  (list gnome-tweaks
+        gnome-shell-extensions
+        gnome-shell-extension-dash-to-dock
+        gnome-shell-extension-vitals
+        gnome-shell-extension-just-perfection
+        gnome-shell-extension-unite-shell
+        adwaita-icon-theme
+        font-abattis-cantarell
+        flat-remix-icon-theme
+        flat-remix-gtk-theme
+        flat-remix-gnome-theme
+        bibata-cursor-theme))
 
 (define %my-desktop-services
   (append (list
