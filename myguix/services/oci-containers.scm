@@ -16,7 +16,7 @@
         read-line) ""))
 ;; Return empty string if the file does not exist
 
-;; Retrieve the MEILI_MASTER_KEY from pass for injection
+;; Retrieve the MEILI_MASTER_KEY for injection
 (define meili-master-key
   (get-meili-master-key))
 
