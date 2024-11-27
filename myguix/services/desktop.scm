@@ -16,7 +16,6 @@
         (specification->package "gnome-shell-extensions")
         (specification->package "gnome-shell-extension-dash-to-dock")
         (specification->package "gnome-shell-extension-vitals")
-        (specification->package "gnome-shell-extension-gsconnect")
         (specification->package "gnome-shell-extension-just-perfection")
         (specification->package "adwaita-icon-theme")
         (specification->package "font-abattis-cantarell")
