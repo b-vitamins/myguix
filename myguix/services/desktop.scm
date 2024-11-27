@@ -6,7 +6,9 @@
   #:use-module (gnu packages suckless)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu services mcron)
+  #:use-module (gnu services networking)
   #:use-module (gnu services admin)
+  #:use-module (gnu services avahi)
   #:use-module (gnu services xorg)
   #:use-module (gnu services desktop)
   #:use-module (gnu services dbus)
@@ -54,6 +56,18 @@
                                                            xlockmore
                                                            "/bin/xlock"))))
 
+           ;; Networking Setup
+           (service network-manager-service-type
+                    (network-manager-configuration (vpn-plugins (list
+                                                                 network-manager-openvpn
+                                                                 network-manager-openconnect))))
+           (service wpa-supplicant-service-type)
+           (simple-service 'network-manager-applet profile-service-type
+                           (list network-manager-applet))
+           (service modem-manager-service-type)
+           (service usb-modeswitch-service-type)
+           (service ntp-service-type)
+
            ;; Printing Services
            (service cups-pk-helper-service-type)
 
@@ -65,6 +79,7 @@
            polkit-wheel-service
            (service upower-service-type)
            (service udisks-service-type)
+           (service avahi-service-type)
            (service gvfs-service-type)
            (service colord-service-type)
            (service sane-service-type)
