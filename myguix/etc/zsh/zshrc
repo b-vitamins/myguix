@@ -21,7 +21,7 @@ zstyle ':completion:*' cache-path "$XDG_STATE_HOME/zsh"
 
 colors
 
-SHOW_TIMESTAMP=1
+SHOW_TIMESTAMP=0
 
 function is_utf8_locale {
     [[ "${LC_ALL:-}${LANG:-}${GDM_LANG:-}" =~ [Uu][Tt][Ff]-?8 ]]
