@@ -134,10 +134,7 @@
                                   %cjk-fonts
                                   %unicode-fonts
                                   %version-control-packages
-                                  %build-system-packages
-                                  %debugging-tools-packages
-                                  %memory-and-optimization-tools-packages
-                                  %runtime-packages
+                                  %development-toolchain-packages
                                   %tree-sitter-packages
                                   %guile-development-packages
                                   %rust-development-packages
@@ -428,23 +425,21 @@
 (define %version-control-packages
   (list git git-lfs git-tools git-crypt pass-git-helper))
 
-(define %build-system-packages
-  (list cmake
+(define %development-toolchain-packages
+  (list node
+        openjdk
+        gcc-toolchain
+        jemalloc
+        llvm-with-bolt
+        gdb
+        patchelf
+        strace
+        ltrace
+        cmake
         autoconf
         automake
         libtool
-        openjdk
-        pkg-config
-        gcc-toolchain))
-
-(define %debugging-tools-packages
-  (list gdb patchelf strace ltrace))
-
-(define %memory-and-optimization-tools-packages
-  (list jemalloc llvm-with-bolt))
-
-(define %runtime-packages
-  (list node openjdk))
+        pkg-config))
 
 (define %tree-sitter-packages
   (list tree-sitter
