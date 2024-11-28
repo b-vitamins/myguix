@@ -1673,7 +1673,7 @@ fully supported to run on the GPU.")
          (sha256
           (base32 "1xw1lj8gyq4gfhhsj8syv4przqw2nk59hhwyhjf3gvik4k3yvhi4"))))
       (build-system cmake-build-system)
-      (propagated-inputs (list nvidia-driver-recommended))
+      (propagated-inputs (list nvidia-driver))
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
                 (append cuda-toolkit-12.4 nccl)))
@@ -1718,7 +1718,7 @@ Note: This package provides NVIDIA GPU support.")
         #:tests? #f))
       (inputs (list cuda-toolkit-12.4 libuv))
       (native-inputs (list googletest pkg-config pybind11 libnop))
-      (propagated-inputs (list nvidia-driver-recommended))
+      (propagated-inputs (list nvidia-driver))
       (home-page "https://github.com/pytorch/tensorpipe")
       (synopsis "Tensor-aware point-to-point communication primitive for
 machine learning")
@@ -1896,7 +1896,7 @@ as common bridge to reuse tensor and ops across frameworks.")
               (replace "gloo" gloo-cuda)))
     (propagated-inputs (modify-inputs (package-propagated-inputs
                                        python-pytorch)
-                         (append nvidia-driver-recommended
+                         (append nvidia-driver
                                  cuda-toolkit-12.4
                                  cudnn-9.5
                                  cutlass-headers-3.4
