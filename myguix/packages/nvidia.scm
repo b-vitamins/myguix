@@ -83,37 +83,19 @@
     ;; GSYNC control for Vulkan direct-to-display applications.
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
-(define-public nvidia-next-version
-  "560.35.03")
-
-(define-public nvidia-recommended-version
-  "550.135")
-
 (define-public nvidia-version
-  "550.120")
+  "550.135")
 
 
 ;;;
 ;;; NVIDIA driver checkouts
 ;;;
 
-(define %nvidia-driver-next-hashes
-  '(("560.35.03" . "1qqzkzi1ms5x7yjbfsy2hmqsvw3k9zy57r0v6jrcahyxza92r4zj")))
-
-(define %nvidia-settings-next-hashes
-  '(("560.35.03" . "1yayvpi0826g3l04390wh284qzhxgc027c2r6i0cz2pi1472y2wi")))
-
-(define %nvidia-driver-recommended-hashes
+(define %nvidia-driver-hashes
   '(("550.135" . "1ac8hy0rwk5dgfj28h7gj1mwm59189dsah91fq76j1a0ckslf80i")))
 
-(define %nvidia-settings-recommended-hashes
-  '(("550.135" . "0m6g6lx4pzqqz9bscva9qgydbrdn1shwg0q90zzsq3mih11va7p0")))
-
-(define %nvidia-driver-hashes
-  '(("550.120" . "15sn0g3mzh4i8l4amqsdw3d0s1rpriwa13h94xvcxk2k8wkjh6c0")))
-
 (define %nvidia-settings-hashes
-  '(("550.120" . "1d8rxpk2z9apkvm7vsr7j93rfizh8bgm4h6rlha3m2j818zwixvw")))
+  '(("550.135" . "0m6g6lx4pzqqz9bscva9qgydbrdn1shwg0q90zzsq3mih11va7p0")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -185,16 +167,6 @@ VERSION as argument and returns a G-expression."
                                                                                ("."
                                                                                 ".."))))))
                                                              #$output)))))))
-
-(define-public nvidia-next-source
-  (make-nvidia-source nvidia-next-version
-                      (base32 (assoc-ref %nvidia-driver-next-hashes
-                                         nvidia-next-version))))
-
-(define-public nvidia-recommended-source
-  (make-nvidia-source nvidia-recommended-version
-                      (base32 (assoc-ref %nvidia-driver-recommended-hashes
-                                         nvidia-recommended-version))))
 
 (define-public nvidia-source
   (make-nvidia-source nvidia-version
@@ -590,20 +562,6 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
-(define-public nvidia-driver-recommended
-  (package
-    (inherit nvidia-driver)
-    (version nvidia-recommended-version)
-    (source
-     nvidia-recommended-source)))
-
-(define-public nvidia-driver-next
-  (package
-    (inherit nvidia-driver)
-    (version nvidia-next-version)
-    (source
-     nvidia-next-source)))
-
 (define-public nvidia-libs
   (deprecated-package "nvidia-libs" nvidia-driver))
 
@@ -614,54 +572,6 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
 
 (define-public nvidia-firmware
   (let ((base nvidia-driver))
-    (package
-      (inherit base)
-      (name "nvidia-firmware")
-      (arguments
-       (list
-        #:install-plan #~'(("firmware" #$(string-append "lib/firmware/nvidia/"
-                                          (package-version this-package))))
-        #:phases #~(modify-phases %standard-phases
-                     (delete 'strip))))
-      (propagated-inputs '())
-      (inputs '())
-      (native-inputs '())
-      (synopsis "Proprietary NVIDIA driver (GSP firmwares)")
-      (description
-       "This package provides firmwares for NVIDIA's GPU System Processor.
-Firmware installation can be done with @code{nvidia-service-type}, however
-whether GSP mode is enabled by default or not depends on the specific GPU
-product.
-
-To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
-@code{kernel-arguments} field of the @code{operating-system} configuration."))))
-
-(define-public nvidia-firmware-recommended
-  (let ((base nvidia-driver-recommended))
-    (package
-      (inherit base)
-      (name "nvidia-firmware")
-      (arguments
-       (list
-        #:install-plan #~'(("firmware" #$(string-append "lib/firmware/nvidia/"
-                                          (package-version this-package))))
-        #:phases #~(modify-phases %standard-phases
-                     (delete 'strip))))
-      (propagated-inputs '())
-      (inputs '())
-      (native-inputs '())
-      (synopsis "Proprietary NVIDIA driver (GSP firmwares)")
-      (description
-       "This package provides firmwares for NVIDIA's GPU System Processor.
-Firmware installation can be done with @code{nvidia-service-type}, however
-whether GSP mode is enabled by default or not depends on the specific GPU
-product.
-
-To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
-@code{kernel-arguments} field of the @code{operating-system} configuration."))))
-
-(define-public nvidia-firmware-next
-  (let ((base nvidia-driver-next))
     (package
       (inherit base)
       (name "nvidia-firmware")
@@ -738,20 +648,6 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (license (license:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
-
-(define-public nvidia-module-recommended
-  (package
-    (inherit nvidia-module)
-    (version nvidia-recommended-version)
-    (source
-     nvidia-recommended-source)))
-
-(define-public nvidia-module-next
-  (package
-    (inherit nvidia-module)
-    (version nvidia-next-version)
-    (source
-     nvidia-next-source)))
 
 (define-public nvidia-module-open
   (let ((base nvidia-module))
@@ -858,42 +754,6 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 configuration, creating application profiles, gpu monitoring and more.")
     (home-page "https://github.com/NVIDIA/nvidia-settings")
     (license license-gnu:gpl2)))
-
-(define-public nvidia-settings-next
-  (package
-    (inherit nvidia-settings)
-    (name "nvidia-settings")
-    (version nvidia-next-version)
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/nvidia-settings")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (modules '((guix build utils)))
-       (snippet '(delete-file-recursively "src/jansson"))
-       (sha256
-        (base32 (assoc-ref %nvidia-settings-next-hashes version)))))
-    (inputs (modify-inputs (package-inputs nvidia-settings)
-              (append vulkan-memory-allocator vulkan-headers)))))
-
-(define-public nvidia-settings-recommended
-  (package
-    (inherit nvidia-settings)
-    (name "nvidia-settings")
-    (version nvidia-recommended-version)
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/nvidia-settings")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (modules '((guix build utils)))
-       (snippet '(delete-file-recursively "src/jansson"))
-       (sha256
-        (base32 (assoc-ref %nvidia-settings-recommended-hashes version)))))))
 
 
 ;;;
@@ -1026,127 +886,6 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (inputs (list mesa-for-nvda nvidia-driver))
     (outputs '("out"))))
 
-(define-public nvda-next
-  (package
-    (inherit nvidia-driver-next)
-    (name "nvda")
-    (version (string-pad-right (package-version nvidia-driver-next)
-                               (string-length (package-version mesa-for-nvda))
-                               #\0))
-    (source
-     #f)
-    (build-system trivial-build-system)
-    (arguments
-     (list
-      #:modules '((guix build union))
-      #:builder #~(begin
-                    (use-modules (guix build union))
-                    (union-build #$output
-                                 '#$(list (this-package-input "libglvnd")
-                                          (this-package-input "mesa")
-                                          (this-package-input "nvidia-driver"))))))
-    (native-search-paths
-     (list
-      ;; https://github.com/NVIDIA/egl-wayland/issues/39
-      (search-path-specification
-       (variable "__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS")
-       (files '("share/egl/egl_external_platform.d")))
-      ;; https://gitlab.freedesktop.org/glvnd/libglvnd/-/blob/master/src/EGL/icd_enumeration.md
-      (search-path-specification
-       (variable "__EGL_VENDOR_LIBRARY_DIRS")
-       (files '("share/glvnd/egl_vendor.d")))
-      ;; See also: ‘src/gbm/main/backend.c’ in mesa source.
-      (search-path-specification
-       (variable "GBM_BACKENDS_PATH")
-       (files '("lib/gbm")))
-      (search-path-specification
-       (variable "VDPAU_DRIVER_PATH")
-       (files '("lib/vdpau"))
-       (separator #f))
-      ;; https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderLayerInterface.md
-      (search-path-specification
-       (variable "XDG_DATA_DIRS")
-       (files '("share")))))
-    (synopsis "Myguix's user-facing NVIDIA driver package")
-    (description
-     "This package provides a drop-in replacement for @code{mesa} and is
-intended to be installed by @code{nvidia-service-type}.
-
-To actually use the NVIDIA card, replacement must be applied for individual
-packages, this can be done either by rewriting inputs with
-@code{--with-input=mesa=nvda} or grafting with @code{--with-graft=mesa=nvda}.
-For a programmatical way, the procedure @code{replace-mesa} can be used.
-
-Additionally, if the NVIDIA card is not used for displaying, environment
-variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
-@code{__NV_PRIME_RENDER_OFFLOAD=1} may be set.")
-    (native-inputs '())
-    (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
-                               (package-propagated-inputs nvidia-driver-next)))
-    (inputs (list mesa-for-nvda nvidia-driver-next))
-    (outputs '("out"))))
-
-(define-public nvda-recommended
-  (package
-    (inherit nvidia-driver-recommended)
-    (name "nvda")
-    (version (string-pad-right (package-version nvidia-driver-recommended)
-                               (string-length (package-version mesa-for-nvda))
-                               #\0))
-    (source
-     #f)
-    (build-system trivial-build-system)
-    (arguments
-     (list
-      #:modules '((guix build union))
-      #:builder #~(begin
-                    (use-modules (guix build union))
-                    (union-build #$output
-                                 '#$(list (this-package-input "libglvnd")
-                                          (this-package-input "mesa")
-                                          (this-package-input "nvidia-driver"))))))
-    (native-search-paths
-     (list
-      ;; https://github.com/NVIDIA/egl-wayland/issues/39
-      (search-path-specification
-       (variable "__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS")
-       (files '("share/egl/egl_external_platform.d")))
-      ;; https://gitlab.freedesktop.org/glvnd/libglvnd/-/blob/master/src/EGL/icd_enumeration.md
-      (search-path-specification
-       (variable "__EGL_VENDOR_LIBRARY_DIRS")
-       (files '("share/glvnd/egl_vendor.d")))
-      ;; See also: ‘src/gbm/main/backend.c’ in mesa source.
-      (search-path-specification
-       (variable "GBM_BACKENDS_PATH")
-       (files '("lib/gbm")))
-      (search-path-specification
-       (variable "VDPAU_DRIVER_PATH")
-       (files '("lib/vdpau"))
-       (separator #f))
-      ;; https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderLayerInterface.md
-      (search-path-specification
-       (variable "XDG_DATA_DIRS")
-       (files '("share")))))
-    (synopsis "Myguix's user-facing NVIDIA driver package")
-    (description
-     "This package provides a drop-in replacement for @code{mesa} and is
-intended to be installed by @code{nvidia-service-type}.
-
-To actually use the NVIDIA card, replacement must be applied for individual
-packages, this can be done either by rewriting inputs with
-@code{--with-input=mesa=nvda} or grafting with @code{--with-graft=mesa=nvda}.
-For a programmatical way, the procedure @code{replace-mesa} can be used.
-
-Additionally, if the NVIDIA card is not used for displaying, environment
-variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
-@code{__NV_PRIME_RENDER_OFFLOAD=1} may be set.")
-    (native-inputs '())
-    (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
-                               (package-propagated-inputs
-                                nvidia-driver-recommended)))
-    (inputs (list mesa-for-nvda nvidia-driver-recommended))
-    (outputs '("out"))))
-
 (define mesa/fake
   (package
     (inherit mesa)
@@ -1191,20 +930,6 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
      "This package provides an utility to monitor NVIDIA GPU status
 and usage.")
     (license license-gnu:expat)))
-
-(define-public gpustat-recommended
-  (package
-    (inherit gpustat)
-    (propagated-inputs (modify-inputs (package-propagated-inputs gpustat)
-                         (replace "python-nvidia-ml-py"
-                                  python-nvidia-ml-py-recommended)))))
-
-(define-public gpustat-next
-  (package
-    (inherit gpustat)
-    (propagated-inputs (modify-inputs (package-propagated-inputs gpustat)
-                         (replace "python-nvidia-ml-py"
-                                  python-nvidia-ml-py-next)))))
 
 (define-public nvidia-exec
   (package
@@ -1273,16 +998,6 @@ laptops.")
     (description "This package provides tool for enriching the output of
 nvidia-smi.")
     (license license-gnu:bsd-3)))
-
-(define-public nvidia-htop-recommended
-  (package
-    (inherit nvidia-htop)
-    (inputs (list nvidia-driver-recommended))))
-
-(define-public nvidia-htop-next
-  (package
-    (inherit nvidia-htop)
-    (inputs (list nvidia-driver-next))))
 
 (define-public nvidia-nvml
   (package
@@ -1365,16 +1080,6 @@ simultaneous NVML calls from multiple threads.")
      "This package provides a task manager for Nvidia graphics cards.")
     (license license-gnu:expat)))
 
-(define-public nvidia-system-monitor-recommended
-  (package
-    (inherit nvidia-system-monitor)
-    (inputs (list qtbase-5 qtdeclarative-5 nvidia-driver-recommended))))
-
-(define-public nvidia-system-monitor-next
-  (package
-    (inherit nvidia-system-monitor)
-    (inputs (list qtbase-5 qtdeclarative-5 nvidia-driver-next))))
-
 (define-public python-nvidia-ml-py
   (package
     (name "python-nvidia-ml-py")
@@ -1403,16 +1108,6 @@ simultaneous NVML calls from multiple threads.")
 Management Library")
     (license license-gnu:bsd-3)))
 
-(define-public python-nvidia-ml-py-recommended
-  (package
-    (inherit python-nvidia-ml-py)
-    (inputs (list nvidia-driver-recommended))))
-
-(define-public python-nvidia-ml-py-next
-  (package
-    (inherit python-nvidia-ml-py)
-    (inputs (list nvidia-driver-next))))
-
 (define-public python-py3nvml
   (package
     (name "python-py3nvml")
@@ -1439,16 +1134,6 @@ Management Library")
     (description "This package provides unofficial Python 3 Bindings for the
 NVIDIA Management Library")
     (license license-gnu:bsd-3)))
-
-(define-public python-py3nvml-recommended
-  (package
-    (inherit python-py3nvml)
-    (propagated-inputs (list nvidia-driver-recommended python-xmltodict))))
-
-(define-public python-py3nvml-next
-  (package
-    (inherit python-py3nvml)
-    (propagated-inputs (list nvidia-driver-next python-xmltodict))))
 
 (define-public cuda-toolkit-11.8
   (package
@@ -1756,7 +1441,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                                                 #:directories? #t)))))))
     (native-inputs (list cmake dlpack pybind11))
     (inputs (list cuda-toolkit-12.4 nlohmann-json cudnn-9.5))
-    (propagated-inputs (list nvidia-driver-recommended))
+    (propagated-inputs (list nvidia-driver))
     (home-page "https://github.com/NVIDIA/cudnn-frontend")
     (synopsis "cuDNN API header-only library")
     (description
@@ -1816,7 +1501,7 @@ autotuning.")
                                                                "/test")))))))
     (native-inputs (list python python-setuptools git-minimal))
     (inputs (list cuda-toolkit-12.4 cudnn-9.5))
-    (propagated-inputs (list nvidia-driver-recommended
+    (propagated-inputs (list nvidia-driver
                              python-networkx
                              python-numpy
                              python-pydot
@@ -1996,7 +1681,7 @@ implement cuBLAS and cuDNN.")
                                #$output))))))
     (native-inputs (list python which))
     (inputs (list cuda-toolkit-12.4))
-    (propagated-inputs (list nvidia-driver-recommended))
+    (propagated-inputs (list nvidia-driver))
     (home-page "https://developer.nvidia.com/nccl")
     (synopsis
      "Optimized primitives for collective multi-GPU communication between
