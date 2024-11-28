@@ -86,16 +86,17 @@
         emacs-hyperspace
         emacs-iedit
         emacs-jit-spell
+        emacs-jedi
         emacs-json-mode
         emacs-julia-mode
         emacs-kind-icon
         emacs-let-alist
         emacs-lispy
         emacs-logview
+        emacs-lsp-mode
         emacs-lsp-docker
         emacs-lsp-haskell
         emacs-lsp-jedi
-        emacs-lsp-mode
         emacs-lsp-treemacs
         emacs-lsp-ui
         emacs-lua-mode
@@ -137,6 +138,7 @@
         emacs-restart-emacs
         emacs-rg
         emacs-ripgrep
+        emacs-rustic
         emacs-s
         emacs-seq
         emacs-setup
