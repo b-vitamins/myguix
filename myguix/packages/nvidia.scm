@@ -1792,13 +1792,10 @@ autotuning.")
                            "-DCUTLASS_ENABLE_CUDNN=YES"
                            "-DCUTLASS_ENABLE_CUBLAS=YES"
                            "-DCUTLASS_ENABLE_F16C=YES"
-                           "-DCUTLASS_ENABLE_TENSOR_CORE_MMA=YES"
-                           "-DCUTLASS_ENABLE_SM90_EXTENDED_MMA_SHAPES=YES"
                            "-DCUTLASS_ENABLE_TESTS=NO"
                            "-DCUTLASS_INSTALL_TESTS=NO"
                            "-DCUTLASS_NVCC_ARCHS=80;86;89"
-                           "-DCUTLASS_LIBRARY_KERNELS=all"
-                           "-DCUTE_SM90_EXTENDED_MMA_SHAPES_ENABLED=YES")
+                           "-DCUTLASS_LIBRARY_KERNELS=all")
       #:phases #~(modify-phases %standard-phases
                    (add-after 'unpack 'fix-cuda-build
                      (lambda _
