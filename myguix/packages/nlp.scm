@@ -98,7 +98,7 @@
     (inherit whisper-cpp)
     (name "whisper-cpp-cuda")
     (inputs (list cuda-toolkit-12.4 openblas))
-    (propagated-inputs (list nvidia-driver-recommended))
+    (propagated-inputs (list nvidia-driver))
     (arguments
      (substitute-keyword-arguments (package-arguments whisper-cpp)
        ((#:configure-flags flags
@@ -112,7 +112,7 @@
     (inherit llama-cpp)
     (name "llama-cpp-cuda")
     (inputs (list python))
-    (propagated-inputs (list nvidia-driver-recommended
+    (propagated-inputs (list nvidia-driver
                              cuda-toolkit-12.4
                              python-numpy
                              python-pytorch
