@@ -99,8 +99,6 @@
                                   %bluetooth-packages
                                   %sound-system-packages
                                   %search-and-index-packages
-                                  %terminal-tools-packages
-                                  %secret-mgmt-packages
                                   %desktop-utilities-packages
                                   %system-monitoring-packages
                                   %basic-filesystem-tools
@@ -175,7 +173,14 @@
         sed
         plocate
         shepherd-run
-        fontconfig))
+        parallel
+        screen
+        tmux
+        alacritty
+        fontconfig
+        gnupg
+        pinentry
+        password-store))
 
 (define %nvidia-core-packages
   (list nvidia-system-monitor-recommended
@@ -189,12 +194,6 @@
 
 (define %cuda-accelerated-packages
   (list ffmpeg-cuda-recommended mpv-cuda-recommended))
-
-(define %terminal-tools-packages
-  (list parallel screen tmux alacritty))
-
-(define %secret-mgmt-packages
-  (list gnupg pinentry password-store))
 
 (define %desktop-utilities-packages
   (list firefox
