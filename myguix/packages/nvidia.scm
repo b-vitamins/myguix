@@ -1935,6 +1935,38 @@ hierarchical decomposition and data movement similar to those used to
 implement cuBLAS and cuDNN.")
     (license license-gnu:bsd-3)))
 
+(define-public cutlass-tools-3.4
+  (package
+    (name "cutlass-tools")
+    (version "3.4.1")
+    (home-page "https://github.com/NVIDIA/cutlass")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cutlass")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:substitutable? #t
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:install-plan ''(("tools" "tools")
+                        ("LICENSE.txt" "LICENSE"))))
+    (synopsis
+     "CUDA C++ template abstractions for high-performance linear algebra")
+    (description
+     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
+high-performance matrix-matrix multiplication (GEMM) and related computations
+at all levels and scales within CUDA.  It incorporates strategies for
+hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.")
+    (license license-gnu:bsd-3)))
+
 (define-public nccl
   (package
     (name "nccl")
