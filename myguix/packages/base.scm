@@ -174,12 +174,12 @@
   (list smartmontools
         hdparm
         blktrace
-        nvidia-system-monitor-recommended
-        nvidia-settings-recommended
-        nvidia-htop-recommended
-        python-nvidia-ml-py-recommended
-        python-py3nvml-recommended
-        gpustat-recommended))
+        nvidia-system-monitor
+        nvidia-settings
+        nvidia-htop
+        python-nvidia-ml-py
+        python-py3nvml
+        gpustat))
 
 (define %versioning-packages
   (list git git-lfs git-tools git-crypt pass-git-helper))
@@ -351,8 +351,8 @@
         cutlass-tools-3.4
         cutensor
         nccl
-        ffmpeg-cuda-recommended
-        mpv-cuda-recommended))
+        ffmpeg-cuda
+        mpv-cuda))
 
 (define %tree-sitter-packages
   (list tree-sitter
