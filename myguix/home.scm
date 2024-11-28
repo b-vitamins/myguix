@@ -61,12 +61,7 @@ XTerm*metaSendsEscape: false
                                                           ("visible-stats" . #t)
                                                           ("colored-stats" . #t)
                                                           ("colored-completion-prefix" . #t)
-                                                          ("menu-complete-display-prefix" . #t)
-                                                          ("meta-flag" . #t)
-                                                          ("input-meta" . #t)
-                                                          ("convert-meta" . #f)
-                                                          ("output-meta" . #t)
-                                                          ("enable-bracketed-paste" . #t)))))
+                                                          ("menu-complete-display-prefix" . #t)))))
 
         (service home-gpg-agent-service-type
                  (home-gpg-agent-configuration (pinentry-program (file-append (specification->package
