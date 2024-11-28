@@ -242,7 +242,6 @@
         jfsutils
         f2fs-tools
         ntfs-3g
-        glusterfs
         ceph
         lvm2
         nfs-utils
