@@ -1,10 +1,14 @@
 (define-module (myguix packages transformers)
   #:use-module (gnu packages cmake)
+  #:use-module (gnu packages graph)
+  #:use-module (gnu packages version-control)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages python-web)
   #:use-module (guix utils)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
@@ -126,3 +130,96 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
               (replace "python-lion-pytorch" python-lion-pytorch-cuda)
               (append python-bitsandbytes)))
     (propagated-inputs (list nvidia-driver-recommended cuda-toolkit-12.4))))
+
+(define-public python-transformers
+  (package
+    (name "python-transformers")
+    (version "4.46.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "transformers" version))
+       (sha256
+        (base32 "1k3jbwlk3v99nyskrgm9gjq5h8059dzq73pzmy13xqrzjjpb7r4f"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-filelock
+                             python-huggingface-hub
+                             python-numpy
+                             python-packaging
+                             python-pyyaml
+                             python-regex
+                             python-requests
+                             python-safetensors
+                             python-tokenizers
+                             python-tqdm))
+    (native-inputs (list python-accelerate
+                         python-av
+                         python-beautifulsoup4
+                         python-codecarbon
+                         python-cookiecutter
+                         python-datasets
+                         python-deepspeed
+                         python-dill
+                         python-evaluate
+                         python-faiss
+                         python-flax
+                         python-fugashi
+                         python-gitpython
+                         python-ipadic
+                         python-isort
+                         python-jax
+                         python-jaxlib
+                         python-kenlm
+                         python-keras-nlp
+                         python-libcst
+                         python-librosa
+                         python-nltk
+                         python-onnxconverter-common
+                         python-onnxruntime
+                         python-onnxruntime-tools
+                         python-optax
+                         python-optuna
+                         python-parameterized
+                         python-phonemizer
+                         python-pillow
+                         python-protobuf
+                         python-psutil
+                         python-pyctcdecode
+                         python-pydantic
+                         python-pytest
+                         python-pytest-rich
+                         python-pytest-timeout
+                         python-pytest-xdist
+                         python-ray
+                         python-rhoknp
+                         python-rich
+                         python-rjieba
+                         python-rouge-score
+                         python-ruff
+                         python-sacrebleu
+                         python-sacremoses
+                         python-scikit-learn
+                         python-scipy
+                         python-sentencepiece
+                         python-sigopt
+                         python-sudachidict-core
+                         python-sudachipy
+                         python-tensorboard
+                         python-tensorflow
+                         python-tensorflow-text
+                         python-tf2onnx
+                         python-timeout-decorator
+                         python-timm
+                         python-tokenizers
+                         python-torch
+                         python-torchaudio
+                         python-torchvision
+                         python-unidic
+                         python-unidic-lite
+                         python-urllib3))
+    (home-page "https://github.com/huggingface/transformers")
+    (synopsis
+     "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow")
+    (description
+     "State-of-the-art Machine Learning for JAX, @code{PyTorch} and @code{TensorFlow}.")
+    (license license:asl2.0)))
