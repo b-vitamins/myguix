@@ -11143,3 +11143,43 @@ quick updates and access.")
     (description
      "This package provides Vector implementation for fast, sign-based manipulation of dynamic collections.")
     (license license:expat)))
+
+(define-public rust-salsa-254c794
+  (let ((commit "254c749b02cde2fd29852a7463a33e800b771758")
+        (version "254c749"))
+    (package
+      (name "rust-salsa")
+      (version version)
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/salsa-rs/salsa")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1268q74i628ymg9d3hldg9cjzl4ab9qi46ggy0l3h9rb39j7chfd"))))
+      (build-system cargo-build-system)
+      (arguments
+       `(#:skip-build? #t
+         #:cargo-inputs (("rust-crossbeam-utils" ,rust-crossbeam-utils-0.8)
+                         ("rust-indexmap" ,rust-indexmap-1.7)
+                         ("rust-lock-api" ,rust-lock-api-0.4)
+                         ("rust-log" ,rust-log-0.4)
+                         ("rust-oorandom" ,rust-oorandom-11)
+                         ("rust-parking-lot" ,rust-parking-lot-0.11)
+                         ("rust-rustc-hash" ,rust-rustc-hash-1)
+                         ("rust-salsa-macros" ,rust-salsa-macros-0.17)
+                         ("rust-smallvec" ,rust-smallvec-1))
+         #:cargo-development-inputs (("rust-diff" ,rust-diff-0.1)
+                                     ("rust-env-logger" ,rust-env-logger-0.7)
+                                     ("rust-linked-hash-map" ,rust-linked-hash-map-0.5)
+                                     ("rust-rand" ,rust-rand-0.7)
+                                     ("rust-rand-distr" ,rust-rand-distr-0.2))))
+      (home-page "https://github.com/salsa-rs/salsa")
+      (synopsis "Generic framework for on-demand, incrementalized computation
+(experimental)")
+      (description
+       "This package provides a generic framework for on-demand, incrementalized
+computation (experimental)")
+      (license (list license:asl2.0 license:expat)))))
