@@ -118,7 +118,6 @@
                                   %document-authoring-packages
                                   %document-manipulation-packages
                                   %file-transfer-tools-packages
-                                  %network-analysis-tools-packages
                                   %p2p-file-sharing-packages
                                   %network-utilities-packages
                                   %general-purpose-fonts
@@ -320,9 +319,6 @@
         borgmatic
         axel))
 
-(define %network-analysis-tools-packages
-  (list nmap tcpdump wireshark traceroute speedtest-cli))
-
 (define %p2p-file-sharing-packages
   (list qbittorrent-enhanced aria2 nicotine+ miniupnpc))
 
@@ -331,11 +327,14 @@
 
 (define %network-utilities-packages
   (list net-tools
+        nmap
+        tcpdump
+        wireshark
+        traceroute
+        speedtest-cli
         whois
         openssl
-        libnatpmp
-        python-nodriver
-        protonvpn-cli))
+        libnatpmp))
 
 (define %general-purpose-fonts
   (list font-dejavu font-bitstream-vera font-abattis-cantarell font-liberation
