@@ -94,75 +94,58 @@
   #:use-module (myguix packages rust)
   #:use-module (myguix packages nlp)
   #:use-module (myguix packages video)
-  #:export (%system-core-packages %nvidia-core-packages
-                                  %cuda-accelerated-packages
-                                  %bluetooth-packages
-                                  %sound-system-packages
-                                  %search-and-index-packages
-                                  %desktop-utilities-packages
-                                  %system-monitoring-packages
-                                  %basic-filesystem-tools
-                                  %diagnostic-and-maintenance-tools
-                                  %remote-storage-mount-packages
-                                  %advanced-filesystem-tools
-                                  %compression-tools-packages
-                                  %media-consumption-packages
-                                  %audio-conversion-tools-packages
-                                  %video-conversion-tools-packages
-                                  %document-conversion-tools-packages
-                                  %graphic-production-packages
-                                  %audio-production-packages
-                                  %video-production-packages
-                                  %document-authoring-packages
-                                  %document-manipulation-packages
-                                  %file-transfer-tools-packages
-                                  %p2p-file-sharing-packages
-                                  %network-utilities-packages
-                                  %general-purpose-fonts
-                                  %document-fonts
-                                  %fira-fonts
-                                  %adobe-fonts
-                                  %google-fonts
-                                  %iosevka-fonts
-                                  %monospace-fonts
-                                  %sans-serif-fonts
-                                  %serif-fonts
-                                  %cjk-fonts
-                                  %unicode-fonts
-                                  %version-control-packages
-                                  %development-toolchain-packages
-                                  %tree-sitter-packages
-                                  %guile-development-packages
-                                  %rust-development-packages
-                                  %python-development-packages
-                                  %perl-development-packages
-                                  %opencog-packages))
+  #:export ( ;Essential bundles
+             %core-packages
+            %monitoring-packages
+            %versioning-packages
+            %compression-packages
+            %network-packages
+            ;; Desktop bundles
+            %desktop-packages
+            %audio-packages
+            %bluetooth-packages
+            ;; File system bundles
+            %basic-filesystem-packages
+            %advanced-filesystem-packages
+            %remote-filesystem-packages
+            %file-transfer-packages
+            ;; Document bundles
+            %document-conversion-packages
+            %document-production-packages
+            ;; Media and graphic bundles
+            %media-packages
+            %graphics-packages
+            ;; Audio bundles
+            %audio-conversion-packages
+            %audio-production-packages
+            ;; Video bundles
+            %video-conversion-packages
+            %video-production-packages
+            ;; Development bundles
+            %development-packages
+            %cuda-packages
+            %tree-sitter-packages
+            %guile-packages
+            %rust-packages
+            %python-packages
+            %perl-packages
+            ;; Search and Index bundles
+            %search-packages
+            %opencog-packages
+            ;; Font bundles
+            %general-fonts
+            %document-fonts
+            %adobe-fonts
+            %google-fonts
+            %fira-fonts
+            %iosevka-fonts
+            %monospace-fonts
+            %sans-fonts
+            %serif-fonts
+            %cjk-fonts
+            %unicode-fonts))
 
-(define %search-and-index-packages
-  (list xapian
-        omega
-        tocc
-        searx
-        bool
-        dataparksearch
-        fsearch
-        recoll
-        plocate
-        xapers
-        ugrep
-        ripgrep
-        the-silver-searcher
-        cloc))
-
-(define %sound-system-packages
-  (list pulseaudio
-        pavucontrol
-        pulsemixer
-        alsa-plugins
-        pipewire
-        wireplumber))
-
-(define %system-core-packages
+(define %core-packages
   (list clamav
         coreutils
         binutils
@@ -180,69 +163,28 @@
         fontconfig
         gnupg
         pinentry
-        password-store))
+        password-store
+        htop
+        sysstat
+        procps
+        atop
+        inxi))
 
-(define %nvidia-core-packages
-  (list nvidia-system-monitor-recommended
+(define %monitoring-packages
+  (list smartmontools
+        hdparm
+        blktrace
+        nvidia-system-monitor-recommended
         nvidia-settings-recommended
         nvidia-htop-recommended
         python-nvidia-ml-py-recommended
         python-py3nvml-recommended
-        gpustat-recommended
-        cuda-toolkit-12.4
-        cudnn-9.5))
+        gpustat-recommended))
 
-(define %cuda-accelerated-packages
-  (list ffmpeg-cuda-recommended mpv-cuda-recommended))
+(define %versioning-packages
+  (list git git-lfs git-tools git-crypt pass-git-helper))
 
-(define %desktop-utilities-packages
-  (list firefox
-        ungoogled-chromium/wayland
-        icedove
-        solaar
-        gnome-tweaks
-        gnome-boxes))
-
-(define %system-monitoring-packages
-  (list htop sysstat procps atop inxi))
-
-(define %basic-filesystem-tools
-  (list parted
-        fdisk
-        dosfstools
-        e2fsprogs
-        exfat-utils
-        nvme-cli
-        bcache-tools
-        lsscsi))
-
-(define %diagnostic-and-maintenance-tools
-  (list smartmontools hdparm blktrace))
-
-(define %remote-storage-mount-packages
-  (list filezilla
-        sshfs
-        davfs2
-        cifs-utils
-        samba
-        wsdd
-        ncftp
-        vsftpd
-        lftp))
-
-(define %advanced-filesystem-tools
-  (list xfsprogs
-        btrfs-progs
-        jfsutils
-        f2fs-tools
-        ntfs-3g
-        glusterfs
-        ceph
-        lvm2
-        nfs-utils
-        mdadm))
-
-(define %compression-tools-packages
+(define %compression-packages
   (list tar
         gzip
         zstd
@@ -254,10 +196,117 @@
         lz4
         lrzip))
 
-(define %media-consumption-packages
+(define %network-packages
+  (list net-tools
+        nmap
+        tcpdump
+        wireshark
+        traceroute
+        speedtest-cli
+        whois
+        openssl
+        libnatpmp))
+
+(define %desktop-packages
+  (list firefox
+        ungoogled-chromium/wayland
+        icedove
+        solaar
+        gnome-tweaks
+        gnome-boxes))
+
+(define %audio-packages
+  (list pulseaudio
+        pavucontrol
+        pulsemixer
+        alsa-plugins
+        pipewire
+        wireplumber))
+
+(define %bluetooth-packages
+  (list bluez-alsa bluez blueman sbc))
+
+(define %basic-filesystem-packages
+  (list parted
+        fdisk
+        dosfstools
+        e2fsprogs
+        exfat-utils
+        nvme-cli
+        bcache-tools
+        lsscsi))
+
+(define %advanced-filesystem-packages
+  (list xfsprogs
+        btrfs-progs
+        jfsutils
+        f2fs-tools
+        ntfs-3g
+        glusterfs
+        ceph
+        lvm2
+        nfs-utils
+        mdadm))
+
+(define %remote-filesystem-packages
+  (list filezilla
+        sshfs
+        davfs2
+        cifs-utils
+        samba
+        wsdd
+        ncftp
+        vsftpd
+        lftp))
+
+(define %file-transfer-packages
+  (list wget
+        curl
+        megacmd
+        s3cmd
+        rsync
+        rclone
+        borg
+        borgmatic
+        axel
+        qbittorrent-enhanced
+        yt-dlp
+        aria2
+        nicotine+
+        miniupnpc))
+
+(define %document-conversion-packages
+  (list pandoc
+        img2pdf
+        pdfgrep
+        pdf2svg
+        pdf2djvu
+        djvu2pdf
+        weasyprint))
+
+(define %document-production-packages
+  (list texlive
+        scribus
+        hunspell
+        hunspell-dict-en-us
+        hunspell-dict-en-gb-ize
+        qpdf
+        mupdf
+        pdfarranger
+        stapler
+        diffpdf
+        perl-image-exiftool
+        pdfposter
+        poppler
+        calibre))
+
+(define %media-packages
   (list vlc audacious ephoto))
 
-(define %audio-conversion-tools-packages
+(define %graphics-packages
+  (list gimp inkscape imagemagick graphicsmagick))
+
+(define %audio-conversion-packages
   (list abcde
         sox
         lame
@@ -269,73 +318,96 @@
         soundconverter
         r128gain))
 
-(define %video-conversion-tools-packages
-  (list handbrake yt-dlp brasero asunder mkvtoolnix))
-
-(define %document-conversion-tools-packages
-  (list pandoc
-        img2pdf
-        pdfgrep
-        pdf2svg
-        pdf2djvu
-        djvu2pdf
-        weasyprint))
-
-(define %graphic-production-packages
-  (list gimp inkscape imagemagick graphicsmagick))
-
 (define %audio-production-packages
   (list ardour audacity ecasound soundtouch))
+
+(define %video-conversion-packages
+  (list handbrake brasero asunder mkvtoolnix))
 
 (define %video-production-packages
   (list blender kdenlive obs))
 
-(define %document-authoring-packages
-  (list texlive scribus hunspell hunspell-dict-en-us hunspell-dict-en-gb-ize))
+(define %development-packages
+  (list node
+        openjdk
+        gcc-toolchain
+        jemalloc
+        llvm-with-bolt
+        gdb
+        patchelf
+        strace
+        ltrace
+        cmake
+        autoconf
+        automake
+        libtool
+        pkg-config))
 
-(define %document-manipulation-packages
-  (list qpdf
-        mupdf
-        pdfarranger
-        stapler
-        diffpdf
-        mediainfo
-        perl-image-exiftool
-        psutils
-        ghostscript
-        pdfposter
-        poppler
-        calibre))
+(define %cuda-packages
+  (list cuda-toolkit-12.4
+        cudnn-9.5
+        cusparselt
+        cutlass-headers-3.4
+        cutlass-tools-3.4
+        cutensor
+        nccl
+        ffmpeg-cuda-recommended
+        mpv-cuda-recommended))
 
-(define %file-transfer-tools-packages
-  (list wget
-        curl
-        megacmd
-        s3cmd
-        rsync
-        rclone
-        borg
-        borgmatic
-        axel))
+(define %tree-sitter-packages
+  (list tree-sitter
+        tree-sitter-cli
+        tree-sitter-rust
+        tree-sitter-python
+        tree-sitter-scheme
+        tree-sitter-org
+        tree-sitter-markdown
+        tree-sitter-latex
+        tree-sitter-json
+        tree-sitter-html
+        tree-sitter-css
+        tree-sitter-cmake
+        tree-sitter-bibtex
+        tree-sitter-c))
 
-(define %p2p-file-sharing-packages
-  (list qbittorrent-enhanced aria2 nicotine+ miniupnpc))
+(define %guile-packages
+  (list guile-3.0 guile-readline guile-colorized guile-lib guile-ares-rs))
 
-(define %bluetooth-packages
-  (list bluez-alsa bluez blueman sbc))
+(define %rust-packages
+  (list rust rust-analyzer))
 
-(define %network-utilities-packages
-  (list net-tools
-        nmap
-        tcpdump
-        wireshark
-        traceroute
-        speedtest-cli
-        whois
-        openssl
-        libnatpmp))
+(define %python-packages
+  (list python python-jedi python-jedi-language-server python-flake8
+        python-black))
 
-(define %general-purpose-fonts
+(define %perl-packages
+  (list perl perl-critic perltidy))
+
+(define %search-packages
+  (list xapian
+        omega
+        tocc
+        searx
+        bool
+        dataparksearch
+        fsearch
+        recoll
+        plocate
+        xapers
+        ugrep
+        ripgrep
+        the-silver-searcher
+        cloc))
+
+(define %opencog-packages
+  (list agi-bio
+        opencog
+        cogutil
+        cogserver
+        attention
+        atomspace))
+
+(define %general-fonts
   (list font-dejavu font-bitstream-vera font-abattis-cantarell font-liberation
         font-carlito))
 
@@ -351,9 +423,6 @@
         font-sil-gentium
         font-sil-charis))
 
-(define %fira-fonts
-  (list font-fira-sans font-fira-mono font-fira-go font-fira-code))
-
 (define %adobe-fonts
   (list font-adobe-source-han-sans font-adobe-source-code-pro
         font-adobe-source-sans-pro font-adobe-source-serif-pro))
@@ -365,6 +434,9 @@
         font-google-noto-serif-cjk
         font-google-roboto
         font-google-material-design-icons))
+
+(define %fira-fonts
+  (list font-fira-sans font-fira-mono font-fira-go font-fira-code))
 
 (define %iosevka-fonts
   (list font-iosevka
@@ -392,7 +464,7 @@
         font-plemoljp
         font-hermit))
 
-(define %sans-serif-fonts
+(define %sans-fonts
   (list font-lato
         font-public-sans
         font-dosis
@@ -422,59 +494,3 @@
 
 (define %unicode-fonts
   (list font-gnu-freefont font-gnu-unifont font-ipa font-ipa-ex))
-
-(define %version-control-packages
-  (list git git-lfs git-tools git-crypt pass-git-helper))
-
-(define %development-toolchain-packages
-  (list node
-        openjdk
-        gcc-toolchain
-        jemalloc
-        llvm-with-bolt
-        gdb
-        patchelf
-        strace
-        ltrace
-        cmake
-        autoconf
-        automake
-        libtool
-        pkg-config))
-
-(define %tree-sitter-packages
-  (list tree-sitter
-        tree-sitter-cli
-        tree-sitter-rust
-        tree-sitter-python
-        tree-sitter-scheme
-        tree-sitter-org
-        tree-sitter-markdown
-        tree-sitter-latex
-        tree-sitter-json
-        tree-sitter-html
-        tree-sitter-css
-        tree-sitter-cmake
-        tree-sitter-bibtex
-        tree-sitter-c))
-
-(define %guile-development-packages
-  (list guile-3.0 guile-readline guile-colorized guile-lib guile-ares-rs))
-
-(define %rust-development-packages
-  (list rust rust-analyzer))
-
-(define %python-development-packages
-  (list python python-jedi python-jedi-language-server python-flake8
-        python-black))
-
-(define %perl-development-packages
-  (list perl perl-critic perltidy))
-
-(define %opencog-packages
-  (list agi-bio
-        opencog
-        cogutil
-        cogserver
-        attention
-        atomspace))
