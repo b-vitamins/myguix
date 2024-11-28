@@ -463,7 +463,7 @@
         tree-sitter-c))
 
 (define %guile-development-packages
-  (list guile-3.0 guile-readline guile-colorized guile-lib))
+  (list guile-3.0 guile-readline guile-colorized guile-lib guile-ares-rs))
 
 (define %rust-development-packages
   (list rust rust-analyzer))
