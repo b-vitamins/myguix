@@ -2113,5 +2113,3 @@ See also
      "NVIDIA cuSPARSELt is a high-performance CUDA library dedicated to general matrix-matrix operations in which at least one operand is a sparse matrix. The cuSPARSELt APIs allow flexibility in the algorithm/operation selection, epilogue, and matrix characteristics, including memory layout, alignment, and data types.")
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
-
-cutlass-headers
