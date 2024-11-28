@@ -148,13 +148,6 @@
      "FFmpeg with NVIDIA hardware acceleration support using NVDEC and CUDA libraries.")
     (synopsis "FFmpeg with NVIDIA GPU hardware decoding (NVDEC) support")))
 
-(define-public ffmpeg-cuda-recommended
-  (package
-    (inherit ffmpeg-cuda)
-    (inputs (modify-inputs (package-inputs ffmpeg)
-              (replace "mesa" nvda-recommended)
-              (append cuda-toolkit-12.4 nv-codec-headers)))))
-
 (define-public mpv-cuda
   (package
     (inherit mpv)
@@ -175,12 +168,4 @@
     (propagated-inputs (modify-inputs (package-propagated-inputs mpv)
                          (replace "mesa" nvda)
                          (replace "ffmpeg" ffmpeg-cuda)
-                         (append cuda-toolkit-12.4 nv-codec-headers)))))
-
-(define-public mpv-cuda-recommended
-  (package
-    (inherit mpv-cuda)
-    (propagated-inputs (modify-inputs (package-propagated-inputs mpv)
-                         (replace "mesa" nvda-recommended)
-                         (replace "ffmpeg" ffmpeg-cuda-recommended)
                          (append cuda-toolkit-12.4 nv-codec-headers)))))
