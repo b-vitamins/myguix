@@ -178,6 +178,7 @@
         grep
         sed
         plocate
+        shepherd-run
         fontconfig))
 
 (define %nvidia-core-packages
