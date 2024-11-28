@@ -104,7 +104,6 @@
                                   %desktop-utilities-packages
                                   %system-monitoring-packages
                                   %basic-filesystem-tools
-                                  %ssd-tools
                                   %diagnostic-and-maintenance-tools
                                   %remote-storage-mount-packages
                                   %advanced-filesystem-tools
@@ -210,10 +209,14 @@
   (list htop sysstat procps atop inxi))
 
 (define %basic-filesystem-tools
-  (list parted fdisk dosfstools e2fsprogs exfat-utils))
-
-(define %ssd-tools
-  (list nvme-cli bcache-tools lsscsi))
+  (list parted
+        fdisk
+        dosfstools
+        e2fsprogs
+        exfat-utils
+        nvme-cli
+        bcache-tools
+        lsscsi))
 
 (define %diagnostic-and-maintenance-tools
   (list smartmontools hdparm blktrace))
