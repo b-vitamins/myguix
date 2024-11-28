@@ -51,7 +51,7 @@
     (build-system cmake-build-system)
     (native-inputs (list patchelf-0.16 which python perl pkg-config))
     (inputs (list gcc cuda-toolkit-12.4 openblas))
-    (propagated-inputs (list nvidia-driver-recommended))
+    (propagated-inputs (list nvidia-driver))
     (arguments
      (list
       #:validate-runpath? #f
