@@ -17,7 +17,7 @@ zstyle ':completion:*' list-suffixes 'yes'
 zstyle ':completion:*' expand 'yes'
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "$XDG_STATE_HOME/zsh"
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh"
 
 colors
 
@@ -82,5 +82,5 @@ alias e='emacs'
 alias ec='emacsclient -c'
 alias em='emacs -nw'
 
-alias fmtmyguix='guile $MYGUIX/myguix/etc/style.gscm'
-alias fmtdotfiles='sh $DOTFILES/scripts/style.sh'
+alias fmtmyguix='guile $HOME/projects/myguix/myguix/etc/style.gscm'
+alias fmtdotfiles='sh $HOME/projects/dotfiles/scripts/style.sh'
