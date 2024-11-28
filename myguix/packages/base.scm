@@ -92,6 +92,7 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust)
+  #:use-module (myguix packages nlp)
   #:use-module (myguix packages video)
   #:export (%system-core-packages %nvidia-core-packages
                                   %cuda-accelerated-packages
@@ -201,10 +202,9 @@
   (list gnupg pinentry password-store))
 
 (define %desktop-utilities-packages
-  (list ungoogled-chromium/wayland
-        firefox
+  (list firefox
+        ungoogled-chromium/wayland
         icedove
-        gpodder
         solaar
         gnome-tweaks
         gnome-boxes))
