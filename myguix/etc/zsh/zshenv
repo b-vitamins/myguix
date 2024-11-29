@@ -1,7 +1,7 @@
 PROMPT="$%F{39}%n@%m%f %F{34}%~%f %F{160}>%f "
 export HISTSIZE="20000"
 export SAVEHIST="10000"
-export HISTFILE="$XDG_STATE_HOME/zsh/.zhistory"
+export HISTFILE="$XDG_STATE_HOME/.zhistory"
 export GUIX_PROFILE="$HOME/.guix-home/profile"
 export GUILE_LOAD_PATH="$HOME/projects/myguix${GUILE_LOAD_PATH:+:}$GUILE_LOAD_PATH"
 export GUILE_AUTO_COMPILE=0
