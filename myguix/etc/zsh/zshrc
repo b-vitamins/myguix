@@ -1,4 +1,3 @@
-source $HOME/.profile
 autoload -Uz add-zsh-hook compinit colors
 compinit -C
 
