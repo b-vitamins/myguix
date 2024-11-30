@@ -86,11 +86,14 @@
   #:use-module (gnu packages wget)
   #:use-module (gnu packages xiph)
   #:use-module (gnu packages xorg)
+  #:use-module (myguix packages maths)
+  #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages mozilla)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages linux)
   #:use-module (myguix packages rust)
   #:use-module (myguix packages nlp)
   #:use-module (myguix packages video)
@@ -350,8 +353,15 @@
         cutlass-tools-3.4
         cutensor
         nccl
+        libfabric-cuda
+        psm2-cuda
+        tensorpipe-cuda
+        magma-cuda
         ffmpeg-cuda
-        mpv-cuda))
+        mpv-cuda
+        python-torch-cuda
+        whisper-cpp-cuda
+        llama-cpp-cuda))
 
 (define %tree-sitter-packages
   (list tree-sitter
