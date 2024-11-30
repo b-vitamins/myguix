@@ -36,7 +36,7 @@
 
 (define-public magma-cuda
   (package
-    (name "magma")
+    (name "magma-cuda")
     (version "2.8.0")
     (source
      (origin
