@@ -84,7 +84,7 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "560.35.03")
+  "550.135")
 
 
 ;;;
@@ -92,10 +92,10 @@
 ;;;
 
 (define %nvidia-driver-hashes
-  '(("560.35.03" . "1qqzkzi1ms5x7yjbfsy2hmqsvw3k9zy57r0v6jrcahyxza92r4zj")))
+  '(("550.135" . "1ac8hy0rwk5dgfj28h7gj1mwm59189dsah91fq76j1a0ckslf80i")))
 
 (define %nvidia-settings-hashes
-  '(("560.35.03" . "1yayvpi0826g3l04390wh284qzhxgc027c2r6i0cz2pi1472y2wi")))
+  '(("550.135" . "0m6g6lx4pzqqz9bscva9qgydbrdn1shwg0q90zzsq3mih11va7p0")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -736,8 +736,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                            `("LD_LIBRARY_PATH" ":" prefix
                              (,(string-append out "/lib/"))))))))))
     (native-inputs (list m4 pkg-config))
-    (inputs (list vulkan-headers
-                  bash-minimal
+    (inputs (list bash-minimal
                   dbus
                   glu
                   gtk+
