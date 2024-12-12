@@ -41,8 +41,7 @@
            ;; X Window
            (service gdm-service-type
                     (gdm-configuration (gnome-shell-assets
-                                        %my-gnome-shell-assets)
-                                       (wayland? #f)))
+                                        %my-gnome-shell-assets)))
            gdm-file-system-service
            fontconfig-file-system-service
            (service x11-socket-directory-service-type)
