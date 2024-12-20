@@ -337,6 +337,8 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                               (_ "."))
                           "lib/"
                           #:include-regexp ("^./[^/]+\\.so"))
+                         ("." "lib/nvidia/wine/"
+                          #:include-regexp ("_?nvngx\\.dll$"))
                          ("." "share/nvidia/"
                           #:include-regexp ("nvidia-application-profiles"))
                          ("." "share/egl/egl_external_platform.d/"
