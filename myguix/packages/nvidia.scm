@@ -84,7 +84,7 @@
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
 (define-public nvidia-version
-  "550.54.14")
+  "550.135")
 
 
 ;;;
@@ -92,10 +92,10 @@
 ;;;
 
 (define %nvidia-driver-hashes
-  '(("550.54.14" . "1qygaw0pic78s9nblb3v4g92dzd4z8qbqjaihzxi1hy7rzqpyjcc")))
+  '(("550.135" . "1ac8hy0rwk5dgfj28h7gj1mwm59189dsah91fq76j1a0ckslf80i")))
 
 (define %nvidia-settings-hashes
-  '(("550.54.14" . "1bnrczws7a5kr918bcbwhz8ha0d6i6zsibk3rw22vlk9480wsslv")))
+  '(("550.135" . "0m6g6lx4pzqqz9bscva9qgydbrdn1shwg0q90zzsq3mih11va7p0")))
 
 (define (nvidia-source-unbundle-libraries version)
   #~(begin
@@ -1798,5 +1798,3 @@ See also
      "NVIDIA cuSPARSELt is a high-performance CUDA library dedicated to general matrix-matrix operations in which at least one operand is a sparse matrix. The cuSPARSELt APIs allow flexibility in the algorithm/operation selection, epilogue, and matrix characteristics, including memory layout, alignment, and data types.")
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
-
-nvidia-settings
