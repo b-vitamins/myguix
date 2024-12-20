@@ -50,6 +50,7 @@
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system gnu)
+  #:use-module (guix build-system meson)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system python)
   #:use-module (guix build-system trivial)
@@ -902,6 +903,29 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
          ((_ (? package? pkg) output)
           (replace-mesa (list pkg output))))
        (package-propagated-inputs package)))
+
+(define-public egl-gbm
+  (package
+    (name "egl-gbm")
+    (version "1.1.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/egl-gbm")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1rfgfi06ry7c7hnzdm4b0dc8r3hmbfn2rd37z3mc4wn38sgz5l3a"))))
+    (build-system meson-build-system)
+    (native-inputs (list pkg-config))
+    (inputs (list eglexternalplatform mesa-for-nvda))
+    (synopsis "GBM EGL external platform library")
+    (description
+     "This package provides an EGL External Platform library implementation for
+GBM EGL support.")
+    (home-page "https://github.com/NVIDIA/egl-gbm")
+    (license license-gnu:expat)))
 
 
 ;;;
@@ -1798,5 +1822,3 @@ See also
      "NVIDIA cuSPARSELt is a high-performance CUDA library dedicated to general matrix-matrix operations in which at least one operand is a sparse matrix. The cuSPARSELt APIs allow flexibility in the algorithm/operation selection, epilogue, and matrix characteristics, including memory layout, alignment, and data types.")
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
-
-nvidia-settings
