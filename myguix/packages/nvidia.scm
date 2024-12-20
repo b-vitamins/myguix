@@ -548,10 +548,8 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                   egl-wayland
                   `(,gcc "lib")
                   glibc
-                  libdrm
                   libglvnd-for-nvda
-                  libx11
-                  libxext
+                  mesa-for-nvda
                   openssl
                   openssl-1.1
                   wayland))
