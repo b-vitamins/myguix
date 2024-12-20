@@ -84,94 +84,69 @@
     ;; GSYNC control for Vulkan direct-to-display applications.
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
-(define-public nvidia-version
-  "550.54.14")
-
 
 ;;;
 ;;; NVIDIA driver checkouts
 ;;;
 
-(define %nvidia-driver-hashes
-  '(("550.54.14" . "1qygaw0pic78s9nblb3v4g92dzd4z8qbqjaihzxi1hy7rzqpyjcc")))
-
-(define %nvidia-settings-hashes
-  '(("550.54.14" . "1bnrczws7a5kr918bcbwhz8ha0d6i6zsibk3rw22vlk9480wsslv")))
-
-(define (nvidia-source-unbundle-libraries version)
-  #~(begin
-      (use-modules (guix build utils))
-      (for-each delete-file
-                (find-files "."
-                            (string-join '( ;egl-gbm
-                                            "libnvidia-egl-gbm\\.so\\."
-                                           ;; egl-wayland
-                                           "libnvidia-egl-wayland\\.so\\."
-                                           ;; libglvnd
-                                           "libEGL\\.so\\."
-                                           "libGL\\.so\\."
-                                           "libGLESv1_CM\\.so\\."
-                                           "libGLESv2\\.so\\."
-                                           "libGLX\\.so\\."
-                                           "libGLdispatch\\.so\\."
-                                           "libOpenGL\\.so\\."
-                                           ;; nvidia-settings
-                                           "libnvidia-gtk[23]\\.so\\."
-                                           ;; opencl-icd-loader
-                                           "libOpenCL\\.so\\.") "|")))))
-
-(define* (make-nvidia-source version hash
-                             #:optional (get-cleanup-snippet
-                                         nvidia-source-unbundle-libraries))
-  "Given VERSION and HASH of an NVIDIA driver installer, return an <origin> for
-its unpacked checkout.  GET-CLEANUP-SNIPPET is a procedure that accepts the
-VERSION as argument and returns a G-expression."
-  (define installer
-    (origin
-      (method url-fetch)
-      (uri (string-append
-            "https://us.download.nvidia.com/XFree86/Linux-x86_64/" version
-            "/NVIDIA-Linux-x86_64-" version ".run"))
-      (sha256 hash)))
-  (origin
-    (method (@@ (guix packages) computed-origin-method))
-    (file-name (string-append "nvidia-driver-" version "-checkout"))
-    (sha256 #f)
-    (snippet (get-cleanup-snippet version))
-    (uri (delay (with-imported-modules '((guix build utils))
-                                       #~(begin
-                                           (use-modules (guix build utils)
-                                                        (ice-9 ftw))
-                                           (set-path-environment-variable
-                                            "PATH"
+(define nvidia-driver-snippet
+  ;; Note: delay to cope with cyclic module imports at the top level.
+  (delay #~(begin
+             (use-modules (guix build utils)
+                          (ice-9 ftw)
+                          (srfi srfi-1))
+             (set-path-environment-variable "PATH"
                                             '("bin")
                                             '#+(list bash-minimal
-                                                     coreutils
-                                                     gawk
-                                                     grep
-                                                     tar
-                                                     which
-                                                     xz
-                                                     zstd))
-                                           (setenv "XZ_OPT"
-                                                   (string-join (%xz-parallel-args)))
-                                           (invoke "sh"
-                                                   #$installer "-x")
-                                           (copy-recursively (car (scandir (canonicalize-path
-                                                                            (getcwd))
-                                                                           (lambda 
-                                                                                   (file)
-                                                                             (not
-                                                                              (member
-                                                                               file
-                                                                               '
-                                                                               ("."
-                                                                                ".."))))))
-                                                             #$output)))))))
+                                                     coreutils-minimal grep
+                                                     tar zstd))
+             (let* ((this-file (last (scandir (getcwd)))))
+               (invoke "sh" this-file "--extract-only" "--target" "extractdir")
+               (for-each delete-file
+                         (find-files "extractdir"
+                                     (string-join '( ;egl-gbm
+                                                    
 
-(define-public nvidia-source
-  (make-nvidia-source nvidia-version
-                      (base32 (assoc-ref %nvidia-driver-hashes nvidia-version))))
+                                                    "libnvidia-egl-gbm\\.so\\."
+                                                    ;; egl-wayland
+                                                    "libnvidia-egl-wayland\\.so\\."
+                                                    ;; libglvnd
+                                                    "libEGL\\.so\\."
+                                                    "libGL\\.so\\."
+                                                    "libGLESv1_CM\\.so\\."
+                                                    "libGLESv2\\.so\\."
+                                                    "libGLX\\.so\\."
+                                                    "libGLdispatch\\.so\\."
+                                                    "libOpenGL\\.so\\."
+                                                    ;; nvidia-settings
+                                                    "libnvidia-gtk[23]\\.so\\."
+                                                    ;; opencl-icd-loader
+                                                    "libOpenCL\\.so\\.") "|")))
+               (with-directory-excursion "extractdir"
+                 (invoke "tar"
+                         "cvfa"
+                         (string-append this-file ".tar")
+                         "--mtime=1"
+                         "--owner=root:0"
+                         "--group=root:0" ;determinism
+                         "--sort=name"
+                         ".")
+                 (invoke "zstd"
+                         (string-append this-file ".tar")))
+               (rename-file (string-append "extractdir/" this-file ".tar.zst")
+                            this-file)))))
+
+(define (nvidia-source version hash)
+  "Given VERSION of an NVIDIA driver installer, return an <origin> for
+its unpacked checkout."
+  (origin
+    (method url-fetch)
+    (uri (string-append "https://us.download.nvidia.com/XFree86/Linux-x86_64/"
+          version "/NVIDIA-Linux-x86_64-" version ".run"))
+    (file-name (string-append "NVIDIA-Linux-x86_64-" version))
+    (sha256 (base32 hash))
+    (modules '((guix build utils)))
+    (snippet (force nvidia-driver-snippet))))
 
 
 ;;;
@@ -318,9 +293,10 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
 (define-public nvidia-driver
   (package
     (name "nvidia-driver")
-    (version nvidia-version)
+    (version "550.142")
     (source
-     nvidia-source)
+     (nvidia-source version
+                    "18cj2zmrzljd7nc4bmrc9l11pq092pd7nsxnad9djhjby254kmbd"))
     (build-system copy-build-system)
     (arguments
      (list
@@ -353,6 +329,9 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                          ("nvidia_layers.json"
                           "share/vulkan/implicit_layer.d/"))
       #:phases #~(modify-phases %standard-phases
+                   (replace 'unpack
+                     (lambda* (#:key source #:allow-other-keys)
+                       (invoke "tar" "xvf" source)))
                    (delete 'strip)
                    (add-after 'unpack 'create-misc-files
                      (lambda* (#:key inputs #:allow-other-keys)
@@ -409,43 +388,27 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                                    "/share/vulkan/icd.d/nvidia_icd.json"
                                    "/share/vulkan/implicit_layer.d/nvidia_layers.json"))))
                    (add-after 'install 'patch-elf
-                     (lambda _
-                       (let* ((ld.so (string-append #$(this-package-input
-                                                       "glibc")
-                                                    #$(glibc-dynamic-linker)))
-                              (rpath (string-join (list (string-append #$output
-                                                                       "/lib")
-                                                        (string-append #$openssl-1.1
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "egl-wayland")
-                                                                       "/lib")
-                                                        (string-append (ungexp
-                                                                        (this-package-input
-                                                                         "gcc")
-                                                                        "lib")
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "glibc")
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "libdrm")
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "libglvnd")
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "libx11")
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "libxext")
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "openssl")
-                                                                       "/lib")
-                                                        (string-append #$(this-package-input
-                                                                          "wayland")
-                                                                       "/lib"))
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (let* ((ld.so (search-input-file inputs
+                                                        #$(glibc-dynamic-linker)))
+                              (rpath (string-join (cons* (dirname ld.so)
+                                                         (string-append #$output
+                                                          "/lib")
+                                                         (map (lambda (name)
+                                                                (dirname (search-input-file
+                                                                          inputs
+                                                                          (string-append
+                                                                           "lib/"
+                                                                           name))))
+                                                              '("libX11.so.6"
+                                                                "libXext.so.6"
+                                                                "libcrypto.so.1.1"
+                                                                "libcrypto.so.3"
+                                                                "libdrm.so.2"
+                                                                "libgbm.so.1"
+                                                                "libgcc_s.so.1"
+                                                                "libwayland-client.so.0"
+                                                                "libxcb.so.1")))
                                                   ":")))
                          (define (patch-elf file)
                            (format #t "Patching ~a ..." file)
@@ -548,7 +511,6 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                   egl-wayland
                   `(,gcc "lib")
                   glibc
-                  libglvnd-for-nvda
                   mesa-for-nvda
                   openssl
                   openssl-1.1
@@ -563,12 +525,41 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
+(define-public nvidia-driver-beta
+  (package
+    (inherit nvidia-driver)
+    (name "nvidia-driver-beta")
+    (version "565.57.01")
+    (source
+     (nvidia-source version
+                    "0yic33xx1b3jbgciphlwh6zqfj21vx9439zm0j45wf2yb17fksvf"))
+    (arguments
+     (substitute-keyword-arguments (package-arguments nvidia-driver)
+       ((#:install-plan plan)
+        #~(cons '("nvidia_icd_vksc.json" "etc/vulkansc/icd.d/")
+                #$plan))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'create-misc-files 'create-misc-files-for-beta
+              (lambda _
+                ;; VulkanSC ICD configuration
+                (substitute* "nvidia_icd_vksc.json"
+                  (("libnvidia-vksc-core\\.so\\.." all)
+                   (string-append #$output "/lib/" all)))))
+            (add-after 'install-commands 'install-commands-for-beta
+              (lambda _
+                (when (string-match "x86_64-linux"
+                                    (or #$(%current-target-system)
+                                        #$(%current-system)))
+                  (install-file "nvidia-pcc"
+                                (string-append #$output "/bin")))))))))))
+
 (define-public nvidia-libs
   (deprecated-package "nvidia-libs" nvidia-driver))
 
 
 ;;;
-;;; NVIDIA frimwares
+;;; NVIDIA firmwares
 ;;;
 
 (define-public nvidia-firmware
@@ -581,7 +572,10 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
         #:install-plan #~'(("firmware" #$(string-append "lib/firmware/nvidia/"
                                           (package-version this-package))))
         #:phases #~(modify-phases %standard-phases
-                     (delete 'strip))))
+                     (delete 'strip)
+                     (replace 'unpack
+                       (lambda* (#:key source #:allow-other-keys)
+                         (invoke "tar" "xvf" source))))))
       (propagated-inputs '())
       (inputs '())
       (native-inputs '())
@@ -595,6 +589,14 @@ product.
 To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
 @code{kernel-arguments} field of the @code{operating-system} configuration."))))
 
+(define-public nvidia-firmware-beta
+  (package
+    (inherit nvidia-firmware)
+    (name "nvidia-firmware-beta")
+    (version (package-version nvidia-driver-beta))
+    (source
+     (package-source nvidia-driver-beta))))
+
 
 ;;;
 ;;; NVIDIA kernel modules
@@ -603,9 +605,9 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
 (define-public nvidia-module
   (package
     (name "nvidia-module")
-    (version nvidia-version)
+    (version (package-version nvidia-driver))
     (source
-     nvidia-source)
+     (package-source nvidia-driver))
     (build-system linux-module-build-system)
     (arguments
      (list
@@ -615,6 +617,9 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
       #:make-flags #~(list (string-append "CC="
                                           #$(cc-for-target)))
       #:phases #~(modify-phases %standard-phases
+                   (replace 'unpack
+                     (lambda* (#:key source #:allow-other-keys)
+                       (invoke "tar" "xvf" source)))
                    (delete 'strip)
                    (add-before 'configure 'fixpath
                      (lambda* (#:key (source-directory ".") #:allow-other-keys)
@@ -636,6 +641,7 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
                               `(,@(if parallel-build?
                                       `("-j" ,(number->string (parallel-job-count)))
                                       '()) ,@make-flags)))))))
+    (supported-systems '("x86_64-linux"))
     (home-page "https://www.nvidia.com")
     (synopsis "Proprietary NVIDIA driver (kernel modules)")
     (description
@@ -649,6 +655,14 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (license (license:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
+
+(define-public nvidia-module-beta
+  (package
+    (inherit nvidia-module)
+    (name "nvidia-module-beta")
+    (version (package-version nvidia-driver-beta))
+    (source
+     (package-source nvidia-driver-beta))))
 
 (define-public nvidia-module-open
   (let ((base nvidia-module))
@@ -680,26 +694,36 @@ If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
       (license license-gnu:gpl2))))
 
+(define-public nvidia-module-open-beta
+  (package
+    (inherit nvidia-module-open)
+    (name "nvidia-module-open-beta")
+    (version (package-version nvidia-driver-beta))
+    (source
+     (package-source nvidia-driver-beta))))
+
 
 ;;;
 ;;; ‘nvidia-settings’ packages
 ;;;
 
+(define (nvidia-settings-source name version hash)
+  (origin
+    (method git-fetch)
+    (uri (git-reference (url "https://github.com/NVIDIA/nvidia-settings")
+                        (commit version)))
+    (file-name (git-file-name name version))
+    (modules '((guix build utils)))
+    (snippet '(delete-file-recursively "src/jansson"))
+    (sha256 (base32 hash))))
+
 (define-public nvidia-settings
   (package
     (name "nvidia-settings")
-    (version nvidia-version)
+    (version "550.142")
     (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/NVIDIA/nvidia-settings")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (modules '((guix build utils)))
-       (snippet '(delete-file-recursively "src/jansson"))
-       (sha256
-        (base32 (assoc-ref %nvidia-settings-hashes version)))))
+     (nvidia-settings-source name version
+      "01i2d2h91izx6937qikml11cxxjafgk326ndw80pgnzcbfaqhkjs"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -755,6 +779,17 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 configuration, creating application profiles, gpu monitoring and more.")
     (home-page "https://github.com/NVIDIA/nvidia-settings")
     (license license-gnu:gpl2)))
+
+(define-public nvidia-settings-beta
+  (package
+    (inherit nvidia-settings)
+    (name "nvidia-settings-beta")
+    (version "565.57.01")
+    (source
+     (nvidia-settings-source name version
+      "006my5a69689wkzjcg3k1y35ifmizfyfj4n7f02naxhbgrxq9fqz"))
+    (inputs (modify-inputs (package-inputs nvidia-settings)
+              (prepend vulkan-headers)))))
 
 
 ;;;
@@ -829,7 +864,6 @@ configuration, creating application profiles, gpu monitoring and more.")
 ;; required for grafting
 (define-public nvda
   (package
-    (inherit nvidia-driver)
     (name "nvda")
     (version (string-pad-right (package-version nvidia-driver)
                                (string-length (package-version mesa-for-nvda))
@@ -885,24 +919,48 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
                                (package-propagated-inputs nvidia-driver)))
     (inputs (list mesa-for-nvda nvidia-driver))
-    (outputs '("out"))))
+    (outputs '("out"))
+    (license (package-license nvidia-driver))
+    (home-page (package-home-page nvidia-driver))))
+
+(define-public nvdb
+  (package
+    (inherit nvda)
+    (name "nvdb")
+    (version (string-pad-right (package-version nvidia-driver-beta)
+                               (string-length (package-version mesa-for-nvda))
+                               #\0))
+    (arguments
+     (list
+      #:modules '((guix build union))
+      #:builder #~(begin
+                    (use-modules (guix build union))
+                    (union-build #$output
+                                 '#$(list (this-package-input "libglvnd")
+                                          (this-package-input "mesa")
+                                          (this-package-input
+                                           "nvidia-driver-beta"))))))
+    (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
+                               (package-propagated-inputs nvidia-driver-beta)))
+    (inputs (list mesa-for-nvda nvidia-driver-beta))))
 
 (define mesa/fake
   (package
     (inherit mesa)
     (replacement nvda)))
 
+(define-public mesa/fake-beta
+  (hidden-package (package
+                    (inherit mesa)
+                    (replacement nvdb))))
+
 (define-public replace-mesa
   (package-input-rewriting `((,mesa unquote mesa/fake))))
 
-(define-public (replace-mesa-from-propagated-inputs package)
-  ;; Apply replace-mesa to every package input.
-  (map (match-lambda
-         ((_ (? package? pkg))
-          (replace-mesa pkg))
-         ((_ (? package? pkg) output)
-          (replace-mesa (list pkg output))))
-       (package-propagated-inputs package)))
+
+;;;
+;;; Other packages
+;;;
 
 (define-public egl-gbm
   (package
@@ -950,11 +1008,6 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
 @code{EGL_EXT_platform_xcb}).")
     (home-page "https://github.com/NVIDIA/egl-x11")
     (license license-gnu:expat)))
-
-
-;;;
-;;; Other packages
-;;;
 
 (define-public gpustat
   (package
