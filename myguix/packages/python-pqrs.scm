@@ -1407,6 +1407,7 @@ If you believe in open access to scientific papers, please donate to Sci-Hub.")
        '(#:tests? #f))
       (propagated-inputs (list python-beautifulsoup4 python-requests
                                python-retrying))
+      (native-inputs (list python-setuptools python-wheel))
       (home-page "https://github.com/zaytoun/scihub.py")
       (synopsis "Unofficial scihub API")
       (description
