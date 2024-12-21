@@ -67,6 +67,7 @@
       #:tests? #f))
     (build-system pyproject-build-system)
     (inputs (list python-requests python-pydantic python-purl))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/dpriskorn/OpenAlexAPI")
     (synopsis "Libray for accessing the OpenAlex API")
     (description "Libray for accessing the @code{OpenAlex} API")
