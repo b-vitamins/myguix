@@ -158,10 +158,9 @@ Included fonts:
                          ("font-microsoft-webdings" ,font-microsoft-webdings)))))
 
 (define* (apple-font #:key font-name
-                     archive-timestamp
-                     version
                      file
                      hash
+                     version
                      synopsis
                      description)
   (package
@@ -173,12 +172,7 @@ Included fonts:
      (origin
        (method url-fetch)
        (uri (string-append
-             ;; Download link is unversioned, use a stable snapshot.
-             "https://web.archive.org/web/"
-             archive-timestamp
-             "/"
-             "https://devimages-cdn.apple.com/design/resources/download/"
-             file
+             "https://devimages-cdn.apple.com/design/resources/download/" file
              ".dmg"))
        (sha256
         (base32 hash))))
@@ -202,10 +196,9 @@ Included fonts:
 
 (define-public font-apple-sf-pro
   (apple-font #:font-name "SF Pro"
-   #:archive-timestamp "20240527221252"
    #:file "SF-Pro"
+   #:hash "1krvzxz7kal6y0l5cx9svmgikqdj5v0fl5vnfjig0z4nwp903ir1"
    #:version "20.0d8e1"
-   #:hash "153k3q8h5mpd358b1lsa8ha32qxv7vc2q661k20j4nnf3ndjkv9j"
    #:description
    "This neutral, flexible, sans-serif typeface is the system
 font for iOS, iPad OS, macOS and tvOS.  SF Pro features nine weights, variable
@@ -215,10 +208,9 @@ scripts."))
 
 (define-public font-apple-sf-compact
   (apple-font #:font-name "SF Compact"
-   #:archive-timestamp "20240527221317"
    #:file "SF-Compact"
+   #:hash "0ncybkrzqazw13azy2s30ss7ml5pxaia6hbmqq9wn7xhlhrxlniy"
    #:version "20.0d8e1"
-   #:hash "01j7k95rnmg667hyhj88fxqrgsah2mnk2ws7fmclif92mqcgwirj"
    #:description
    "Sharing many features with SF Pro, SF Compact features an
 efficient, compact design that is optimized for small sizes and narrow columns.
@@ -226,10 +218,9 @@ SF Compact is the system font for watchOS and includes a rounded variant."))
 
 (define-public font-apple-sf-mono
   (apple-font #:font-name "SF Mono"
-   #:archive-timestamp "20240527221346"
    #:file "SF-Mono"
+   #:hash "0ibrk9fvbq52f5qnv1a8xlsazd3x3jnwwhpn2gwhdkdawdw0njkd"
    #:version "20.0d8e1"
-   #:hash "0cxj1wk6nbz1ysi0cg1w79b7ja48n00dypxkrsc3mvrn1vmdb4dm"
    #:description
    "This monospaced variant of San Francisco enables alignment
 between rows and columns of text, and is used in coding environments like Xcode.
@@ -237,10 +228,9 @@ SF Mono features six weights and supports Latin, Greek, and Cyrillic scripts."))
 
 (define-public font-apple-sf-arabic
   (apple-font #:font-name "SF Arabic"
-   #:archive-timestamp "20240527221359"
    #:file "SF-Arabic"
+   #:hash "1fcpa488vx3xj9f9hq70gxj4qbgcjaijwz2i94n02xrba0nwcq17"
    #:version "20.0d8e1"
-   #:hash "0sm7w5i19n3jdj6d04344nxizqacg264rladjiwhxhwa3ksfbxsn"
    #:description
    "A contemporary interpretation of the Naskh style with a
 rational and flexible design, this extension of San Francisco is the Arabic
@@ -250,10 +240,9 @@ based on the point size, and includes a rounded variant."))
 
 (define-public font-apple-new-york
   (apple-font #:font-name "New York"
-   #:archive-timestamp "20240527221356"
    #:file "NY"
+   #:hash "1x7qi3dqwq1p4l3md31cd93mcds3ba7rgsmpz0kg7h3caasfsbhw"
    #:version "17.0d5e1"
-   #:hash "06d8pnfp4z5nb82mh7g7pnz5m4njph3zy17ww1m8x0m34hn50zdn"
    #:description
    "A companion to San Francisco, this serif typeface is based on
 essential aspects of historical type styles.  New York features six weights,
@@ -267,10 +256,9 @@ graphic display face at larger sizes."))
 ;; and in case the situation changes in the future.
 (define-public font-apple-sf-symbols
   (apple-font #:font-name "SF Symbols"
-   #:archive-timestamp "20240701100406"
    #:file "SF-Symbols-6"
+   #:hash "1yl41hjn2ckixvv6lpdw1imvihan0v5ggfkkllsd4mjd4z590vl4"
    #:version "6"
-   #:hash "1hyghp03zpsiks2p6kmghnmg28kkjj3qqk2hgwva855kly6r4hv8"
    #:description
    "With over 5,000 symbols, SF Symbols is a library of
 iconography designed to integrate seamlessly with San Francisco, the system
@@ -280,7 +268,7 @@ automatically align with text labels."))
 (define-public font-apple-color-emoji
   (package
     (name "font-apple-color-emoji")
-    (version "18.0d4e1")
+    (version "20.0d1e3")
     (source
      (origin
        (method url-fetch)
