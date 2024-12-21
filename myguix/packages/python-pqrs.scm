@@ -648,6 +648,7 @@ methods.")
     (arguments
      (list
       #:tests? #f))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://python-future.org")
     (synopsis "Clean single-source support for Python 3 and 2")
     (description "Clean single-source support for Python 3 and 2.")
