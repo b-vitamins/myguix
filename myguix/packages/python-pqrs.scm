@@ -1366,6 +1366,7 @@ community.")
                          python-sphinx-autobuild
                          python-sphinx-rtd-theme
                          python-twine
+                         python-setuptools
                          python-wheel))
     (home-page "https://github.com/papis/python-doi")
     (synopsis "Python package to work with Document Object Identifier (doi)")
