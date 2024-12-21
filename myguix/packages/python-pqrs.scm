@@ -332,7 +332,7 @@ as well.")
        (sha256
         (base32 "0jaw5xv8wshf8rr0xicm3id891jlyx95i4yqgsxbb5i1bagjd1v3"))))
     (build-system pyproject-build-system)
-    (native-inputs (list python-pytest))
+    (native-inputs (list python-pytest python-setuptools python-wheel))
     (propagated-inputs (list python-importlib-metadata
                              python-importlib-resources))
     (home-page "")
