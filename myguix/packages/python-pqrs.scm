@@ -1416,6 +1416,7 @@ community.")
        '(#:tests? #f))
       (propagated-inputs (list python-beautifulsoup4 python-requests
                                python-retrying python-doi))
+      (native-inputs (list python-setuptools python-wheel))
       (home-page "https://github.com/alejandrogallo/python-scihub")
       (synopsis "Unofficial scihub API")
       (description
