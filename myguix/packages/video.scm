@@ -171,3 +171,28 @@
                          (replace "mesa" nvda)
                          (replace "ffmpeg" ffmpeg-cuda)
                          (append cuda-toolkit-12.4 nv-codec-headers)))))
+
+(define-public gmmlib
+  (package
+    (name "gmmlib")
+    (version "22.3.19")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/intel/gmmlib")
+             (commit (string-append "intel-gmmlib-" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0p3wp6xcvpb4jzw4fsf6554qy91iblmq9y50ph3iy29m19q6nznb"))))
+    (build-system cmake-build-system)
+    (arguments
+     ;; Tests are run as part of the normal build step
+     '(#:tests? #f))
+    (home-page "https://github.com/intel/gmmlib")
+    (synopsis "Intel Graphics Memory Management Library")
+    (description
+     "This package provides device specific and buffer management for the
+Intel Graphics Compute Runtime for OpenCL and the Intel Media Driver
+for VAAPI.")
+    (license license:expat)))
