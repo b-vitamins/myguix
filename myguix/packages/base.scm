@@ -224,7 +224,6 @@
         gnome-boxes
         signal-desktop
         zoom
-        anydesk
         anytype
         zotero))
 
