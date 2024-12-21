@@ -31,7 +31,7 @@
 (define %my-channels
   (cons* (channel
            (name 'myguix)
-           (url "https://github.com/b-vitamins/myguix")
+           (url "https://github.com/b-vitamins/myguix.git")
            (introduction
             (make-channel-introduction
              "85d58b09dc71e9dc9834b666b658f79d2e212d65"
