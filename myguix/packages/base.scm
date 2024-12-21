@@ -89,6 +89,7 @@
   #:use-module (myguix packages maths)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages emacs-pqrs)
+  #:use-module (myguix packages fonts)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages mozilla)
   #:use-module (myguix packages nvidia)
@@ -139,6 +140,7 @@
             %general-fonts
             %document-fonts
             %adobe-fonts
+            %apple-fonts
             %google-fonts
             %fira-fonts
             %iosevka-fonts
@@ -435,6 +437,16 @@
 (define %adobe-fonts
   (list font-adobe-source-han-sans font-adobe-source-code-pro
         font-adobe-source-sans-pro font-adobe-source-serif-pro))
+
+(define %apple-fonts
+  (list font-apple-sf-pro
+        font-apple-sf-compact
+        font-apple-sf-mono
+        font-apple-sf-arabic
+        font-apple-new-york
+        font-apple-sf-symbols
+        font-apple-color-emoji
+        font-apple-symbols))
 
 (define %google-fonts
   (list font-google-noto
