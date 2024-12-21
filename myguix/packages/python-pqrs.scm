@@ -382,6 +382,7 @@ as well.")
                              python-selenium
                              python-sphinx-rtd-theme
                              python-typing-extensions))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/scholarly-python-package/scholarly")
     (synopsis "Simple access to Google Scholar authors and citations")
     (description "Simple access to Google Scholar authors and citations")
