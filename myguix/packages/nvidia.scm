@@ -110,6 +110,9 @@
                                                     "libnvidia-egl-gbm\\.so\\."
                                                     ;; egl-wayland
                                                     "libnvidia-egl-wayland\\.so\\."
+                                                    ;; egl-x11
+                                                    "libnvidia-egl-xcb\\.so\\."
+                                                    "libnvidia-egl-xlib\\.so\\."
                                                     ;; libglvnd
                                                     "libEGL\\.so\\."
                                                     "libGL\\.so\\."
@@ -293,10 +296,10 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
 (define-public nvidia-driver
   (package
     (name "nvidia-driver")
-    (version "550.142")
+    (version "565.77")
     (source
      (nvidia-source version
-                    "18cj2zmrzljd7nc4bmrc9l11pq092pd7nsxnad9djhjby254kmbd"))
+                    "0z0lncf3q4ndf16k928vpjrzvc9xgg8h494qcvbk9kvbqi1afyha"))
     (build-system copy-build-system)
     (arguments
      (list
@@ -318,7 +321,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                          ("." "share/nvidia/"
                           #:include-regexp ("nvidia-application-profiles"))
                          ("." "share/egl/egl_external_platform.d/"
-                          #:include-regexp ("(gbm|wayland)\\.json"))
+                          #:include-regexp ("(gbm|wayland|xcb|xlib)\\.json$"))
                          ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
                          ("90-nvidia.rules" "lib/udev/rules.d/")
                          ("nvidia-drm-outputclass.conf"
@@ -326,6 +329,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                          ("nvidia-dbus.conf" "share/dbus-1/system.d/")
                          ("nvidia.icd" "etc/OpenCL/vendors/")
                          ("nvidia_icd.json" "share/vulkan/icd.d/")
+                         ("nvidia_icd_vksc.json" "etc/vulkansc/icd.d/")
                          ("nvidia_layers.json"
                           "share/vulkan/implicit_layer.d/"))
       #:phases #~(modify-phases %standard-phases
@@ -337,8 +341,10 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                      (lambda* (#:key inputs #:allow-other-keys)
                        ;; EGL external platform configuraiton
                        (substitute* '("10_nvidia_wayland.json"
-                                      "15_nvidia_gbm.json")
-                         (("libnvidia-egl-(wayland|gbm)\\.so\\.." all)
+                                      "15_nvidia_gbm.json"
+                                      "20_nvidia_xcb.json"
+                                      "20_nvidia_xlib.json")
+                         (("libnvidia-egl-(wayland|gbm|xcb|xlib)\\.so\\.." all)
                           (search-input-file inputs
                                              (string-append "lib/" all))))
 
@@ -355,6 +361,11 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                        ;; Vulkan ICD & layer configuraiton
                        (substitute* '("nvidia_icd.json" "nvidia_layers.json")
                          (("libGLX_nvidia\\.so\\.." all)
+                          (string-append #$output "/lib/" all)))
+
+                       ;; VulkanSC ICD configuration
+                       (substitute* "nvidia_icd_vksc.json"
+                         (("libnvidia-vksc-core\\.so\\.." all)
                           (string-append #$output "/lib/" all)))
 
                        ;; Add udev rules
@@ -384,6 +395,8 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                                  '("/etc/OpenCL/vendors/nvidia.icd"
                                    "/share/egl/egl_external_platform.d/10_nvidia_wayland.json"
                                    "/share/egl/egl_external_platform.d/15_nvidia_gbm.json"
+                                   "/share/egl/egl_external_platform.d/20_nvidia_xcb.json"
+                                   "/share/egl/egl_external_platform.d/20_nvidia_xlib.json"
                                    "/share/glvnd/egl_vendor.d/10_nvidia.json"
                                    "/share/vulkan/icd.d/nvidia_icd.json"
                                    "/share/vulkan/implicit_layer.d/nvidia_layers.json"))))
@@ -437,7 +450,8 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                                        (when (file-exists? manual)
                                          (install-file manual mandir))))
                                    '("nvidia-cuda-mps-control"
-                                     "nvidia-cuda-mps-server" "nvidia-smi")))))
+                                     "nvidia-cuda-mps-server" "nvidia-pcc"
+                                     "nvidia-smi")))))
                    (add-before 'patch-elf 'relocate-libraries
                      (lambda _
                        (let* ((version #$(package-version this-package))
@@ -509,6 +523,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
     (native-inputs (list patchelf-0.16))
     (inputs (list egl-gbm
                   egl-wayland
+                  egl-x11
                   `(,gcc "lib")
                   glibc
                   mesa-for-nvda
@@ -532,27 +547,7 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
     (version "565.57.01")
     (source
      (nvidia-source version
-                    "0yic33xx1b3jbgciphlwh6zqfj21vx9439zm0j45wf2yb17fksvf"))
-    (arguments
-     (substitute-keyword-arguments (package-arguments nvidia-driver)
-       ((#:install-plan plan)
-        #~(cons '("nvidia_icd_vksc.json" "etc/vulkansc/icd.d/")
-                #$plan))
-       ((#:phases phases)
-        #~(modify-phases #$phases
-            (add-after 'create-misc-files 'create-misc-files-for-beta
-              (lambda _
-                ;; VulkanSC ICD configuration
-                (substitute* "nvidia_icd_vksc.json"
-                  (("libnvidia-vksc-core\\.so\\.." all)
-                   (string-append #$output "/lib/" all)))))
-            (add-after 'install-commands 'install-commands-for-beta
-              (lambda _
-                (when (string-match "x86_64-linux"
-                                    (or #$(%current-target-system)
-                                        #$(%current-system)))
-                  (install-file "nvidia-pcc"
-                                (string-append #$output "/bin")))))))))))
+                    "0yic33xx1b3jbgciphlwh6zqfj21vx9439zm0j45wf2yb17fksvf"))))
 
 (define-public nvidia-libs
   (deprecated-package "nvidia-libs" nvidia-driver))
@@ -720,10 +715,10 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define-public nvidia-settings
   (package
     (name "nvidia-settings")
-    (version "550.142")
+    (version "565.57.01")
     (source
      (nvidia-settings-source name version
-      "01i2d2h91izx6937qikml11cxxjafgk326ndw80pgnzcbfaqhkjs"))
+      "006my5a69689wkzjcg3k1y35ifmizfyfj4n7f02naxhbgrxq9fqz"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -772,7 +767,8 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                   libxext
                   libxrandr
                   libxv
-                  libxxf86vm))
+                  libxxf86vm
+                  vulkan-headers))
     (synopsis "Nvidia driver control panel")
     (description
      "This package provides Nvidia driver control panel for monitor
@@ -787,9 +783,7 @@ configuration, creating application profiles, gpu monitoring and more.")
     (version "565.57.01")
     (source
      (nvidia-settings-source name version
-      "006my5a69689wkzjcg3k1y35ifmizfyfj4n7f02naxhbgrxq9fqz"))
-    (inputs (modify-inputs (package-inputs nvidia-settings)
-              (prepend vulkan-headers)))))
+      "006my5a69689wkzjcg3k1y35ifmizfyfj4n7f02naxhbgrxq9fqz"))))
 
 
 ;;;
