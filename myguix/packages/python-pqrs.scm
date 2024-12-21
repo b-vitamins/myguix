@@ -1176,8 +1176,13 @@ implementation of the Earth Mover's Distance.")
              "--ignore=tests/test_treespec.py"
              "--ignore=tests/test_prefix_errors.py")))
     (propagated-inputs (list python-typing-extensions))
-    (native-inputs (list cmake-minimal pybind11 python-pytest
-                         python-pytest-cov python-pytest-xdist))
+    (native-inputs (list cmake-minimal
+                         pybind11
+                         python-pytest
+                         python-pytest-cov
+                         python-pytest-xdist
+                         python-setuptools
+                         python-wheel))
     (home-page "https://github.com/metaopt/optree")
     (synopsis "Optimized PyTree utilities")
     (description "This package provides optimized @code{PyTree}
