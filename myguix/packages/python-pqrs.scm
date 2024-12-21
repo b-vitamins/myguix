@@ -359,6 +359,28 @@ as well.")
     (description "Bibtex parser for python 3.")
     (license license:expat)))
 
+(define-public python-requests-2.25
+  (package
+    (name "python-requests")
+    (version "2.25.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "requests" version))
+       (sha256
+        (base32 "1y6mb8c0ipd64d5axq2p368yxndp3f966hmabjka2q2a5y9hn6kz"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-certifi python-chardet python-idna
+                             python-urllib3))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://requests.readthedocs.io")
+    (synopsis "Python HTTP for Humans.")
+    (description "Python HTTP for Humans.")
+    (license #f)))
+
 (define-public python-scholarly
   (package
     (name "python-scholarly")
@@ -376,7 +398,7 @@ as well.")
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-requests
+    (propagated-inputs (list python-requests-2.25
                              python-arrow
                              python-beautifulsoup4
                              python-bibtexparser-1
@@ -1434,3 +1456,4 @@ It can be imported independently or used from the command-line. If you believe i
 @end itemize
 Note: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.")
       (license license:expat))))
+python-scholarly
