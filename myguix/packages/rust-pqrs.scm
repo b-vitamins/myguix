@@ -2547,18 +2547,7 @@ finite automata and guarantees linear time matching on all inputs.")
         (base32 "05mrpkvdgp5d20y2p989f187ry9diliijgwrs254fs9s1m1x6q4f"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-test-flags '("--release" "--"
-                            "--skip=packed::tests::search_default_leftmost_first"
-                            "--skip=packed::tests::search_default_leftmost_longest"
-                            "--skip=packed::tests::search_teddy_avx2_leftmost_first"
-                            "--skip=packed::tests::search_teddy_avx2_leftmost_longest"
-                            "--skip=packed::tests::search_teddy_fat_leftmost_first"
-                            "--skip=packed::tests::search_teddy_fat_leftmost_longest"
-                            "--skip=packed::tests::search_teddy_leftmost_first"
-                            "--skip=packed::tests::search_teddy_leftmost_longest"
-                            "--skip=packed::tests::search_teddy_ssse3_leftmost_first"
-                            "--skip=packed::tests::search_teddy_ssse3_leftmost_longest")
-       #:cargo-inputs (("rust-log" ,rust-log-0.4)
+     `(#:cargo-inputs (("rust-log" ,rust-log-0.4)
                        ("rust-memchr" ,rust-memchr-2))
        #:cargo-development-inputs (("rust-doc-comment" ,rust-doc-comment-0.3))))
     (home-page "https://github.com/BurntSushi/aho-corasick")
@@ -6023,19 +6012,7 @@ and the Standard Directory guidelines on @code{macOS}.")
        (uri (crate-uri "env_logger" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1pbrv61fzmr11wz2mpb85gq2bfcv8n6f6jsis8pnd1fpg0k39swy"))
-       (snippet #~(begin
-                    (use-modules (guix build utils))
-                    ;; failures:
-                    ;; src/lib.rs - (line 35)
-                    ;; src/lib.rs - (line 40)
-                    ;; src/lib.rs - (line 46)
-                    ;; src/lib.rs - (line 55)
-                    ;; src/lib.rs - (line 63)
-                    ;; src/lib.rs - (line 73)
-                    (substitute* "src/lib.rs"
-                      (("```rust")
-                       "```no_run"))))))
+        (base32 "1pbrv61fzmr11wz2mpb85gq2bfcv8n6f6jsis8pnd1fpg0k39swy"))))
     (build-system cargo-build-system)
     (arguments
      `(#:cargo-inputs (("rust-anstream" ,rust-anstream-0.6)
@@ -11167,5 +11144,3 @@ quick updates and access.")
     (description
      "This package provides Vector implementation for fast, sign-based manipulation of dynamic collections.")
     (license license:expat)))
-
-rust-env-logger-0.11
