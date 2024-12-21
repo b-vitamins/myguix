@@ -86,7 +86,8 @@
      '(#:tests? #f)) ;Requires network access
     (build-system pyproject-build-system)
     (propagated-inputs (list python-requests python-urllib3))
-    (native-inputs (list python-pytest python-pytest-xdist))
+    (native-inputs (list python-pytest python-pytest-xdist python-setuptools
+                         python-wheel))
     (home-page "")
     (synopsis "Python interface to the OpenAlex database")
     (description "Python interface to the @code{OpenAlex} database")
