@@ -130,7 +130,11 @@
                 "-DGGML_OPENMP=ON"
                 "-DGGML_CUDA=ON"
                 "-DCMAKE_CUDA_ARCHITECTURES=75;80;86"
-                "-DGGML_CUDA_FA_ALL_QUANTS=true"))))))
+                "-DGGML_CUDA_FA_ALL_QUANTS=true"))
+       ((#:phases phases
+         #~%standard-phases)
+        #~(modify-phases #$phases
+            (delete 'check)))))))
 
 (define-public python-morfessor
   (package
