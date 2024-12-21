@@ -691,7 +691,7 @@ methods.")
     (arguments
      (list
       #:tests? #f))
-    (native-inputs (list python-pytest))
+    (native-inputs (list python-pytest python-setuptools python-wheel))
     (home-page "https://github.com/nir0s/distro")
     (synopsis "OS platform information API")
     (description
