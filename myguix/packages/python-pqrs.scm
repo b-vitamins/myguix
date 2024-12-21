@@ -1320,6 +1320,7 @@ community.")
     (arguments
      '(#:tests? #f))
     (propagated-inputs (list python-pyparsing))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "http://github.com/MatthieuDartiailh/pyclibrary")
     (synopsis "C binding automation")
     (description "C binding automation.")
