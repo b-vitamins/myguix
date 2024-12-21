@@ -527,6 +527,7 @@ as well.")
        (sha256
         (base32 "01rlkigdxg17sf9yar1jl8n18ls59367wqh59hnawlyg53vb6my3"))))
     (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/kjd/idna")
     (synopsis "Internationalized Domain Names in Applications (IDNA)")
     (description "Internationalized Domain Names in Applications (IDNA).")
