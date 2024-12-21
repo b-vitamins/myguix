@@ -86,6 +86,7 @@
   #:use-module (gnu packages wget)
   #:use-module (gnu packages xiph)
   #:use-module (gnu packages xorg)
+  #:use-module (myguix packages chrome)
   #:use-module (myguix packages maths)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages emacs-pqrs)
@@ -215,7 +216,7 @@
 
 (define %desktop-packages
   (list firefox
-        ungoogled-chromium/wayland
+        google-chrome-stable
         icedove
         solaar
         gnome-tweaks
