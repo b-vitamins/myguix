@@ -415,6 +415,7 @@ as well.")
        (sha256
         (base32 "005mq8q7mvmzdl41sqiqzdamsmw9r7vxyy6rqcr5imfmf1pkcc98"))))
     (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/python/typeshed")
     (synopsis "Typing stubs for simplejson")
     (description "Typing stubs for simplejson")
