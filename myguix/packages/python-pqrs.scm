@@ -1002,6 +1002,7 @@ OpenAI API.")
        (sha256
         (base32 "1c67pfycghy9gl2hsmzjxdmr2x2n6xjqwl6immhn2ldc3j5lkgk5"))))
     (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/pybind/pybind11")
     (synopsis "Seamless operability between C++11 and Python")
     (description "Seamless operability between C++11 and Python.")
