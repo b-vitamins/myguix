@@ -233,3 +233,20 @@ for VAAPI.")
 accelerated decoding, encoding, and video post processing for the GEN based
 graphics hardware.")
     (license (list license:expat license:bsd-3))))
+
+(define-public intel-media-driver/nonfree
+  (package
+    (inherit intel-media-driver)
+    (name "intel-media-driver-nonfree")
+    (arguments
+     (substitute-keyword-arguments (package-arguments intel-media-driver)
+       ((#:configure-flags flags
+         #~'())
+        #~(cons "-DENABLE_NONFREE_KERNELS=ON"
+                (delete "-DENABLE_NONFREE_KERNELS=OFF"
+                        #$flags)))))
+    (synopsis (string-append (package-synopsis intel-media-driver)
+                             " with nonfree kernels"))
+    (description (string-append (package-description intel-media-driver)
+                  "  This build of intel-media-driver includes nonfree blobs to fully enable the
+video decode capabilities of supported Intel GPUs."))))
