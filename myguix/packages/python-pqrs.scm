@@ -47,6 +47,7 @@
         (base32 "1qxwkp0brqrfxwm853f48jzraff8934b89nm0h0vb7mpsgv1p0xw"))))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-requests))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/kermitt2/grobid_client_python")
     (synopsis "Simple python client for GROBID REST services")
     (description "Simple python client for GROBID REST services")
