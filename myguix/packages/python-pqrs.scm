@@ -281,21 +281,20 @@ as well.")
 (define-public python-jedi-language-server
   (package
     (name "python-jedi-language-server")
-    (version "0.42.0")
+    (version "0.41.3")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "jedi_language_server" version))
        (sha256
-        (base32 "0b336aa44mc1mh4rn6a6fabja9r8i5qnyk6ypcr9mxqndjaqv0fv"))))
+        (base32 "12lzgb4yqxg3dc15kpifp2bd5gl4acv5yjvhpgpwxnpsjlmw4ghi"))))
     (build-system pyproject-build-system)
-    (propagated-inputs (list python-cattrs
-                             python-docstring-to-markdown
-                             python-jedi
-                             python-lsprotocol
-                             python-pygls
-                             python-typing-extensions))
-    (native-inputs (list python-poetry-core))
+    (native-inputs (list python-poetry-core
+                         python-pygls
+                         python-lsprotocol
+                         python-jedi
+                         python-docstring-to-markdown
+                         python-cattrs))
     (arguments
      (list
       #:tests? #f))
