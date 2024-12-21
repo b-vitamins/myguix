@@ -226,42 +226,6 @@ classes can also be supported by manually registering converters.")
 glass')")
     (license license:asl2.0)))
 
-(define-public python-jedi
-  (package
-    (name "python-jedi")
-    (version "0.19.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/davidhalter/jedi")
-             (commit (string-append "v" version))
-             (recursive? #t)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1lpvxa16zyhg95s8ji3sm19qz3bawal172xwlzcl5h80mhhfagih"))
-       (modules '((guix build utils)))))
-    (build-system python-build-system)
-    (arguments
-     `(#:phases (modify-phases %standard-phases
-                  (replace 'check
-                    (lambda* (#:key tests? #:allow-other-keys)
-                      (when tests?
-                        (setenv "HOME" "/tmp")
-                        (invoke "python" "-m" "pytest" "-vv")))))))
-    (native-inputs (list python-colorama python-docopt python-pytest))
-    (propagated-inputs (list python-parso))
-    (home-page "https://github.com/davidhalter/jedi")
-    (synopsis "Autocompletion and static analysis library for Python")
-    (description
-     "Jedi is a static analysis tool for Python that can be used in Integrated
-Development Environments (@dfn{IDE}s) and text editors.  It understands Python
-on a deeper level than many other static analysis frameworks for Python.
-
-Jedi understands docstrings and you can use Jedi autocompletion in your REPL
-as well.")
-    (license license:expat)))
-
 (define-public python-docstring-to-markdown
   (package
     (name "python-docstring-to-markdown")
@@ -1457,4 +1421,3 @@ It can be imported independently or used from the command-line. If you believe i
 @end itemize
 Note: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.")
       (license license:expat))))
-python-scholarly
