@@ -510,6 +510,7 @@ as well.")
      (list
       #:tests? #f))
     (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/chardet/chardet")
     (synopsis "Universal encoding detector for Python 3")
     (description "Universal encoding detector for Python 3.")
