@@ -842,7 +842,9 @@ Some things HTTP Core does do:
                          python-trio-typing
                          python-trustme
                          python-uvicorn
-                         python-zstandard))
+                         python-zstandard
+                         python-setuptools
+                         python-wheel))
     (propagated-inputs (list python-charset-normalizer
                              python-brotli
                              python-certifi
