@@ -500,6 +500,7 @@ as well.")
        (sha256
         (base32 "13x74ydb8sa769z65h3qxv9mdgxr5p6xnjckjs6inrj423zvypj7"))))
     (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/Ch00k/ffmpy")
     (synopsis "A simple Python wrapper for ffmpeg")
     (description "This package provides a simple Python wrapper for ffmpeg")
