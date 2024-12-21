@@ -91,6 +91,8 @@
                         "--enable-nvdec"
                         "--enable-nvenc"
                         "--enable-cuvid"
+                        "--enable-ffnvcodec"
+                        "--enable-encoder=hevc_nvenc"
                         "--enable-encoder=h264_nvenc"
                         "--enable-decoder=h264_cuvid"
                         "--enable-decoder=aac"
