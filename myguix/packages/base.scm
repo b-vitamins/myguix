@@ -87,6 +87,7 @@
   #:use-module (gnu packages xiph)
   #:use-module (gnu packages xorg)
   #:use-module (myguix packages chrome)
+  #:use-module (myguix packages compression)
   #:use-module (myguix packages maths)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages emacs-pqrs)
@@ -198,6 +199,7 @@
         bzip2
         xz
         unzip
+        unrar
         p7zip
         unrar-free
         lz4
