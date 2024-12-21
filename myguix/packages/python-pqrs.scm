@@ -273,6 +273,7 @@ as well.")
        (sha256
         (base32 "0gdpabnyl1kyy0cjrnph6xl4fyhgim50a1amsaqq3hahki6i2ip1"))))
     (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/python-lsp/docstring-to-markdown")
     (synopsis "On the fly conversion of Python docstrings to markdown")
     (description "On the fly conversion of Python docstrings to markdown")
@@ -1430,3 +1431,4 @@ It can be imported independently or used from the command-line. If you believe i
 @end itemize
 Note: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.")
       (license license:expat))))
+
