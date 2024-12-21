@@ -10,7 +10,6 @@
 ;; $ guix system image --image-type=iso9660 myguix/system/install.scm
 
 (define-module (myguix system install)
-  #:use-module (gnu)
   #:use-module (gnu packages base)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages emacs)
@@ -22,29 +21,22 @@
   #:use-module (gnu system install)
   #:use-module (guix channels)
   #:use-module (guix gexp)
+  #:use-module (myguix packages base)
   #:use-module (myguix packages linux)
+  #:use-module (myguix system linux-initrd)
   #:export (%my-channels %my-authorized-keys %my-substitute-urls
                          my-installation-os))
 
 (define %my-channels
-  (list (channel
-          (name 'guix)
-          (url "https://git.savannah.gnu.org/git/guix.git")
-          (branch "master")
-          (introduction
-           (make-channel-introduction
-            "9edb3f66fd807b096b48283debdcddccfea34bad"
-            (openpgp-fingerprint
-             "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))
-        (channel
-          (name 'myguix)
-          (url "https://github.com/b-vitamins/myguix.git")
-          (branch "master")
-          (introduction
-           (make-channel-introduction
-            "85d58b09dc71e9dc9834b666b658f79d2e212d65"
-            (openpgp-fingerprint
-             "883B CA6B D275 A5F2 673C  C5DD 2AD3 2FC0 2A50 01F7"))))))
+  (cons* (channel
+           (name 'myguix)
+           (url "https://github.com/b-vitamins/myguix")
+           (introduction
+            (make-channel-introduction
+             "85d58b09dc71e9dc9834b666b658f79d2e212d65"
+             (openpgp-fingerprint
+              "883B CA6B D275 A5F2 673C  C5DD 2AD3 2FC0 2A50 01F7"))))
+         %default-channels))
 
 (define %my-authorized-keys
   (append (list (local-file "keys/substitutes.myguix.bvits.in.pub"))
@@ -58,19 +50,27 @@
   (operating-system
     (inherit installation-os)
     (kernel linux)
-    (kernel-arguments (list
-                       "modprobe.blacklist=b43,b43legacy,ssb,bcm43xx,brcm80211,brcmfmac,brcmsmac,bcma"))
-    (kernel-loadable-modules (list broadcom-sta))
-    (firmware (list linux-firmware))
+    (firmware (list linux-firmware sof-firmware))
+    (initrd microcode-initrd)
     (keyboard-layout (keyboard-layout "us" "altgr-intl"
-                                      #:options '("ctrl:nocaps"
-                                                  "altwin:swap_alt_win")))
-    (packages (append (list git curl coreutils emacs-no-x-toolkit)
+                                      #:options '("ctrl:nocaps")))
+    (packages (append %core-packages
+                      %versioning-packages
+                      %network-packages
+                      %basic-filesystem-packages
+                      %advanced-filesystem-packages
+                      %file-transfer-packages
+                      %general-fonts
+                      %cjk-fonts
+                      %unicode-fonts
+                      %google-fonts
                       (operating-system-packages installation-os)))
     (services
      (modify-services (operating-system-user-services installation-os)
        (guix-service-type config =>
                           (guix-configuration (inherit config)
+                                              (guix (guix-for-channels
+                                                     %my-channels))
                                               (channels %my-channels)
                                               (authorized-keys
                                                %my-authorized-keys)
