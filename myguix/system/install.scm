@@ -19,6 +19,7 @@
   #:use-module (gnu services base)
   #:use-module (gnu system)
   #:use-module (gnu system install)
+  #:use-module (gnu system keyboard)
   #:use-module (guix channels)
   #:use-module (guix gexp)
   #:use-module (myguix packages base)
