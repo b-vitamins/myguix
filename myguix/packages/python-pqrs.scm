@@ -459,6 +459,7 @@ as well.")
     (propagated-inputs (list python-poetry-core python-myst-parser
                              python-sphinx python-sphinx-autobuild
                              python-sphinx-copybutton))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/kazhala/pfzy")
     (synopsis "Python port of the fzy fuzzy string matching algorithm")
     (description "Python port of the fzy fuzzy string matching algorithm")
@@ -1431,4 +1432,3 @@ It can be imported independently or used from the command-line. If you believe i
 @end itemize
 Note: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.")
       (license license:expat))))
-
