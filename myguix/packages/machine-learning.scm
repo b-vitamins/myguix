@@ -226,8 +226,13 @@
                                          "/include/eigen3"))))))))
     (inputs (list eigen-for-python-ml-dtypes))
     (propagated-inputs (list python-numpy))
-    (native-inputs (list pybind11 python-absl-py python-pylint python-pytest
-                         python-pytest-xdist))
+    (native-inputs (list pybind11
+                         python-absl-py
+                         python-pylint
+                         python-pytest
+                         python-pytest-xdist
+                         python-setuptools
+                         python-wheel))
     (home-page "https://github.com/jax-ml/ml_dtypes")
     (synopsis "NumPy dtype extensions used in machine learning")
     (description
