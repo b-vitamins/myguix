@@ -93,8 +93,10 @@
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages fonts)
   #:use-module (myguix packages llvm-pqrs)
+  #:use-module (myguix packages messaging)
   #:use-module (myguix packages mozilla)
   #:use-module (myguix packages nvidia)
+  #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages rust)
@@ -201,7 +203,6 @@
         unzip
         unrar
         p7zip
-        unrar-free
         lz4
         lrzip))
 
@@ -222,7 +223,12 @@
         icedove
         solaar
         gnome-tweaks
-        gnome-boxes))
+        gnome-boxes
+        signal-desktop
+        zoom
+        anydesk
+        anytype
+        zotero))
 
 (define %audio-packages
   (list pulseaudio
