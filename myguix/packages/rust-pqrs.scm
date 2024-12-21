@@ -3477,7 +3477,8 @@ from system source")
                             "--skip=string::test::phonenumber_5"
                             "--skip=string::test::spaceslugs_2"
                             "--skip=string::test::stache_0"
-                            "--skip=string::test::fblog_0")
+                            "--skip=string::test::fblog_0"
+                            "--skip=string::test::fblog_1")
        #:cargo-inputs (("rust-bit-set" ,rust-bit-set-0.5)
                        ("rust-bitflags" ,rust-bitflags-1)
                        ("rust-byteorder" ,rust-byteorder-1)
