@@ -408,7 +408,6 @@
   (list xapian
         omega
         tocc
-        searx
         bool
         dataparksearch
         fsearch
