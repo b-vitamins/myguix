@@ -63,8 +63,7 @@
   #:use-module ((gnu packages python-xyz)
                 #:hide (python-jedi))
   #:use-module (gnu packages rsync)
-  #:use-module ((gnu packages rust)
-                #:hide (rust))
+  #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages samba)
   #:use-module (gnu packages screen)
@@ -99,7 +98,6 @@
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages linux)
-  #:use-module (myguix packages rust)
   #:use-module (myguix packages nlp)
   #:use-module (myguix packages video)
   #:export ( ;Essential bundles
