@@ -594,8 +594,13 @@ as well.")
      (list
       #:tests? #f))
     (propagated-inputs (list python-wrapt))
-    (native-inputs (list python-bump2version python-pytest python-pytest-cov
-                         python-sphinx python-tox))
+    (native-inputs (list python-bump2version
+                         python-pytest
+                         python-pytest-cov
+                         python-sphinx
+                         python-tox
+                         python-setuptools
+                         python-wheel))
     (home-page "https://github.com/tantale/deprecated")
     (synopsis
      "Python @deprecated decorator to deprecate old python classes, functions or methods.")
