@@ -144,6 +144,7 @@
             %google-fonts
             %fira-fonts
             %iosevka-fonts
+            %microsoft-fonts
             %monospace-fonts
             %sans-fonts
             %serif-fonts
@@ -471,6 +472,19 @@
         font-iosevka-ss08
         font-iosevka-ss09
         font-iosevka-comfy))
+
+(define %microsoft-fonts
+  (list font-microsoft-andale-mono
+        font-microsoft-arial
+        font-microsoft-arial-black
+        font-microsoft-comic-sans-ms
+        font-microsoft-courier-new
+        font-microsoft-georgia
+        font-microsoft-impact
+        font-microsoft-times-new-roman
+        font-microsoft-trebuchet-ms
+        font-microsoft-verdana
+        font-microsoft-webdings))
 
 (define %monospace-fonts
   (list font-inconsolata
