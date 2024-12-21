@@ -570,6 +570,7 @@ as well.")
       #:tests? #f))
     (propagated-inputs (list python-certifi python-chardet python-idna
                              python-urllib3))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://requests.readthedocs.io")
     (synopsis "Python HTTP for Humans.")
     (description "Python HTTP for Humans.")
