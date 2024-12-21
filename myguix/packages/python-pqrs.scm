@@ -432,6 +432,7 @@ as well.")
        (sha256
         (base32 "0hjk1b5khpzckbg7kbviga4jmjh41plix98w1jdp6df8ipwg1q59"))))
     (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/python/typeshed")
     (synopsis "Typing stubs for PyYAML")
     (description "Typing stubs for @code{PyYAML}")
