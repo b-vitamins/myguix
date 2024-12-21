@@ -548,6 +548,7 @@ as well.")
     (arguments
      (list
       #:tests? #f))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/urllib3")
     (synopsis
      "HTTP library with thread-safe connection pooling, file post, and more.")
