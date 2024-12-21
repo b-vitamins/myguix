@@ -1534,9 +1534,9 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                                                   (string-suffix? "include"
                                                                   file))
                                                 #:directories? #t)))))))
-    (native-inputs (list cmake dlpack pybind11))
+    (native-inputs (list cmake dlpack pybind11 python-setuptools python-wheel))
     (inputs (list cuda-toolkit-12.4 nlohmann-json cudnn-9.5))
-    (propagated-inputs (list nvidia-driver))
+    (propagated-inputs (list nvda))
     (home-page "https://github.com/NVIDIA/cudnn-frontend")
     (synopsis "cuDNN API header-only library")
     (description
