@@ -3550,23 +3550,6 @@ from system source")
      "This package provides a macro for declaring lazily evaluated statics in Rust.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-number-prefix-0.4
-  (package
-    (name "rust-number-prefix")
-    (version "0.4.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "number_prefix" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1wvh13wvlajqxkb1filsfzbrnq0vrmrw298v2j3sy82z1rm282w3"))))
-    (build-system cargo-build-system)
-    (home-page "https://github.com/ogham/rust-number-prefix")
-    (synopsis "Library for numeric prefixes (kilo, giga, kibi).")
-    (description "Library for numeric prefixes (kilo, giga, kibi).")
-    (license license:expat)))
-
 (define-public rust-unicode-width-0.1
   (package
     (name "rust-unicode-width")
