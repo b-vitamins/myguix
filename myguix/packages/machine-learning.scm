@@ -58,6 +58,7 @@
   #:use-module (myguix build-system bazel)
   #:use-module (myguix packages maths)
   #:use-module (myguix packages nvidia)
+  #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages video)
   #:use-module (myguix packages bazel)
