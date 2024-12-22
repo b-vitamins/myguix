@@ -640,25 +640,6 @@ as well.")
 methods.")
     (license license:expat)))
 
-(define-public python-tld
-  (package
-    (name "python-tld")
-    (version "0.13")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "tld" version))
-       (sha256
-        (base32 "0aanzdsf10vlbp076nr3mgs2379p0q3l9bkfjx21ipsbq3hybpck"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f))
-    (home-page "https://github.com/barseghyanartur/tld")
-    (synopsis "Extract the top-level domain (TLD) from the URL given.")
-    (description "Extract the top-level domain (TLD) from the URL given.")
-    (license #f)))
-
 (define-public python-future
   (package
     (name "python-future")
