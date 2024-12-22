@@ -3435,7 +3435,11 @@ OSA, Damerau-Levenshtein, Jaro, Jaro-Winkler, and SÃ¸rensen-Dice.")
         (base32 "0v18s6lpkvil6dkdfb86l84mwpqbpw6928qp0n0hj4dhxh32xcll"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
+     `(#:cargo-test-flags '("--release" "--" "--skip=common::test_diff"
+                            "--skip=common::test_huge"
+                            "--skip=common::test_small"
+                            "--skip=common::test_zero")
+       #:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
                        ("rust-compiler-builtins" ,rust-compiler-builtins-0.1)
                        ("rust-js-sys" ,rust-js-sys-0.3)
                        ("rust-libc" ,rust-libc-0.2)

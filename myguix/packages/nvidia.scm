@@ -106,6 +106,7 @@
                          (find-files "extractdir"
                                      (string-join '( ;egl-gbm
                                                     
+
                                                     "libnvidia-egl-gbm\\.so\\."
                                                     ;; egl-wayland
                                                     "libnvidia-egl-wayland\\.so\\."
@@ -191,8 +192,10 @@ its unpacked checkout."
                                                                                        device-minor-regexp
                                                                                        line)))
                                                                                  
+                                                                                 
                                                                                  (if
                                                                                   matched
+
                                                                                   
                                                                                   (match:substring
                                                                                    matched
