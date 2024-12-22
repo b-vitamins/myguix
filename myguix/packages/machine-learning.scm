@@ -1395,7 +1395,7 @@ arbitrarily to any order.")
       '(list "--ignore=jmp/_src/policy_test.py")))
     (propagated-inputs (list python-absl-py python-dataclasses python-jax
                              python-jaxlib python-numpy))
-    (native-inputs (list python-pytest))
+    (native-inputs (list python-pytest python-setuptools python-wheel))
     (home-page "https://github.com/google-deepmind/jmp")
     (synopsis "JMP is a mixed precision library for JAX")
     (description
