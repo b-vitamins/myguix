@@ -1401,3 +1401,34 @@ It can be imported independently or used from the command-line. If you believe i
 @end itemize
 Note: A known limitation of scihub.py is that captchas show up every now and then, blocking any searches or downloads.")
       (license license:expat))))
+
+(define-public python-jose
+  (package
+    (name "python-jose")
+    (version "3.3.0")
+    (home-page "https://github.com/mpdavis/python-jose")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url home-page)
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "18whsdpllg8574ma4r0qawkgw4nam6lsf63pi6761j38rvl84lg9"))))
+    (build-system python-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (delete 'check))))
+    (native-inputs (list ;All native inputs are for tests.
+                         python-pyasn1 python-pytest python-pytest-cov
+                         python-pytest-runner))
+    (propagated-inputs (list python-cryptography python-ecdsa python-rsa
+                             python-six))
+    (synopsis "JOSE implementation in Python")
+    (description
+     "The @dfn{JavaScript Object Signing and Encryption} (JOSE) technologies
+- JSON Web Signature (JWS), JSON Web Encryption (JWE), JSON Web Key (JWK), and
+JSON Web Algorithms (JWA) - collectively can be used to encrypt and/or sign
+content using a variety of algorithms.")
+    (license license:expat)))
