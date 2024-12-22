@@ -10043,29 +10043,6 @@ support for Unicode and emojis as well as machine hyphenation.")
     (description "Compile-time assertions to ensure that invariants are met.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-strum-0.26
-  (package
-    (name "rust-strum")
-    (version "0.26.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "strum" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "03kfgifxi4gh8bdq83kzzxp427ilg93k56ckfg3ikk56r0x42z0i"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-test-flags '("--release" "--" "--skip=EnumMessage"
-                            "--skip=EnumProperty" "--skip=IntoEnumIterator")
-       #:cargo-inputs (("rust-phf" ,rust-phf-0.10)
-                       ("rust-strum-macros" ,rust-strum-macros-0.26))
-       #:cargo-development-inputs (("rust-strum-macros" ,rust-strum-macros-0.26))))
-    (home-page "https://github.com/Peternator7/strum")
-    (synopsis "Helpful macros for working with enums and strings")
-    (description "Helpful macros for working with enums and strings")
-    (license license:expat)))
-
 (define-public rust-strum-macros-0.26
   (package
     (name "rust-strum-macros")
