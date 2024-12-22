@@ -1433,7 +1433,8 @@ precision policies and loss scaling.")
                              python-numpy
                              python-toolz
                              python-typing-extensions))
-    (native-inputs (list python-cloudpickle python-dm-tree python-pytest))
+    (native-inputs (list python-cloudpickle python-dm-tree python-pytest
+                         python-setuptools python-wheel))
     (home-page "https://github.com/deepmind/chex")
     (synopsis "Chex: Testing made fun, in JAX!")
     (description
