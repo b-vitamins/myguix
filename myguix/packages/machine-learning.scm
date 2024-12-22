@@ -1361,6 +1361,7 @@ arbitrarily to any order.")
                              python-numpy
                              python-opt-einsum
                              python-scipy))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/google/jax")
     (synopsis "Differentiate, compile, and transform Numpy code")
     (description
