@@ -1470,7 +1470,8 @@ reliable JAX code.  This includes utils to help:
       #:tests? #f))
     (propagated-inputs (list python-absl-py python-chex python-jax
                              python-jaxlib python-numpy))
-    (native-inputs (list python-dm-tree python-pytest))
+    (native-inputs (list python-dm-tree python-pytest python-setuptools
+                         python-wheel))
     (home-page "https://github.com/google-deepmind/optax/")
     (synopsis "Gradient processing and optimization library for JAX")
     (description "Optax is a gradient processing and optimization
