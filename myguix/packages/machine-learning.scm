@@ -1519,7 +1519,8 @@ library for JAX.")
                              python-pyyaml
                              python-tensorstore
                              python-typing-extensions))
-    (native-inputs (list python-flit-core python-pytest python-pytest-xdist))
+    (native-inputs (list python-flit-core python-pytest python-pytest-xdist
+                         python-setuptools python-wheel))
     (home-page "https://github.com/google/orbax")
     (synopsis "Utility libraries for JAX users")
     (description
