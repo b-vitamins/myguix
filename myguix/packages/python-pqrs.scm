@@ -679,42 +679,6 @@ methods.")
     (description "Clean single-source support for Python 3 and 2.")
     (license license:expat)))
 
-(define-public python-openreview-py
-  (package
-    (name "python-openreview-py")
-    (version "1.40.3")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/openreview/openreview-py")
-             (commit (string-append "v" version))
-             (recursive? #t)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1rfk9pvznxmplnabjhzr2380j05bdf1298swk4xgag575iv8dhvw"))
-       (snippet #~(begin
-                    (use-modules (guix build utils))
-                    (substitute* "setup.py"
-                      (("setuptools==65.5.1")
-                       "setuptools"))))))
-    (build-system pyproject-build-system)
-    (arguments
-     '(#:tests? #f
-       #:phases (modify-phases %standard-phases
-                  (delete 'compile-bytecode))))
-    (inputs (list python-future python-requests))
-    (propagated-inputs (list python-pycryptodome
-                             python-tld
-                             python-deprecated
-                             python-tqdm
-                             python-pylatexenc
-                             python-pyjwt))
-    (home-page "https://github.com/theblackcat102/openreview_api_py")
-    (synopsis "Openreview web API client")
-    (description "Openreview web API client.")
-    (license license:expat)))
-
 (define-public python-distro
   (package
     (name "python-distro")
