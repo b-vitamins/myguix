@@ -369,6 +369,7 @@
         ffmpeg-cuda
         mpv-cuda
         python-torch-cuda
+        python-torchvision-cuda
         whisper-cpp-cuda
         llama-cpp-cuda))
 
