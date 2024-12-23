@@ -5,13 +5,16 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages fontutils)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
   #:use-module (gnu packages image)
+  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages time)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages python)
-  #:use-module (gnu packages python-xyz)
+  #:use-module ((gnu packages python-xyz)
+                #:hide (python-pillow-simd))
   #:use-module ((gnu packages python-web)
                 #:hide (python-httpcore python-httpx))
   #:use-module ((gnu packages python-build)
@@ -23,7 +26,6 @@
   #:use-module (gnu packages web)
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
-  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages version-control)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
@@ -1432,3 +1434,38 @@ Note: A known limitation of scihub.py is that captchas show up every now and the
 JSON Web Algorithms (JWA) - collectively can be used to encrypt and/or sign
 content using a variety of algorithms.")
     (license license:expat)))
+
+(define-public python-pillow-simd
+  (package
+    (inherit python-pillow)
+    (name "python-pillow-simd")
+    (version "9.3.0")
+    ;; The PyPI tarball does not include test files.
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/uploadcare/pillow-simd")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0qnvpwzlx4rfz17qmsipr5iwzmh8xgmzvc79spnrmqibk3s18vyi"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; This test fails because it cannot find the zlib version string
+      ;; "1.3.1".
+      #:tests? #f
+      #:phases '(modify-phases %standard-phases
+                  (add-after 'unpack 'patch-ldconfig
+                    (lambda _
+                      (substitute* "setup.py"
+                        (("\\['/sbin/ldconfig', '-p'\\]")
+                         "['true']")))))))
+    (inputs (modify-inputs (package-inputs python-pillow)
+              (prepend libraqm libimagequant)))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/uploadcare/pillow-simd")
+    (synopsis "Fork of the Python Imaging Library (Pillow)")
+    (description "This package is a fork of Pillow which adds support for SIMD
+parallelism.")))
