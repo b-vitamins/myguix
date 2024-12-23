@@ -1,5 +1,6 @@
 (define-module (myguix packages machine-learning)
   #:use-module (gnu packages)
+  #:use-module (gnu packages base)
   #:use-module (gnu packages algebra)
   #:use-module (gnu packages assembly)
   #:use-module (gnu packages bioinformatics)
@@ -18,7 +19,8 @@
   #:use-module (gnu packages libffi)
   #:use-module (gnu packages libevent)
   #:use-module (gnu packages llvm)
-  #:use-module (gnu packages machine-learning)
+  #:use-module ((gnu packages machine-learning)
+                #:hide (python-torchvision))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages perl)
@@ -32,7 +34,8 @@
   #:use-module (gnu packages python-science)
   #:use-module ((gnu packages python-web)
                 #:hide (python-jose))
-  #:use-module (gnu packages python-xyz)
+  #:use-module ((gnu packages python-xyz)
+                #:hide (python-pillow-simd))
   #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages serialization)
@@ -1934,4 +1937,50 @@ You can reuse Python packages such as NumPy, SciPy, and Cython to extend
 PyTorch when needed.
 
 Note: This package provides NVIDIA GPU support.")
+    (license license:bsd-3)))
+
+(define-public python-torchvision-cuda
+  (package
+    (name "python-torchvision-cuda")
+    (version "0.19.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pytorch/vision")
+             (commit (string-append "v" version))
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "15zyq2k4x9yapx7qfghhslznz1mwybhf086pirsr98c4l891sp1r"))
+       (modules '((guix build utils)))
+       (snippet '(begin
+                   (delete-file-recursively "android")
+                   (delete-file-recursively "ios")))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; The test suite is expensive and there is no easy way to subset it.
+      #:tests? #f
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'setenv
+                     (lambda _
+                       (let ((jpegdir #$(this-package-input "libjpeg-turbo")))
+                         (setenv "TORCHVISION_INCLUDE"
+                                 (string-append jpegdir "/include/"))
+                         (setenv "TORCHVISION_LIBRARY"
+                                 (string-append jpegdir "/lib/"))))))))
+    (inputs (list ffmpeg-cuda libpng libjpeg-turbo))
+    (propagated-inputs (list python-numpy
+                             python-typing-extensions
+                             python-requests
+                             python-pillow
+                             python-pillow-simd
+                             python-torch-cuda))
+    (native-inputs (list which python-pytest python-setuptools python-wheel))
+    (home-page "https://pytorch.org/vision/stable/index.html")
+    (synopsis "Datasets, transforms and models specific to computer vision")
+    (description
+     "The torchvision package consists of popular datasets, model architectures,
+and common image transformations for computer vision.")
     (license license:bsd-3)))
