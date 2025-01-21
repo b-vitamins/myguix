@@ -26,7 +26,7 @@
 ;;; Copyright © 2023 Ada Stevenson <adanskana@gmail.com>
 ;;; Copyright © 2023 Tomas Volf <~@wolfsden.cz>
 ;;; Copyright © 2023 PRESFIL <presfil@protonmail.com>
-;;; Copyright © 2024 Ayan Das <bvits@riseup.net>
+;;; Copyright © 2024, 2025 Maxim Cournoyer <maxim.cournoyer@gmail.com>
 
 (define-module (myguix packages linux)
   #:use-module (gnu packages)
@@ -35,6 +35,7 @@
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cpio)
   #:use-module (gnu packages linux)
+  #:use-module (gnu packages parallel)
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
@@ -47,6 +48,7 @@
   #:use-module (guix build-system linux-module)
   #:use-module (guix build-system trivial)
   #:use-module (ice-9 match)
+  #:use-module (myguix packages)
   #:use-module (myguix licenses)
   #:use-module (myguix packages nvidia)
   #:use-module (srfi srfi-1)
@@ -341,7 +343,8 @@ stable, responsive and smooth desktop experience.")))
        (uri (string-append "mirror://kernel.org/linux/kernel/firmware/"
                            "linux-firmware-" version ".tar.xz"))
        (sha256
-        (base32 "1xcsx51z5x0bim10a391n3xk6k8a5v1a35j1gpwpdl3nhmq3bc1b"))))
+        (base32 "1xcsx51z5x0bim10a391n3xk6k8a5v1a35j1gpwpdl3nhmq3bc1b"))
+       (patches (nongnu-patches "linux-firmware-parallel.patch"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -359,7 +362,7 @@ stable, responsive and smooth desktop experience.")))
                          (("./check_whence.py")
                           "true"))))
                    (delete 'configure))))
-    (native-inputs (list rdfind))
+    (native-inputs (list parallel rdfind zstd))
     (home-page
      "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git")
     (synopsis "Nonfree firmware blobs for Linux")
