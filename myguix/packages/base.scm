@@ -346,7 +346,7 @@
   (list node
         openjdk
         gcc-toolchain
-        gfortrain-toolchain
+        gfortran-toolchain
         jemalloc
         llvm
         gdb
