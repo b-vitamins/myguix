@@ -27,6 +27,7 @@
         emacs-auto-complete
         emacs-blacken
         emacs-cape
+        emacs-cargo-el
         emacs-citar
         emacs-citar-org-roam
         emacs-citre
