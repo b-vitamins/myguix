@@ -398,7 +398,10 @@
   (list guile-3.0 guile-readline guile-colorized guile-lib guile-ares-rs))
 
 (define %rust-packages
-  (list rust rust-analyzer rust-cargo))
+  (list `(,rust "out")
+        `(,rust "rust-src")
+        `(,rust "tools")
+        `(,rust "cargo") rust-analyzer))
 
 (define %python-packages
   (list python python-jedi python-jedi-language-server python-flake8
