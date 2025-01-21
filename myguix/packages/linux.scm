@@ -307,7 +307,7 @@ stable, responsive and smooth desktop experience.")))
                                            "0jqvn3wajdxpp75m3snddw488z407c3272cfa5g1cgicgzqc3gvd")))
 
 (define-public linux-xanmod-lts-version
-  "6.6.67")
+  "6.6.70")
 (define-public linux-xanmod-lts-revision
   "xanmod1")
 (define-public linux-xanmod-lts-source
@@ -317,7 +317,7 @@ stable, responsive and smooth desktop experience.")))
                             #:kernel-hash (base32
                                            "1l2nisx9lf2vdgkq910n5ldbi8z25ky1zvl67zgwg2nxcdna09nr")
                             #:xanmod-hash (base32
-                                           "1pslakkbmld6dr0qii07yvfam3dscvw8qw8x0mb69bi4fwq6gxzr")))
+                                           "0psr0llpssrj9cdiv54wvqiqbdfg0962k01cnblq1f67cbw1aw4y")))
 
 ;; Linux-XanMod packages
 (define-public linux-xanmod
@@ -1001,8 +1001,7 @@ giving you trouble, you can try this module.")
   (origin
     (method url-fetch)
     (uri (string-append "https://raw.githubusercontent.com/rpmfusion/wl-kmod/"
-                        commit "wl-kmod-" name
-                        ".patch"))
+          commit "wl-kmod-" name ".patch"))
     (sha256 (base32 hash))))
 
 (define broadcom-sta-x86_64-source
@@ -1054,7 +1053,7 @@ giving you trouble, you can try this module.")
              (broadcom-sta-patch "gcc" commit
               "0jcqk2vapyy2pbsjv9n8b3qp6vqz17d6s07cr04cx7075q7yhz5h")
              (broadcom-sta-patch "028_kernel_6.12_adaption" commit
-                                 "154dhlb3vyq8bnx7f371scsrhp9cszvmqlswqg5vi6gfgbqnrq08"))))
+              "154dhlb3vyq8bnx7f371scsrhp9cszvmqlswqg5vi6gfgbqnrq08"))))
     (sha256 (base32 "1gj485qqr190idilacpxwgqyw21il03zph2rddizgj7fbd6pfyaz"))))
 
 (define broadcom-sta-i686-source
