@@ -400,7 +400,6 @@
 (define %rust-packages
   (list rust
         rust-analyzer
-        rust-clippy
         rust-cc
         rust-gcc
         rust-pkg-config
