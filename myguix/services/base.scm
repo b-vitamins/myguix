@@ -58,9 +58,7 @@
    (service guix-service-type
             (guix-configuration (guix (guix-for-channels %my-channels))
                                 (channels %my-channels)
-                                (build-accounts 16)
-                                (authorized-keys %my-authorized-keys)
-                                (substitute-urls %my-substitute-urls)
+                                (build-accounts 12)
                                 (tmpdir "/tmp")))
    (service udev-service-type
             (udev-configuration (rules (list (specification->package "lvm2")
