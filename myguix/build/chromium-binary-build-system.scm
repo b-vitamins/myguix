@@ -39,7 +39,9 @@
                   `("LD_LIBRARY_PATH" ":" prefix
                     (,(string-join (append lib-directories
                                            (list (string-append nss "/lib/nss")
-                                                 output)) ":")))))
+                                                 output)) ":")))
+                  `("ELECTRON_OZONE_PLATFORM_HINT" ":" =
+                    ("auto"))))
               (map (lambda (exe)
                      (string-append bin "/" exe))
                    (filter (lambda (exe)
