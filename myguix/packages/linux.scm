@@ -4,7 +4,7 @@
 ;;; Copyright © 2019 Giacomo Leidi <goodoldpaul@autistici.org>
 ;;; Copyright © 2019 Timotej Lazar <timotej.lazar@araneo.si>
 ;;; Copyright © 2020, 2021 James Smith <jsubuntuxp@disroot.org>
-;;; Copyright © 2020-2024 Jonathan Brielmaier <jonathan.brielmaier@web.de>
+;;; Copyright © 2020-2025 Jonathan Brielmaier <jonathan.brielmaier@web.de>
 ;;; Copyright © 2020, 2022 Michael Rohleder <mike@rohleder.de>
 ;;; Copyright © 2020, 2021, 2022 Tobias Geerinckx-Rice <me@tobias.gr>
 ;;; Copyright © 2020, 2021, 2022 Zhu Zihao <all_but_last@163.com>
@@ -344,7 +344,7 @@ stable, responsive and smooth desktop experience.")))
                            "linux-firmware-" version ".tar.xz"))
        (sha256
         (base32 "1xcsx51z5x0bim10a391n3xk6k8a5v1a35j1gpwpdl3nhmq3bc1b"))
-       (patches (nongnu-patches "linux-firmware-parallel.patch"))))
+       (patches (myguix-patches "linux-firmware-parallel.patch"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -1000,8 +1000,8 @@ giving you trouble, you can try this module.")
 (define (broadcom-sta-patch name commit hash)
   (origin
     (method url-fetch)
-    (uri (string-append "https://raw.githubusercontent.com/NixOS/nixpkgs/"
-                        commit "/pkgs/os-specific/linux/broadcom-sta/" name
+    (uri (string-append "https://raw.githubusercontent.com/rpmfusion/wl-kmod/"
+                        commit "wl-kmod-" name
                         ".patch"))
     (sha256 (base32 hash))))
 
@@ -1013,12 +1013,12 @@ giving you trouble, you can try this module.")
                         (string-replace-substring broadcom-sta-version "." "_")
                         ".tar.gz"))
     (patches
-     ;; Keep these in sync with the list at
-     ;; https://github.com/NixOS/nixpkgs/tree/master/pkgs/os-specific/linux/broadcom-sta.
-     ;; Nixpkgs is good about keeping broadcom patches up to date so updating
+     ;; Keep these in sync with the patches at
+     ;; https://github.com/rpmfusion/wl-kmod
+     ;; They seem to be good about keeping broadcom patches up to date so updating
      ;; for a new kernel release should be as simple as chaging the commit to
      ;; the newest available and adding any new patches.
-     (let ((commit "355042e2ff5933b245e804c5eaff4ec3f340e71b"))
+     (let ((commit "cb67598cbf5d8c5260b750d6f7e5c6a6599b7b85"))
        (list (broadcom-sta-patch "i686-build-failure" commit
               "1522w2gb698svlkb2b4lijbd740agvs2ibpz4g0jlv8v31cybkf4")
              (broadcom-sta-patch "license" commit
@@ -1052,7 +1052,9 @@ giving you trouble, you can try this module.")
              (broadcom-sta-patch "null-pointer-fix" commit
               "15c2vxgf7v5wy4s8w9jk7irf3fxxghy05gxmav1ss73a2azajdx7")
              (broadcom-sta-patch "gcc" commit
-              "0jcqk2vapyy2pbsjv9n8b3qp6vqz17d6s07cr04cx7075q7yhz5h"))))
+              "0jcqk2vapyy2pbsjv9n8b3qp6vqz17d6s07cr04cx7075q7yhz5h")
+             (broadcom-sta-patch "028_kernel_6.12_adaption" commit
+                                 "154dhlb3vyq8bnx7f371scsrhp9cszvmqlswqg5vi6gfgbqnrq08"))))
     (sha256 (base32 "1gj485qqr190idilacpxwgqyw21il03zph2rddizgj7fbd6pfyaz"))))
 
 (define broadcom-sta-i686-source
