@@ -194,6 +194,7 @@
 
 (define %compression-packages
   (list tar
+        zip
         gzip
         zstd
         bzip2
