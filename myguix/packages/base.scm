@@ -12,6 +12,7 @@
   #:use-module (gnu packages code)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages crates-io)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages disk)
   #:use-module (gnu packages djvu)
@@ -343,8 +344,9 @@
   (list node
         openjdk
         gcc-toolchain
+        gfortrain-toolchain
         jemalloc
-        llvm-with-bolt
+        llvm
         gdb
         patchelf
         strace
@@ -394,7 +396,22 @@
   (list guile-3.0 guile-readline guile-colorized guile-lib guile-ares-rs))
 
 (define %rust-packages
-  (list rust rust-analyzer rust-cargo rust-clippy))
+  (list rust
+        rust-analyzer
+        rust-clippy
+        rust-cc
+        rust-gcc
+        rust-pkg-config
+        rust-system-deps
+        rust-vcpkg
+        rust-cxx-build
+        rust-cargo
+        rust-cargo-c
+        rust-cargo-util
+        rust-cargo-options
+        rust-cargo-test-support
+        rust-cargo-test-macro
+        cargo-machete))
 
 (define %python-packages
   (list python python-jedi python-jedi-language-server python-flake8
