@@ -21,9 +21,10 @@
 ;;; Copyright © 2021, 2022, 2023 John Kehayias <john.kehayias@protonmail.com>
 ;;; Copyright © 2022 Pierre Langlois <pierre.langlois@gmx.com>
 ;;; Copyright © 2023 Tomas Volf <wolf@wolfsden.cz>
-;;; Copyright © 2024 Ayan Das <bvits@riseup.net>
 
 (define-module (myguix packages mozilla)
+  #:use-module (srfi srfi-26)
+
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system trivial)
@@ -73,8 +74,7 @@
   #:use-module (gnu packages video)
   #:use-module (myguix packages wasm)
   #:use-module (gnu packages xdisorg)
-  #:use-module (gnu packages xorg)
-  #:use-module (srfi srfi-26))
+  #:use-module (gnu packages xorg))
 
 ;;; Define the versions of rust needed to build firefox, trying to match
 ;;; upstream.  See table at [0], `Uses' column for the specific version.
@@ -103,7 +103,13 @@
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "0245hrqmra5a3qhfj2jgq8ykvdabvnf48pjascfh419dw4y9v8xp"))))
+        (base32 "0245hrqmra5a3qhfj2jgq8ykvdabvnf48pjascfh419dw4y9v8xp"))
+       (patches (map (lambda (patch)
+                       (search-path (map (cut string-append <>
+                                              "/myguix/patches") %load-path)
+                                    patch))
+                     '("firefox-esr-compare-paths.patch"
+                       "firefox-esr-use-system-wide-dir.patch")))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -135,6 +141,11 @@
                               ;; Distribution
                               "--with-distribution-id=org.myguix"
                               "--disable-official-branding"
+
+                              ;; Do not require addons in the global app or system directories to
+                              ;; be signed by Mozilla.
+                              "--allow-addon-sideload"
+                              "--with-unsigned-addon-scopes=app,system"
 
                               ;; Features
                               "--disable-tests"
@@ -527,6 +538,11 @@ StartupWMClass=Firefox"))
                          rust-cbindgen-0.26
                          which
                          yasm))
+    (native-search-paths
+     (list (search-path-specification
+            (variable "ICECAT_SYSTEM_DIR")
+            (separator #f) ;single entry
+            (files '("lib/icecat")))))
     (home-page "https://mozilla.org/firefox/")
     (synopsis "Trademarkless version of Firefox")
     (description
@@ -573,23 +589,27 @@ Release (ESR) version.")
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-build-id
-  "20241209214051")
+  "20250113180723")
 
 (define-public firefox
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "133.0.3")
+    (version "134.0.1")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
-       (patches (list (search-path (map (cut string-append <>
-                                             "/myguix/patches") %load-path)
-                                   "firefox-restore-desktop-files.patch")))
+       (patches (map (lambda (patch)
+                       (search-path (map (cut string-append <>
+                                              "/myguix/patches") %load-path)
+                                    patch))
+                     '("firefox-restore-desktop-files.patch"
+                       "firefox-esr-compare-paths.patch"
+                       "firefox-use-system-wide-dir.patch")))
        (sha256
-        (base32 "06ya18ma1gndci0aygz75hidn3kwa1kji78g8smh7fq0091aad7i"))))
+        (base32 "1rb54b62zcmhabmx3rsd5badv9wwih6h19a0g80c03qgwwy8b8g3"))))
     (arguments
      (substitute-keyword-arguments (package-arguments firefox-esr)
        ((#:phases phases)
@@ -598,6 +618,8 @@ Release (ESR) version.")
               (lambda _
                 (setenv "MOZ_BUILD_DATE"
                         #$%firefox-build-id)))))))
+    (inputs (modify-inputs (package-inputs firefox-esr)
+              (replace "icu4c" icu4c-75)))
     (native-inputs (modify-inputs (package-native-inputs firefox-esr)
                      (replace "rust" rust-firefox)
                      (replace "rust:cargo"
@@ -605,3 +627,8 @@ Release (ESR) version.")
     (description
      "Full-featured browser client built from Firefox source tree, without
 the official icon and the name \"firefox\".")))
+
+;; As of Firefox 121.0, Firefox uses Wayland by default. This means we no
+;; longer need a seperate package for Firefox on Wayland.
+(define-public firefox-wayland
+  (deprecated-package "firefox-wayland" firefox))
