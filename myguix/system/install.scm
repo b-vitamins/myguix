@@ -25,8 +25,7 @@
   #:use-module (myguix packages base)
   #:use-module (myguix packages linux)
   #:use-module (myguix system linux-initrd)
-  #:export (%my-channels %my-authorized-keys %my-substitute-urls
-                         my-installation-os))
+  #:export (%my-channels my-installation-os))
 
 (define %my-channels
   (cons* (channel
@@ -38,14 +37,6 @@
              (openpgp-fingerprint
               "883B CA6B D275 A5F2 673C  C5DD 2AD3 2FC0 2A50 01F7"))))
          %default-channels))
-
-(define %my-authorized-keys
-  (append (list (local-file "keys/substitutes.myguix.bvits.in.pub"))
-          %default-authorized-guix-keys))
-
-(define %my-substitute-urls
-  (append (list "https://substitutes.myguix.bvits.in")
-          %default-substitute-urls))
 
 (define my-installation-os
   (operating-system
@@ -72,10 +63,6 @@
                           (guix-configuration (inherit config)
                                               (guix (guix-for-channels
                                                      %my-channels))
-                                              (channels %my-channels)
-                                              (authorized-keys
-                                               %my-authorized-keys)
-                                              (substitute-urls
-                                               %my-substitute-urls)))))))
+                                              (channels %my-channels)))))))
 
 my-installation-os
