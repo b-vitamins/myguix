@@ -398,21 +398,7 @@
   (list guile-3.0 guile-readline guile-colorized guile-lib guile-ares-rs))
 
 (define %rust-packages
-  (list rust
-        rust-analyzer
-        rust-cc
-        rust-gcc
-        rust-pkg-config
-        rust-system-deps
-        rust-vcpkg
-        rust-cxx-build
-        rust-cargo
-        rust-cargo-c
-        rust-cargo-util
-        rust-cargo-options
-        rust-cargo-test-support
-        rust-cargo-test-macro
-        cargo-machete))
+  (list rust rust-analyzer rust-cargo))
 
 (define %python-packages
   (list python python-jedi python-jedi-language-server python-flake8
