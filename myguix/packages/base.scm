@@ -74,6 +74,7 @@
   #:use-module (gnu packages shells)
   #:use-module (gnu packages storage)
   #:use-module (gnu packages sync)
+  #:use-module (gnu packages syndication)
   #:use-module (gnu packages terminals)
   #:use-module (gnu packages texlive)
   #:use-module (gnu packages tls)
@@ -227,7 +228,8 @@
         signal-desktop
         zoom
         anytype
-        zotero))
+        zotero
+        gfeeds))
 
 (define %audio-packages
   (list pulseaudio
