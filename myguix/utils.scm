@@ -11,7 +11,14 @@
   #:use-module (guix utils)
   #:use-module (guix packages)
   #:use-module (gnu services)
-  #:export (with-transformation))
+  #:use-module (gnu system)
+  #:use-module (guix colors)
+  #:use-module (guix profiles)
+  #:use-module (myguix packages nvidia)
+  #:export (with-transformation specifications->packages+gpu-graft
+                                specifications->manifest+gpu-graft
+                                apply-to-type-of-record
+                                nvidia-operating-system))
 
 (define-public (to32 package64)
   "Build package for i686-linux.
@@ -61,4 +68,65 @@ matches PRED."
                             (obj (accessor obj)))
                        (with-transformation proc obj pred))) record-fields))))
     (_ obj)))
+
+(define (specifications->nvidia-packages lst)
+  "Given SPECS, a list of specifications such as \"emacs@25.2\" or
+\"guile:debug\", return a list of packages with all the `mesa' entries replaced
+by `nvda'."
+  (define (map-caar proc lst)
+    "Like `map', but the procedure is applied to the car of each element."
+    (map (lambda (element)
+           (cons (proc (car element))
+                 (cdr element))) lst))
+  (begin
+    (display (highlight/warn
+              "NVIDIA system detected, MESA->NVDA will be grafted.
+"))
+    (map-caar replace-mesa
+              (specifications->packages lst))))
+
+(define (specifications->nvidia-manifest lst)
+  "Given SPECS, a list of specifications such as \"emacs@25.2\" or
+\"guile:debug\", return a profile manifest with all the `mesa' entries replaced
+by `nvda'."
+  (packages->manifest (specifications->nvidia-packages lst)))
+
+;; This variables will hold the procedures that gives the correct grafted
+;; manifest / package list for the current system GPU drivers. In case of NVIDIA
+;; it will graft the `nvidia-driver' over the `mesa' drivers.
+(define specifications->packages+gpu-graft
+  (if (zero? (system "nvidia-smi &>/dev/null"))
+      specifications->nvidia-packages specifications->packages))
+
+(define specifications->manifest+gpu-graft
+  (if (zero? (system "nvidia-smi &>/dev/null"))
+      specifications->nvidia-manifest specifications->manifest))
+
+(define (apply-to-type-of-record fn type record)
+  "Recursing into child fields, apply FN to every field of RECORD which holds a
+value of TYPE."
+  (let ((record-type (record-type-descriptor record)))
+    (apply (record-constructor record-type)
+           (map (lambda (field)
+                  (let* ((field-predicate (record-predicate type))
+                         (field-accessor (record-accessor record-type field))
+                         (field-val (field-accessor record)))
+                    (cond
+                      ((field-predicate field-val)
+                       (fn field-val))
+                      ((list? field-val)
+                       (map (lambda (pkg)
+                              (if (package? pkg)
+                                  (fn pkg) pkg)) field-val))
+                      ((record? field-val)
+                       (apply-to-type-of-record fn type field-val))
+                      (else field-val))))
+                (record-type-fields record-type)))))
+
+(define-syntax-rule (nvidia-operating-system exp ...)
+  "Like 'operating-system' but graft mesa with the proprietary NVIDIA driver."
+  (apply-to-type-of-record replace-mesa
+                           (@ (guix packages) <package>)
+                           (operating-system
+                             exp ...)))
 
