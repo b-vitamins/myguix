@@ -282,7 +282,6 @@
         rsync
         rclone
         borg
-        borgmatic
         axel
         qbittorrent-enhanced
         yt-dlp
