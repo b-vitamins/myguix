@@ -156,7 +156,8 @@
             %unicode-fonts))
 
 (define %core-packages
-  (list clamav
+  (list emacs-next
+        clamav
         coreutils
         binutils
         findutils
