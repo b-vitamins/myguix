@@ -34,7 +34,7 @@
 (define %my-desktop-services
   (append (list
            ;; Log Rotation
-           (service rottlog-service-type)
+           (service log-rotation-service-type)
            (service log-cleanup-service-type
                     (log-cleanup-configuration (directory "/var/log/guix/drvs")))
 
