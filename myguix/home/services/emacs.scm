@@ -10,9 +10,7 @@
   #:export (my-home-emacs-service-type))
 
 (define (my-home-emacs-profile-service-type config)
-  (list emacs
-        emacs-0x0
-        emacs-ac-geiser
+  (list emacs-ac-geiser
         emacs-academic-phrases
         emacs-ace-window
         emacs-adaptive-wrap
@@ -30,7 +28,6 @@
         emacs-cargo-el
         emacs-citar
         emacs-citar-org-roam
-        emacs-citre
         emacs-cmake-mode
         emacs-combobulate
         emacs-compat
@@ -43,7 +40,6 @@
         emacs-consult-yasnippet
         emacs-corfu
         emacs-corfu-candidate-overlay
-        emacs-ctrlf
         emacs-dash
         emacs-dashboard
         emacs-deadgrep
@@ -52,7 +48,6 @@
         emacs-dockerfile-mode
         emacs-doom-modeline
         emacs-doom-themes
-        emacs-dumb-jump
         emacs-eldoc
         emacs-elegant-agenda-mode
         emacs-elfeed
@@ -72,7 +67,6 @@
         emacs-flycheck-package
         emacs-flycheck-rust
         emacs-focus
-        emacs-frecency
         emacs-geiser
         emacs-geiser-guile
         emacs-geiser-racket
@@ -113,9 +107,7 @@
         emacs-nerd-icons-corfu
         emacs-nerd-icons-dired
         emacs-nerd-icons-ibuffer
-        emacs-nnreddit
         emacs-no-littering
-        emacs-nov-el
         emacs-oauth2
         emacs-ob-racket
         emacs-olivetti
