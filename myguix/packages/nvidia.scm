@@ -1641,7 +1641,7 @@ levels of a conceptual parallelization hierarchy can be specialized and tuned
 via custom tiling sizes, data types, and other algorithmic policy.  The
 resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
-    (license license:bsd-3)))
+    (license license-gnu:bsd-3)))
 
 (define-public cutlass-headers
   (package
