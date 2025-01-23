@@ -1709,7 +1709,7 @@ This package does not intend to implement Tensor and Ops, but instead use this
 as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
 
-(define %python-torch-version
+(define %python-pytorch-version
   "2.4.0")
 
 (define %python-pytorch-src
@@ -1745,18 +1745,12 @@ as common bridge to reuse tensor and ops across frameworks.")
                               "torch/csrc/jit/serialization/mobile_bytecode_generated.h"))
                   (delete-file-recursively ".github"))))))
 
-(define-public python-torch
+(define-public python-pytorch-cuda
   (package
     (inherit python-pytorch)
-    (name "python-torch")))
-
-(define-public python-torch-cuda
-  (package
-    (name "python-torch-cuda")
-    (version %python-torch-version)
     (source
-     %python-torch-src)
-    (build-system python-build-system)
+     %python-pytorch-src)
+    (name "python-pytorch-cuda")
     (arguments
      (substitute-keyword-arguments (package-arguments python-pytorch)
        ((#:phases phases)
@@ -1829,20 +1823,19 @@ as common bridge to reuse tensor and ops across frameworks.")
                         #$(file-append (this-package-input "nccl") "/lib"))
                 (setenv "NCCL_INCLUDE_DIR"
                         #$(file-append (this-package-input "nccl") "/include"))))))))
-    (native-inputs (package-native-inputs python-pytorch))
+
     (inputs (modify-inputs (package-inputs python-pytorch)
               (replace "tensorpipe" tensorpipe-cuda)
-              (replace "gloo" gloo-cuda)))
-    (propagated-inputs (modify-inputs (package-propagated-inputs
-                                       python-pytorch)
-                         (append nvda
-                                 cuda-toolkit-12.4
-                                 cudnn-9.5
-                                 cutlass-headers-3.4
-                                 cudnn-frontend
-                                 magma-cuda
-                                 nlohmann-json
-                                 nccl)))
+              (replace "gloo" gloo-cuda)
+              (append cuda-toolkit-12.4
+                      cudnn-9.5
+                      cutlass-headers-3.4
+                      cudnn-frontend
+                      magma-cuda
+                      nlohmann-json
+                      nccl)))
+    (native-inputs (package-native-inputs python-pytorch))
+    (propagated-inputs (package-propagated-inputs python-pytorch))
     (home-page "https://pytorch.org/")
     (synopsis "Python library for tensor computation and deep neural networks")
     (description
@@ -1896,7 +1889,7 @@ Note: This package provides NVIDIA GPU support.")
                              python-requests
                              python-pillow
                              python-pillow-simd
-                             python-torch-cuda))
+                             python-pyptorch-cuda))
     (native-inputs (list which python-pytest python-setuptools python-wheel))
     (home-page "https://pytorch.org/vision/stable/index.html")
     (synopsis "Datasets, transforms and models specific to computer vision")
