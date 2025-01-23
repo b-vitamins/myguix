@@ -2059,4 +2059,45 @@ See also
     (home-page "https://github.com/NVIDIA/nvidia-container-toolkit")
     (license license-gnu:asl2.0)))
 
-libnvidia-container
+(define-public nvidia-container-toolkit
+  (package
+    (name "nvidia-container-toolkit")
+    (version "1.13.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-container-toolkit")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "01gh57jfpcv07c4442lbf9wiy0l1iwl85ig9drpp0637gbkzgwa4"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/NVIDIA/nvidia-container-toolkit"
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'unpack 'fix-paths
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       (substitute* "src/github.com/NVIDIA/nvidia-container-toolkit/internal/config/config.go"
+                         (("/usr/bin")
+                          "/run/current-system/profile/bin"))))
+                   (replace 'build
+                     (lambda arguments
+                       (for-each (lambda (directory)
+                                   (apply (assoc-ref %standard-phases
+                                                     'build)
+                                          (append arguments
+                                                  (list #:import-path
+                                                        directory))))
+                                 '("github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-ctk"
+                                   "github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-container-runtime"
+                                   "github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-container-runtime-hook")))))
+      #:tests? #f
+      #:install-source? #f))
+    (propagated-inputs (list libnvidia-container))
+    (synopsis "Build and run containers leveraging NVIDIA GPUs")
+    (description
+     "The NVIDIA Container Toolkit allows users to build and run GPU accelerated containers. The toolkit includes a container runtime library and utilities to automatically configure containers to leverage NVIDIA GPUs.")
+    (home-page "https://github.com/NVIDIA/nvidia-container-toolkit")
+    (license license-gnu:asl2.0)))
