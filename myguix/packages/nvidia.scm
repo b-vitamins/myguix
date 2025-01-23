@@ -1244,17 +1244,17 @@ Management Library")
 NVIDIA Management Library")
     (license license-gnu:bsd-3)))
 
-(define-public cuda-toolkit-11.8
+(define-public cuda-toolkit-12.4
   (package
     (name "cuda-toolkit")
-    (version "11.8.0")
+    (version "12.4.0")
     (source
      (origin
+       (method url-fetch)
        (uri
-        "https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run")
+        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
        (sha256
-        (base32 "05jskb06lw0v1m52pg2zhm5v78837cb9pgcsxnxsgr7b7apw88wj"))
-       (method url-fetch)))
+        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
     (outputs '("out"))
@@ -1340,7 +1340,9 @@ NVIDIA Management Library")
                                               (_ #t))))
                          (copy-recursively "cuda_nvcc/nvvm/libdevice"
                                            (string-append #$output
-                                                          "/nvvm/libdevice")))))
+                                                          "/nvvm/libdevice")))
+                       (symlink (string-append #$output "/lib/stubs")
+                                (string-append #$output "/lib64/stubs"))))
                    (add-after 'install 'symlink-libcuda
                      (lambda _
                        (with-directory-excursion (string-append #$output
@@ -1363,45 +1365,6 @@ NVIDIA Management Library")
 libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (license:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
-
-(define-public cuda-toolkit-12.1
-  (package
-    (inherit cuda-toolkit-11.8)
-    (name "cuda-toolkit")
-    (version "12.1.0")
-    (source
-     (origin
-       (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run")
-       (sha256
-        (base32 "0764a8zsnmlp1f9912s8nkx700h7zzidr697mnwssw9dq4v90sb8"))
-       (method url-fetch)))))
-
-(define-public cuda-toolkit-12.4
-  (package
-    (inherit cuda-toolkit-11.8)
-    (name "cuda-toolkit")
-    (version "12.4.0")
-    (source
-     (origin
-       (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
-       (sha256
-        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))
-       (method url-fetch)))))
-
-(define-public cuda-toolkit
-  (package
-    (inherit cuda-toolkit-11.8)
-    (name "cuda-toolkit")
-    (version "12.6.3")
-    (source
-     (origin
-       (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.6.3/local_installers/cuda_12.6.3_560.35.05_linux.run")
-       (sha256
-        (base32 "1lsm1piqsdxj0cvrnqs55hzq86shwsplk8587a4dg5j70i40xml1"))
-       (method url-fetch)))))
 
 (define-public cudnn-8.9
   (package
