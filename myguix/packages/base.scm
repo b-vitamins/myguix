@@ -44,6 +44,7 @@
   #:use-module (gnu packages kde)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages llvm)
+  #:use-module (gnu packages maths)
   #:use-module (gnu packages monitoring)
   #:use-module (gnu packages mp3)
   #:use-module (gnu packages music)
@@ -108,6 +109,7 @@
             %versioning-packages
             %compression-packages
             %network-packages
+            %math-packages
             ;; Desktop bundles
             %desktop-packages
             %audio-packages
@@ -252,6 +254,35 @@
         nvme-cli
         bcache-tools
         lsscsi))
+
+(define %math-packages
+  (list calc
+        chuffed
+        glpk
+        linasm
+        libcerf
+        lapack
+        clapack
+        scalapack
+        feedgnuplot
+        gnuplot
+        hdf5
+        h5check
+        nlopt
+        ipopt
+        nomad-optimizer
+        cbc
+        clp
+        octave
+        fast-downward
+        maxima
+        wxmaxima
+        openblas
+        combinatorial-blas
+        suitesparse
+        jacal
+        nauty
+        cudd))
 
 (define %advanced-filesystem-packages
   (list xfsprogs
