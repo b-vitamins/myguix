@@ -1596,6 +1596,53 @@ resulting flexibility simplifies their use as building blocks within custom
 kernels and applications.")
     (license license-gnu:bsd-3)))
 
+(define-public cutlass-3.4
+  (package
+    (name "cutlass")
+    (version "3.4.1")
+    (home-page "https://github.com/NVIDIA/cutlass")
+    (source
+     (origin
+       (method git-fetch)
+       (file-name (git-file-name name version))
+       (uri (git-reference
+             (url home-page)
+             (commit (string-append "v" version))))
+       (sha256
+        (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:configure-flags #~(list (string-append "-DGOOGLETEST_DIR="
+                                               #$(package-source googletest))
+
+                                ;; Disable these things: they require -lcuda at link time.
+                                "-DCUTLASS_ENABLE_EXAMPLES=NO"
+                                "-DCUTLASS_ENABLE_TESTS=NO"
+                                "-DCUTLASS_INSTALL_TESTS=NO")
+
+      ;; Everything depends on libcuda.so.1, which is nowhere to be
+      ;; found (it's provided as part of the kernel module package).
+      #:validate-runpath? #t))
+    (native-inputs (list python))
+    (inputs (list cuda-toolkit-12.4))
+    (synopsis
+     "CUDA C++ template abstractions for high-performance linear algebra")
+    (description
+     "CUTLASS is a collection of CUDA C++ template abstractions for implementing
+high-performance matrix-matrix multiplication (GEMM) and related computations
+at all levels and scales within CUDA.  It incorporates strategies for
+hierarchical decomposition and data movement similar to those used to
+implement cuBLAS and cuDNN.
+
+CUTLASS decomposes these ``moving parts'' into reusable, modular software
+components abstracted by C++ template classes.  Primitives for different
+levels of a conceptual parallelization hierarchy can be specialized and tuned
+via custom tiling sizes, data types, and other algorithmic policy.  The
+resulting flexibility simplifies their use as building blocks within custom
+kernels and applications.")
+    (license license:bsd-3)))
+
 (define-public cutlass-headers
   (package
     (name "cutlass-headers")
