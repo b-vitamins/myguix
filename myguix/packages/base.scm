@@ -407,7 +407,7 @@
         magma-cuda
         ffmpeg-cuda
         mpv-cuda
-        python-torch-cuda
+        python-pytorch-cuda
         python-torchvision-cuda
         whisper-cpp-cuda
         llama-cpp-cuda))
