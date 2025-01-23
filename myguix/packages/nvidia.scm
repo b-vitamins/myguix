@@ -51,7 +51,8 @@
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages xorg)
-  #:use-module (guix build utils)
+  #:use-module ((guix build utils)
+                #:hide (which))
   #:use-module (guix build-system go)
   #:use-module (guix build-system linux-module)
   #:use-module (guix build-system cmake)
@@ -1962,4 +1963,100 @@ See also
     (home-page "https://github.com/NVIDIA/nvidia-modprobe")
     (license license-gnu:gpl2)))
 
-nvidia-modprobe
+(define-public libnvidia-container
+  (package
+    (name "libnvidia-container")
+    (version "1.13.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/libnvidia-container")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (patches (search-patches "libnvidia-container.patch"))
+       (sha256
+        (base32 "0rzvh1zhh8pi5xjzaq3nmyzpcvjy41gq8w36dp1ai11a6j2lpa99"))))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:phases #~(modify-phases %standard-phases
+                   (delete 'configure)
+                   (delete 'build)
+                   (delete 'check)
+                   (add-after 'unpack 'ensure-writable-source
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       (setenv "HOME" "/tmp")
+                       (make-file-writable "src/ldcache.c")
+                       (make-file-writable "src/ldcache.h")
+                       (make-file-writable "src/nvc_info.c")))
+                   (add-after 'patch-source-shebangs 'replace-prefix
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       (substitute* "Makefile"
+                         (("/usr/local")
+                          (assoc-ref outputs "out")) ;this overrides the prefix
+                         (("debug??libdir?")
+                          "debug") ;ensure debug files get installed in the correct subdir
+                         ((".*nvidia-modprobe.mk.*")
+                          "\n")
+                         (("^all: shared static tools")
+                          "all: shared tools")
+                         ((".*LIB_STATIC.*libdir.*$")
+                          ""))
+                       (substitute* "mk/nvcgo.mk"
+                         ((".*-rf.*")
+                          "	mkdir -p ${SRCS_DIR} && echo \"sources dir: ${SRCS_DIR}\"
+")
+                         (("CURDIR./src/..PREFIX.")
+                          "CURDIR)/src/$(PREFIX)/*")) ;deleting sources fails
+                       (substitute* "src/cli/libnvc.c"
+                         (("libnvidia-ml.so.1")
+                          "/run/current-system/profile/lib/libnvidia-ml.so.1"))
+                       (substitute* "src/nvc_internal.h"
+                         (("libnvidia-ml.so.1")
+                          "/run/current-system/profile/lib/libnvidia-ml.so.1"))
+                       (setenv "C_INCLUDE_PATH"
+                               (string-append (getenv "C_INCLUDE_PATH") ":"
+                                              (string-append #$libtirpc
+                                                             "/include/tirpc")))
+                       (setenv "LIBRARY_PATH"
+                               (string-append (getenv "LIBRARY_PATH") ":"
+                                              (string-append #$libtirpc "/lib")))
+                       (setenv "LDFLAGS"
+                               (string-append (or (getenv "LDFLAGS") "")
+                                " -ltirpc -lseccomp -lcap -Wl,-rpath="
+                                (assoc-ref outputs "out") "/lib"))
+                       (setenv "CFLAGS"
+                               (string-append (or (getenv "CFLAGS") "")
+                                              " -DWITH_TIRPC -g"))
+                       (substitute* "Makefile"
+                         (("^WITH_LIBELF.*no")
+                          "WITH_LIBELF ?= yes"))
+                       (substitute* "mk/common.mk"
+                         (("^REVISION.*")
+                          (string-append "REVISION ?= "
+                                         #$version "\n" "CC := gcc\n")))
+                       #t)))
+      #:tests? #f))
+    (native-inputs (list libseccomp
+                         nvidia-modprobe
+                         which
+                         libtirpc
+                         libcap
+                         libelf
+                         git-minimal
+                         curl
+                         tar
+                         coreutils
+                         docker
+                         go
+                         gcc-toolchain
+                         rpcsvc-proto
+                         pkgconf))
+    (synopsis "Build and run containers leveraging NVIDIA GPUs")
+    (description
+     "The NVIDIA Container Toolkit allows users to build and run GPU accelerated containers. The toolkit includes a container runtime library and utilities to automatically configure containers to leverage NVIDIA GPUs.")
+    (home-page "https://github.com/NVIDIA/nvidia-container-toolkit")
+    (license license-gnu:asl2.0)))
+
+libnvidia-container
