@@ -1984,7 +1984,11 @@ See also
              (url "https://github.com/NVIDIA/libnvidia-container")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
-       (patches (search-patches "libnvidia-container.patch"))
+       (patches (map (lambda (patch)
+                       (search-path (map (cut string-append <>
+                                              "/myguix/patches") %load-path)
+                                    patch))
+                     '("libnvidia-container.patch")))
        (sha256
         (base32 "0rzvh1zhh8pi5xjzaq3nmyzpcvjy41gq8w36dp1ai11a6j2lpa99"))))
     (build-system gnu-build-system)
