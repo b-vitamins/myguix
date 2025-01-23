@@ -367,6 +367,9 @@
         cutlass-tools-3.4
         cutensor
         nccl
+        nvidia-modprobe
+        libnvidia-container
+        nvidia-container-toolkit
         libfabric-cuda
         psm2-cuda
         tensorpipe-cuda
