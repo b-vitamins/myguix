@@ -10,7 +10,8 @@
   #:export (my-home-emacs-service-type))
 
 (define (my-home-emacs-profile-service-type config)
-  (list emacs-ac-geiser
+  (list emacs-next
+        emacs-ac-geiser
         emacs-academic-phrases
         emacs-ace-window
         emacs-adaptive-wrap
@@ -85,7 +86,6 @@
         emacs-json-mode
         emacs-julia-mode
         emacs-kind-icon
-        emacs-let-alist
         emacs-lispy
         emacs-logview
         emacs-lsp-mode
