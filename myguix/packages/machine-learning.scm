@@ -1889,7 +1889,7 @@ Note: This package provides NVIDIA GPU support.")
                              python-requests
                              python-pillow
                              python-pillow-simd
-                             python-pyptorch-cuda))
+                             python-pytorch-cuda))
     (native-inputs (list which python-pytest python-setuptools python-wheel))
     (home-page "https://pytorch.org/vision/stable/index.html")
     (synopsis "Datasets, transforms and models specific to computer vision")
