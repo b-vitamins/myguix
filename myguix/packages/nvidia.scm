@@ -16,19 +16,24 @@
   #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
+  #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cpp)
+  #:use-module (gnu packages curl)
+  #:use-module (gnu packages docker)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gawk)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages glib)
+  #:use-module (gnu packages golang)
   #:use-module (gnu packages graphviz)
   #:use-module (gnu packages gtk)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages multiprecision)
   #:use-module (gnu packages m4)
+  #:use-module (gnu packages onc-rpc)
   #:use-module (gnu packages lsof)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages pkg-config)
@@ -46,6 +51,8 @@
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages xorg)
+  #:use-module (guix build utils)
+  #:use-module (guix build-system go)
   #:use-module (guix build-system linux-module)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system copy)
@@ -1899,3 +1906,60 @@ See also
      "NVIDIA cuSPARSELt is a high-performance CUDA library dedicated to general matrix-matrix operations in which at least one operand is a sparse matrix. The cuSPARSELt APIs allow flexibility in the algorithm/operation selection, epilogue, and matrix characteristics, including memory layout, alignment, and data types.")
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
+
+(define-public nvidia-modprobe
+  (package
+    (name "nvidia-modprobe")
+    (version "550.54.14")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-modprobe")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1a7q03pnwk3wa0p57whwv2mvz60bv77vvvaljqzwnscpyf94q548"))))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:phases #~(modify-phases %standard-phases
+                   (delete 'configure)
+                   (add-before 'build 'set-correct-cflags
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       (setenv "CFLAGS" "-fPIC")
+                       (display "setting CFLAGS\n")
+                       (substitute* "modprobe-utils/nvidia-modprobe-utils.c"
+                         (("^static int nvidia_cap_get_device_file_attrs")
+                          "int nvidia_cap_get_device_file_attrs"))))
+                   (add-after 'build 'build-static-link-libraries
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       (invoke "ar" "rcs"
+                               "_out/Linux_x86_64/libnvidia-modprobe-utils.a"
+                               "_out/Linux_x86_64/nvidia-modprobe-utils.o"
+                               "_out/Linux_x86_64/pci-sysfs.o")
+                       (copy-recursively "_out/Linux_x86_64/"
+                                         (string-append (assoc-ref %outputs
+                                                                   "out")
+                                                        "/lib"))))
+                   (delete 'check)
+                   (add-after 'patch-source-shebangs 'replace-prefix
+                     (lambda* (#:key inputs outputs #:allow-other-keys)
+                       (setenv "CC" "gcc")
+                       (setenv "PREFIX"
+                               (assoc-ref %outputs "out"))
+                       (copy-recursively "modprobe-utils/"
+                                         (string-append (assoc-ref %outputs
+                                                                   "out")
+                                                        "/include")) #t) ;must return true for success
+                     ))
+      #:tests? #f))
+    (native-inputs (list gcc-toolchain m4))
+    (synopsis
+     "Load the NVIDIA kernel module and create NVIDIA character device files")
+    (description
+     "Load the NVIDIA kernel module and create NVIDIA character device files")
+    (home-page "https://github.com/NVIDIA/nvidia-modprobe")
+    (license license-gnu:gpl2)))
+
+nvidia-modprobe
