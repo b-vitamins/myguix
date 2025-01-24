@@ -23,8 +23,7 @@
                                (volumes '("/gnu/store:/gnu/store:ro"
                                           "/home/b/projects/nnml:/nnml"))
                                (workdir "/nnml")
-                               (extra-arguments (list "--runtime=nvidia"
-                                                      "--gpus=all"))
+                               (extra-arguments (list "--gpus" "all"))
                                (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
                                                   '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))
                                (log-file "/var/log/docker/pytorch/pytorch.log")))
@@ -47,9 +46,7 @@
   (oci-container-configuration (image "grobid/grobid:0.8.0")
                                (network "host")
                                (ports '(("8070" . "8070")))
-                               (extra-arguments '("--runtime=nvidia"
-                                                  "--gpus=all" "--ulimit"
-                                                  "core=0"))
+                               (extra-arguments '("--gpus" "all" "--ulimit" "core=0"))
                                (log-file "/var/log/docker/grobid/grobid.log")))
 
 ;; Define an OCI container service for Weaviate, an open-source vector search engine.
