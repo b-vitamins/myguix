@@ -97,6 +97,7 @@
                                (command '("solr-precreate" "gettingstarted"))
                                (environment (list '("SOLR_HEAP" . "800m")))))
 
+;; Apache Cassandra is an open source NoSQL distributed database offering high availability and scalability without compromising performance.
 (define oci-cassandra-service-type
   (oci-container-configuration (auto-start? #t)
                                (image "cassandra:latest")
@@ -105,3 +106,17 @@
                                (extra-arguments '("--ulimit"
                                                   "nofile=262144:262144"))
                                (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
+
+;; JanusGraph is a scalable graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.
+(define oci-janusgraph-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "janusgraph/janusgraph:latest")
+                               (network "host")
+                               (ports '(("8182" . "8182") ("8183" . "8183")))
+                               (volumes '("/var/lib/janusgraph/data:/janusgraph/data"))
+                               (environment (list '("JAVA_OPTIONS" . "-Xms8g -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=200")
+                                                  '("STORAGE_BACKEND" . "cql")
+                                                  '("STORAGE_HOSTNAME" . "localhost:9042")
+                                                  '("STORAGE_CASSANDRA_KEYSPACE" . "janusgraph")
+                                                  '("INDEX_BACKEND" . "solr")
+                                                  '("INDEX_HOSTNAME" . "localhost:8983")))))
