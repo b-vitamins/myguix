@@ -4,10 +4,12 @@
   #:use-module (ice-9 rdelim)
   #:use-module (rnrs files)
   #:use-module (rnrs io simple)
-  #:export (get-meili-master-key meili-master-key oci-grobid-service-type
+  #:export (get-meili-master-key meili-master-key
+                                 oci-grobid-service-type
                                  oci-meilisearch-service-type
                                  oci-weaviate-service-type
-                                 oci-neo4j-service-type))
+                                 oci-neo4j-service-type
+                                 oci-pytorch-service-type))
 
 ;; Function to read MEILI_MASTER_KEY from the credentials file
 (define (get-meili-master-key)
@@ -73,3 +75,11 @@
                                               '("/var/lib/neo4j/import" . "/var/lib/neo4j/import")
                                               '("/var/lib/neo4j/plugins" . "/plugins")))))
 
+(define oci-pytorch-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "pytorch/pytorch:latest")
+                               (network "host")
+                               (volumes (list '("/gnu/store:/gnu/store:ro")))
+                               (extra-arguments (list "--gpus=all"))
+                               (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
+                                                  '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))))
