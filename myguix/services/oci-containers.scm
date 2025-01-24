@@ -129,5 +129,5 @@
                                (ports '(("8123" . "8123") ("9000" . "9000")))
                                (extra-arguments (list "--ulimit"
                                                       "nofile=262144:262144"))
-                               (volumes (list '("/var/lib/clickhouse/data:/var/lib/clickhouse")
-                                              '("/var/log/clickhouse-server:/var/log/clickhouse-server")))))
+                               (volumes '("/var/lib/clickhouse/data:/var/lib/clickhouse"
+                                          "/var/log/clickhouse-server:/var/log/clickhouse-server"))))
