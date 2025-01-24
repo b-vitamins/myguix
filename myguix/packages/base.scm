@@ -397,8 +397,6 @@
         cutlass-tools-3.4
         cutensor
         nccl
-        nvidia-container-toolkit
-        runc
         libfabric-cuda
         psm2-cuda
         tensorpipe-cuda
@@ -408,7 +406,9 @@
         python-pytorch-cuda
         python-torchvision-cuda
         whisper-cpp-cuda
-        llama-cpp-cuda))
+        llama-cpp-cuda
+        runc
+        nvidia-container-toolkit))
 
 (define %tree-sitter-packages
   (list tree-sitter
