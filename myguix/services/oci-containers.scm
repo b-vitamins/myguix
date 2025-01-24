@@ -55,7 +55,7 @@
 ;; Define an OCI container service for Weaviate, an open-source vector search engine.
 (define oci-weaviate-service-type
   (oci-container-configuration (image
-                                "cr.weaviate.io/semitechnologies/weaviate:1.24.10")
+                                "cr.weaviate.io/semitechnologies/weaviate:1.28.4")
                                (network "host")
                                (ports '(("50051" . "50051")))
                                (environment (list '("QUERY_DEFAULTS_LIMIT" . "25")
