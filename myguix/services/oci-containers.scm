@@ -22,8 +22,9 @@
                                (network "host")
                                (volumes '("/gnu/store:/gnu/store:ro"
                                           "/home/b/projects/nnml:/nnml"))
-                               (extra-arguments (list "--gpus=all" "-w"
-                                                      "/nnml"))
+                               (workdir "/nnml")
+                               (extra-arguments (list "--runtime=nvidia"
+                                                      "--gpus=all"))
                                (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
                                                   '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))))
 
