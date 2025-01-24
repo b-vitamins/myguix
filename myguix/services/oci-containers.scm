@@ -75,11 +75,14 @@
                                               '("/var/lib/neo4j/import" . "/var/lib/neo4j/import")
                                               '("/var/lib/neo4j/plugins" . "/plugins")))))
 
+;; Define an OCI container service for PyTorch, a Python package that provides 1) Tensor computation (like NumPy) with strong GPU acceleration, 2) Deep neural networks built on a tape-based autograd system.
 (define oci-pytorch-service-type
   (oci-container-configuration (auto-start? #t)
                                (image "pytorch/pytorch:latest")
                                (network "host")
-                               (volumes (list '("/gnu/store" . "/gnu/store:ro")))
-                               (extra-arguments (list "--gpus=all"))
+                               (volumes '("/gnu/store:/gnu/store:ro"
+                                          "/home/b/projects/nnml:/nnml"))
+                               (extra-arguments (list "--gpus=all" "-w"
+                                                      "/nnml"))
                                (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
                                                   '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))))
