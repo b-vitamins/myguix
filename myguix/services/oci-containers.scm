@@ -46,7 +46,8 @@
   (oci-container-configuration (image "grobid/grobid:0.8.0")
                                (network "host")
                                (ports '(("8070" . "8070")))
-                               (extra-arguments '("--gpus" "all" "--ulimit" "core=0"))
+                               (extra-arguments '("--gpus" "all" "--ulimit"
+                                                  "core=0"))
                                (log-file "/var/log/docker/grobid/grobid.log")))
 
 ;; Define an OCI container service for Weaviate, an open-source vector search engine.
