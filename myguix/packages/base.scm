@@ -434,7 +434,15 @@
   (list `(,rust "out")
         `(,rust "rust-src")
         `(,rust "tools")
-        `(,rust "cargo") rust-analyzer))
+        `(,rust "cargo")
+        rust-analyzer
+        rust-cc-1
+        rust-gcc-0.3
+        rust-libc-0.2
+        rust-pkg-config-0.3
+        rust-cxx-1
+        rust-cxx-gen-0.7
+        rust-cxx-build-1))
 
 (define %python-packages
   (list python python-jedi python-jedi-language-server python-flake8
