@@ -94,7 +94,6 @@
                                                   '("INDEX_HOSTNAME" . "localhost:8983")))))
 
 ;; ClickHouse® is a high-performance, column-oriented SQL database management system (DBMS) for online analytical processing (OLAP).
-q
 (define oci-clickhouse-service-type
   (oci-container-configuration (auto-start? #t)
                                (image "clickhouse:latest")
