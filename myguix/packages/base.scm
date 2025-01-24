@@ -231,7 +231,7 @@
         zoom
         anytype
         zotero
-        gfeeds))
+        liferea))
 
 (define %audio-packages
   (list pulseaudio
