@@ -120,3 +120,14 @@
                                                   '("STORAGE_CASSANDRA_KEYSPACE" . "janusgraph")
                                                   '("INDEX_BACKEND" . "solr")
                                                   '("INDEX_HOSTNAME" . "localhost:8983")))))
+
+;; ClickHouse® is a high-performance, column-oriented SQL database management system (DBMS) for online analytical processing (OLAP).
+(define oci-clickhouse-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "clickhouse:latest")
+                               (network "host")
+                               (ports '(("8123" . "8123") ("9000" . "9000")))
+                               (extra-arguments (list "--ulimit"
+                                                      "nofile=262144:262144"))
+                               (volumes (list '("/var/lib/clickhouse/data:/var/lib/clickhouse")
+                                              '("/var/log/clickhouse-server:/var/log/clickhouse-server")))))
