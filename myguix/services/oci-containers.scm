@@ -96,3 +96,12 @@
                                (volumes '("/var/lib/solr/data:/var/solr"))
                                (command '("solr-precreate" "gettingstarted"))
                                (environment (list '("SOLR_HEAP" . "800m")))))
+
+(define oci-cassandra-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "cassandra:latest")
+                               (network "host")
+                               (ports '(("9042" . "9042") ("7000" . "7000")))
+                               (extra-arguments '("--ulimit"
+                                                  "nofile=262144:262144"))
+                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
