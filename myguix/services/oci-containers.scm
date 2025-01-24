@@ -86,3 +86,13 @@
                                                       "/nnml"))
                                (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
                                                   '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))))
+
+;; Solr is the blazing-fast, open source, multi-modal search platform built on the full-text, vector, and geospatial search capabilities of Apache Lucene™.
+(define oci-solr-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "solr:latest")
+                               (network "host")
+                               (ports '(("8983" . "8983")))
+                               (volumes '("/var/lib/solr/data:/var/solr"))
+                               (command '("solr-precreate" "gettingstarted"))
+                               (environment (list '("SOLR_HEAP" . "800m")))))
