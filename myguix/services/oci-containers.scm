@@ -79,7 +79,7 @@
   (oci-container-configuration (auto-start? #t)
                                (image "pytorch/pytorch:latest")
                                (network "host")
-                               (volumes (list '("/gnu/store:/gnu/store:ro")))
+                               (volumes (list '("/gnu/store" . "/gnu/store:ro")))
                                (extra-arguments (list "--gpus=all"))
                                (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
                                                   '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))))
