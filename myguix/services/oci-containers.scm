@@ -26,7 +26,8 @@
                                (extra-arguments (list "--runtime=nvidia"
                                                       "--gpus=all"))
                                (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
-                                                  '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))))
+                                                  '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))
+                               (log-file "/var/log/docker/pytorch/pytorch.log")))
 
 ;; Apache Cassandra is an open source NoSQL distributed database offering high availability and scalability without compromising performance.
 (define oci-cassandra-service-type
@@ -36,14 +37,17 @@
                                (ports '(("9042" . "9042") ("7000" . "7000")))
                                (extra-arguments '("--ulimit"
                                                   "nofile=262144:262144"))
-                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
+                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))
+                               (log-file
+                                "/var/log/docker/cassandra/cassandra.log")))
 
 ;; Define an OCI container service for GROBID, a machine learning library for extracting
 ;; information from scholarly documents.
 (define oci-grobid-service-type
   (oci-container-configuration (image "grobid/grobid:0.8.0")
                                (network "host")
-                               (ports '(("8070" . "8070")))))
+                               (ports '(("8070" . "8070")))
+                               (log-file "/var/log/docker/grobid/grobid.log")))
 
 ;; Define an OCI container service for Weaviate, an open-source vector search engine.
 (define oci-weaviate-service-type
@@ -68,7 +72,9 @@
                                                      "reranker-cohere,"
                                                      "qna-openai"))
                                                   '("CLUSTER_HOSTNAME" . "lagertha")))
-                               (volumes (list '("/var/lib/weaviate/data" . "/var/lib/weaviate")))))
+                               (volumes (list '("/var/lib/weaviate/data" . "/var/lib/weaviate")))
+                               (log-file
+                                "/var/log/docker/weaviate/weaviate.log")))
 
 ;; Solr is the blazing-fast, open source, multi-modal search platform built on the full-text, vector, and geospatial search capabilities of Apache Lucene™.
 (define oci-solr-service-type
@@ -78,7 +84,8 @@
                                (ports '(("8983" . "8983")))
                                (volumes '("/var/lib/solr/data:/var/solr"))
                                (command '("solr-precreate" "gettingstarted"))
-                               (environment (list '("SOLR_HEAP" . "800m")))))
+                               (environment (list '("SOLR_HEAP" . "800m")))
+                               (log-file "/var/log/docker/solr/solr.log")))
 
 ;; JanusGraph is a scalable graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.
 (define oci-janusgraph-service-type
@@ -103,7 +110,9 @@
                                (extra-arguments (list "--ulimit"
                                                       "nofile=262144:262144"))
                                (volumes '("/var/lib/clickhouse/data:/var/lib/clickhouse"
-                                          "/var/log/clickhouse-server:/var/log/clickhouse-server"))))
+                                          "/var/log/clickhouse-server:/var/log/clickhouse-server"))
+                               (log-file
+                                "/var/log/docker/janusgraph/janusgraph.log")))
 
 ;; Function to read MEILI_MASTER_KEY from the credentials file
 (define (get-meili-master-key)
@@ -124,7 +133,9 @@
                                (environment (list '("MEILI_NO_ANALYTICS" . "true")
                                                   `("MEILI_MASTER_KEY" unquote
                                                     meili-master-key)))
-                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
+                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))
+                               (log-file
+                                "/var/log/docker/meilisearch/meilisearch.log")))
 
 ;; Define an OCI container service for Neo4j, a graph database management system.
 (define oci-neo4j-service-type
@@ -135,4 +146,5 @@
                                (volumes (list '("/var/lib/neo4j/data" . "/data")
                                               '("/var/lib/neo4j/logs" . "/logs")
                                               '("/var/lib/neo4j/import" . "/var/lib/neo4j/import")
-                                              '("/var/lib/neo4j/plugins" . "/plugins")))))
+                                              '("/var/lib/neo4j/plugins" . "/plugins")))
+                               (log-file "/var/log/docker/neo4j/neo4j.log")))
