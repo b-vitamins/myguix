@@ -42,7 +42,7 @@ XTerm*metaSendsEscape: false
                                                       (mixed-text-file "zshrc"
                                                        "fpath+=\"${0:A:h}"
                                                        zsh-completions
-                                                       "share/zsh/site-functions/\"")
+                                                       "/share/zsh/site-functions/\"")
                                                       (mixed-text-file "zshrc"
                                                        "source "
                                                        zsh-autosuggestions
