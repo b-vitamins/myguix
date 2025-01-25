@@ -4,16 +4,15 @@
   #:use-module (ice-9 rdelim)
   #:use-module (rnrs files)
   #:use-module (rnrs io simple)
-  #:export (oci-pytorch-service-type oci-cassandra-service-type
-                                     oci-grobid-service-type
-                                     oci-weaviate-service-type
-                                     oci-solr-service-type
-                                     oci-janusgraph-service-type
-                                     oci-clickhouse-service-type
-                                     oci-meilisearch-service-type
-                                     get-meili-master-key
-                                     meili-master-key
-                                     oci-neo4j-service-type))
+  #:export (oci-cassandra-service-type oci-grobid-service-type
+                                       oci-weaviate-service-type
+                                       oci-solr-service-type
+                                       oci-janusgraph-service-type
+                                       oci-clickhouse-service-type
+                                       oci-meilisearch-service-type
+                                       get-meili-master-key
+                                       meili-master-key
+                                       oci-neo4j-service-type))
 
 ;; Define an OCI container service for PyTorch, a Python package that provides 1) Tensor computation (like NumPy) with strong GPU acceleration, 2) Deep neural networks built on a tape-based autograd system.
 (define oci-pytorch-service-type
@@ -46,8 +45,7 @@
   (oci-container-configuration (image "grobid/grobid:0.8.0")
                                (network "host")
                                (ports '(("8070" . "8070")))
-                               (extra-arguments '("--gpus" "all" "--ulimit"
-                                                  "core=0"))
+                               (extra-arguments '("--ulimit" "core=0"))
                                (log-file "/var/log/docker/grobid/grobid.log")))
 
 ;; Define an OCI container service for Weaviate, an open-source vector search engine.
