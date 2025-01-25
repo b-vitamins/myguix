@@ -1502,5 +1502,3 @@ content using a variety of algorithms.")
     (synopsis "Fork of the Python Imaging Library (Pillow)")
     (description "This package is a fork of Pillow which adds support for SIMD
 parallelism.")))
-
-python-nodriver
