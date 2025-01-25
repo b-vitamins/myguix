@@ -1062,31 +1062,64 @@ ctypes.")
     (license license:expat)))
 
 (define-public python-nodriver
-  (package
-    (name "python-nodriver")
-    (version "0.37")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "nodriver" version))
-       (sha256
-        (base32 "0h1bhb5hr2s0f8na0sh2nn9nd50zq7lw6q5vaax8vgjr2g9c8pql"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f))
-    (propagated-inputs (list python-setuptools
-                             python-wheel
-                             python-deprecated
-                             python-mss
-                             python-websockets
-                             python-black
-                             python-sphinx
-                             python-pygments))
-    (home-page "https://github.com/ultrafunkamsterdam/nodriver")
-    (synopsis "Browser automation without webdriver based Selenium")
-    (description
-     "This package provides next level webscraping and browser automation using a relatively simple interface.
+  (let ((websockets (package
+                      (name "python-websockets")
+                      (version "14.2")
+                      (source
+                       (origin
+                         (method git-fetch)
+                         (uri (git-reference
+                               (url "https://github.com/aaugustin/websockets")
+                               (commit version)))
+                         (file-name (git-file-name name version))
+                         (sha256
+                          (base32
+                           "0j8x1xn3m1jcghwy42y6ibspr9kwazcgdz1c90i0jxdgj50xxbiz"))))
+                      (build-system pyproject-build-system)
+                      (arguments
+                       (list
+                        #:phases #~(modify-phases %standard-phases
+                                     (add-before 'check 'extend-test-timeout
+                                       (lambda _
+                                         (setenv
+                                          "WEBSOCKETS_TESTS_TIMEOUT_FACTOR"
+                                          "10"))))))
+                      (native-inputs (list python-setuptools python-wheel))
+                      (home-page "https://github.com/aaugustin/websockets")
+                      (synopsis
+                       "Python implementation of the WebSocket Protocol (RFC 6455 & 7692)")
+                      (description
+                       "@code{websockets} is a library for building WebSocket servers and clients
+in Python with a focus on correctness and simplicity.
+
+Built on top of @code{asyncio}, Python's standard asynchronous I/O framework,
+it provides an elegant coroutine-based API.")
+                      (license license:bsd-3))))
+    (package
+      (name "python-nodriver")
+      (version "0.39")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (pypi-uri "nodriver" version))
+         (sha256
+          (base32 "1vs848zh0a8z40fjkizl31hizqv8a9hygj4mdwb78z472migg15g"))))
+      (build-system pyproject-build-system)
+      (arguments
+       (list
+        #:tests? #f))
+      (propagated-inputs (list python-setuptools
+                               python-wheel
+                               python-deprecated
+                               python-mss
+                               websockets
+                               python-black
+                               python-sphinx
+                               python-pygments))
+      (home-page "https://github.com/ultrafunkamsterdam/nodriver")
+      (synopsis "Browser automation without webdriver based Selenium")
+      (description
+       "This package provides next level webscraping and browser automation using a relatively simple interface.
 @itemize
 @item This is the official successor of the Undetected-Chromedriver python package.
 @item No more webdriver, no more selenium
@@ -1108,7 +1141,7 @@ Some features:
 @item utility function to convert a running undetected_chromedriver.Chrome instance to a nodriver.Browser instance and contintue from there
 @item packed with helpers and utility methods for most used and important operations
 @end itemize")
-    (license license:agpl3)))
+      (license license:agpl3))))
 
 (define-public python-pyemd
   (package
@@ -1469,3 +1502,5 @@ content using a variety of algorithms.")
     (synopsis "Fork of the Python Imaging Library (Pillow)")
     (description "This package is a fork of Pillow which adds support for SIMD
 parallelism.")))
+
+python-nodriver
