@@ -56,8 +56,7 @@
    (service nscd-service-type)
    (service syslog-service-type)
    (service guix-service-type
-            (guix-configuration (guix (guix-for-channels %my-channels))
-                                (channels %my-channels)
+            (guix-configuration (channels %my-channels)
                                 (build-accounts 12)
                                 (tmpdir "/tmp")))
    (service udev-service-type
