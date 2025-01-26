@@ -1745,6 +1745,7 @@ as common bridge to reuse tensor and ops across frameworks.")
                               "torch/csrc/jit/serialization/mobile_bytecode_generated.h"))
                   (delete-file-recursively ".github"))))))
 
+;; Just re-export $LIBRARY_PATH as $LD_LIBRARY_PATH and torch.cuda.is_available() will return True.
 (define-public python-pytorch-cuda
   (package
     (inherit python-pytorch)
