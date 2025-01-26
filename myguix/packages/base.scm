@@ -64,7 +64,6 @@
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
                 #:hide (python-jedi))
-  #:use-module (gnu packages python-science)
   #:use-module (gnu packages rsync)
   #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
@@ -283,11 +282,7 @@
         suitesparse
         jacal
         nauty
-        cudd
-        python-numpy
-        python-numba
-        python-scipy
-        python-sympy))
+        cudd))
 
 (define %advanced-filesystem-packages
   (list xfsprogs
@@ -355,12 +350,7 @@
   (list vlc audacious ephoto))
 
 (define %graphics-packages
-  (list gimp
-        inkscape
-        imagemagick
-        graphicsmagick
-        python-imageio
-        python-matplotlib))
+  (list gimp inkscape imagemagick graphicsmagick))
 
 (define %audio-conversion-packages
   (list abcde
@@ -418,6 +408,7 @@
         python-torchvision-cuda
         whisper-cpp-cuda
         llama-cpp-cuda
+        runc
         nvidia-container-toolkit))
 
 (define %tree-sitter-packages
