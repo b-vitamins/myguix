@@ -1366,17 +1366,17 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (license:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
 
-(define-public cudnn-8.9
+(define-public cudnn
   (package
     (name "cudnn")
-    (version "8.9.1.23")
+    (version "9.7.0.66")
     (source
      (origin
        (uri (string-append
              "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
              version "_cuda12-archive.tar.xz"))
        (sha256
-        (base32 "0gp848cszphw9gj0dq70qpnvwg0r6m9f49wbfc8wbq1baif3q5im"))
+        (base32 "1g3w75rn2fzw20cvi9306qlnsrlzc2qi0i2x4d3mwq58aw3hjylk"))
        (method url-fetch)))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
@@ -1440,20 +1440,6 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (license:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
-(define-public cudnn-9.5
-  (package
-    (inherit cudnn-8.9)
-    (name "cudnn")
-    (version "9.5.1.17")
-    (source
-     (origin
-       (uri (string-append
-             "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
-             version "_cuda12-archive.tar.xz"))
-       (sha256
-        (base32 "1r1b4y1s4yk1h8x71yzsxjzx467kn5mgcdmci09aw943qswj1p9m"))
-       (method url-fetch)))))
-
 (define-public cudnn-frontend
   (package
     (name "cudnn-frontend")
@@ -1512,7 +1498,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                                                                   file))
                                                 #:directories? #t)))))))
     (native-inputs (list cmake dlpack pybind11 python-setuptools python-wheel))
-    (inputs (list cuda-toolkit nlohmann-json cudnn-9.5))
+    (inputs (list cuda-toolkit nlohmann-json cudnn))
     (propagated-inputs (list nvda))
     (home-page "https://github.com/NVIDIA/cudnn-frontend")
     (synopsis "cuDNN API header-only library")
@@ -1572,7 +1558,7 @@ autotuning.")
                        (delete-file-recursively (string-append #$output
                                                                "/test")))))))
     (native-inputs (list python python-setuptools git-minimal))
-    (inputs (list cuda-toolkit cudnn-9.5))
+    (inputs (list cuda-toolkit cudnn))
     (propagated-inputs (list nvidia-driver
                              python-networkx
                              python-numpy

@@ -1829,8 +1829,8 @@ as common bridge to reuse tensor and ops across frameworks.")
               (replace "tensorpipe" tensorpipe-cuda)
               (replace "gloo" gloo-cuda)
               (append cuda-toolkit
-                      cudnn-9.5
-                      cutlass-headers-3.4
+                      cudnn
+                      cutlass-headers
                       cudnn-frontend
                       magma-cuda
                       nlohmann-json
