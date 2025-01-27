@@ -1856,7 +1856,7 @@ Note: This package provides NVIDIA GPU support.")
 (define-public python-torchvision-cuda
   (package
     (name "python-torchvision-cuda")
-    (version "0.19.0")
+    (version "0.20.1")
     (source
      (origin
        (method git-fetch)
@@ -1866,7 +1866,7 @@ Note: This package provides NVIDIA GPU support.")
              (recursive? #t)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "15zyq2k4x9yapx7qfghhslznz1mwybhf086pirsr98c4l891sp1r"))
+        (base32 "1hxcpg44bjnfzqwihzbnfgd0gpkhfgqrcg116mnvdn0fpbhf4yq5"))
        (modules '((guix build utils)))
        (snippet '(begin
                    (delete-file-recursively "android")
@@ -1898,5 +1898,3 @@ Note: This package provides NVIDIA GPU support.")
      "The torchvision package consists of popular datasets, model architectures,
 and common image transformations for computer vision.")
     (license license:bsd-3)))
-
-python-pytorch-cuda
