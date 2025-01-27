@@ -228,7 +228,6 @@
         icedove
         solaar
         gnome-tweaks
-        gnome-boxes
         signal-desktop
         zoom
         anytype
