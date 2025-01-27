@@ -285,7 +285,7 @@
         nauty
         cudd
         python-numpy
-        python-numbda
+        python-numba
         python-scipy
         python-sympy))
 
