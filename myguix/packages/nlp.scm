@@ -97,7 +97,7 @@
   (package
     (inherit whisper-cpp)
     (name "whisper-cpp-cuda")
-    (inputs (list cuda-toolkit-12.4 openblas))
+    (inputs (list cuda-toolkit openblas))
     (propagated-inputs (list nvda))
     (arguments
      (substitute-keyword-arguments (package-arguments whisper-cpp)
@@ -113,7 +113,7 @@
     (name "llama-cpp-cuda")
     (inputs (list python))
     (propagated-inputs (list nvda
-                             cuda-toolkit-12.4
+                             cuda-toolkit
                              python-numpy
                              python-pytorch
                              python-sentencepiece

@@ -1244,7 +1244,7 @@ Management Library")
 NVIDIA Management Library")
     (license license-gnu:bsd-3)))
 
-(define-public cuda-toolkit-12.4
+(define-public cuda-toolkit
   (package
     (name "cuda-toolkit")
     (version "12.4.0")
@@ -1512,7 +1512,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                                                                   file))
                                                 #:directories? #t)))))))
     (native-inputs (list cmake dlpack pybind11 python-setuptools python-wheel))
-    (inputs (list cuda-toolkit-12.4 nlohmann-json cudnn-9.5))
+    (inputs (list cuda-toolkit nlohmann-json cudnn-9.5))
     (propagated-inputs (list nvda))
     (home-page "https://github.com/NVIDIA/cudnn-frontend")
     (synopsis "cuDNN API header-only library")
@@ -1572,7 +1572,7 @@ autotuning.")
                        (delete-file-recursively (string-append #$output
                                                                "/test")))))))
     (native-inputs (list python python-setuptools git-minimal))
-    (inputs (list cuda-toolkit-12.4 cudnn-9.5))
+    (inputs (list cuda-toolkit cudnn-9.5))
     (propagated-inputs (list nvidia-driver
                              python-networkx
                              python-numpy
@@ -1688,7 +1688,7 @@ implement cuBLAS and cuDNN.")
                        (setenv "PREFIX"
                                #$output))))))
     (native-inputs (list python which))
-    (inputs (list cuda-toolkit-12.4))
+    (inputs (list cuda-toolkit))
     (propagated-inputs (list nvidia-driver))
     (home-page "https://developer.nvidia.com/nccl")
     (synopsis

@@ -1621,7 +1621,7 @@ fully supported to run on the GPU.")
       (propagated-inputs (list nvda))
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
-                (append cuda-toolkit-12.4 nccl)))
+                (append cuda-toolkit nccl)))
       (arguments
        (substitute-keyword-arguments (package-arguments gloo)
          ((#:configure-flags flags
@@ -1661,7 +1661,7 @@ Note: This package provides NVIDIA GPU support.")
         #:configure-flags ''("-DBUILD_SHARED_LIBS=ON" "-DTP_USE_CUDA=ON")
         ;; There are no tests
         #:tests? #f))
-      (inputs (list cuda-toolkit-12.4 libuv))
+      (inputs (list cuda-toolkit libuv))
       (native-inputs (list googletest pkg-config pybind11 libnop))
       (propagated-inputs (list nvda))
       (home-page "https://github.com/pytorch/tensorpipe")
@@ -1828,7 +1828,7 @@ as common bridge to reuse tensor and ops across frameworks.")
     (inputs (modify-inputs (package-inputs python-pytorch)
               (replace "tensorpipe" tensorpipe-cuda)
               (replace "gloo" gloo-cuda)
-              (append cuda-toolkit-12.4
+              (append cuda-toolkit
                       cudnn-9.5
                       cutlass-headers-3.4
                       cudnn-frontend
@@ -1898,3 +1898,5 @@ Note: This package provides NVIDIA GPU support.")
      "The torchvision package consists of popular datasets, model architectures,
 and common image transformations for computer vision.")
     (license license:bsd-3)))
+
+python-pytorch-cuda

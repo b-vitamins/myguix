@@ -50,7 +50,7 @@
     (supported-systems '("x86_64-linux"))
     (build-system cmake-build-system)
     (native-inputs (list patchelf-0.16 which python perl pkg-config))
-    (inputs (list gcc cuda-toolkit-12.4 openblas))
+    (inputs (list gcc cuda-toolkit openblas))
     (propagated-inputs (list nvidia-driver))
     (arguments
      (list
