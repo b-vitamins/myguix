@@ -1710,7 +1710,7 @@ as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
 
 (define %python-pytorch-version
-  "2.4.0")
+  "2.5.1")
 
 (define %python-pytorch-src
   (let ((original (package-source python-pytorch)))
