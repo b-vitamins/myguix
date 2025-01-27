@@ -57,7 +57,7 @@
    (service syslog-service-type)
    (service guix-service-type
             (guix-configuration (channels %my-channels)
-                                (build-accounts 12)
+                                (build-accounts 6)
                                 (tmpdir "/tmp")))
    (service udev-service-type
             (udev-configuration (rules (list (specification->package "lvm2")
