@@ -400,11 +400,11 @@
         pkg-config))
 
 (define %cuda-packages
-  (list cuda-toolkit-12.4
-        cudnn-9.5
+  (list cuda-toolkit
+        cudnn
         cusparselt
-        cutlass-headers-3.4
-        cutlass-tools-3.4
+        cutlass-headers
+        cutlass-tools
         cutensor
         nccl
         libfabric-cuda
