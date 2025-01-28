@@ -1823,6 +1823,34 @@ See also
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cusparselt/license.html"))))
 
+(define-public cudss
+  (package
+    (name "cudss")
+    (version "0.4.0.2")
+    (home-page "https://docs.nvidia.com/cuda/cudss/")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cudss/redist/libcudss/linux-x86_64/libcudss-linux-x86_64-"
+             version "_cuda12-archive.tar.xz"))
+       (sha256
+        (base32 "0806zzri79sxfpawxfaqhdq6a0ljdml0w36s0jbwkbrg7md7zmv4"))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:substitutable? #t
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:install-plan ''(("include" "include")
+                        ("lib" "lib")
+                        ("LICENSE" "LICENSE"))))
+    (synopsis "A high-performance CUDA Library for Direct Sparse Solvers")
+    (description
+     "NVIDIA cuDSS (Preview) is a library of GPU-accelerated linear solvers with sparse matrices. It provides algorithms for solving linear systems of the following type: AX = B with a sparse matrix A, right-hand side B, and unknown solution X (could be a matrix or a vector). The cuDSS functionality allows flexibility in matrix properties and solver configuration, as well as execution parameters like CUDA streams.")
+    (license (license:nonfree
+              "https://docs.nvidia.com/cuda/cudss/license.html"))))
+
 (define-public nvidia-modprobe
   (package
     (name "nvidia-modprobe")
