@@ -316,7 +316,6 @@
         megacmd
         s3cmd
         rsync
-        rclone
         borg
         axel
         qbittorrent-enhanced
