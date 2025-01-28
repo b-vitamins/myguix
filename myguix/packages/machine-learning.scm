@@ -1770,11 +1770,20 @@ as common bridge to reuse tensor and ops across frameworks.")
   )~%"
                     #$(this-package-input "cudnn-frontend")
                     #$(this-package-input "nlohmann-json"))))
-                ;; XXX: Link the right include dir for cutlass.
                 (substitute* "aten/src/ATen/CMakeLists.txt"
+                  ;; XXX: Link the right include dir for cutlass-headers.
                   (("\\$\\{CMAKE_CURRENT_SOURCE_DIR\\}/\\.\\./\\.\\./\\.\\./third_party/cutlass/include")
                    (string-append #$(this-package-input "cutlass-headers")
-                                  "/include")))
+                                  "/include"))
+                  ;; XXX: Link the right include dir for cutlass-tools.
+                  (("\\$\\{CMAKE_CURRENT_SOURCE_DIR\\}/\\.\\./\\.\\./\\.\\./third_party/cutlass/tools/util/include")
+                   (string-append #$(this-package-input "cutlass-tools")
+                                  "/tools/util/include")))
+                ;; Make _get_ld_library_path look for LIBRARY_PATH, which is the
+                ;; environment variable used by Guix to manage library paths.
+                (substitute* "torch/_inductor/compile_worker/subproc_pool.py"
+                  (("os\\.environ\\.get\\(\"LD_LIBRARY_PATH\"")
+                   "os.environ.get(\"LIBRARY_PATH\""))
                 ;; XXX: Not linking gtest+gtest_main breaks compilation
                 (substitute* '("c10/cuda/test/CMakeLists.txt"
                                "caffe2/CMakeLists.txt")
@@ -1783,14 +1792,17 @@ as common bridge to reuse tensor and ops across frameworks.")
             (replace 'set-max-jobs
               (lambda _
                 (setenv "MAX_JOBS"
-                        (number->string (/ (parallel-job-count) 2)))))
+                        (number->string (parallel-job-count)))))
             (add-after 'use-system-libraries 'use-cuda-libraries
               (lambda _
-                (setenv "PYTORCH_BUILD_VERSION" "2.4.0")
+                (setenv "PYTORCH_BUILD_VERSION" "2.5.1")
                 (setenv "PYTORCH_BUILD_NUMBER" "1")
                 (setenv "TORCH_NVCC_FLAGS" "-Xfatbin -compress-all")
                 (setenv "USE_CUDA" "1")
+                (setenv "USE_NCCL" "1")
                 (setenv "USE_CUDNN" "1")
+                (setenv "USE_CUFILE" "1")
+                (setenv "USE_XPU" "0")
                 (setenv "USE_CUSPARSELT" "1")
                 (setenv "USE_CUPTI_SO" "1")
                 (setenv "USE_TENSORPIPE" "1")
@@ -1799,8 +1811,9 @@ as common bridge to reuse tensor and ops across frameworks.")
                 (setenv "USE_OPENMP" "1")
                 (setenv "USE_FLASH_ATTENTION" "0")
                 (setenv "USE_MEM_EFF_ATTENTION" "0")
-                (setenv "TORCH_CUDA_ARCH_LIST" "8.0;8.6;8.9")
+                (setenv "TORCH_CUDA_ARCH_LIST" "8.6")
                 (setenv "USE_ROCM" "0")
+                (setenv "USE_NUMA" "0")
                 (setenv "MAGMA_HOME"
                         #$(this-package-input "magma"))
                 (setenv "CUDA_HOME"
@@ -1812,11 +1825,15 @@ as common bridge to reuse tensor and ops across frameworks.")
                         #$(file-append (this-package-input "cudnn") "/lib"))
                 (setenv "CUDNN_INCLUDE_DIR"
                         #$(file-append (this-package-input "cudnn") "/include"))
+                (setenv "CUDSS_LIB_DIR"
+                        #$(file-append (this-package-input "cudss") "/lib"))
+                (setenv "CUDSS_INCLUDE_DIR"
+                        #$(file-append (this-package-input "cudss") "/include"))
                 (setenv "CUSPARSELT_LIBRARY_PATH"
-                        #$(file-append (this-package-input "cuda-toolkit")
+                        #$(file-append (this-package-input "cusparselt")
                                        "/lib"))
                 (setenv "CUSPARSELT_INCLUDE_PATH"
-                        #$(file-append (this-package-input "cuda-toolkit")
+                        #$(file-append (this-package-input "cusparselt")
                                        "/include"))
                 (setenv "NCCL_ROOT"
                         #$(file-append (this-package-input "nccl")))
@@ -1830,7 +1847,10 @@ as common bridge to reuse tensor and ops across frameworks.")
               (replace "gloo" gloo-cuda)
               (append cuda-toolkit
                       cudnn
-                      cutlass-headers
+                      cudss
+                      cusparselt
+                      cutlass-headers-3.4
+                      cutlass-tools-3.4
                       cudnn-frontend
                       magma-cuda
                       nlohmann-json
