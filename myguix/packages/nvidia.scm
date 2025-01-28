@@ -1614,6 +1614,21 @@ hierarchical decomposition and data movement similar to those used to
 implement cuBLAS and cuDNN.")
     (license license-gnu:bsd-3)))
 
+(define-public cutlass-headers-3.4
+  (package
+    (inherit cutlass-headers)
+    (name "cutlass-headers")
+    (version "3.4.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cutlass")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))))
+
 (define-public cutlass-tools
   (package
     (name "cutlass-tools")
