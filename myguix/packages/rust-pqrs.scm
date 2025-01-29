@@ -4668,6 +4668,41 @@ operations.")
     (description "This package provides Types used by the notify crate.")
     (license (list license:expat license:asl2.0))))
 
+(define-public rust-notify-8
+  (package
+    (name "rust-notify")
+    (version "8.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "notify" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0hz9ab68gsbkidms6kgl4v7capfqjyl40vpfdarcfsnnnc1q9vig"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-bitflags" ,rust-bitflags-2)
+                       ("rust-crossbeam-channel" ,rust-crossbeam-channel-0.5)
+                       ("rust-filetime" ,rust-filetime-0.2)
+                       ("rust-fsevent-sys" ,rust-fsevent-sys-4)
+                       ("rust-inotify" ,rust-inotify-0.11)
+                       ("rust-kqueue" ,rust-kqueue-1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-mio" ,rust-mio-1)
+                       ("rust-notify-types" ,rust-notify-types-2)
+                       ("rust-walkdir" ,rust-walkdir-2)
+                       ("rust-windows-sys" ,rust-windows-sys-0.59))
+       #:cargo-development-inputs (("rust-insta" ,rust-insta-1)
+                                   ("rust-nix" ,rust-nix-0.29)
+                                   ("rust-serde-json" ,rust-serde-json-1)
+                                   ("rust-tempfile" ,rust-tempfile-3))))
+    (home-page "https://github.com/notify-rs/notify")
+    (synopsis "Cross-platform filesystem notification library")
+    (description
+     "This package provides Cross-platform filesystem notification library.")
+    (license license:cc0)))
+
 (define-public rust-time-macros-0.2
   (package
     (name "rust-time-macros")
