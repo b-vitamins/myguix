@@ -12016,3 +12016,31 @@ implementing PEP 440.")
      "This package provides Tracing layer for creating flamegraphs from span timings.")
     (license license:expat)))
 
+(define-public rust-tracing-tree-0.4
+  (package
+    (name "rust-tracing-tree")
+    (version "0.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "tracing-tree" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "175lqyfp6zq7jbj8m026xdp8p765pzgfdzfxahfggmdhy5wwlngl"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-nu-ansi-term" ,rust-nu-ansi-term-0.50)
+                       ("rust-time" ,rust-time-0.3)
+                       ("rust-tracing-core" ,rust-tracing-core-0.1)
+                       ("rust-tracing-log" ,rust-tracing-log-0.2)
+                       ("rust-tracing-subscriber" ,rust-tracing-subscriber-0.3))
+       #:cargo-development-inputs (("rust-futures" ,rust-futures-0.3)
+                                   ("rust-log" ,rust-log-0.4)
+                                   ("rust-tracing" ,rust-tracing-0.1)
+                                   ("rust-ui-test" ,rust-ui-test-0.7))))
+    (home-page "https://github.com/davidbarsky/tracing-tree")
+    (synopsis "Tracing Layer which prints a tree of spans and events.")
+    (description
+     "This package provides a Tracing Layer which prints a tree of spans and events.")
+    (license (list license:expat license:asl2.0))))
+
