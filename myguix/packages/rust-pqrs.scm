@@ -1300,7 +1300,7 @@ shorthands for guards with one of the implemented strategies.")
         (base32 "1h77x9qx7pns0d66vdrmdbmwpi7586h7ysnkdnhrn5mwi2cyyw3i"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;use of undeclared crate or module `test_helper`
+     `(#:tests? #f
        #:cargo-inputs (("rust-critical-section" ,rust-critical-section-1)
                        ("rust-serde" ,rust-serde-1))
        #:cargo-development-inputs (("rust-build-context" ,rust-build-context-0.1)
@@ -3235,7 +3235,6 @@ API to decouple token-based libraries from the procedural macro use case.")
         (base32 "12ki6w8gn1ldq7yz9y680llwk5gmrhrzszaa17g1sbrw2r2qvwxy"))
        (snippet #~(begin
                     (use-modules (guix build utils))
-                    ;; feature "derive" must be declared for serde
                     (substitute* "Cargo.toml"
                       (("^\\[dev-dependencies.serde\\].*$" all)
                        (string-append all "features = [\"derive\"]\n")))))))
@@ -4105,7 +4104,7 @@ recursive algorithms that may accidentally blow the stack.")
         (base32 "1wznr6ax3jl09vxkvj4a62vip2avfgif13js9sflkjg4b6fv7skc"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;path tests/../generate/src/ucd.rs does not exist
+     `(#:tests? #f
        #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
                                    ("rust-fst" ,rust-fst-0.4)
                                    ("rust-rand" ,rust-rand-0.8)
@@ -4880,7 +4879,7 @@ code more explicit, and allows using turbofish syntax.")
         (base32 "0jc7wgprzqjhzd0nqkbmdlnjwyddnswmjw86ni2vq55v45jqn968"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;Not all files included
+     `(#:tests? #f
        #:cargo-inputs (("rust-deranged" ,rust-deranged-0.3)
                        ("rust-itoa" ,rust-itoa-1)
                        ("rust-js-sys" ,rust-js-sys-0.3)
@@ -8379,7 +8378,7 @@ Node.js and browsers, built on `#[wasm_bindgen]` using the `wasm-bindgen` crate.
         (base32 "0pz4b3gj2qk447g2mlmqlfgb7rym796c9b3cnhxs6ldq5k402fk7"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;unresolved import `quickcheck`
+     `(#:tests? #f
        #:cargo-inputs (("rust-lexical-parse-integer" ,rust-lexical-parse-integer-0.8)
                        ("rust-lexical-util" ,rust-lexical-util-0.8)
                        ("rust-static-assertions" ,rust-static-assertions-1))
@@ -8771,7 +8770,7 @@ Protocol")
         (base32 "168l27mrdq6681nwqd1f7mc6znr83hy06qaqvcp4bbq4azab8z9m"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;tests/match.rs:81:16 no method named `check_priorities`.
+     `(#:tests? #f
        #:cargo-development-inputs (("rust-actix-router" ,rust-actix-router-0.2)
                                    ("rust-criterion" ,rust-criterion-0.3)
                                    ("rust-gonzales" ,rust-gonzales-0.0.3)
@@ -9659,7 +9658,7 @@ statistical guarantees.")
         (base32 "17zpasbscy4nk5xd4b41ld8356hq6nam2imcjxj9d2yf5c8k452c"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;cannot call wasm-bindgen imported functions on non-wasm targets
+     `(#:tests? #f
        #:cargo-inputs (("rust-js-sys" ,rust-js-sys-0.3)
                        ("rust-serde" ,rust-serde-1)
                        ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2))
@@ -10355,7 +10354,6 @@ support for Unicode and emojis as well as machine hyphenation.")
         (base32 "1w5qxgrqp6vyrk4347dajjwvf2xbfzrx0m96qfpxyzlnpwyinah0"))
        (snippet #~(begin
                     (use-modules (guix build utils))
-                    ;; rust-syn-test-suite-0.0.0 doesn't have a 'allfeatures' feature.
                     (substitute* "Cargo.toml"
                       (("test = \\[\"syn-test-suite/all-features\"\\]")
                        ""))))))
@@ -10395,7 +10393,6 @@ support for Unicode and emojis as well as machine hyphenation.")
         (base32 "0nk1f98z027qdjwsn756hnshp0y4cka4pq729ig6awdhqzzk2raa"))
        (snippet #~(begin
                     (use-modules (guix build utils))
-                    ;; rust-syn-test-suite-0.0.0 doesn't have a 'allfeatures' feature.
                     (substitute* "Cargo.toml"
                       (("test = \\[\"syn-test-suite/all-features\"\\]")
                        ""))))))
@@ -10805,7 +10802,7 @@ spans.")
         (base32 "0xb6csq7hpjjr9x7qx1h6r3ra7p2mxvirh4vp71q8r1z5k6rw4v5"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;manifest path `test_dependencies/Cargo.toml` does not exist
+     `(#:tests? #f
        #:cargo-inputs (("rust-nu-ansi-term" ,rust-nu-ansi-term-0.49)
                        ("rust-time" ,rust-time-0.3)
                        ("rust-tracing-core" ,rust-tracing-core-0.1)
@@ -10923,7 +10920,7 @@ spans.")
         (base32 "0xvnf1zpaqmbmw4bzcrjrjcymg5vgsr9ywjg2shj4yfzjkrfppmd"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:tests? #f ;`#[feature]` may not be used on the stable release channel
+     `(#:tests? #f
        #:cargo-inputs (("rust-phf" ,rust-phf-0.11)
                        ("rust-unicode-names2-generator" ,rust-unicode-names2-generator-1))
        #:cargo-development-inputs (("rust-rand" ,rust-rand-0.8)
@@ -11057,39 +11054,37 @@ Unicode Standard Annex #15.")
         (base32 "0dfw99r7lxizkz7dpyyqz1f2hnrzxn369ank9vlcpcnq33719whi"))
        (snippet #~(begin
                     (use-modules (guix build utils))
-                    ;; Doctest src/lib.rs - (line 60) fails.
                     (substitute* "src/lib.rs"
                       (("```rust")
                        "```no_run"))))))
     (build-system cargo-build-system)
     (arguments
-     `( ;Skipped tests need network access.
-        #:cargo-test-flags `("--"
-                             "--skip=error::tests::status_code_error_redirect"
-                             "--skip=test::range::read_range_rustls"
-                             "--skip=tests::connect_http_google"
-                             "--skip=tests::connect_https_google_rustls"
-                             "--skip=agent::Agent"
-                             "--skip=agent::Agent::request"
-                             "--skip=agent::Agent::request_url"
-                             "--skip=error::Error"
-                             "--skip=error::Error::kind"
-                             "--skip=request"
-                             "--skip=request_url"
-                             "--skip=request::Request"
-                             "--skip=request::Request::call"
-                             "--skip=request::Request::query"
-                             "--skip=request::Request::query_pairs"
-                             "--skip=request::Request::send"
-                             "--skip=request::Request::send_bytes"
-                             "--skip=request::Request::send_form"
-                             "--skip=request::Request::send_string"
-                             "--skip=request::Request::set"
-                             "--skip=response::Response"
-                             "--skip=response::Response::charset"
-                             "--skip=response::Response::content_type"
-                             "--skip=response::Response::into_reader"
-                             "--skip=response::Response::into_string")
+     `(#:cargo-test-flags `("--"
+                            "--skip=error::tests::status_code_error_redirect"
+                            "--skip=test::range::read_range_rustls"
+                            "--skip=tests::connect_http_google"
+                            "--skip=tests::connect_https_google_rustls"
+                            "--skip=agent::Agent"
+                            "--skip=agent::Agent::request"
+                            "--skip=agent::Agent::request_url"
+                            "--skip=error::Error"
+                            "--skip=error::Error::kind"
+                            "--skip=request"
+                            "--skip=request_url"
+                            "--skip=request::Request"
+                            "--skip=request::Request::call"
+                            "--skip=request::Request::query"
+                            "--skip=request::Request::query_pairs"
+                            "--skip=request::Request::send"
+                            "--skip=request::Request::send_bytes"
+                            "--skip=request::Request::send_form"
+                            "--skip=request::Request::send_string"
+                            "--skip=request::Request::set"
+                            "--skip=response::Response"
+                            "--skip=response::Response::charset"
+                            "--skip=response::Response::content_type"
+                            "--skip=response::Response::into_reader"
+                            "--skip=response::Response::into_string")
        #:cargo-inputs (("rust-base64" ,rust-base64-0.21)
                        ("rust-brotli-decompressor" ,rust-brotli-decompressor-2)
                        ("rust-cookie" ,rust-cookie-0.18)
@@ -11426,3 +11421,315 @@ quick updates and access.")
     (description
      "This package provides a macro to generate tests from files in a directory.")
     (license license:asl2.0)))
+
+(define-public rust-version-ranges-0.1
+  (package
+    (name "rust-version-ranges")
+    (version "0.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "version-ranges" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0bgl8agnz3k3wsnydiq9qgahf4s0zvdbmbamqczyhazbbi0pkl7q"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proptest" ,rust-proptest-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-smallvec" ,rust-smallvec-1))))
+    (home-page "https://github.com/pubgrub-rs/pubgrub")
+    (synopsis
+     "Performance-optimized type for generic version ranges and operations on them")
+    (description
+     "This package provides Performance-optimized type for generic version ranges and operations on them.")
+    (license license:mpl2.0)))
+
+(define-public rust-smol-str-0.3
+  (package
+    (name "rust-smol-str")
+    (version "0.3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "smol_str" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "039mj6lc1vkljj17ndlzzkak8kvlmw8ppi6yjdxsh433snfbhxln"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-arbitrary" ,rust-arbitrary-1)
+                       ("rust-borsh" ,rust-borsh-1)
+                       ("rust-serde" ,rust-serde-1))))
+    (home-page "https://github.com/rust-analyzer/smol_str")
+    (synopsis "small-string optimized string type with O(1) clone")
+    (description
+     "This package provides small-string optimized string type with O(1) clone.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-rkyv-derive-0.8
+  (package
+    (name "rust-rkyv-derive")
+    (version "0.8.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "rkyv_derive" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0ymv3al6d3qza3lpqdhp7v2lclkdxzl05f14s5swdxls32n40sr4"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/rkyv/rkyv")
+    (synopsis "Derive macro for rkyv")
+    (description "This package provides Derive macro for rkyv.")
+    (license license:expat)))
+
+(define-public rust-rend-0.5
+  (package
+    (name "rust-rend")
+    (version "0.5.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "rend" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "05gjxzzsajl61sgif4h0lvagmbry5rm2xak6782j3lccy9mqlpm3"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-bytecheck" ,rust-bytecheck-0.8)
+                       ("rust-bytemuck" ,rust-bytemuck-1)
+                       ("rust-zerocopy" ,rust-zerocopy-0.8)
+                       ("rust-zerocopy-derive" ,rust-zerocopy-derive-0.8))))
+    (home-page "https://github.com/djkoloski/rend")
+    (synopsis "Cross-platform, endian-aware primitives for Rust")
+    (description
+     "This package provides Cross-platform, endian-aware primitives for Rust.")
+    (license license:expat)))
+
+(define-public rust-munge-macro-0.4
+  (package
+    (name "rust-munge-macro")
+    (version "0.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "munge_macro" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0pifls5cmx8561wh4hv2way838grybga1v5yrk8gf4sg33cc3d8v"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/djkoloski/munge")
+    (synopsis "Macro for custom destructuring")
+    (description "This package provides Macro for custom destructuring.")
+    (license license:expat)))
+
+(define-public rust-munge-0.4
+  (package
+    (name "rust-munge")
+    (version "0.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "munge" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1pqrlhq0l29mcmqd86xill3465yj1bc9pzq6pw5gdbabr0w2s534"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-munge-macro" ,rust-munge-macro-0.4))))
+    (home-page "https://github.com/djkoloski/munge")
+    (synopsis "Macro for custom destructuring")
+    (description "This package provides Macro for custom destructuring.")
+    (license license:expat)))
+
+(define-public rust-rancor-0.1
+  (package
+    (name "rust-rancor")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "rancor" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0iyr19x1aryadcyc2zwjbwmskkkjqfbvrjp4l37d3f9434bggxfa"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-ptr-meta" ,rust-ptr-meta-0.3))))
+    (home-page "https://github.com/rkyv/rancor")
+    (synopsis "Scalable and efficient error handling without type composition")
+    (description
+     "This package provides Scalable and efficient error handling without type composition.")
+    (license license:expat)))
+
+(define-public rust-ptr-meta-derive-0.3
+  (package
+    (name "rust-ptr-meta-derive")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "ptr_meta_derive" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1l9jznaz85cchixyp07v6sxcvjadsyq6lmhjbh98sk0v2pdlwhfa"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/rkyv/ptr_meta")
+    (synopsis "Proc macros for ptr_meta")
+    (description "This package provides Proc macros for ptr_meta.")
+    (license license:expat)))
+
+(define-public rust-ptr-meta-0.3
+  (package
+    (name "rust-ptr-meta")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "ptr_meta" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "147a6z4qz35gipj9k0d2yh4wygmibhaqsna59vs0d5izdpv7d7py"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-ptr-meta-derive" ,rust-ptr-meta-derive-0.3))))
+    (home-page "https://github.com/rkyv/ptr_meta")
+    (synopsis "radioactive stabilization of the ptr_meta rfc")
+    (description
+     "This package provides a radioactive stabilization of the ptr_meta rfc.")
+    (license license:expat)))
+
+(define-public rust-bytecheck-derive-0.8
+  (package
+    (name "rust-bytecheck-derive")
+    (version "0.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "bytecheck_derive" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1zwgvgm7d849av8xdbin93xv1hrs205m1pzg2n1bcjfzw75n6csj"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/rkyv/bytecheck")
+    (synopsis "Derive macro for bytecheck")
+    (description "This package provides Derive macro for bytecheck.")
+    (license license:expat)))
+
+(define-public rust-bytecheck-0.8
+  (package
+    (name "rust-bytecheck")
+    (version "0.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "bytecheck" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0vxw00k85v13x9gl5gmc7svjjanq4aygqqais55ba8sbfhqg9j2h"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-bytecheck-derive" ,rust-bytecheck-derive-0.8)
+                       ("rust-ptr-meta" ,rust-ptr-meta-0.3)
+                       ("rust-rancor" ,rust-rancor-0.1)
+                       ("rust-simdutf8" ,rust-simdutf8-0.1)
+                       ("rust-uuid" ,rust-uuid-1))))
+    (home-page "https://github.com/rkyv/bytecheck")
+    (synopsis "Memory validation framework for Rust")
+    (description "This package provides Memory validation framework for Rust.")
+    (license license:expat)))
+
+(define-public rust-rkyv-0.8
+  (package
+    (name "rust-rkyv")
+    (version "0.8.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "rkyv" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0rbvkcm1ia5rafajf9hlqcw882slm123jj6vzkif2lsmqxqp650y"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-arrayvec" ,rust-arrayvec-0.7)
+                       ("rust-bytecheck" ,rust-bytecheck-0.8)
+                       ("rust-bytes" ,rust-bytes-1)
+                       ("rust-hashbrown" ,rust-hashbrown-0.14)
+                       ("rust-hashbrown" ,rust-hashbrown-0.15)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-munge" ,rust-munge-0.4)
+                       ("rust-ptr-meta" ,rust-ptr-meta-0.3)
+                       ("rust-rancor" ,rust-rancor-0.1)
+                       ("rust-rend" ,rust-rend-0.5)
+                       ("rust-rkyv-derive" ,rust-rkyv-derive-0.8)
+                       ("rust-smallvec" ,rust-smallvec-1)
+                       ("rust-smol-str" ,rust-smol-str-0.3)
+                       ("rust-smol-str" ,rust-smol-str-0.2)
+                       ("rust-thin-vec" ,rust-thin-vec-0.2)
+                       ("rust-tinyvec" ,rust-tinyvec-1)
+                       ("rust-triomphe" ,rust-triomphe-0.1)
+                       ("rust-uuid" ,rust-uuid-1))))
+    (home-page "https://github.com/rkyv/rkyv")
+    (synopsis "Zero-copy deserialization framework for Rust")
+    (description
+     "This package provides Zero-copy deserialization framework for Rust.")
+    (license license:expat)))
+
+(define-public rust-pep440-rs-0.7
+  (package
+    (name "rust-pep440-rs")
+    (version "0.7.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pep440_rs" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "177vv3fvdsp80x9hi2wigw3hkg7pxq6v4hjzfhrdxqwnyfhmq29i"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-rkyv" ,rust-rkyv-0.8)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-tracing" ,rust-tracing-0.1)
+                       ("rust-unicode-width" ,rust-unicode-width-0.2)
+                       ("rust-unscanny" ,rust-unscanny-0.1)
+                       ("rust-version-ranges" ,rust-version-ranges-0.1))
+       #:cargo-development-inputs (("rust-indoc" ,rust-indoc-2))))
+    (home-page "https://github.com/konstin/pep440-rs")
+    (synopsis
+     "library for python version numbers and specifiers, implementing PEP 440")
+    (description
+     "This package provides a library for python version numbers and specifiers,
+implementing PEP 440.")
+    (license (list license:asl2.0 license:bsd-2))))
