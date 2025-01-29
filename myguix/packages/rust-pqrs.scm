@@ -4647,6 +4647,27 @@ operations.")
     (description "Cross-platform filesystem notification library")
     (license license:cc0)))
 
+(define-public rust-notify-types-2
+  (package
+    (name "rust-notify-types")
+    (version "2.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "notify-types" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0pcjm3wnvb7pvzw6mn89csv64ip0xhx857kr8jic5vddi6ljc22y"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-serde" ,rust-serde-1)
+                       ("rust-web-time" ,rust-web-time-1))))
+    (home-page "https://github.com/notify-rs/notify")
+    (synopsis "Types used by the notify crate")
+    (description "This package provides Types used by the notify crate.")
+    (license (list license:expat license:asl2.0))))
+
 (define-public rust-time-macros-0.2
   (package
     (name "rust-time-macros")
