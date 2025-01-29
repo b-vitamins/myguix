@@ -2,6 +2,7 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages crates-io)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
@@ -11,12 +12,15 @@
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-science)
+  #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages version-control)
   #:use-module (guix build utils)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system pyproject)
+  #:use-module (guix build-system cargo)
   #:use-module (guix build-system python)
   #:use-module (guix download)
   #:use-module (guix gexp)
@@ -26,7 +30,8 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
-  #:use-module (myguix packages python-pqrs))
+  #:use-module ((myguix packages python-pqrs)
+                #:hide (python-requests)))
 
 (define-public whisper-cpp
   (package
@@ -198,3 +203,42 @@
       (synopsis "Non-Metric Space Library (NMSLIB)")
       (description "Non-Metric Space Library (NMSLIB)")
       (license license:asl2.0))))
+
+(define-public python-tiktoken
+  (package
+    (name "python-tiktoken")
+    (version "0.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "tiktoken" version))
+       (sha256
+        (base32 "1cpfjjgzi68xhg48m9sl0x4w5cxjv77kamlw6qs2am141xsb5jww"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'build 'build-python-module
+                     (assoc-ref py:%standard-phases
+                                'build))
+                   (add-after 'build-python-module 'install-python-module
+                     (assoc-ref py:%standard-phases
+                                'install)))
+      #:cargo-inputs `(("rust-pyo3" ,rust-pyo3-0.22)
+                       ("rust-regex" ,rust-regex-1)
+                       ("rust-fancy-regex" ,rust-fancy-regex-0.13)
+                       ("rust-rustc-hash" ,rust-rustc-hash-1)
+                       ("rust-bstr" ,rust-bstr-1))))
+    (propagated-inputs (list python-regex python-requests))
+    (native-inputs (list python-wrapper python-setuptools
+                         python-setuptools-rust python-wheel))
+    (home-page "https://github.com/openai/tiktoken")
+    (synopsis "tiktoken is a fast BPE tokeniser for use with OpenAI's models")
+    (description
+     "tiktoken is a fast BPE tokeniser for use with @code{OpenAI's} models.")
+    (license license:expat)))
