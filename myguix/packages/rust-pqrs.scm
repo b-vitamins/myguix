@@ -11733,3 +11733,116 @@ quick updates and access.")
      "This package provides a library for python version numbers and specifiers,
 implementing PEP 440.")
     (license (list license:asl2.0 license:bsd-2))))
+
+(define-public rust-boxcar-0.2
+  (package
+    (name "rust-boxcar")
+    (version "0.2.8")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "boxcar" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0hpbh4w6jd6r3vbwkbb7bxa5yxpbxlzrcp8j0zkggrzhlv2w6897"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/ibraheemdev/boxcar")
+    (synopsis "concurrent, append-only vector")
+    (description "This package provides a concurrent, append-only vector.")
+    (license license:expat)))
+
+(define-public rust-pep508-rs-0.9
+  (package
+    (name "rust-pep508-rs")
+    (version "0.9.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pep508_rs" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "01fcbf9vq8ya3shlsmx04fyz5n7h4vm8ixrgrnnzq8a10qkp5vps"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-boxcar" ,rust-boxcar-0.2)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-itertools" ,rust-itertools-0.13)
+                       ("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-pep440-rs" ,rust-pep440-rs-0.7)
+                       ("rust-regex" ,rust-regex-1)
+                       ("rust-rustc-hash" ,rust-rustc-hash-2)
+                       ("rust-schemars" ,rust-schemars-0.8)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-smallvec" ,rust-smallvec-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-tracing" ,rust-tracing-0.1)
+                       ("rust-unicode-width" ,rust-unicode-width-0.2)
+                       ("rust-url" ,rust-url-2)
+                       ("rust-urlencoding" ,rust-urlencoding-2)
+                       ("rust-version-ranges" ,rust-version-ranges-0.1))))
+    (home-page "https://github.com/konstin/pep508_rs")
+    (synopsis
+     "library for python dependency specifiers, better known as PEP 508")
+    (description
+     "This package provides a library for python dependency specifiers, better known
+as PEP 508.")
+    (license (list license:asl2.0 license:bsd-2))))
+
+(define-public rust-pep440-rs-0.7
+  (package
+    (name "rust-pep440-rs")
+    (version "0.7.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pep440_rs" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "177vv3fvdsp80x9hi2wigw3hkg7pxq6v4hjzfhrdxqwnyfhmq29i"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-rkyv" ,rust-rkyv-0.8)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-tracing" ,rust-tracing-0.1)
+                       ("rust-unicode-width" ,rust-unicode-width-0.2)
+                       ("rust-unscanny" ,rust-unscanny-0.1)
+                       ("rust-version-ranges" ,rust-version-ranges-0.1))))
+    (home-page "https://github.com/konstin/pep440-rs")
+    (synopsis
+     "library for python version numbers and specifiers, implementing PEP 440")
+    (description
+     "This package provides a library for python version numbers and specifiers,
+implementing PEP 440.")
+    (license (list license:asl2.0 license:bsd-2))))
+
+(define-public rust-pyproject-toml-0.13
+  (package
+    (name "rust-pyproject-toml")
+    (version "0.13.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pyproject-toml" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0dfqb1yb05rc7m6azyzbm4478bq9v0kjg5rynnl91fin7xygafk4"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-glob" ,rust-glob-0.3)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-pep440-rs" ,rust-pep440-rs-0.7)
+                       ("rust-pep508-rs" ,rust-pep508-rs-0.9)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-toml" ,rust-toml-0.8))
+       #:cargo-development-inputs (("rust-insta" ,rust-insta-1))))
+    (home-page "https://github.com/PyO3/pyproject-toml-rs.git")
+    (synopsis "pyproject.toml parser in Rust")
+    (description "This package provides pyproject.toml parser in Rust.")
+    (license license:expat)))
+
