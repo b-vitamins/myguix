@@ -5763,6 +5763,30 @@ installed executable in cross platforms.")
     (description "Cross-platform terminal screen clearing")
     (license (list license:asl2.0 license:expat))))
 
+(define-public rust-clearscreen-4
+  (package
+    (name "rust-clearscreen")
+    (version "4.0.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "clearscreen" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1x72fipqn3xk44v13ycxf41m97rhh99gdfr4h9hf963vb91xqhcc"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-nix" ,rust-nix-0.29)
+                       ("rust-terminfo" ,rust-terminfo-0.9)
+                       ("rust-thiserror" ,rust-thiserror-2)
+                       ("rust-which" ,rust-which-7)
+                       ("rust-windows-sys" ,rust-windows-sys-0.59))))
+    (home-page "https://github.com/watchexec/clearscreen")
+    (synopsis "Cross-platform terminal screen clearing")
+    (description
+     "This package provides Cross-platform terminal screen clearing.")
+    (license (list license:asl2.0 license:expat))))
+
 (define-public rust-codspeed-2
   (package
     (name "rust-codspeed")
