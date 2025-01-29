@@ -11185,3 +11185,26 @@ quick updates and access.")
     (description
      "This package provides The most simple way to add colors in your terminal.")
     (license license:mpl2.0)))
+
+(define-public rust-dir-test-macros-0.4
+  (package
+    (name "rust-dir-test-macros")
+    (version "0.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "dir-test-macros" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0zns8frffpsxkks24lrphmsphdd3s4sqwcsvzq029g56nkbm8byl"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-glob" ,rust-glob-0.3)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/fe-lang/dir-test")
+    (synopsis "Provides a procedural macro for `dir-test`")
+    (description "This package provides a procedural macro for `dir-test`.")
+    (license license:asl2.0)))
