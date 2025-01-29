@@ -2659,6 +2659,32 @@ routines for 1, 2 or 3 byte search and single substring search.")
      "Extra iterator adaptors, iterator methods, free functions, and macros.")
     (license (list license:expat license:asl2.0))))
 
+(define-public rust-itertools-0.14
+  (package
+    (name "rust-itertools")
+    (version "0.14.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "itertools" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "118j6l1vs2mx65dqhwyssbrxpawa90886m3mzafdvyip41w2q69b"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-either" ,rust-either-1))
+       #:cargo-development-inputs (("rust-criterion" ,rust-criterion-0.4)
+                                   ("rust-paste" ,rust-paste-1)
+                                   ("rust-permutohedron" ,rust-permutohedron-0.2)
+                                   ("rust-quickcheck" ,rust-quickcheck-0.9)
+                                   ("rust-rand" ,rust-rand-0.7))))
+    (home-page "https://github.com/rust-itertools/itertools")
+    (synopsis
+     "Extra iterator adaptors, iterator methods, free functions, and macros")
+    (description
+     "This package provides Extra iterator adaptors, iterator methods, free functions, and macros.")
+    (license (list license:expat license:asl2.0))))
+
 (define-public rust-either-1
   (package
     (name "rust-either")
