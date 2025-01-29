@@ -6101,6 +6101,37 @@ an environment variable.")
     (description "Simple, efficient logging")
     (license license:expat)))
 
+(define-public rust-fern-0.7
+  (package
+    (name "rust-fern")
+    (version "0.7.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "fern" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0a9v59vcq2fgd6bwgbfl7q6b0zzgxn85y6g384z728wvf1gih5j3"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-chrono" ,rust-chrono-0.4)
+                       ("rust-colored" ,rust-colored-2)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-reopen" ,rust-reopen-0.3)
+                       ("rust-reopen" ,rust-reopen-1)
+                       ("rust-syslog" ,rust-syslog-3)
+                       ("rust-syslog" ,rust-syslog-4)
+                       ("rust-syslog" ,rust-syslog-6)
+                       ("rust-syslog" ,rust-syslog-7))
+       #:cargo-development-inputs (("rust-clap" ,rust-clap-2)
+                                   ("rust-humantime" ,rust-humantime-2)
+                                   ("rust-tempfile" ,rust-tempfile-3))))
+    (home-page "https://github.com/daboross/fern")
+    (synopsis "Simple, efficient logging")
+    (description "This package provides Simple, efficient logging.")
+    (license license:expat)))
+
 (define-public rust-filetime-0.2
   (package
     (name "rust-filetime")
