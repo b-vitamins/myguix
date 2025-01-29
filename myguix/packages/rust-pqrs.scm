@@ -11208,3 +11208,24 @@ quick updates and access.")
     (synopsis "Provides a procedural macro for `dir-test`")
     (description "This package provides a procedural macro for `dir-test`.")
     (license license:asl2.0)))
+
+(define-public rust-dir-test-0.4
+  (package
+    (name "rust-dir-test")
+    (version "0.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "dir-test" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0yaav4f0r6bsmz8shg7i0db4z9x73xn44dizb7jg6r2qhbz17h32"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-dir-test-macros" ,rust-dir-test-macros-0.4))
+       #:cargo-development-inputs (("rust-trybuild" ,rust-trybuild-1))))
+    (home-page "https://github.com/fe-lang/dir-test")
+    (synopsis "Provides a macro to generate tests from files in a directory")
+    (description
+     "This package provides a macro to generate tests from files in a directory.")
+    (license license:asl2.0)))
