@@ -5692,6 +5692,29 @@ installed executable in cross platforms.")
     (description "Terminal information.")
     (license license:wtfpl2)))
 
+(define-public rust-terminfo-0.9
+  (package
+    (name "rust-terminfo")
+    (version "0.9.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "terminfo" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0qp6rrzkxcg08vjzsim2bw7mid3vi29mizrg70dzbycj0q7q3snl"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-fnv" ,rust-fnv-1)
+                       ("rust-nom" ,rust-nom-7)
+                       ("rust-phf" ,rust-phf-0.11)
+                       ("rust-phf-codegen" ,rust-phf-codegen-0.11))))
+    (home-page "https://github.com/meh/rust-terminfo")
+    (synopsis "Terminal information")
+    (description "This package provides Terminal information.")
+    (license license:wtfpl2)))
+
 (define-public rust-nix-0.28
   (package
     (name "rust-nix")
