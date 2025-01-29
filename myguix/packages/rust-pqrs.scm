@@ -2109,6 +2109,34 @@ of the file.")
      "This package provides a hash table with consistent order and fast iteration.")
     (license (list license:asl2.0 license:expat))))
 
+(define-public rust-indexmap-2
+  (package
+    (name "rust-indexmap")
+    (version "2.7.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "indexmap" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0lmnm1zbr5gq3wic3d8a76gpvampridzwckfl97ckd5m08mrk74c"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-arbitrary" ,rust-arbitrary-1)
+                       ("rust-borsh" ,rust-borsh-1)
+                       ("rust-equivalent" ,rust-equivalent-1)
+                       ("rust-hashbrown" ,rust-hashbrown-0.15)
+                       ("rust-quickcheck" ,rust-quickcheck-1)
+                       ("rust-rayon" ,rust-rayon-1)
+                       ("rust-rustc-rayon" ,rust-rustc-rayon-0.5)
+                       ("rust-serde" ,rust-serde-1))))
+    (home-page "https://github.com/indexmap-rs/indexmap")
+    (synopsis "hash table with consistent order and fast iteration.")
+    (description
+     "This package provides a hash table with consistent order and fast iteration.")
+    (license (list license:asl2.0 license:expat))))
+
 (define-public rust-serde-json-1
   (package
     (name "rust-serde-json")
