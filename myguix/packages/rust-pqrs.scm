@@ -11993,3 +11993,26 @@ implementing PEP 440.")
      "This package provides Data model and serializer for JUnit/XUnit XML.")
     (license (list license:asl2.0 license:expat))))
 
+(define-public rust-tracing-flame-0.2
+  (package
+    (name "rust-tracing-flame")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "tracing-flame" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1ad34bhy9gsj0ijn56jsvizydash6zcybbls29g1i2a7w5z13bhb"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-tracing" ,rust-tracing-0.1)
+                       ("rust-tracing-subscriber" ,rust-tracing-subscriber-0.3))
+       #:cargo-development-inputs (("rust-tempfile" ,rust-tempfile-3))))
+    (home-page "https://tokio.rs")
+    (synopsis "Tracing layer for creating flamegraphs from span timings")
+    (description
+     "This package provides Tracing layer for creating flamegraphs from span timings.")
+    (license license:expat)))
+
