@@ -11846,3 +11846,150 @@ implementing PEP 440.")
     (description "This package provides pyproject.toml parser in Rust.")
     (license license:expat)))
 
+(define-public rust-structmeta-derive-0.3
+  (package
+    (name "rust-structmeta-derive")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "structmeta-derive" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1z12r4v2d3272hxqxclnr1kn2kp07qsy5aswm4ynrzwhlmjhnahm"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/frozenlib/structmeta")
+    (synopsis "derive macro for structmeta crate")
+    (description "This package provides derive macro for structmeta crate.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-structmeta-0.3
+  (package
+    (name "rust-structmeta")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "structmeta" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0afk0s9paazsvyvsirxvbnqp3blhdck3fmfhdw7xf209skc7a59f"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-structmeta-derive" ,rust-structmeta-derive-0.3)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/frozenlib/structmeta")
+    (synopsis "Parse Rust's attribute arguments by defining a struct")
+    (description
+     "This package provides Parse Rust's attribute arguments by defining a struct.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-test-strategy-0.4
+  (package
+    (name "rust-test-strategy")
+    (version "0.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "test-strategy" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "06z0slp3ckxfsynq3772jy1dlasv3pa2kmii90ccqm1zbvs1mx1b"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-structmeta" ,rust-structmeta-0.3)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/frozenlib/test-strategy")
+    (synopsis
+     "Procedural macro to easily write higher-order strategies in proptest")
+    (description
+     "This package provides Procedural macro to easily write higher-order strategies in proptest.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-goldenfile-1
+  (package
+    (name "rust-goldenfile")
+    (version "1.7.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "goldenfile" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0a74vvxyrkj0gyv5x01cmsmz5hrggskqmkk543wz6z2ky31g2bv7"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-scopeguard" ,rust-scopeguard-1)
+                       ("rust-similar-asserts" ,rust-similar-asserts-1)
+                       ("rust-tempfile" ,rust-tempfile-3)
+                       ("rust-yansi" ,rust-yansi-1))))
+    (home-page "https://github.com/calder/rust-goldenfile")
+    (synopsis "Simple goldenfile testing library")
+    (description "This package provides Simple goldenfile testing library.")
+    (license license:expat)))
+
+(define-public rust-newtype-uuid-1
+  (package
+    (name "rust-newtype-uuid")
+    (version "1.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "newtype-uuid" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0mlh7imm4r79bn1fx6a3b735a3xrxhz9rvvpphg2lz5yx3q28cpf"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proptest" ,rust-proptest-1)
+                       ("rust-schemars" ,rust-schemars-0.8)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-uuid" ,rust-uuid-1))))
+    (home-page "https://github.com/oxidecomputer/newtype-uuid")
+    (synopsis "Newtype wrapper around UUIDs")
+    (description "This package provides Newtype wrapper around UUIDs.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-quick-junit-0.5
+  (package
+    (name "rust-quick-junit")
+    (version "0.5.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "quick-junit" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1mxczpzhcnj3gkd22q448339lln6i1md0fhhaxr325hs769sdl9y"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-chrono" ,rust-chrono-0.4)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-newtype-uuid" ,rust-newtype-uuid-1)
+                       ("rust-quick-xml" ,rust-quick-xml-0.37)
+                       ("rust-strip-ansi-escapes" ,rust-strip-ansi-escapes-0.2)
+                       ("rust-thiserror" ,rust-thiserror-2)
+                       ("rust-uuid" ,rust-uuid-1))
+       #:cargo-development-inputs (("rust-goldenfile" ,rust-goldenfile-1)
+                                   ("rust-owo-colors" ,rust-owo-colors-4)
+                                   ("rust-proptest" ,rust-proptest-1)
+                                   ("rust-test-strategy" ,rust-test-strategy-0.4))))
+    (home-page "https://github.com/nextest-rs/quick-junit")
+    (synopsis "Data model and serializer for JUnit/XUnit XML")
+    (description
+     "This package provides Data model and serializer for JUnit/XUnit XML.")
+    (license (list license:asl2.0 license:expat))))
+
