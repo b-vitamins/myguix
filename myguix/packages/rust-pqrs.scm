@@ -4613,6 +4613,40 @@ operations.")
     (description "Cross-platform filesystem notification library")
     (license (list license:cc0 license:artistic2.0))))
 
+(define-public rust-notify-6
+  (package
+    (name "rust-notify")
+    (version "6.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "notify" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0bad98r0ilkhhq2jg3zs11zcqasgbvxia8224wpasm74n65vs1b2"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-bitflags" ,rust-bitflags-2)
+                       ("rust-crossbeam-channel" ,rust-crossbeam-channel-0.5)
+                       ("rust-filetime" ,rust-filetime-0.2)
+                       ("rust-fsevent-sys" ,rust-fsevent-sys-4)
+                       ("rust-inotify" ,rust-inotify-0.9)
+                       ("rust-kqueue" ,rust-kqueue-1)
+                       ("rust-kqueue" ,rust-kqueue-1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-mio" ,rust-mio-0.8)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-walkdir" ,rust-walkdir-2)
+                       ("rust-windows-sys" ,rust-windows-sys-0.48))
+       #:cargo-development-inputs (("rust-nix" ,rust-nix-0.23)
+                                   ("rust-serde-json" ,rust-serde-json-1)
+                                   ("rust-tempfile" ,rust-tempfile-3))))
+    (home-page "https://github.com/notify-rs/notify")
+    (synopsis "Cross-platform filesystem notification library")
+    (description "Cross-platform filesystem notification library")
+    (license license:cc0)))
+
 (define-public rust-time-macros-0.2
   (package
     (name "rust-time-macros")
@@ -5195,6 +5229,31 @@ transforming structs into bytes and vice versa!")
     (home-page "https://github.com/bitflags/bitflags")
     (synopsis "A macro to generate structures which behave like bitflags.
 ")
+    (description
+     "This package provides a macro to generate structures which behave like bitflags.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-bitflags-2
+  (package
+    (name "rust-bitflags")
+    (version "2.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "bitflags" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0dixc6168i98652jxf0z9nbyn0zcis3g6hi6qdr7z5dbhcygas4g"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-arbitrary" ,rust-arbitrary-1)
+                       ("rust-bytemuck" ,rust-bytemuck-1)
+                       ("rust-compiler-builtins" ,rust-compiler-builtins-0.1)
+                       ("rust-rustc-std-workspace-core" ,rust-rustc-std-workspace-core-1)
+                       ("rust-serde" ,rust-serde-1))))
+    (home-page "https://github.com/bitflags/bitflags")
+    (synopsis "macro to generate structures which behave like bitflags.")
     (description
      "This package provides a macro to generate structures which behave like bitflags.")
     (license (list license:expat license:asl2.0))))
@@ -8657,40 +8716,6 @@ routines for 1, 2 or 3 byte search and single substring search.")
     (synopsis "Natural ordering for Rust")
     (description "Natural ordering for Rust")
     (license license:expat)))
-
-(define-public rust-notify-6
-  (package
-    (name "rust-notify")
-    (version "6.1.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "notify" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0bad98r0ilkhhq2jg3zs11zcqasgbvxia8224wpasm74n65vs1b2"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-bitflags" ,rust-bitflags-2)
-                       ("rust-crossbeam-channel" ,rust-crossbeam-channel-0.5)
-                       ("rust-filetime" ,rust-filetime-0.2)
-                       ("rust-fsevent-sys" ,rust-fsevent-sys-4)
-                       ("rust-inotify" ,rust-inotify-0.9)
-                       ("rust-kqueue" ,rust-kqueue-1)
-                       ("rust-kqueue" ,rust-kqueue-1)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-log" ,rust-log-0.4)
-                       ("rust-mio" ,rust-mio-0.8)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-walkdir" ,rust-walkdir-2)
-                       ("rust-windows-sys" ,rust-windows-sys-0.48))
-       #:cargo-development-inputs (("rust-nix" ,rust-nix-0.23)
-                                   ("rust-serde-json" ,rust-serde-json-1)
-                                   ("rust-tempfile" ,rust-tempfile-3))))
-    (home-page "https://github.com/notify-rs/notify")
-    (synopsis "Cross-platform filesystem notification library")
-    (description "Cross-platform filesystem notification library")
-    (license license:cc0)))
 
 (define-public rust-concat-with-0.2
   (package
