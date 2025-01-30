@@ -12222,3 +12222,50 @@ computation (experimental).")
 Protocol.")
     (license license:expat)))
 
+(define-public rust-anstyle-1
+  (package
+    (name "rust-anstyle")
+    (version "1.0.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "anstyle" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1yai2vppmd7zlvlrp9grwll60knrmscalf8l2qpfz8b7y5lkpk2m"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/rust-cli/anstyle")
+    (synopsis "ANSI text styling")
+    (description "This package provides ANSI text styling.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-assert-fs-1
+  (package
+    (name "rust-assert-fs")
+    (version "1.1.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "assert_fs" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0x3nj817l5kbpmr42habqv5i49rpxdpncmr86ix840knnkyv3zby"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-anstream" ,rust-anstream-0.6)
+                       ("rust-anstyle" ,rust-anstyle-1)
+                       ("rust-doc-comment" ,rust-doc-comment-0.3)
+                       ("rust-globwalk" ,rust-globwalk-0.9)
+                       ("rust-predicates" ,rust-predicates-3)
+                       ("rust-predicates-core" ,rust-predicates-core-1)
+                       ("rust-predicates-tree" ,rust-predicates-tree-1)
+                       ("rust-tempfile" ,rust-tempfile-3))
+       #:cargo-development-inputs (("rust-automod" ,rust-automod-1))))
+    (home-page "https://github.com/assert-rs/assert_fs")
+    (synopsis "Filesystem fixtures and assertions for testing")
+    (description
+     "This package provides Filesystem fixtures and assertions for testing.")
+    (license (list license:expat license:asl2.0))))
+
