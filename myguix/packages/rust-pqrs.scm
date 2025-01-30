@@ -12155,3 +12155,21 @@ behavior.")
 computation (experimental).")
     (license (list license:asl2.0 license:expat))))
 
+(define-public rust-anstyle-1
+  (package
+    (name "rust-anstyle")
+    (version "1.0.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "anstyle" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1yai2vppmd7zlvlrp9grwll60knrmscalf8l2qpfz8b7y5lkpk2m"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-development-inputs (("rust-lexopt" ,rust-lexopt-0.3))))
+    (home-page "https://github.com/rust-cli/anstyle")
+    (synopsis "ANSI text styling")
+    (description "This package provides ANSI text styling.")
+    (license (list license:expat license:asl2.0))))
