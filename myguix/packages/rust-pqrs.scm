@@ -12173,3 +12173,52 @@ computation (experimental).")
     (synopsis "ANSI text styling")
     (description "This package provides ANSI text styling.")
     (license (list license:expat license:asl2.0))))
+
+(define-public rust-fluent-uri-0.1
+  (package
+    (name "rust-fluent-uri")
+    (version "0.1.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "fluent-uri" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "03ah2qajw5l1zbc81kh1n8g7n24mfxbg6vqyv9ixipg1vglh9iqp"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-bitflags" ,rust-bitflags-1))))
+    (home-page "https://github.com/yescallop/fluent-uri-rs")
+    (synopsis "generic URI/IRI handling library compliant with RFC 3986/3987.")
+    (description
+     "This package provides a generic URI/IRI handling library compliant with RFC
+3986/3987.")
+    (license license:expat)))
+
+(define-public rust-lsp-types-0.97
+  (package
+    (name "rust-lsp-types")
+    (version "0.97.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "lsp-types" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0wb0yr2cdhlndjkcfyabr17ib0nvqa4v3zl5qm3aq13wl583adak"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-bitflags" ,rust-bitflags-1)
+                       ("rust-fluent-uri" ,rust-fluent-uri-0.1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-serde-repr" ,rust-serde-repr-0.1))))
+    (home-page "https://github.com/gluon-lang/lsp-types")
+    (synopsis
+     "Types for interaction with a language server, using VSCode's Language Server Protocol")
+    (description
+     "This package provides Types for interaction with a language server, using VSCode's Language Server
+Protocol.")
+    (license license:expat)))
+
