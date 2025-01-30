@@ -22,9 +22,7 @@
                                (ports '(("9042" . "9042") ("7000" . "7000")))
                                (extra-arguments '("--ulimit"
                                                   "nofile=262144:262144"))
-                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))
-                               (log-file
-                                "/var/log/docker/cassandra/cassandra.log")))
+                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
 
 ;; Define an OCI container service for GROBID, a machine learning library for extracting
 ;; information from scholarly documents.
@@ -56,9 +54,7 @@
                                                      "reranker-cohere,"
                                                      "qna-openai"))
                                                   '("CLUSTER_HOSTNAME" . "lagertha")))
-                               (volumes (list '("/var/lib/weaviate/data" . "/var/lib/weaviate")))
-                               (log-file
-                                "/var/log/docker/weaviate/weaviate.log")))
+                               (volumes (list '("/var/lib/weaviate/data" . "/var/lib/weaviate")))))
 
 ;; Solr is the blazing-fast, open source, multi-modal search platform built on the full-text, vector, and geospatial search capabilities of Apache Lucene™.
 (define oci-solr-service-type
@@ -93,9 +89,7 @@
                                (extra-arguments (list "--ulimit"
                                                       "nofile=262144:262144"))
                                (volumes '("/var/lib/clickhouse/data:/var/lib/clickhouse"
-                                          "/var/log/clickhouse-server:/var/log/clickhouse-server"))
-                               (log-file
-                                "/var/log/docker/janusgraph/janusgraph.log")))
+                                          "/var/log/clickhouse-server:/var/log/clickhouse-server"))))
 
 ;; Function to read MEILI_MASTER_KEY from the credentials file
 (define (get-meili-master-key)
@@ -127,5 +121,4 @@
                                (volumes (list '("/var/lib/neo4j/data" . "/data")
                                               '("/var/lib/neo4j/logs" . "/logs")
                                               '("/var/lib/neo4j/import" . "/var/lib/neo4j/import")
-                                              '("/var/lib/neo4j/plugins" . "/plugins")))
-                               (log-file "/var/log/docker/neo4j/neo4j.log")))
+                                              '("/var/lib/neo4j/plugins" . "/plugins")))))
