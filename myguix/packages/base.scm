@@ -1,3 +1,4 @@
+
 (define-module (myguix packages base)
   #:use-module (gnu packages admin)
   #:use-module (gnu packages antivirus)
@@ -449,7 +450,6 @@
         rust-cc-1
         rust-gcc-0.3
         rust-libc-0.2
-        rust-clippy
         rust-pkg-config-0.3
         rust-cxx-1
         rust-tikv-jemalloc-sys-0.6
