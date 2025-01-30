@@ -452,8 +452,12 @@
         rust-cxx-build-1))
 
 (define %python-packages
-  (list python python-jedi python-jedi-language-server python-flake8
-        python-black))
+  (list python
+        python-jedi
+        python-jedi-language-server
+        python-flake8
+        python-black
+        python-ruff))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
