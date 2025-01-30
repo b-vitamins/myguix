@@ -5060,6 +5060,36 @@ compatible with #![no_std].")
     (description "Library for building code annotations")
     (license (list license:asl2.0 license:expat))))
 
+(define-public rust-annotate-snippets-0.11
+  (package
+    (name "rust-annotate-snippets")
+    (version "0.11.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "annotate-snippets" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1i1bmr5vy957l8fvivj9x1xs24np0k56rdgwj0bxqk45b2p8w3ki"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-anstyle" ,rust-anstyle-1)
+                       ("rust-memchr" ,rust-memchr-2)
+                       ("rust-unicode-width" ,rust-unicode-width-0.2))
+       #:cargo-development-inputs (("rust-anstream" ,rust-anstream-0.6)
+                                   ("rust-difference" ,rust-difference-2)
+                                   ("rust-divan" ,rust-divan-0.1)
+                                   ("rust-glob" ,rust-glob-0.3)
+                                   ("rust-serde" ,rust-serde-1)
+                                   ("rust-snapbox" ,rust-snapbox-0.6)
+                                   ("rust-toml" ,rust-toml-0.8)
+                                   ("rust-tryfn" ,rust-tryfn-0.2))))
+    (home-page "https://github.com/rust-lang/annotate-snippets-rs")
+    (synopsis "Library for building code annotations")
+    (description
+     "This package provides Library for building code annotations.")
+    (license (list license:expat license:asl2.0))))
+
 (define-public rust-anyhow-1
   (package
     (name "rust-anyhow")
@@ -12043,4 +12073,85 @@ implementing PEP 440.")
     (description
      "This package provides a Tracing Layer which prints a tree of spans and events.")
     (license (list license:expat license:asl2.0))))
+
+(define-public rust-scaling-0.1
+  (package
+    (name "rust-scaling")
+    (version "0.1.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "scaling" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0bxyq4y69i89asg82749br3n7zsi55l1nrk737189s0whl03dbmx"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/droundy/easybench-rs")
+    (synopsis
+     "lightweight benchmarking library that measures scaling behavior")
+    (description
+     "This package provides a lightweight benchmarking library that measures scaling
+behavior.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-salsa-macros-0.17
+  (package
+    (name "rust-salsa-macros")
+    (version "0.17.0-pre.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "salsa-macros" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1xrgb38l5fhv3lqx2lwnqc3s2zrgxmj63cd7kl0vyl7m5lsjwv5c"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-heck" ,rust-heck-0.3)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-1))))
+    (home-page "https://github.com/salsa-rs/salsa")
+    (synopsis "Procedural macros for the salsa crate")
+    (description
+     "This package provides Procedural macros for the salsa crate.")
+    (license (list license:asl2.0 license:expat))))
+
+(define-public rust-salsa-0.17
+  (package
+    (name "rust-salsa")
+    (version "0.17.0-pre.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "salsa" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0ypiig0p9969nkb7k0ydxm5bnc3jva815dfh8hqpackcnk63s8lv"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-crossbeam-utils" ,rust-crossbeam-utils-0.8)
+                       ("rust-indexmap" ,rust-indexmap-1)
+                       ("rust-lock-api" ,rust-lock-api-0.4)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-oorandom" ,rust-oorandom-11)
+                       ("rust-parking-lot" ,rust-parking-lot-0.11)
+                       ("rust-rustc-hash" ,rust-rustc-hash-1)
+                       ("rust-salsa-macros" ,rust-salsa-macros-0.17)
+                       ("rust-smallvec" ,rust-smallvec-1))
+       #:cargo-development-inputs (("rust-diff" ,rust-diff-0.1)
+                                   ("rust-env-logger" ,rust-env-logger-0.7)
+                                   ("rust-linked-hash-map" ,rust-linked-hash-map-0.5)
+                                   ("rust-rand" ,rust-rand-0.7)
+                                   ("rust-rand-distr" ,rust-rand-distr-0.2))))
+    (home-page "https://github.com/salsa-rs/salsa")
+    (synopsis
+     "generic framework for on-demand, incrementalized computation (experimental)")
+    (description
+     "This package provides a generic framework for on-demand, incrementalized
+computation (experimental).")
+    (license (list license:asl2.0 license:expat))))
 
