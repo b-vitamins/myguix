@@ -5114,26 +5114,6 @@ compatible with #![no_std].")
     (description "Flexible concrete Error type built on std::error::Error")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-wild-2
-  (package
-    (name "rust-wild")
-    (version "2.2.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "wild" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1q8hnhmv3fvgx0j7bv8qig00599a15mfsdhgx3hq2ljpiky1l4x3"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-glob" ,rust-glob-0.3))))
-    (home-page "https://lib.rs/crates/wild")
-    (synopsis "Glob (wildcard) expanded command-line arguments on Windows")
-    (description "Glob (wildcard) expanded command-line arguments on Windows")
-    (license (list license:asl2.0 license:expat))))
-
 (define-public rust-heck-0.5
   (package
     (name "rust-heck")
