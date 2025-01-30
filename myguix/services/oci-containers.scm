@@ -14,19 +14,6 @@
                                        meili-master-key
                                        oci-neo4j-service-type))
 
-;; Define an OCI container service for PyTorch, a Python package that provides 1) Tensor computation (like NumPy) with strong GPU acceleration, 2) Deep neural networks built on a tape-based autograd system.
-(define oci-pytorch-service-type
-  (oci-container-configuration (auto-start? #t)
-                               (image "pytorch/pytorch:latest")
-                               (network "host")
-                               (volumes '("/gnu/store:/gnu/store:ro"
-                                          "/home/b/projects/nnml:/nnml"))
-                               (workdir "/nnml")
-                               (extra-arguments (list "--gpus" "all"))
-                               (environment (list '("NVIDIA_VISIBLE_DEVICES" . "all")
-                                                  '("NVIDIA_DRIVER_CAPABILITIES" . "compute,utility")))
-                               (log-file "/var/log/docker/pytorch/pytorch.log")))
-
 ;; Apache Cassandra is an open source NoSQL distributed database offering high availability and scalability without compromising performance.
 (define oci-cassandra-service-type
   (oci-container-configuration (auto-start? #t)
@@ -81,8 +68,7 @@
                                (ports '(("8983" . "8983")))
                                (volumes '("/var/lib/solr/data:/var/solr"))
                                (command '("solr-precreate" "gettingstarted"))
-                               (environment (list '("SOLR_HEAP" . "800m")))
-                               (log-file "/var/log/docker/solr/solr.log")))
+                               (environment (list '("SOLR_HEAP" . "800m")))))
 
 ;; JanusGraph is a scalable graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.
 (define oci-janusgraph-service-type
@@ -130,9 +116,7 @@
                                (environment (list '("MEILI_NO_ANALYTICS" . "true")
                                                   `("MEILI_MASTER_KEY" unquote
                                                     meili-master-key)))
-                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))
-                               (log-file
-                                "/var/log/docker/meilisearch/meilisearch.log")))
+                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
 
 ;; Define an OCI container service for Neo4j, a graph database management system.
 (define oci-neo4j-service-type
