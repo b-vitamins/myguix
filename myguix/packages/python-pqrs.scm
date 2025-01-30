@@ -5,28 +5,105 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages crates-check)
+  #:use-module (gnu packages crates-compression)
+  #:use-module (gnu packages crates-crypto)
+  #:use-module (gnu packages crates-windows)
+  #:use-module ((gnu packages crates-io)
+                #:hide (rust-annotate-snippets-0.11 rust-wasm-bindgen-test-0.3
+                        rust-wasm-bindgen-0.2
+                        rust-walkdir-2
+                        rust-uuid-1
+                        rust-url-2
+                        rust-ureq-2
+                        rust-unicode-normalization-0.1
+                        rust-unicode-ident-1
+                        rust-unic-ucd-category-0.9
+                        rust-typed-arena-2
+                        rust-toml-0.8
+                        rust-test-case-3
+                        rust-tempfile-3
+                        rust-syn-2
+                        rust-strum-macros-0.26
+                        rust-static-assertions-1
+                        rust-smallvec-1
+                        rust-similar-2
+                        rust-shellexpand-3
+                        rust-serde-with-3
+                        rust-serde-test-1
+                        rust-serde-json-1
+                        rust-serde-1
+                        rust-seahash-4
+                        rust-schemars-0.8
+                        rust-regex-1
+                        rust-rand-0.8
+                        rust-quote-1
+                        rust-proc-macro2-1
+                        rust-pretty-assertions-1
+                        rust-pkg-config-0.3
+                        rust-pathdiff-0.2
+                        rust-path-slash-0.2
+                        rust-parking-lot-0.12
+                        rust-natord-1
+                        rust-memchr-2
+                        rust-lsp-types-0.95
+                        rust-lsp-server-0.7
+                        rust-log-0.4
+                        rust-libcst-1
+                        rust-libc-0.2
+                        rust-js-sys-0.3
+                        rust-is-wsl-0.4
+                        rust-insta-1
+                        rust-indoc-2
+                        rust-indicatif-0.17
+                        rust-indexmap-2
+                        rust-ignore-0.4
+                        rust-filetime-0.2
+                        rust-env-logger-0.11
+                        rust-crossbeam-0.8
+                        rust-console-log-1
+                        rust-globset-0.4
+                        rust-rayon-1
+                        rust-console-error-panic-hook-0.1
+                        rust-codspeed-criterion-compat-2
+                        rust-clap-4
+                        rust-chrono-0.4
+                        rust-cc-1
+                        rust-cachedir-0.3
+                        rust-bstr-1
+                        rust-bitflags-2
+                        rust-bitflags-1
+                        rust-bincode-1
+                        rust-assert-fs-1
+                        rust-anyhow-1
+                        rust-anstyle-1
+                        rust-anstream-0.6
+                        rust-aho-corasick-1))
   #:use-module (gnu packages fontutils)
+  #:use-module (gnu packages jemalloc)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
   #:use-module (gnu packages image)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages time)
   #:use-module (gnu packages xml)
+  #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
                 #:hide (python-pillow-simd))
   #:use-module ((gnu packages python-web)
                 #:hide (python-httpcore python-httpx))
-  #:use-module ((gnu packages python-build)
-                #:hide (python-pypa-build))
+  #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-crypto)
   #:use-module (gnu packages python-compression)
+  #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages web)
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages version-control)
+  #:use-module (guix build-system cargo)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix download)
@@ -35,6 +112,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages video)
+  #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages nvidia))
 
 (define-public python-grobid-client-python
@@ -1502,3 +1580,216 @@ content using a variety of algorithms.")
     (synopsis "Fork of the Python Imaging Library (Pillow)")
     (description "This package is a fork of Pillow which adds support for SIMD
 parallelism.")))
+
+(define-public python-ruff
+  (package
+    (name "python-ruff")
+    (version "0.9.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/astral-sh/ruff")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (patches (parameterize ((%patch-path (map (lambda (directory)
+                                                   (string-append directory
+                                                    "/myguix/patches"))
+                                                 %load-path)))
+                  (search-patches "ruff-embed-salsa-and-lsp-types.patch")))
+       (sha256
+        (base32 "1785vq9xx1nxipjwkp97fbvzyp8qg1zrmyv0amhs80v7ir94ckjp"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases #~(modify-phases %standard-phases
+                   (delete 'install)
+                   (add-after 'unpack 'override-jemalloc
+                     (lambda* (#:key inputs #:allow-other-keys)
+                       (let ((jemalloc (assoc-ref inputs "jemalloc")))
+                         ;; This flag is needed when not using the bundled jemalloc.
+                         ;; https://github.com/tikv/jemallocator/issues/19
+                         (setenv
+                          "CARGO_FEATURE_UNPREFIXED_MALLOC_ON_SUPPORTED_PLATFORMS"
+                          "1")
+                         (setenv "JEMALLOC_OVERRIDE"
+                                 (string-append jemalloc "/lib/libjemalloc.so")))))
+                   (add-after 'build 'build-python-module
+                     (assoc-ref py:%standard-phases
+                                'build))
+                   (add-after 'build-python-module 'install-python-module
+                     (lambda* (#:key outputs #:allow-other-keys)
+                       ;; We'll do a manual ‘pip install’ to prefix=$out and trust that
+                       ;; it installs the compiled `ruff` binary without trying to parse it.
+                       (let* ((out (assoc-ref outputs "out"))
+                              (wheel (car (find-files "target/wheels"
+                                                      "\\.whl$"))))
+                         (invoke "pip"
+                                 "--no-cache-dir"
+                                 "--no-input"
+                                 "install"
+                                 "--no-deps"
+                                 "--prefix"
+                                 out
+                                 wheel)))))
+      #:cargo-inputs `(("rust-aho-corasick" ,rust-aho-corasick-1)
+                       ("rust-anstream" ,rust-anstream-0.6)
+                       ("rust-anstyle" ,rust-anstyle-1)
+                       ("rust-anyhow" ,rust-anyhow-1)
+                       ("rust-append-only-vec" ,rust-append-only-vec-0.1)
+                       ("rust-argfile" ,rust-argfile-0.2)
+                       ("rust-arc-swap" ,rust-arc-swap-1)
+                       ("rust-assert-fs" ,rust-assert-fs-1)
+                       ("rust-bincode" ,rust-bincode-1)
+                       ("rust-bitflags" ,rust-bitflags-1)
+                       ("rust-bitflags" ,rust-bitflags-2)
+                       ("rust-bindgen" ,rust-bindgen-0.69)
+                       ("rust-bstr" ,rust-bstr-1)
+                       ("rust-cachedir" ,rust-cachedir-0.3)
+                       ("rust-camino" ,rust-camino-1)
+                       ("rust-cc" ,rust-cc-1)
+                       ("rust-chrono" ,rust-chrono-0.4)
+                       ("rust-clap" ,rust-clap-4)
+                       ("rust-clap-complete-command" ,rust-clap-complete-command-0.6)
+                       ("rust-clearscreen" ,rust-clearscreen-4)
+                       ("rust-codspeed-criterion-compat" ,rust-codspeed-criterion-compat-2)
+                       ("rust-colored" ,rust-colored-3)
+                       ("rust-compact-str" ,rust-compact-str-0.8)
+                       ("rust-console-error-panic-hook" ,rust-console-error-panic-hook-0.1)
+                       ("rust-console-log" ,rust-console-log-1)
+                       ("rust-countme" ,rust-countme-3)
+                       ("rust-criterion" ,rust-criterion-0.5)
+                       ("rust-crossbeam" ,rust-crossbeam-0.8)
+                       ("rust-dashmap" ,rust-dashmap-6)
+                       ("rust-dir-test" ,rust-dir-test-0.4)
+                       ("rust-drop-bomb" ,rust-drop-bomb-0.1)
+                       ("rust-dunce" ,rust-dunce-1)
+                       ("rust-env-logger" ,rust-env-logger-0.11)
+                       ("rust-etcetera" ,rust-etcetera-0.8)
+                       ("rust-fern" ,rust-fern-0.7)
+                       ("rust-filetime" ,rust-filetime-0.2)
+                       ("rust-fs-extra" ,rust-fs-extra-1)
+                       ("rust-glob" ,rust-glob-0.3)
+                       ("rust-globset" ,rust-globset-0.4)
+                       ("rust-globwalk" ,rust-globwalk-0.9)
+                       ("rust-hashbrown" ,rust-hashbrown-0.15)
+                       ("rust-hashlink" ,rust-hashlink-0.9)
+                       ("rust-ignore" ,rust-ignore-0.4)
+                       ("rust-imara-diff" ,rust-imara-diff-0.1)
+                       ("rust-imperative" ,rust-imperative-1)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-indicatif" ,rust-indicatif-0.17)
+                       ("rust-indoc" ,rust-indoc-2)
+                       ("rust-insta" ,rust-insta-1)
+                       ("rust-insta-cmd" ,rust-insta-cmd-0.6)
+                       ("rust-is-macro" ,rust-is-macro-0.3)
+                       ("rust-is-wsl" ,rust-is-wsl-0.4)
+                       ("rust-itertools" ,rust-itertools-0.14)
+                       ("rust-jemallocator" ,rust-jemallocator-0.5)
+                       ("rust-jod-thread" ,rust-jod-thread-0.1)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-libcst" ,rust-libcst-1)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-lsp-server" ,rust-lsp-server-0.7)
+                       ("rust-lsp-types" ,rust-lsp-types-0.95)
+                       ("rust-matchit" ,rust-matchit-0.8)
+                       ("rust-memchr" ,rust-memchr-2)
+                       ("rust-mimalloc" ,rust-mimalloc-0.1)
+                       ("rust-natord" ,rust-natord-1)
+                       ("rust-notify" ,rust-notify-8)
+                       ("rust-ordermap" ,rust-ordermap-0.5)
+                       ("rust-parking-lot" ,rust-parking-lot-0.12)
+                       ("rust-path-absolutize" ,rust-path-absolutize-3)
+                       ("rust-path-slash" ,rust-path-slash-0.2)
+                       ("rust-pathdiff" ,rust-pathdiff-0.2)
+                       ("rust-pep440-rs" ,rust-pep440-rs-0.7)
+                       ("rust-pkg-config" ,rust-pkg-config-0.3)
+                       ("rust-pretty-assertions" ,rust-pretty-assertions-1)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-pyproject-toml" ,rust-pyproject-toml-0.13)
+                       ("rust-quick-junit" ,rust-quick-junit-0.5)
+                       ("rust-quickcheck-macros" ,rust-quickcheck-macros-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-rand" ,rust-rand-0.8)
+                       ("rust-rayon" ,rust-rayon-1)
+                       ("rust-regex" ,rust-regex-1)
+                       ("rust-rustc-hash" ,rust-rustc-hash-2)
+                       ("rust-schemars" ,rust-schemars-0.8)
+                       ("rust-seahash" ,rust-seahash-4)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-serde-repr" ,rust-serde-repr-0.1)
+                       ("rust-serde-test" ,rust-serde-test-1)
+                       ("rust-serde-wasm-bindgen" ,rust-serde-wasm-bindgen-0.6)
+                       ("rust-serde-with" ,rust-serde-with-3)
+                       ("rust-shellexpand" ,rust-shellexpand-3)
+                       ("rust-similar" ,rust-similar-2)
+                       ("rust-smallvec" ,rust-smallvec-1)
+                       ("rust-snapbox" ,rust-snapbox-0.6)
+                       ("rust-static-assertions" ,rust-static-assertions-1)
+                       ("rust-strum" ,rust-strum-0.26)
+                       ("rust-strum-macros" ,rust-strum-macros-0.26)
+                       ("rust-syn" ,rust-syn-2)
+                       ("rust-tempfile" ,rust-tempfile-3)
+                       ("rust-test-case" ,rust-test-case-3)
+                       ("rust-thiserror" ,rust-thiserror-2)
+                       ("rust-tikv-jemalloc-sys" ,rust-tikv-jemalloc-sys-0.6)
+                       ("rust-tikv-jemallocator" ,rust-tikv-jemallocator-0.6)
+                       ("rust-toml" ,rust-toml-0.8)
+                       ("rust-tracing" ,rust-tracing-0.1)
+                       ("rust-tracing-flame" ,rust-tracing-flame-0.2)
+                       ("rust-tracing-indicatif" ,rust-tracing-indicatif-0.3)
+                       ("rust-tracing-subscriber" ,rust-tracing-subscriber-0.3)
+                       ("rust-tracing-tree" ,rust-tracing-tree-0.4)
+                       ("rust-tryfn" ,rust-tryfn-0.2)
+                       ("rust-typed-arena" ,rust-typed-arena-2)
+                       ("rust-unic-ucd-category" ,rust-unic-ucd-category-0.9)
+                       ("rust-unicode-ident" ,rust-unicode-ident-1)
+                       ("rust-unicode-names2" ,rust-unicode-names2-1)
+                       ("rust-unicode-normalization" ,rust-unicode-normalization-0.1)
+                       ("rust-unicode-width" ,rust-unicode-width-0.2)
+                       ("rust-ureq" ,rust-ureq-2)
+                       ("rust-url" ,rust-url-2)
+                       ("rust-uuid" ,rust-uuid-1)
+                       ("rust-walkdir" ,rust-walkdir-2)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-wasm-bindgen-test" ,rust-wasm-bindgen-test-0.3)
+                       ("rust-wild" ,rust-wild-2)
+                       ("rust-zip" ,rust-zip-0.6))
+      #:cargo-development-inputs `(("rust-annotate-snippets" ,rust-annotate-snippets-0.11)
+                                   ("rust-codspeed-criterion-compat" ,rust-codspeed-criterion-compat-2)
+                                   ("rust-derive-new" ,rust-derive-new-0.6)
+                                   ("rust-expect-test" ,rust-expect-test-1)
+                                   ("rust-eyre" ,rust-eyre-0.6)
+                                   ("rust-notify-debouncer-mini" ,rust-notify-debouncer-mini-0.4)
+                                   ("rust-ordered-float" ,rust-ordered-float-4)
+                                   ("rust-rustversion" ,rust-rustversion-1)
+                                   ("rust-test-log" ,rust-test-log-0.2)
+                                   ("rust-trybuild" ,rust-trybuild-1))
+      #:cargo-test-flags `(list "--release"
+                           "--"
+                           "--skip=rules::flake8_executable::tests::rules::path_new_exe001_1_py_expects"
+                           "--skip=rules::flake8_executable::tests::rules::path_new_exe003_py_expects"
+                           "--skip=rules::isort::tests::required_import::path_new_comment_py_expects"
+                           "--skip=rules::isort::tests::required_import_with_alias::path_new_comment_py_expects"
+                           "--skip=rules::pycodestyle::tests::max_doc_length"
+                           "--skip=rules::pycodestyle::tests::max_doc_length_with_utf_8"
+                           "--skip=rules::pycodestyle::tests::shebang"
+                           "--skip=rules::pyupgrade::tests::rules::rule_utf8encodingdeclaration_path_new_up009_1_py_expects"
+                           "--skip=black_compatibility")
+      #:install-source? #f))
+    (inputs (list (list zstd "lib") jemalloc))
+    (native-inputs (list maturin python-pypa-build python-typing-extensions
+                         python-wrapper pkg-config))
+    (home-page "https://docs.astral.sh/ruff")
+    (synopsis
+     "An extremely fast Python linter and code formatter, written in Rust.")
+    (description
+     "An extremely fast Python linter and code formatter, written in Rust.")
+    (license license:expat)))
