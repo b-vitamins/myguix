@@ -14,22 +14,59 @@
                                        meili-master-key
                                        oci-neo4j-service-type))
 
-;; Apache Cassandra is an open source NoSQL distributed database offering high availability and scalability without compromising performance.
-(define oci-cassandra-service-type
-  (oci-container-configuration (auto-start? #t)
-                               (image "cassandra:latest")
-                               (network "host")
-                               (ports '(("9042" . "9042") ("7000" . "7000")))
-                               (extra-arguments '("--ulimit"
-                                                  "nofile=262144:262144"))
-                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
-
 ;; Define an OCI container service for GROBID, a machine learning library for extracting
 ;; information from scholarly documents.
 (define oci-grobid-service-type
-  (oci-container-configuration (image "grobid/grobid:0.8.0")
+  (oci-container-configuration (image "grobid/grobid:0.8.1")
                                (network "host")
                                (ports '(("8070" . "8070")))))
+
+;; Solr is the blazing-fast, open source, multi-modal search platform built on the full-text, vector, and geospatial search capabilities of Apache Lucene™.
+(define oci-solr-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "solr:latest")
+                               (network "host")
+                               (ports '(("8983" . "8983")))
+                               (volumes '("/var/lib/solr/data:/var/solr"))
+                               (command '("solr-precreate" "gettingstarted"))
+                               (extra-arguments '("--ulimit"
+                                                  "nofile=262144:262144"))
+                               (environment (list '("SOLR_HEAP" . "800m")))))
+
+;; JanusGraph is a scalable graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.
+(define oci-janusgraph-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "janusgraph/janusgraph:latest")
+                               (network "host")
+                               (ports '(("8182" . "8182") ("8183" . "8183")))
+                               (volumes '("/var/lib/janusgraph/data:/janusgraph/data"))
+                               (environment (list '("JAVA_OPTIONS" . "-Xms8g -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=200")
+                                                  '("STORAGE_BACKEND" . "cql")
+                                                  '("STORAGE_HOSTNAME" . "localhost:9042")
+                                                  '("STORAGE_CASSANDRA_KEYSPACE" . "janusgraph")
+                                                  '("INDEX_BACKEND" . "solr")
+                                                  '("INDEX_HOSTNAME" . "localhost:8983")))))
+
+;; Function to read MEILI_MASTER_KEY from the credentials file
+(define (get-meili-master-key)
+  (if (file-exists? "/root/meili.credentials")
+      (call-with-input-file "/root/meili.credentials"
+        read-line) ""))
+;; Return empty string if the file does not exist
+
+;; Retrieve the MEILI_MASTER_KEY for injection
+(define meili-master-key
+  (get-meili-master-key))
+
+;; Define an OCI container service for Meilisearch, an open-source search engine.
+(define oci-meilisearch-service-type
+  (oci-container-configuration (image "getmeili/meilisearch:latest")
+                               (network "host")
+                               (ports '(("7700" . "7700")))
+                               (environment (list '("MEILI_NO_ANALYTICS" . "true")
+                                                  `("MEILI_MASTER_KEY" unquote
+                                                    meili-master-key)))
+                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
 
 ;; Define an OCI container service for Weaviate, an open-source vector search engine.
 (define oci-weaviate-service-type
@@ -56,30 +93,6 @@
                                                   '("CLUSTER_HOSTNAME" . "lagertha")))
                                (volumes (list '("/var/lib/weaviate/data" . "/var/lib/weaviate")))))
 
-;; Solr is the blazing-fast, open source, multi-modal search platform built on the full-text, vector, and geospatial search capabilities of Apache Lucene™.
-(define oci-solr-service-type
-  (oci-container-configuration (auto-start? #t)
-                               (image "solr:latest")
-                               (network "host")
-                               (ports '(("8983" . "8983")))
-                               (volumes '("/var/lib/solr/data:/var/solr"))
-                               (command '("solr-precreate" "gettingstarted"))
-                               (environment (list '("SOLR_HEAP" . "800m")))))
-
-;; JanusGraph is a scalable graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.
-(define oci-janusgraph-service-type
-  (oci-container-configuration (auto-start? #t)
-                               (image "janusgraph/janusgraph:latest")
-                               (network "host")
-                               (ports '(("8182" . "8182") ("8183" . "8183")))
-                               (volumes '("/var/lib/janusgraph/data:/janusgraph/data"))
-                               (environment (list '("JAVA_OPTIONS" . "-Xms8g -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=200")
-                                                  '("STORAGE_BACKEND" . "cql")
-                                                  '("STORAGE_HOSTNAME" . "localhost:9042")
-                                                  '("STORAGE_CASSANDRA_KEYSPACE" . "janusgraph")
-                                                  '("INDEX_BACKEND" . "solr")
-                                                  '("INDEX_HOSTNAME" . "localhost:8983")))))
-
 ;; ClickHouse® is a high-performance, column-oriented SQL database management system (DBMS) for online analytical processing (OLAP).
 (define oci-clickhouse-service-type
   (oci-container-configuration (auto-start? #t)
@@ -91,27 +104,6 @@
                                (volumes '("/var/lib/clickhouse/data:/var/lib/clickhouse"
                                           "/var/log/clickhouse-server:/var/log/clickhouse-server"))))
 
-;; Function to read MEILI_MASTER_KEY from the credentials file
-(define (get-meili-master-key)
-  (if (file-exists? "/root/meili.credentials")
-      (call-with-input-file "/root/meili.credentials"
-        read-line) ""))
-;; Return empty string if the file does not exist
-
-;; Retrieve the MEILI_MASTER_KEY for injection
-(define meili-master-key
-  (get-meili-master-key))
-
-;; Define an OCI container service for Meilisearch, an open-source search engine.
-(define oci-meilisearch-service-type
-  (oci-container-configuration (image "getmeili/meilisearch:latest")
-                               (network "host")
-                               (ports '(("7700" . "7700")))
-                               (environment (list '("MEILI_NO_ANALYTICS" . "true")
-                                                  `("MEILI_MASTER_KEY" unquote
-                                                    meili-master-key)))
-                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
-
 ;; Define an OCI container service for Neo4j, a graph database management system.
 (define oci-neo4j-service-type
   (oci-container-configuration (image "neo4j:latest")
@@ -122,3 +114,13 @@
                                               '("/var/lib/neo4j/logs" . "/logs")
                                               '("/var/lib/neo4j/import" . "/var/lib/neo4j/import")
                                               '("/var/lib/neo4j/plugins" . "/plugins")))))
+
+;; Apache Cassandra is an open source NoSQL distributed database offering high availability and scalability without compromising performance.
+(define oci-cassandra-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "cassandra:latest")
+                               (network "host")
+                               (ports '(("9042" . "9042") ("7000" . "7000")))
+                               (extra-arguments '("--ulimit"
+                                                  "nofile=262144:262144"))
+                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
