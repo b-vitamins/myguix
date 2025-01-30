@@ -12155,6 +12155,26 @@ behavior.")
 computation (experimental).")
     (license (list license:asl2.0 license:expat))))
 
+(define-public rust-append-only-vec-0.1
+  (package
+    (name "rust-append-only-vec")
+    (version "0.1.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "append-only-vec" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0wg596rw1dhw8wjgd5dvd4cx7sx2jpabycfxj9lykkrmq1g0i4kr"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-development-inputs (("rust-parking-lot" ,rust-parking-lot-0.12)
+                                   ("rust-scaling" ,rust-scaling-0.1))))
+    (home-page "https://github.com/droundy/append-only-vec")
+    (synopsis "Append-only, concurrent vector")
+    (description "This package provides Append-only, concurrent vector.")
+    (license (list license:expat license:asl2.0))))
+
 (define-public rust-anstyle-1
   (package
     (name "rust-anstyle")
@@ -12194,32 +12214,6 @@ computation (experimental).")
     (description
      "This package provides a generic URI/IRI handling library compliant with RFC
 3986/3987.")
-    (license license:expat)))
-
-(define-public rust-lsp-types-0.97
-  (package
-    (name "rust-lsp-types")
-    (version "0.97.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "lsp-types" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0wb0yr2cdhlndjkcfyabr17ib0nvqa4v3zl5qm3aq13wl583adak"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-bitflags" ,rust-bitflags-1)
-                       ("rust-fluent-uri" ,rust-fluent-uri-0.1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-serde-repr" ,rust-serde-repr-0.1))))
-    (home-page "https://github.com/gluon-lang/lsp-types")
-    (synopsis
-     "Types for interaction with a language server, using VSCode's Language Server Protocol")
-    (description
-     "This package provides Types for interaction with a language server, using VSCode's Language Server
-Protocol.")
     (license license:expat)))
 
 (define-public rust-anstyle-1
@@ -12268,4 +12262,3 @@ Protocol.")
     (description
      "This package provides Filesystem fixtures and assertions for testing.")
     (license (list license:expat license:asl2.0))))
-
