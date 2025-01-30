@@ -5,6 +5,7 @@
   #:use-module (gnu packages assembly)
   #:use-module (gnu packages bioinformatics)
   #:use-module (gnu packages c)
+  #:use-module (gnu packages cmake)
   #:use-module (gnu packages cpp)
   #:use-module (gnu packages check)
   #:use-module (gnu packages compression)
@@ -23,6 +24,7 @@
                 #:hide (python-torchvision))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
+  #:use-module (gnu packages ninja)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages protobuf)
@@ -1910,6 +1912,36 @@ Note: This package provides NVIDIA GPU support.")
                              python-requests
                              python-pillow
                              python-pillow-simd
+                             python-pytorch-cuda))
+    (native-inputs (list pybind11 which python-pytest python-setuptools
+                         python-wheel))
+    (home-page "https://pytorch.org/vision/stable/index.html")
+    (synopsis "Datasets, transforms and models specific to computer vision")
+    (description
+     "The torchvision package consists of popular datasets, model architectures,
+and common image transformations for computer vision.")
+    (license license:bsd-3)))
+
+(define-public python-torchdata-cuda
+  (package
+    (name "python-torchdata-cuda")
+    (version "0.10.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pytorch/data")
+             (commit (string-append "v" version))
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0swbsc8njlh79s5gksanmqzkvvk27pmzz4as7zz16z0l81pdclv4"))
+       (modules '((guix build utils)))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-requests python-urllib3
                              python-pytorch-cuda))
     (native-inputs (list pybind11 which python-pytest python-setuptools
                          python-wheel))
