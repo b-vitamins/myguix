@@ -203,6 +203,7 @@
         zip
         gzip
         zstd
+        (list zstd "lib")
         bzip2
         xz
         unzip
@@ -414,6 +415,7 @@
         mpv-cuda
         python-pytorch-cuda
         python-torchvision-cuda
+        python-torchdata-cuda
         whisper-cpp-cuda
         llama-cpp-cuda
         nvidia-container-toolkit))
@@ -442,12 +444,17 @@
         `(,rust "rust-src")
         `(,rust "tools")
         `(,rust "cargo")
+        rust-clippy-0.0.302
         rust-analyzer
         rust-cc-1
         rust-gcc-0.3
         rust-libc-0.2
+        rust-clippy
         rust-pkg-config-0.3
         rust-cxx-1
+        rust-tikv-jemalloc-sys-0.6
+        rust-tikv-jemallocator-0.6
+        rust-jemallocator-0.5
         rust-cxx-gen-0.7
         rust-cxx-build-1))
 
