@@ -103,6 +103,7 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages nlp)
   #:use-module (myguix packages video)
