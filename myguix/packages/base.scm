@@ -1,4 +1,3 @@
-
 (define-module (myguix packages base)
   #:use-module (gnu packages admin)
   #:use-module (gnu packages antivirus)
@@ -65,6 +64,7 @@
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
                 #:hide (python-jedi))
+  #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages rsync)
   #:use-module (gnu packages rust)
@@ -464,7 +464,12 @@
         python-jedi-language-server
         python-flake8
         python-black
-        python-ruff))
+        python-ruff
+        python-cassandra-driver
+        python-gremlinpython
+        python-pysolr
+        python-grobid-client-python
+        python-meilisearch))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
