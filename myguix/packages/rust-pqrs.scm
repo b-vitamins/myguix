@@ -13412,3 +13412,188 @@ to use the \"cassandra-cpp\" crate which provides a safe wrapper.")
      "This package provides a Cassandra CQL driver, built on top of the
 @code{DataStax} C++ driver for performance and functionality.")
     (license license:asl2.0)))
+
+(define-public rust-mobc-0.7
+  (package
+    (name "rust-mobc")
+    (version "0.7.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "mobc" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0zpk3xzzlv5a8wb0gkajxa9jda3ld819zc5jsfl01fywwbrd4xkz"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-actix-rt" ,rust-actix-rt-1)
+                       ("rust-async-std" ,rust-async-std-1)
+                       ("rust-async-trait" ,rust-async-trait-0.1)
+                       ("rust-futures-channel" ,rust-futures-channel-0.3)
+                       ("rust-futures-core" ,rust-futures-core-0.3)
+                       ("rust-futures-timer" ,rust-futures-timer-3)
+                       ("rust-futures-util" ,rust-futures-util-0.3)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-tokio" ,rust-tokio-1))))
+    (home-page "https://github.com/importcjj/mobc")
+    (synopsis "generic connection pool with async/await support")
+    (description
+     "This package provides a generic connection pool with async/await support.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gremlin-derive-0.1
+  (package
+    (name "rust-gremlin-derive")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gremlin-derive" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "06925paqw25j5hnsp0k60894r1lvwi5rcva2w4zn407x5wq287fn"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-1))))
+    (home-page "https://github.com/wolf4ood/gremlin-rs")
+    (synopsis "Proc macro for gremlin-rsâ¢")
+    (description "This package provides Proc macro for gremlin-rsâ¢.")
+    (license license:asl2.0)))
+
+(define-public rust-async-native-tls-0.5
+  (package
+    (name "rust-async-native-tls")
+    (version "0.5.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-native-tls" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1v2v82crqm4fgj1s32gik56m7cwx0ygqjdqc5pw9zrq7rxddqhwk"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures-util" ,rust-futures-util-0.3)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-url" ,rust-url-2))))
+    (home-page "https://docs.rs/crate/async-native-tls/")
+    (synopsis "Native TLS using futures")
+    (description "This package provides Native TLS using futures.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-async-tungstenite-0.23
+  (package
+    (name "rust-async-tungstenite")
+    (version "0.23.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-tungstenite" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1p20alhqi6agmgn1hw2x4bv9q7k21fd0b0xrkyhs0bb12jzfzsd1"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-native-tls" ,rust-async-native-tls-0.5)
+                       ("rust-async-std" ,rust-async-std-1)
+                       ("rust-async-tls" ,rust-async-tls-0.12)
+                       ("rust-futures-io" ,rust-futures-io-0.3)
+                       ("rust-futures-util" ,rust-futures-util-0.3)
+                       ("rust-gio" ,rust-gio-0.18)
+                       ("rust-glib" ,rust-glib-0.18)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-openssl" ,rust-openssl-0.10)
+                       ("rust-pin-project-lite" ,rust-pin-project-lite-0.2)
+                       ("rust-rustls-native-certs" ,rust-rustls-native-certs-0.6)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-tokio-native-tls" ,rust-tokio-native-tls-0.3)
+                       ("rust-tokio-openssl" ,rust-tokio-openssl-0.6)
+                       ("rust-tokio-rustls" ,rust-tokio-rustls-0.24)
+                       ("rust-tungstenite" ,rust-tungstenite-0.20)
+                       ("rust-webpki-roots" ,rust-webpki-roots-0.25))))
+    (home-page "https://github.com/sdroege/async-tungstenite")
+    (synopsis
+     "Async binding for Tungstenite, the Lightweight stream-based WebSocket implementation")
+    (description
+     "This package provides Async binding for Tungstenite, the Lightweight stream-based @code{WebSocket}
+implementation.")
+    (license license:expat)))
+
+(define-public rust-async-tls-0.12
+  (package
+    (name "rust-async-tls")
+    (version "0.12.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-tls" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "15a7vaig0adwa7bsymw20dvm2ahw80lb5mjgscxvpjwpl86gvvng"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures-core" ,rust-futures-core-0.3)
+                       ("rust-futures-io" ,rust-futures-io-0.3)
+                       ("rust-rustls" ,rust-rustls-0.20)
+                       ("rust-rustls-pemfile" ,rust-rustls-pemfile-1)
+                       ("rust-webpki" ,rust-webpki-0.22)
+                       ("rust-webpki-roots" ,rust-webpki-roots-0.22))))
+    (home-page "https://github.com/async-std/async-tls")
+    (synopsis "Asynchronous TLS/SSL streams using Rustls")
+    (description
+     "This package provides Asynchronous TLS/SSL streams using Rustls.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gremlin-client-0.8
+  (package
+    (name "rust-gremlin-client")
+    (version "0.8.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gremlin-client" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1rcjcpyawmks8dzkviydk3zwymy4ssh78njzr9d772kxhsd7zri3"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-async-std" ,rust-async-std-1)
+                       ("rust-async-tls" ,rust-async-tls-0.12)
+                       ("rust-async-trait" ,rust-async-trait-0.1)
+                       ("rust-async-tungstenite" ,rust-async-tungstenite-0.23)
+                       ("rust-base64" ,rust-base64-0.21)
+                       ("rust-chrono" ,rust-chrono-0.4)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-gremlin-derive" ,rust-gremlin-derive-0.1)
+                       ("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-mobc" ,rust-mobc-0.7)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-pin-project-lite" ,rust-pin-project-lite-0.2)
+                       ("rust-r2d2" ,rust-r2d2-0.8)
+                       ("rust-rustls" ,rust-rustls-0.20)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-derive" ,rust-serde-derive-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-tokio-native-tls" ,rust-tokio-native-tls-0.3)
+                       ("rust-tokio-stream" ,rust-tokio-stream-0.1)
+                       ("rust-tungstenite" ,rust-tungstenite-0.20)
+                       ("rust-url" ,rust-url-2)
+                       ("rust-uuid" ,rust-uuid-1)
+                       ("rust-webpki" ,rust-webpki-0.22))))
+    (home-page "https://github.com/wolf4ood/gremlin-rs")
+    (synopsis "Rust client for Apache TinkerPopâ¢")
+    (description
+     "This package provides a Rust client for Apache @code{TinkerPopâ¢}.")
+    (license license:asl2.0)))
