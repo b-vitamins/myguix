@@ -47,6 +47,30 @@
                                                   '("INDEX_BACKEND" . "solr")
                                                   '("INDEX_HOSTNAME" . "localhost:8983")))))
 
+(define oci-cassandra-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "cassandra:latest")
+                               (network "host")
+                               ;; Cassandra commonly uses ports 7000, 7001, 7199, 9042, and 9160.
+                               (ports '(("7000" . "7000") ("7001" . "7001")
+                                        ("7199" . "7199")
+                                        ("9042" . "9042")
+                                        ("9160" . "9160")))
+                               ;; Mount the local Cassandra data directory to persist across container restarts.
+                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))
+                               ;; By default, the official Cassandra image runs the server in the foreground
+                               ;; so no explicit 'command' override is strictly necessary. If you want to
+                               ;; be explicit, you could do (command '("cassandra" "-f")).
+                               (environment (list ;The following environment variables configure a basic single-node cluster
+                                                  '("CASSANDRA_CLUSTER_NAME" . "NeurIPSCluster")
+                                                  '("CASSANDRA_SEEDS" . "127.0.0.1")
+                                                  '("CASSANDRA_START_RPC" . "true")
+                                                  '("CASSANDRA_RPC_ADDRESS" . "0.0.0.0")
+                                                  '("CASSANDRA_BROADCAST_RPC_ADDRESS" . "127.0.0.1")
+                                                  ;; Memory settings can be tuned as needed
+                                                  '("MAX_HEAP_SIZE" . "1G")
+                                                  '("HEAP_NEWSIZE" . "256M")))))
+
 ;; Function to read MEILI_MASTER_KEY from the credentials file
 (define (get-meili-master-key)
   (if (file-exists? "/root/meili.credentials")
