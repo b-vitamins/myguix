@@ -13247,3 +13247,92 @@ applications.")
      "This package provides Rust wrapper for the Meilisearch API. Meilisearch is a powerful, fast,
 open-source, easy to use and deploy search engine.")
     (license license:expat)))
+
+(define-public rust-snowflake-1
+  (package
+    (name "rust-snowflake")
+    (version "1.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "snowflake" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1wadr7bxdxbmkbqkqsvzan6q1h3mxqpxningi3ss3v9jaav7n817"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-serde" ,rust-serde-1)
+                       ("rust-serde-derive" ,rust-serde-derive-1))))
+    (home-page "https://github.com/Stebalien/snowflake")
+    (synopsis "module for generating guaranteed process unique IDs.")
+    (description
+     "This package provides a module for generating guaranteed process unique IDs.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-zookeeper-async-5
+  (package
+    (name "rust-zookeeper-async")
+    (version "5.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "zookeeper-async" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1d62zi7f8f06pl9vravcj99ry7mfgzgm8f1dh206k6zy9hf47b01"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-trait" ,rust-async-trait-0.1)
+                       ("rust-byteorder" ,rust-byteorder-1)
+                       ("rust-bytes" ,rust-bytes-1)
+                       ("rust-derive-more" ,rust-derive-more-0.99)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-num-enum" ,rust-num-enum-0.7)
+                       ("rust-snowflake" ,rust-snowflake-1)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-tracing" ,rust-tracing-0.1)
+                       ("rust-uuid" ,rust-uuid-1))))
+    (home-page "https://github.com/krojew/rust-zookeeper")
+    (synopsis "An async ZooKeeper client")
+    (description "This package provides An async @code{ZooKeeper} client.")
+    (license license:expat)))
+
+(define-public rust-solrstice-0.6
+  (package
+    (name "rust-solrstice")
+    (version "0.6.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "solrstice" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1cbw8ka4954m8plha1389g1l4bfq0r5cngyv9yz996hh6gg354q2"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-async-trait" ,rust-async-trait-0.1)
+                       ("rust-dyn-clone" ,rust-dyn-clone-1)
+                       ("rust-fastrand" ,rust-fastrand-2)
+                       ("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-regex" ,rust-regex-1)
+                       ("rust-reqwest" ,rust-reqwest-0.12)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-tempfile" ,rust-tempfile-3)
+                       ("rust-thiserror" ,rust-thiserror-2)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-walkdir" ,rust-walkdir-2)
+                       ("rust-zip" ,rust-zip-2)
+                       ("rust-zookeeper-async" ,rust-zookeeper-async-5))
+       #:cargo-development-inputs (("rust-dotenv" ,rust-dotenv-0.15)
+                                   ("rust-env-logger" ,rust-env-logger-0.11)
+                                   ("rust-serial-test" ,rust-serial-test-3)
+                                   ("rust-tokio" ,rust-tokio-1))))
+    (home-page "https://github.com/Sh1nku/solrstice")
+    (synopsis "Solr 8+ client")
+    (description "This package provides a Solr 8+ client.")
+    (license (list license:expat license:asl2.0))))
