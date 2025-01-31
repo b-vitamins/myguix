@@ -13618,3 +13618,491 @@ implementation.")
     (synopsis "Proc macro for gremlin-rsâ¢")
     (description "This package provides Proc macro for gremlin-rsâ¢.")
     (license license:asl2.0)))
+
+(define-public rust-async-process-0.1
+  (package
+    (name "rust-async-process")
+    (version "0.1.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-process" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0q72mcp0yl2fmq2i7jwgs5m1jfwa83s3sdn3wr0ila8ryfx11m93"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-io" ,rust-async-io-0.2)
+                       ("rust-blocking" ,rust-blocking-0.6)
+                       ("rust-cfg-if" ,rust-cfg-if-0.1)
+                       ("rust-event-listener" ,rust-event-listener-2)
+                       ("rust-futures-lite" ,rust-futures-lite-1)
+                       ("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-signal-hook" ,rust-signal-hook-0.1)
+                       ("rust-winapi" ,rust-winapi-0.3))))
+    (home-page "https://github.com/smol-rs/async-process")
+    (synopsis "Async interface for working with processes")
+    (description
+     "This package provides Async interface for working with processes.")
+    (license (list license:asl2.0 license:expat))))
+
+(define-public rust-vec-arena-0.5
+  (package
+    (name "rust-vec-arena")
+    (version "0.5.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "vec-arena" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0qdmvqxc0jyvjjdcax7khjinn4ic2chrn6pfb46pc283d5l85ccc"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/smol-rs/vec-arena")
+    (synopsis "simple object arena")
+    (description "This package provides a simple object arena.")
+    (license (list license:asl2.0 license:expat))))
+
+(define-public rust-polling-0.1
+  (package
+    (name "rust-polling")
+    (version "0.1.9")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "polling" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1gbgmwd9snxavbb64jnqxr8f68anilpwwq0z7s51lpxxys1s3zwg"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-0.1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-wepoll-sys-stjepang" ,rust-wepoll-sys-stjepang-1)
+                       ("rust-winapi" ,rust-winapi-0.3))))
+    (home-page "https://github.com/smol-rs/polling")
+    (synopsis "Portable interface to epoll, kqueue, event ports, and IOCP")
+    (description
+     "This package provides Portable interface to epoll, kqueue, event ports, and IOCP.")
+    (license (list license:asl2.0 license:expat))))
+
+(define-public rust-async-io-0.2
+  (package
+    (name "rust-async-io")
+    (version "0.2.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-io" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1byhc0c0daiqbxwr2a1jqw8a7icm8pv9rnd16b507c37i2w4nhn9"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-0.1)
+                       ("rust-concurrent-queue" ,rust-concurrent-queue-1)
+                       ("rust-fastrand" ,rust-fastrand-1)
+                       ("rust-futures-lite" ,rust-futures-lite-1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-parking" ,rust-parking-2)
+                       ("rust-polling" ,rust-polling-0.1)
+                       ("rust-socket2" ,rust-socket2-0.3)
+                       ("rust-vec-arena" ,rust-vec-arena-0.5)
+                       ("rust-waker-fn" ,rust-waker-fn-1)
+                       ("rust-wepoll-sys-stjepang" ,rust-wepoll-sys-stjepang-1)
+                       ("rust-winapi" ,rust-winapi-0.3))))
+    (home-page "https://github.com/smol-rs/async-io")
+    (synopsis "Async I/O and timers")
+    (description "This package provides Async I/O and timers.")
+    (license (list license:asl2.0 license:expat))))
+
+(define-public rust-async-executor-0.2
+  (package
+    (name "rust-async-executor")
+    (version "0.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-executor" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1d50gg6d8yyvb0s62p9hblw8293mw8gc7al2hy94fnj5cyqzra99"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-task" ,rust-async-task-3)
+                       ("rust-concurrent-queue" ,rust-concurrent-queue-1)
+                       ("rust-fastrand" ,rust-fastrand-1)
+                       ("rust-futures-lite" ,rust-futures-lite-1)
+                       ("rust-once-cell" ,rust-once-cell-1))))
+    (home-page "https://github.com/smol-rs/async-executor")
+    (synopsis "Async executor")
+    (description "This package provides Async executor.")
+    (license (list license:asl2.0 license:expat))))
+
+(define-public rust-smol-0.4
+  (package
+    (name "rust-smol")
+    (version "0.4.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "smol" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1vciqhwhh2364wa2hzn0nng3hcmg6a6a49rmfsvy0vqp8l6i4507"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-channel" ,rust-async-channel-1)
+                       ("rust-async-executor" ,rust-async-executor-0.2)
+                       ("rust-async-fs" ,rust-async-fs-1)
+                       ("rust-async-io" ,rust-async-io-0.2)
+                       ("rust-async-lock" ,rust-async-lock-2)
+                       ("rust-async-net" ,rust-async-net-1)
+                       ("rust-async-process" ,rust-async-process-0.1)
+                       ("rust-blocking" ,rust-blocking-0.6)
+                       ("rust-futures-lite" ,rust-futures-lite-1)
+                       ("rust-once-cell" ,rust-once-cell-1))))
+    (home-page "https://github.com/smol-rs/smol")
+    (synopsis "small and fast async runtime")
+    (description "This package provides a small and fast async runtime.")
+    (license (list license:asl2.0 license:expat))))
+
+(define-public rust-shellwords-1
+  (package
+    (name "rust-shellwords")
+    (version "1.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "shellwords" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1rna1yky1g9kbaavqgxljp74h07grq9n9yayxm483a4r8sm1brc9"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-regex" ,rust-regex-1))))
+    (home-page "https://github.com/jimmycuadra/rust-shellwords")
+    (synopsis
+     "Manipulate strings according to the word parsing rules of the UNIX Bourne shell")
+    (description
+     "This package provides Manipulate strings according to the word parsing rules of the UNIX Bourne shell.")
+    (license license:expat)))
+
+(define-public rust-websocket-base-0.24
+  (package
+    (name "rust-websocket-base")
+    (version "0.24.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "websocket-base" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0x535b292mqivc3v1iyy34l260z72plfx91h9jswqk8cs3q10f2y"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-base64" ,rust-base64-0.10)
+                       ("rust-bitflags" ,rust-bitflags-1)
+                       ("rust-byteorder" ,rust-byteorder-1)
+                       ("rust-bytes" ,rust-bytes-0.4)
+                       ("rust-futures" ,rust-futures-0.1)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-rand" ,rust-rand-0.6)
+                       ("rust-sha1" ,rust-sha1-0.6)
+                       ("rust-tokio-codec" ,rust-tokio-codec-0.1)
+                       ("rust-tokio-io" ,rust-tokio-io-0.1)
+                       ("rust-tokio-tcp" ,rust-tokio-tcp-0.1)
+                       ("rust-tokio-tls" ,rust-tokio-tls-0.2))))
+    (home-page "https://github.com/websockets-rs/rust-websocket")
+    (synopsis
+     "WebSocket (RFC6455) library for Rust: low-level component. It contains HTTP-independent aspect of WebSockets")
+    (description
+     "This package provides a @code{WebSocket} (RFC6455) library for Rust: low-level
+component.  It contains HTTP-independent aspect of @code{WebSockets}.")
+    (license license:expat)))
+
+(define-public rust-websocket-0.24
+  (package
+    (name "rust-websocket")
+    (version "0.24.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "websocket" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1l41wm6cmhbf42q4rg7mfa6dwc87w7nikcwirr0b69wy1f23ffs1"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-bytes" ,rust-bytes-0.4)
+                       ("rust-futures" ,rust-futures-0.1)
+                       ("rust-hyper" ,rust-hyper-0.10)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-rand" ,rust-rand-0.6)
+                       ("rust-tokio-codec" ,rust-tokio-codec-0.1)
+                       ("rust-tokio-io" ,rust-tokio-io-0.1)
+                       ("rust-tokio-reactor" ,rust-tokio-reactor-0.1)
+                       ("rust-tokio-tcp" ,rust-tokio-tcp-0.1)
+                       ("rust-tokio-tls" ,rust-tokio-tls-0.2)
+                       ("rust-unicase" ,rust-unicase-1)
+                       ("rust-url" ,rust-url-1)
+                       ("rust-websocket-base" ,rust-websocket-base-0.24))))
+    (home-page "https://github.com/websockets-rs/rust-websocket")
+    (synopsis "[deprecated] A WebSocket (RFC6455) library for Rust")
+    (description
+     "This package provides [deprecated] A @code{WebSocket} (RFC6455) library for Rust.")
+    (license license:expat)))
+
+(define-public rust-mobc-0.5
+  (package
+    (name "rust-mobc")
+    (version "0.5.12")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "mobc" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1ks18b74hfvi8ncs1ndpnfspd4w6cl8p8ggqwhkrjfgjm5ykv0fn"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-std" ,rust-async-std-1)
+                       ("rust-async-trait" ,rust-async-trait-0.1)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-futures-timer" ,rust-futures-timer-3)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-tokio" ,rust-tokio-0.2))))
+    (home-page "https://github.com/importcjj/mobc")
+    (synopsis "generic connection pool with async/await support")
+    (description
+     "This package provides a generic connection pool with async/await support.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-sha1-asm-0.4
+  (package
+    (name "rust-sha1-asm")
+    (version "0.4.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "sha1-asm" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1z5vdimd7l0vmr2p7kjibi0rghf5frb1ld0gzdkxrxfmkllf5nmr"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-cc" ,rust-cc-1))))
+    (home-page "https://github.com/RustCrypto/asm-hashes")
+    (synopsis "Assembly implementation of SHA-1 compression function")
+    (description
+     "This package provides Assembly implementation of SHA-1 compression function.")
+    (license license:expat)))
+
+(define-public rust-sha-1-0.8
+  (package
+    (name "rust-sha-1")
+    (version "0.8.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "sha-1" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1pv387q0r7llk2cqzyq0nivzvkgqgzsiygqzlv7b68z9xl5lvngp"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-block-buffer" ,rust-block-buffer-0.7)
+                       ("rust-digest" ,rust-digest-0.8)
+                       ("rust-fake-simd" ,rust-fake-simd-0.1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-opaque-debug" ,rust-opaque-debug-0.2)
+                       ("rust-sha1-asm" ,rust-sha1-asm-0.4))))
+    (home-page "https://github.com/RustCrypto/hashes")
+    (synopsis
+     "SHA-1 hash function. This crate is deprecated! Use the sha1 crate instead")
+    (description
+     "This package provides SHA-1 hash function.  This crate is deprecated! Use the sha1 crate instead.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-tungstenite-0.10
+  (package
+    (name "rust-tungstenite")
+    (version "0.10.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "tungstenite" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0ki6qhd6wh9ysa717i6p3cba6wbhy3jyhql9j68gjx7nidsk3sng"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-base64" ,rust-base64-0.11)
+                       ("rust-byteorder" ,rust-byteorder-1)
+                       ("rust-bytes" ,rust-bytes-0.5)
+                       ("rust-http" ,rust-http-0.2)
+                       ("rust-httparse" ,rust-httparse-1)
+                       ("rust-input-buffer" ,rust-input-buffer-0.3)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-rand" ,rust-rand-0.7)
+                       ("rust-sha-1" ,rust-sha-1-0.8)
+                       ("rust-url" ,rust-url-2)
+                       ("rust-utf-8" ,rust-utf-8-0.7))))
+    (home-page "https://github.com/snapview/tungstenite-rs")
+    (synopsis "Lightweight stream-based WebSocket implementation")
+    (description
+     "This package provides Lightweight stream-based @code{WebSocket} implementation.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-async-tungstenite-0.4
+  (package
+    (name "rust-async-tungstenite")
+    (version "0.4.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-tungstenite" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "19yw8bxmi68q61qja1p8hbj0knwbvd9pbvvwy54qijwfdi2bp1s1"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-native-tls" ,rust-async-native-tls-0.3)
+                       ("rust-async-std" ,rust-async-std-1)
+                       ("rust-async-tls" ,rust-async-tls-0.6)
+                       ("rust-futures-io" ,rust-futures-io-0.3)
+                       ("rust-futures-util" ,rust-futures-util-0.3)
+                       ("rust-gio" ,rust-gio-0.8)
+                       ("rust-glib" ,rust-glib-0.9)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-pin-project" ,rust-pin-project-0.4)
+                       ("rust-tokio" ,rust-tokio-0.2)
+                       ("rust-tokio-tls" ,rust-tokio-tls-0.3)
+                       ("rust-tungstenite" ,rust-tungstenite-0.10))))
+    (home-page "https://github.com/sdroege/async-tungstenite")
+    (synopsis
+     "Async binding for Tungstenite, the Lightweight stream-based WebSocket implementation")
+    (description
+     "This package provides Async binding for Tungstenite, the Lightweight stream-based @code{WebSocket}
+implementation.")
+    (license license:expat)))
+
+(define-public rust-async-tls-0.6
+  (package
+    (name "rust-async-tls")
+    (version "0.6.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "async-tls" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1izf2dlrj047kw5cpisvbzb2773ysi82jm75zxvxls7saxzrgrkc"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures" ,rust-futures-0.3)
+                       ("rust-rustls" ,rust-rustls-0.16)
+                       ("rust-webpki" ,rust-webpki-0.21)
+                       ("rust-webpki-roots" ,rust-webpki-roots-0.17))))
+    (home-page "https://github.com/async-std/async-tls")
+    (synopsis "Asynchronous TLS/SSL streams using Rustls")
+    (description
+     "This package provides Asynchronous TLS/SSL streams using Rustls.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gremlin-client-0.6
+  (package
+    (name "rust-gremlin-client")
+    (version "0.6.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gremlin-client" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1xibwklv8yfwfx1admmkm8npc43br8mi2anqd73bs34hl99wadc3"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-async-std" ,rust-async-std-1)
+                       ("rust-async-tls" ,rust-async-tls-0.6)
+                       ("rust-async-trait" ,rust-async-trait-0.1)
+                       ("rust-async-tungstenite" ,rust-async-tungstenite-0.4)
+                       ("rust-base64" ,rust-base64-0.12)
+                       ("rust-chrono" ,rust-chrono-0.4)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-gremlin-derive" ,rust-gremlin-derive-0.1)
+                       ("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-mobc" ,rust-mobc-0.5)
+                       ("rust-native-tls" ,rust-native-tls-0.2)
+                       ("rust-pin-project-lite" ,rust-pin-project-lite-0.1)
+                       ("rust-r2d2" ,rust-r2d2-0.8)
+                       ("rust-rustls" ,rust-rustls-0.16)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-derive" ,rust-serde-derive-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-tokio" ,rust-tokio-0.2)
+                       ("rust-tokio-tls" ,rust-tokio-tls-0.3)
+                       ("rust-url" ,rust-url-2)
+                       ("rust-uuid" ,rust-uuid-0.8)
+                       ("rust-webpki" ,rust-webpki-0.21)
+                       ("rust-websocket" ,rust-websocket-0.24))))
+    (home-page "https://github.com/wolf4ood/gremlin-rs")
+    (synopsis "Rust client for Apache TinkerPopâ¢")
+    (description
+     "This package provides a Rust client for Apache @code{TinkerPopâ¢}.")
+    (license license:asl2.0)))
+
+(define-public rust-gremlin-cli-0.1
+  (package
+    (name "rust-gremlin-cli")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gremlin-cli" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1gm3apb4ybz449cdj1h6fjj3kpqqgij6vzc6k98sbcvxm7ndc105"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
+                       ("rust-async-std" ,rust-async-std-1)
+                       ("rust-chrono" ,rust-chrono-0.4)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-gremlin-client" ,rust-gremlin-client-0.6)
+                       ("rust-prettytable-rs" ,rust-prettytable-rs-0.8)
+                       ("rust-rustyline" ,rust-rustyline-6)
+                       ("rust-shellwords" ,rust-shellwords-1)
+                       ("rust-smol" ,rust-smol-0.4)
+                       ("rust-structopt" ,rust-structopt-0.3)
+                       ("rust-uuid" ,rust-uuid-0.8))))
+    (home-page "https://github.com/wolf4ood/gremlin-rs")
+    (synopsis "minimal Rust CLI for Apache TinkerPopâ¢")
+    (description
+     "This package provides a minimal Rust CLI for Apache @code{TinkerPopâ¢}.")
+    (license license:asl2.0)))
+
