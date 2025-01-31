@@ -1080,7 +1080,7 @@ OpenAI API.")
 (define-public python-meilisearch
   (package
     (name "python-meilisearch")
-    (version "0.31.4")
+    (version "0.33.1")
     (source
      (origin
        (method git-fetch)
@@ -1090,7 +1090,7 @@ OpenAI API.")
              (recursive? #t)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1gxik38zabz7m2lv4ji4xi38bwfzby5iypdyjy7vd21a0af6lmgv"))))
+        (base32 "04lmbcrgc4pwca8yr4fgy77zm0pd8km6vprksr4mmkw5f79907pk"))))
     (build-system pyproject-build-system)
     (arguments
      (list
@@ -1099,6 +1099,7 @@ OpenAI API.")
                   python-pytest-cov))
     (propagated-inputs (list python-camel-converter python-requests
                              python-pydantic-2))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/meilisearch/meilisearch-python")
     (synopsis "The python client for Meilisearch API.")
     (description "The python client for Meilisearch API.")
