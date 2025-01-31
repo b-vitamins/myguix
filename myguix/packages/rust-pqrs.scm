@@ -14106,3 +14106,64 @@ implementation.")
      "This package provides a minimal Rust CLI for Apache @code{TinkerPopâ¢}.")
     (license license:asl2.0)))
 
+(define-public rust-torch-sys-0.19
+  (package
+    (name "rust-torch-sys")
+    (version "0.19.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "torch-sys" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1mfwq8i4nfpxfmlgxxmbnwkipxylw7gsadpm354hzmp3779ga57g"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
+                       ("rust-cc" ,rust-cc-1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-ureq" ,rust-ureq-2)
+                       ("rust-zip" ,rust-zip-0.6))))
+    (home-page "https://github.com/LaurentMazare/tch-rs")
+    (synopsis "Low-level FFI bindings for the PyTorch C++ api (libtorch)")
+    (description
+     "This package provides Low-level FFI bindings for the @code{PyTorch} C++ api (libtorch).")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-tch-0.19
+  (package
+    (name "rust-tch")
+    (version "0.19.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "tch" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0d2jvhpvaakj410r03kcrcpdik6cx7js1bxiz110qfzir0idc7ma"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-clap" ,rust-clap-4)
+                       ("rust-cpython" ,rust-cpython-0.7)
+                       ("rust-half" ,rust-half-2)
+                       ("rust-image" ,rust-image-0.24)
+                       ("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-memmap2" ,rust-memmap2-0.6)
+                       ("rust-ndarray" ,rust-ndarray-0.16)
+                       ("rust-rand" ,rust-rand-0.8)
+                       ("rust-regex" ,rust-regex-1)
+                       ("rust-safetensors" ,rust-safetensors-0.3)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-torch-sys" ,rust-torch-sys-0.19)
+                       ("rust-zip" ,rust-zip-0.6))
+       #:cargo-development-inputs (("rust-anyhow" ,rust-anyhow-1))))
+    (home-page "https://github.com/LaurentMazare/tch-rs")
+    (synopsis "Rust wrappers for the PyTorch C++ api (libtorch)")
+    (description
+     "This package provides Rust wrappers for the @code{PyTorch} C++ api (libtorch).")
+    (license (list license:expat license:asl2.0))))
