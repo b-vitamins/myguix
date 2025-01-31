@@ -13597,3 +13597,24 @@ implementation.")
     (description
      "This package provides a Rust client for Apache @code{TinkerPopâ¢}.")
     (license license:asl2.0)))
+
+(define-public rust-gremlin-derive-0.1
+  (package
+    (name "rust-gremlin-derive")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gremlin-derive" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "06925paqw25j5hnsp0k60894r1lvwi5rcva2w4zn407x5wq287fn"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-1))))
+    (home-page "https://github.com/wolf4ood/gremlin-rs")
+    (synopsis "Proc macro for gremlin-rsâ¢")
+    (description "This package provides Proc macro for gremlin-rsâ¢.")
+    (license license:asl2.0)))
