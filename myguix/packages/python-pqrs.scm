@@ -1793,3 +1793,46 @@ parallelism.")))
     (description
      "An extremely fast Python linter and code formatter, written in Rust.")
     (license license:expat)))
+
+(define-public python-cassandra-driver
+  (let ((geomet (package
+                  (name "python-geomet")
+                  (version "0.2.1")
+                  (source
+                   (origin
+                     (method url-fetch)
+                     (uri (pypi-uri "geomet" version))
+                     (sha256
+                      (base32
+                       "15q27jg6ca9f7gcsl3m4xjijgsvzvgk1rik7kx8cqv0binngxymd"))))
+                  (build-system pyproject-build-system)
+                  (arguments
+                   (list
+                    #:tests? #f))
+                  (propagated-inputs (list python-click python-six))
+                  (native-inputs (list python-setuptools python-wheel))
+                  (home-page "")
+                  (synopsis
+                   "Pure Python conversion library for common geospatial data formats")
+                  (description
+                   "Pure Python conversion library for common geospatial data formats.")
+                  (license license:asl2.0))))
+    (package
+      (name "python-cassandra-driver")
+      (version "3.29.2")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (pypi-uri "cassandra-driver" version))
+         (sha256
+          (base32 "0z4val3glqmwgw4m6arn848lk32q07sqx781zdiimxap0iyhlcf4"))))
+      (build-system pyproject-build-system)
+      (arguments
+       (list
+        #:tests? #f))
+      (propagated-inputs (list geomet))
+      (native-inputs (list python-setuptools python-wheel))
+      (home-page "http://github.com/datastax/python-driver")
+      (synopsis "DataStax Driver for Apache Cassandra")
+      (description "@code{DataStax} Driver for Apache Cassandra.")
+      (license license:asl2.0))))
