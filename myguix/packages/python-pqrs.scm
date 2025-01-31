@@ -1836,3 +1836,25 @@ parallelism.")))
       (synopsis "DataStax Driver for Apache Cassandra")
       (description "@code{DataStax} Driver for Apache Cassandra.")
       (license license:asl2.0))))
+
+(define-public python-gremlinpython
+  (package
+    (name "python-gremlinpython")
+    (version "3.7.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gremlinpython" version))
+       (sha256
+        (base32 "1x1yp3v1zz7nk7vra112cnha3aggc3i1b6pzvrrg1p4z178ln568"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-aenum python-aiohttp python-async-timeout
+                             python-isodate python-nest-asyncio))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://tinkerpop.apache.org")
+    (synopsis "Gremlin-Python for Apache TinkerPop")
+    (description "Gremlin-Python for Apache @code{TinkerPop}.")
+    (license license:asl2.0)))
