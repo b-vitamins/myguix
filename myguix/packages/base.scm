@@ -457,15 +457,7 @@
         rust-tikv-jemallocator-0.6
         rust-jemallocator-0.5
         rust-cxx-gen-0.7
-        rust-cxx-build-1
-        rust-cassandra-cpp-3
-        rust-gremlin-client-0.8
-        rust-gremlin-cli-0.1
-        rust-gremlin-derive-0.1
-        rust-solrstice-0.6
-        rust-meilisearch-sdk-0.27
-        rust-torch-sys-0.19
-        rust-tch-0.19))
+        rust-cxx-build-1))
 
 (define %python-packages
   (list python
