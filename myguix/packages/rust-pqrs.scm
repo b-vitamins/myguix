@@ -12242,3 +12242,1008 @@ computation (experimental).")
     (description
      "This package provides Filesystem fixtures and assertions for testing.")
     (license (list license:expat license:asl2.0))))
+
+(define-public rust-boolinator-2
+  (package
+    (name "rust-boolinator")
+    (version "2.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "boolinator" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1nccxzb1dfkjfrgzqaw1a90p26zlvv6nah5ckcpj6bn9a4zqga6g"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/DanielKeep/rust-boolinator")
+    (synopsis
+     "Provides the Boolinator trait, which lets you use Option and Result-style combinators with bools")
+    (description
+     "This package provides the Boolinator trait, which lets you use Option and
+Result-style combinators with bools.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-yew-macro-0.21
+  (package
+    (name "rust-yew-macro")
+    (version "0.21.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "yew-macro" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1qix6k8f8gzxb750icxvxknm3xrg8g7a4035g6gyasbd2sjqrz82"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-boolinator" ,rust-boolinator-2)
+                       ("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-prettyplease" ,rust-prettyplease-0.2)
+                       ("rust-proc-macro-error" ,rust-proc-macro-error-1)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/yewstack/yew")
+    (synopsis "framework for making client-side single-page apps")
+    (description
+     "This package provides a framework for making client-side single-page apps.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-anymap2-0.13
+  (package
+    (name "rust-anymap2")
+    (version "0.13.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "anymap2" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "031kw3bp0zh2pn9fcayaw0w0gydgpgfhm08pg4yz5cml9jwv60fk"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/azriel91/anymap2")
+    (synopsis "safe and convenient store for one value of each type")
+    (description
+     "This package provides a safe and convenient store for one value of each type.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-worker-0.2
+  (package
+    (name "rust-gloo-worker")
+    (version "0.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-worker" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0sjiw13069i7bpiyb03w3kyddn3q07fmj4vd60l1l1kqva21aiqk"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-anymap2" ,rust-anymap2-0.13)
+                       ("rust-bincode" ,rust-bincode-1)
+                       ("rust-gloo-console" ,rust-gloo-console-0.2)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.1)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with Web Workers")
+    (description
+     "This package provides Convenience crate for working with Web Workers.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-storage-0.2
+  (package
+    (name "rust-gloo-storage")
+    (version "0.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-storage" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1074j754a6c21sbmqws5qwaha0a13fikv17ps476zzfvyl5vcsjx"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-gloo-utils" ,rust-gloo-utils-0.1)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis
+     "Convenience crate for working with local and session storage in browser")
+    (description
+     "This package provides Convenience crate for working with local and session storage in browser.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-render-0.1
+  (package
+    (name "rust-gloo-render")
+    (version "0.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-render" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0r3pxj22l489ldakj6521a0f0n1r9v8xrai3k12d9kv7xxm31n9g"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis
+     "Convenience crate for working with browser's requestAnimationFrame")
+    (description
+     "This package provides Convenience crate for working with browser's @code{requestAnimationFrame}.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-net-0.3
+  (package
+    (name "rust-gloo-net")
+    (version "0.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-net" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0866ih3bff7dwxdfc813pk5nwz2ayyqwi5vbzlax7n4ygly4wsx6"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures-channel" ,rust-futures-channel-0.3)
+                       ("rust-futures-core" ,rust-futures-core-0.3)
+                       ("rust-futures-sink" ,rust-futures-sink-0.3)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.1)
+                       ("rust-http" ,rust-http-0.2)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-pin-project" ,rust-pin-project-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "HTTP requests library for WASM Apps")
+    (description "This package provides HTTP requests library for WASM Apps.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-serde-wasm-bindgen-0.5
+  (package
+    (name "rust-serde-wasm-bindgen")
+    (version "0.5.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "serde-wasm-bindgen" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "03m01y4l2kqz63pb1bip52j8bqilzlhhsa7asfdanmrwhgi47cgk"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2))))
+    (home-page "https://github.com/RReverser/serde-wasm-bindgen")
+    (synopsis "Native Serde adapter for wasm-bindgen")
+    (description
+     "This package provides Native Serde adapter for wasm-bindgen.")
+    (license license:expat)))
+
+(define-public rust-gloo-history-0.1
+  (package
+    (name "rust-gloo-history")
+    (version "0.1.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-history" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0zsy3m5bgah8hyd95sc9b68afn1nhs7g43lkndip1m0fpy85swl5"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-gloo-events" ,rust-gloo-events-0.1)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-wasm-bindgen" ,rust-serde-wasm-bindgen-0.5)
+                       ("rust-serde-urlencoded" ,rust-serde-urlencoded-0.7)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Universal Session History")
+    (description "This package provides Universal Session History.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-file-0.2
+  (package
+    (name "rust-gloo-file")
+    (version "0.2.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-file" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1mxnd7l8gglv5yqhah6ny329hc0c98vn7h5xg0yv8f0aax75dmd8"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures-channel" ,rust-futures-channel-0.3)
+                       ("rust-gloo-events" ,rust-gloo-events-0.1)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-mime" ,rust-mime-0.3)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with JavaScript files and blobs")
+    (description
+     "This package provides Convenience crate for working with @code{JavaScript} files and blobs.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-events-0.1
+  (package
+    (name "rust-gloo-events")
+    (version "0.1.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-events" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1z4j14r2lim77s0jm1dpk306jyycmx2kirid33j0b0gdmgw0gcb8"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with DOM event listeners")
+    (description
+     "This package provides Convenience crate for working with DOM event listeners.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-dialogs-0.1
+  (package
+    (name "rust-gloo-dialogs")
+    (version "0.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-dialogs" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1rh2j0l8rbj8pbypxqy99qi2x3hq52sclijs8h47zlkjmij261k7"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with dialogs in browser")
+    (description
+     "This package provides Convenience crate for working with dialogs in browser.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-utils-0.1
+  (package
+    (name "rust-gloo-utils")
+    (version "0.1.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-utils" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "13m59g36spynspvhx0xsaahbkdshn1v03gcjf87s7cvc443wnzq3"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for common `web_sys` features")
+    (description
+     "This package provides Convenience crate for common `web_sys` features.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-console-0.2
+  (package
+    (name "rust-gloo-console")
+    (version "0.2.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-console" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0gqd35vn0i5y6hzfrsb2i032p1j832c08sar6dr19gny0lycxdw2"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-gloo-utils" ,rust-gloo-utils-0.1)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with browser's console")
+    (description
+     "This package provides Convenience crate for working with browser's console.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-0.8
+  (package
+    (name "rust-gloo")
+    (version "0.8.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0kdr8ahxl77fby89fvfwq13kqqyyw63pnjpv6gynz4gnbvd9r698"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-gloo-console" ,rust-gloo-console-0.2)
+                       ("rust-gloo-dialogs" ,rust-gloo-dialogs-0.1)
+                       ("rust-gloo-events" ,rust-gloo-events-0.1)
+                       ("rust-gloo-file" ,rust-gloo-file-0.2)
+                       ("rust-gloo-history" ,rust-gloo-history-0.1)
+                       ("rust-gloo-net" ,rust-gloo-net-0.3)
+                       ("rust-gloo-render" ,rust-gloo-render-0.1)
+                       ("rust-gloo-storage" ,rust-gloo-storage-0.2)
+                       ("rust-gloo-timers" ,rust-gloo-timers-0.2)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.1)
+                       ("rust-gloo-worker" ,rust-gloo-worker-0.2))))
+    (home-page "https://gloo-rs.web.app/")
+    (synopsis "modular toolkit for Rust and WebAssembly")
+    (description
+     "This package provides a modular toolkit for Rust and @code{WebAssembly}.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-prokio-0.1
+  (package
+    (name "rust-prokio")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "prokio" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "127l9k5076xwlaf0b64hw3l14wqjss2krldb2ddgm4apdq85xd83"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures" ,rust-futures-0.3)
+                       ("rust-gloo" ,rust-gloo-0.8)
+                       ("rust-num-cpus" ,rust-num-cpus-1)
+                       ("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-pin-project" ,rust-pin-project-1)
+                       ("rust-pinned" ,rust-pinned-0.1)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-tokio-stream" ,rust-tokio-stream-0.1)
+                       ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4))))
+    (home-page "https://github.com/futursolo/prokio")
+    (synopsis
+     "An asynchronous runtime compatible with WebAssembly and non-WebAssembly targets")
+    (description
+     "This package provides An asynchronous runtime compatible with @code{WebAssembly} and
+non-@code{WebAssembly} targets.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-implicit-clone-derive-0.1
+  (package
+    (name "rust-implicit-clone-derive")
+    (version "0.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "implicit-clone-derive" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0fsfj6n56mg92f3899gcdck1dqlsmgyd52k0n2xhhj53p5g6h4ck"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/yewstack/implicit-clone")
+    (synopsis "Immutable types and ImplicitClone trait similar to Copy")
+    (description
+     "This package provides Immutable types and @code{ImplicitClone} trait similar to Copy.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-implicit-clone-0.4
+  (package
+    (name "rust-implicit-clone")
+    (version "0.4.9")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "implicit-clone" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "113agd9bqk7c0s2rqgarzkfp3wgbzl3q59mp6sv72nkv3iwsmagq"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-implicit-clone-derive" ,rust-implicit-clone-derive-0.1)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-serde" ,rust-serde-1))))
+    (home-page "https://github.com/yewstack/implicit-clone")
+    (synopsis "Immutable types and ImplicitClone trait similar to Copy")
+    (description
+     "This package provides Immutable types and @code{ImplicitClone} trait similar to Copy.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-pinned-0.1
+  (package
+    (name "rust-pinned")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pinned" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0nsrxs49dhjjz1gvg0pvac2rcidnwwd8l99y7vhwym2yv5xh4ad8"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures" ,rust-futures-0.3)
+                       ("rust-rustversion" ,rust-rustversion-1)
+                       ("rust-thiserror" ,rust-thiserror-1))))
+    (home-page "https://github.com/futursolo/pinned")
+    (synopsis "Synchronisation primitives for !Send tasks")
+    (description
+     "This package provides Synchronisation primitives for !Send tasks.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-worker-macros-0.1
+  (package
+    (name "rust-gloo-worker-macros")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-worker-macros" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1rs0f6b34mkhlmpmhqi747c34000sd5mxma92yacjyw5sicalv4m"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro-crate" ,rust-proc-macro-crate-1)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with Web Workers")
+    (description
+     "This package provides Convenience crate for working with Web Workers.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-worker-0.4
+  (package
+    (name "rust-gloo-worker")
+    (version "0.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-worker" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "00744js1jcwdndzf22c8gzml7aqql4ymjfpsd2i1vrbxv0ymsjbn"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-bincode" ,rust-bincode-1)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.2)
+                       ("rust-gloo-worker-macros" ,rust-gloo-worker-macros-0.1)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-pinned" ,rust-pinned-0.1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with Web Workers")
+    (description
+     "This package provides Convenience crate for working with Web Workers.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-storage-0.3
+  (package
+    (name "rust-gloo-storage")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-storage" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0yi7740iza6nyg6n8sxzzhy6yg6xpbxhig7r2bwqlxcjihg07j7v"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-gloo-utils" ,rust-gloo-utils-0.2)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis
+     "Convenience crate for working with local and session storage in browser")
+    (description
+     "This package provides Convenience crate for working with local and session storage in browser.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-render-0.2
+  (package
+    (name "rust-gloo-render")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-render" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0cwqcka7l5p29idq174c6mi5cgal0rywngdck26qwfki8ikqn02n"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis
+     "Convenience crate for working with browser's requestAnimationFrame")
+    (description
+     "This package provides Convenience crate for working with browser's @code{requestAnimationFrame}.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-net-0.4
+  (package
+    (name "rust-gloo-net")
+    (version "0.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-net" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1i3x5fvp07valrxjsa25ycq1b2p3pxqaqmw6kzx35ip2i8lfijca"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures-channel" ,rust-futures-channel-0.3)
+                       ("rust-futures-core" ,rust-futures-core-0.3)
+                       ("rust-futures-sink" ,rust-futures-sink-0.3)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.2)
+                       ("rust-http" ,rust-http-0.2)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-pin-project" ,rust-pin-project-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "HTTP requests library for WASM Apps")
+    (description "This package provides HTTP requests library for WASM Apps.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-history-0.2
+  (package
+    (name "rust-gloo-history")
+    (version "0.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-history" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1mhphqywgbqj4agpi4zyc4hah12nys7085jymiz44d5swlml6gwh"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-getrandom" ,rust-getrandom-0.2)
+                       ("rust-gloo-events" ,rust-gloo-events-0.2)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.2)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-wasm-bindgen" ,rust-serde-wasm-bindgen-0.6)
+                       ("rust-serde-urlencoded" ,rust-serde-urlencoded-0.7)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Universal Session History")
+    (description "This package provides Universal Session History.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-file-0.3
+  (package
+    (name "rust-gloo-file")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-file" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "07xxainnnrg6l3ccw2bvqiz4m76ih557aklp5r5q5cizhrqksmlp"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures-channel" ,rust-futures-channel-0.3)
+                       ("rust-gloo-events" ,rust-gloo-events-0.2)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-mime" ,rust-mime-0.3)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with JavaScript files and blobs")
+    (description
+     "This package provides Convenience crate for working with @code{JavaScript} files and blobs.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-events-0.2
+  (package
+    (name "rust-gloo-events")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-events" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0h8yr4n1pvwp4rr87835w14kjdkycyn8gypmh2lmnf3wbys6zhi7"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with DOM event listeners")
+    (description
+     "This package provides Convenience crate for working with DOM event listeners.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-dialogs-0.2
+  (package
+    (name "rust-gloo-dialogs")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-dialogs" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1pqmg2z3x4c3id25jd0p8rjwy5qjbc4k1x8gflsi9c1207hlhixz"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with dialogs in browser")
+    (description
+     "This package provides Convenience crate for working with dialogs in browser.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-utils-0.2
+  (package
+    (name "rust-gloo-utils")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-utils" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1am31cd6889shb7158bg9zzsjcpvyzxrhfhxgia8rc8k84smam8b"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for common `web_sys` features")
+    (description
+     "This package provides Convenience crate for common `web_sys` features.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-console-0.3
+  (package
+    (name "rust-gloo-console")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo-console" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0qg24wbvql0bsr980hbrm0pi11c3jmlwpj0pgdklz8mlas7qc5ra"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-gloo-utils" ,rust-gloo-utils-0.2)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-web-sys" ,rust-web-sys-0.3))))
+    (home-page "https://github.com/rustwasm/gloo")
+    (synopsis "Convenience crate for working with browser's console")
+    (description
+     "This package provides Convenience crate for working with browser's console.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-gloo-0.10
+  (package
+    (name "rust-gloo")
+    (version "0.10.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "gloo" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0j82hwfn6ibqla1q849vhsmxnxw6wmnjkmmffzdw2mfc51n54dfd"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-gloo-console" ,rust-gloo-console-0.3)
+                       ("rust-gloo-dialogs" ,rust-gloo-dialogs-0.2)
+                       ("rust-gloo-events" ,rust-gloo-events-0.2)
+                       ("rust-gloo-file" ,rust-gloo-file-0.3)
+                       ("rust-gloo-history" ,rust-gloo-history-0.2)
+                       ("rust-gloo-net" ,rust-gloo-net-0.4)
+                       ("rust-gloo-render" ,rust-gloo-render-0.2)
+                       ("rust-gloo-storage" ,rust-gloo-storage-0.3)
+                       ("rust-gloo-timers" ,rust-gloo-timers-0.3)
+                       ("rust-gloo-utils" ,rust-gloo-utils-0.2)
+                       ("rust-gloo-worker" ,rust-gloo-worker-0.4))))
+    (home-page "https://gloo-rs.web.app/")
+    (synopsis "modular toolkit for Rust and WebAssembly")
+    (description
+     "This package provides a modular toolkit for Rust and @code{WebAssembly}.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-yew-0.21
+  (package
+    (name "rust-yew")
+    (version "0.21.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "yew" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1b0ccqqlyyhcrk0l6d8jch2xwbhl5wliabn6x6ipl367apr066jz"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-base64ct" ,rust-base64ct-1)
+                       ("rust-bincode" ,rust-bincode-1)
+                       ("rust-console-error-panic-hook" ,rust-console-error-panic-hook-0.1)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-gloo" ,rust-gloo-0.10)
+                       ("rust-html-escape" ,rust-html-escape-0.2)
+                       ("rust-implicit-clone" ,rust-implicit-clone-0.4)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-js-sys" ,rust-js-sys-0.3)
+                       ("rust-prokio" ,rust-prokio-0.1)
+                       ("rust-rustversion" ,rust-rustversion-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-slab" ,rust-slab-0.4)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-tracing" ,rust-tracing-0.1)
+                       ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                       ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4)
+                       ("rust-web-sys" ,rust-web-sys-0.3)
+                       ("rust-yew-macro" ,rust-yew-macro-0.21))))
+    (home-page "https://yew.rs")
+    (synopsis "framework for creating reliable and efficient web applications")
+    (description
+     "This package provides a framework for creating reliable and efficient web
+applications.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-futures-await-test-macro-0.3
+  (package
+    (name "rust-futures-await-test-macro")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "futures-await-test-macro" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0ff8g0rlgxh7shd9v2pm685klmnwwh00wm9l0d8009l3wrsh25ag"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-1))))
+    (home-page "https://github.com/ngg/futures-await-test")
+    (synopsis "Helper crate for futures-await-test.")
+    (description "This package provides Helper crate for futures-await-test.")
+    (license license:expat)))
+
+(define-public rust-futures-await-test-0.3
+  (package
+    (name "rust-futures-await-test")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "futures-await-test" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1s6790zdmah6yikkm70na20w2r01yakz9r41llmmffp7ph2ks3df"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-futures-await-test-macro" ,rust-futures-await-test-macro-0.3)
+                       ("rust-futures-executor" ,rust-futures-executor-0.3))))
+    (home-page "https://github.com/ngg/futures-await-test")
+    (synopsis
+     "Async test support for Rust through a procedural macro. This crate defines the
+`#[async_test]` attribute to make writing tests that use async/await easier.")
+    (description
+     "This package provides Async test support for Rust through a procedural macro.  This crate defines the
+`#[async_test]` attribute to make writing tests that use async/await easier.")
+    (license license:expat)))
+
+(define-public rust-big-s-1
+  (package
+    (name "rust-big-s")
+    (version "1.0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "big_s" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1a2igv4pddakvshmp69jyxxrhzcbpjhfc8i41jqq64k3j1xxp7hr"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/brson/big_s")
+    (synopsis "Rust's missing `String` literal")
+    (description "This package provides Rust's missing `String` literal.")
+    (license (list license:expat license:asl2.0 license:cc0))))
+
+(define-public rust-yaup-0.3
+  (package
+    (name "rust-yaup")
+    (version "0.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "yaup" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1immam40n4dp6vsr4cj68csb8c6rxmsdl90hn9n896d12qd4y55h"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-form-urlencoded" ,rust-form-urlencoded-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-thiserror" ,rust-thiserror-1))))
+    (home-page "https://github.com/meilisearch/yaup")
+    (synopsis "URL parameters serialization")
+    (description "This package provides URL parameters serialization.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-meilisearch-index-setting-macro-0.27
+  (package
+    (name "rust-meilisearch-index-setting-macro")
+    (version "0.27.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "meilisearch-index-setting-macro" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0mbympkini51y6pd9p2mg7bvr9vy0ghw1ng04mjwr0dga838qvh5"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-convert-case" ,rust-convert-case-0.6)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-structmeta" ,rust-structmeta-0.3)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/meilisearch/meilisearch-rust")
+    (synopsis "Helper tool to generate settings of a Meilisearch index")
+    (description
+     "This package provides Helper tool to generate settings of a Meilisearch index.")
+    (license license:expat)))
+
+(define-public rust-meilisearch-sdk-0.27
+  (package
+    (name "rust-meilisearch-sdk")
+    (version "0.27.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "meilisearch-sdk" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "014kc558pkmzj55mcpzidybxqh8vcsl7gqzc5m7jnwcdhxaq55b6"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-async-trait" ,rust-async-trait-0.1)
+                       ("rust-bytes" ,rust-bytes-1)
+                       ("rust-either" ,rust-either-1)
+                       ("rust-futures" ,rust-futures-0.3)
+                       ("rust-futures-io" ,rust-futures-io-0.3)
+                       ("rust-iso8601" ,rust-iso8601-0.6)
+                       ("rust-jsonwebtoken" ,rust-jsonwebtoken-9)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-meilisearch-index-setting-macro" ,rust-meilisearch-index-setting-macro-0.27)
+                       ("rust-pin-project-lite" ,rust-pin-project-lite-0.2)
+                       ("rust-reqwest" ,rust-reqwest-0.12)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-time" ,rust-time-0.3)
+                       ("rust-uuid" ,rust-uuid-1)
+                       ("rust-uuid" ,rust-uuid-1)
+                       ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4)
+                       ("rust-web-sys" ,rust-web-sys-0.3)
+                       ("rust-yaup" ,rust-yaup-0.3))
+       #:cargo-development-inputs (("rust-big-s" ,rust-big-s-1)
+                                   ("rust-console-error-panic-hook" ,rust-console-error-panic-hook-0.1)
+                                   ("rust-futures" ,rust-futures-0.3)
+                                   ("rust-futures-await-test" ,rust-futures-await-test-0.3)
+                                   ("rust-insta" ,rust-insta-1)
+                                   ("rust-lazy-static" ,rust-lazy-static-1)
+                                   ("rust-mockito" ,rust-mockito-1)
+                                   ("rust-tokio" ,rust-tokio-1)
+                                   ("rust-wasm-bindgen" ,rust-wasm-bindgen-0.2)
+                                   ("rust-wasm-bindgen-futures" ,rust-wasm-bindgen-futures-0.4)
+                                   ("rust-web-sys" ,rust-web-sys-0.3)
+                                   ("rust-yew" ,rust-yew-0.21))))
+    (home-page "https://github.com/meilisearch/meilisearch-sdk")
+    (synopsis
+     "Rust wrapper for the Meilisearch API. Meilisearch is a powerful, fast, open-source, easy to use and deploy search engine")
+    (description
+     "This package provides Rust wrapper for the Meilisearch API. Meilisearch is a powerful, fast,
+open-source, easy to use and deploy search engine.")
+    (license license:expat)))
