@@ -13336,3 +13336,79 @@ open-source, easy to use and deploy search engine.")
     (synopsis "Solr 8+ client")
     (description "This package provides a Solr 8+ client.")
     (license (list license:expat license:asl2.0))))
+
+(define-public rust-logtest-2
+  (package
+    (name "rust-logtest")
+    (version "2.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "logtest" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "09ihwkq6z7xm6wdwxmc9mz74lsl20g5bi7fcdm8n87bwcnl46gpb"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-log" ,rust-log-0.4))))
+    (home-page "https://github.com/yoshuawuyts/logtest")
+    (synopsis "Test and assert log statements")
+    (description "This package provides Test and assert log statements.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-cassandra-cpp-sys-1
+  (package
+    (name "rust-cassandra-cpp-sys")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "cassandra-cpp-sys" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1kg2nwpw6z9da1bbgv5cxzc98a9rrakxsicrv1slfv6nkn2vqhb1"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t))
+    (home-page "https://github.com/cassandra-rs/cassandra-sys-rs")
+    (synopsis
+     "bindgen-generated Rust wrapper around the DataStax Cassandra C++ driver plus working examples. You probably want to use the \"cassandra-cpp\" crate which provides a safe wrapper.")
+    (description
+     "This package provides a bindgen-generated Rust wrapper around the
+@code{DataStax} Cassandra C++ driver plus working examples.  You probably want
+to use the \"cassandra-cpp\" crate which provides a safe wrapper.")
+    (license license:asl2.0)))
+
+(define-public rust-cassandra-cpp-3
+  (package
+    (name "rust-cassandra-cpp")
+    (version "3.0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "cassandra-cpp" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1asfa9vwkinwy2jvj03zglnmlfzldpsnmrrn4nkks9waqmxv8hfk"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-bigdecimal" ,rust-bigdecimal-0.4)
+                       ("rust-cassandra-cpp-sys" ,rust-cassandra-cpp-sys-1)
+                       ("rust-error-chain" ,rust-error-chain-0.12)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-parking-lot" ,rust-parking-lot-0.12)
+                       ("rust-slog" ,rust-slog-2)
+                       ("rust-uuid" ,rust-uuid-1))
+       #:cargo-development-inputs (("rust-futures" ,rust-futures-0.3)
+                                   ("rust-logtest" ,rust-logtest-2)
+                                   ("rust-tokio" ,rust-tokio-1))))
+    (home-page "https://github.com/cassandra-rs/cassandra-rs")
+    (synopsis
+     "Cassandra CQL driver, built on top of the DataStax C++ driver for performance and functionality.")
+    (description
+     "This package provides a Cassandra CQL driver, built on top of the
+@code{DataStax} C++ driver for performance and functionality.")
+    (license license:asl2.0)))
