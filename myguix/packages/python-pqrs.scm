@@ -547,23 +547,6 @@ as well.")
     (description "Universal encoding detector for Python 3.")
     (license #f)))
 
-(define-public python-idna
-  (package
-    (name "python-idna")
-    (version "2.8")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "idna" version))
-       (sha256
-        (base32 "01rlkigdxg17sf9yar1jl8n18ls59367wqh59hnawlyg53vb6my3"))))
-    (build-system pyproject-build-system)
-    (native-inputs (list python-setuptools python-wheel))
-    (home-page "https://github.com/kjd/idna")
-    (synopsis "Internationalized Domain Names in Applications (IDNA)")
-    (description "Internationalized Domain Names in Applications (IDNA).")
-    (license #f)))
-
 (define-public python-urllib3
   (package
     (name "python-urllib3")
