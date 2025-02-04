@@ -211,30 +211,6 @@
 @code{Decord} is also able to decode audio from both video and audio files. One can slice video and audio together to get a synchronized result; hence providing a one-stop solution for both video and audio decoding.")
     (license license:asl2.0)))
 
-(define-public python-attrs
-  (package
-    (name "python-attrs")
-    (version "23.2.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "attrs" version))
-       (sha256
-        (base32 "0c0zjwcqzbmpl93izm2g37gc3lsbbb9pf275fv7zcqn256sw6pck"))))
-    (build-system pyproject-build-system)
-    (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
-                         python-hatch-vcs))
-    (arguments
-     (list
-      #:tests? #f))
-    (home-page "https://github.com/python-attrs/attrs/")
-    (synopsis "Attributes without boilerplate")
-    (description
-     "@code{attrs} is a Python package with class decorators that
-     ease the chores of implementing the most common attribute-related object
-     protocols.")
-    (license license:expat)))
-
 (define-public python-lsprotocol
   (package
     (name "python-lsprotocol")
