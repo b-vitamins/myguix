@@ -52,7 +52,7 @@
   #:use-module (gnu packages xml)
   #:use-module (gnu packages xorg)
   #:use-module ((guix build utils)
-                #:hide (which))
+                #:hide (which delete))
   #:use-module (guix build-system go)
   #:use-module (guix build-system linux-module)
   #:use-module (guix build-system cmake)
