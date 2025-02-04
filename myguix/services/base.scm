@@ -56,8 +56,7 @@
    (service nscd-service-type)
    (service syslog-service-type)
    (service guix-service-type
-            (guix-configuration (channels %my-channels)
-                                (build-accounts 12)
+            (guix-configuration (build-accounts 12)
                                 (tmpdir "/tmp")))
    (service udev-service-type
             (udev-configuration (rules (list (specification->package "lvm2")
