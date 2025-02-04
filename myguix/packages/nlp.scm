@@ -30,8 +30,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
-  #:use-module ((myguix packages python-pqrs)
-                #:hide (python-requests)))
+  #:use-module (myguix packages python-pqrs))
 
 (define-public whisper-cpp
   (package
