@@ -64,8 +64,8 @@
   #:use-module (myguix packages maths)
   #:use-module (myguix packages nvidia)
   #:use-module ((myguix packages python-pqrs)
-                #:hide (python-requests python-attrs python-idna python-jedi
-                                        python-urllib3 python-optree))
+                #:hide (python-attrs python-idna python-jedi python-urllib3
+                                     python-optree))
   #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages video)
   #:use-module (myguix packages bazel)

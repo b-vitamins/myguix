@@ -668,28 +668,6 @@ as well.")
      "HTTP library with thread-safe connection pooling, file post, and more.")
     (license #f)))
 
-(define-public python-requests
-  (package
-    (name "python-requests")
-    (version "2.22.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "requests" version))
-       (sha256
-        (base32 "1d5ybh11jr5sm7xp6mz8fyc7vrp4syifds91m7sj60xalal0gq0i"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f))
-    (propagated-inputs (list python-certifi python-chardet python-idna
-                             python-urllib3))
-    (native-inputs (list python-setuptools python-wheel))
-    (home-page "https://requests.readthedocs.io")
-    (synopsis "Python HTTP for Humans.")
-    (description "Python HTTP for Humans.")
-    (license #f)))
-
 (define-public python-deprecated
   (package
     (name "python-deprecated")
