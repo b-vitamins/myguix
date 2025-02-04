@@ -414,28 +414,6 @@ as well.")
     (description "Bibtex parser for python 3.")
     (license license:expat)))
 
-(define-public python-requests-2.25
-  (package
-    (name "python-requests")
-    (version "2.25.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "requests" version))
-       (sha256
-        (base32 "1y6mb8c0ipd64d5axq2p368yxndp3f966hmabjka2q2a5y9hn6kz"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f))
-    (propagated-inputs (list python-certifi python-chardet python-idna
-                             python-urllib3))
-    (native-inputs (list python-setuptools python-wheel))
-    (home-page "https://requests.readthedocs.io")
-    (synopsis "Python HTTP for Humans.")
-    (description "Python HTTP for Humans.")
-    (license #f)))
-
 (define-public python-types-tqdm
   (package
     (name "python-types-tqdm")
