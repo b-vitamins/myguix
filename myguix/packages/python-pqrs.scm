@@ -512,28 +512,6 @@ glass')")
     (description "Universal encoding detector for Python 3.")
     (license #f)))
 
-(define-public python-urllib3
-  (package
-    (name "python-urllib3")
-    (version "1.25.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "urllib3" version))
-       (sha256
-        (base32 "1nq2k4pss1ihsjh02r41sqpjpm5rfqkjfysyq7g7n2i1p7c66c55"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f))
-    (native-inputs (list python-setuptools python-wheel))
-    (home-page "https://github.com/urllib3")
-    (synopsis
-     "HTTP library with thread-safe connection pooling, file post, and more.")
-    (description
-     "HTTP library with thread-safe connection pooling, file post, and more.")
-    (license #f)))
-
 (define-public python-deprecated
   (package
     (name "python-deprecated")
