@@ -436,41 +436,6 @@ as well.")
     (description "Python HTTP for Humans.")
     (license #f)))
 
-(define-public python-scholarly
-  (package
-    (name "python-scholarly")
-    (version "1.7.11")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/scholarly-python-package/scholarly")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1pzgqc1c6sd06bqlrddk425v2vlvx80fzjp1n7q2iha6ggmv1xya"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f))
-    (propagated-inputs (list python-requests-2.25
-                             python-arrow
-                             python-beautifulsoup4
-                             python-bibtexparser-1
-                             python-deprecated
-                             python-fake-useragent
-                             python-free-proxy
-                             python-httpx
-                             python-dotenv
-                             python-selenium
-                             python-sphinx-rtd-theme
-                             python-typing-extensions))
-    (native-inputs (list python-setuptools python-wheel))
-    (home-page "https://github.com/scholarly-python-package/scholarly")
-    (synopsis "Simple access to Google Scholar authors and citations")
-    (description "Simple access to Google Scholar authors and citations")
-    (license #f)))
-
 (define-public python-types-tqdm
   (package
     (name "python-types-tqdm")
