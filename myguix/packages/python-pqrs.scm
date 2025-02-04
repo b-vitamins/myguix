@@ -298,41 +298,6 @@ glass')")
     (description "On the fly conversion of Python docstrings to markdown")
     (license license:lgpl2.1)))
 
-(define-public python-jedi
-  (package
-    (name "python-jedi")
-    (version "0.19.2")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/davidhalter/jedi")
-             (commit (string-append "v" version))
-             (recursive? #t)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0w8rrw6s4bzr5csds8bhasrmzh9q77zh5dzisjysl8cb5qjx0w6s"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:phases '(modify-phases %standard-phases
-                  (add-before 'check 'set-HOME
-                    (lambda _
-                      (setenv "HOME" "/tmp"))))))
-    (native-inputs (list python-docopt python-pytest python-setuptools
-                         python-wheel))
-    (propagated-inputs (list python-parso))
-    (home-page "https://github.com/davidhalter/jedi")
-    (synopsis "Autocompletion and static analysis library for Python")
-    (description
-     "Jedi is a static analysis tool for Python that can be used in Integrated
-Development Environments (@dfn{IDE}s) and text editors.  It understands Python
-on a deeper level than many other static analysis frameworks for Python.
-
-Jedi understands docstrings and you can use Jedi autocompletion in your REPL
-as well.")
-    (license license:expat)))
-
 (define-public python-jedi-language-server
   (package
     (name "python-jedi-language-server")
