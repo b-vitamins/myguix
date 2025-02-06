@@ -58,6 +58,7 @@
         emacs-elfeed-score
         emacs-emacsql
         emacs-embark
+        emacs-engrave-faces
         emacs-eval-in-repl-geiser
         emacs-exec-path-from-shell
         emacs-f
