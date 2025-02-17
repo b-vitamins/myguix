@@ -56,7 +56,7 @@
     (arguments
      (list
       #:validate-runpath? #f ;TODO: fails on wrapped binary and included other files
-      #:wrapper-plan #~'("lib/Element/element-desktop")
+      #:wrapper-plan #~'(("lib/Element/element-desktop" (("out" "/lib/Element"))))
       #:phases #~(modify-phases %standard-phases
                    (add-after 'binary-unpack 'setup-cwd
                      (lambda _
@@ -74,15 +74,7 @@
                        (mkdir-p (string-append #$output "/bin"))
                        (symlink (string-append #$output
                                                "/lib/Element/element-desktop")
-                                (string-append #$output "/bin/element-desktop"))))
-                   (add-after 'install-wrapper 'wrap-where-patchelf-does-not-work
-                     (lambda _
-                       (wrap-program (string-append #$output
-                                      "/lib/Element/element-desktop")
-                         `("LD_LIBRARY_PATH" ":" prefix
-                           (,(string-join (list (string-append #$output
-                                                               "/lib/Element"))
-                                          ":")))))))))
+                                (string-append #$output "/bin/element-desktop")))))))
     (home-page "https://github.com/vector-im/element-desktop")
     (synopsis "Matrix collaboration client for desktop")
     (description
