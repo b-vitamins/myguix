@@ -615,7 +615,7 @@ Release (ESR) version.")
                        "firefox-esr-compare-paths.patch"
                        "firefox-use-system-wide-dir.patch")))
        (sha256
-        (base32 "0q5r2q6q56kyzl5pknrir9bzlhmzbvv9hi5gi4852izgcali4zl2f"))))
+        (base32 "0q5r2q6q56kyzl5pknrir9bzlhmzbvv9hi5gi4852izgcali4zl2"))))
     (arguments
      (substitute-keyword-arguments (package-arguments firefox-esr)
        ((#:phases phases)
