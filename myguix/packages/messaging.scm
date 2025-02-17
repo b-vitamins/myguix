@@ -113,7 +113,7 @@ its core.")
     (arguments
      (list
       #:validate-runpath? #f ;TODO: fails on wrapped binary and included other files
-      #:wrapper-plan #~'("lib/Signal/signal-desktop")
+      #:wrapper-plan #~'(("lib/Signal/signal-desktop" (("out" "/lib/Signal"))))
       #:phases #~(modify-phases %standard-phases
                    (add-after 'binary-unpack 'setup-cwd
                      (lambda _
@@ -131,15 +131,7 @@ its core.")
                        (mkdir-p (string-append #$output "/bin"))
                        (symlink (string-append #$output
                                                "/lib/Signal/signal-desktop")
-                                (string-append #$output "/bin/signal-desktop"))))
-                   (add-after 'install-wrapper 'wrap-where-patchelf-does-not-work
-                     (lambda _
-                       (wrap-program (string-append #$output
-                                      "/lib/Signal/signal-desktop")
-                         `("LD_LIBRARY_PATH" ":" prefix
-                           (,(string-join (list (string-append #$output
-                                                               "/lib/Signal"))
-                                          ":")))))))))
+                                (string-append #$output "/bin/signal-desktop")))))))
     (home-page "https://signal.org/")
     (synopsis "Private messenger using the Signal protocol")
     (description
