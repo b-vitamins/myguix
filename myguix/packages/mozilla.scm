@@ -197,8 +197,7 @@
                          ;; It defaults to Google Location Services, but misses a necessary
                          ;; API key.
                          (write-setting "geo.provider.network.url"
-                          "\"https://api.beacondb.net/v1/geolocate\"")
-
+                          "\"https://api.beacondb.net/v1/geolocate?key=firefox_nonguix.org\"")
                          (close-port port))))
                    (add-after 'fix-preferences 'fix-ffmpeg-runtime-linker
                      (lambda* (#:key inputs #:allow-other-keys)
@@ -481,10 +480,6 @@ StartupWMClass=Firefox"))
       ;; Test will significantly increase build time but with little rewards.
       #:tests? #f
 
-      ;; WARNING: Parallel build will consume lots of memory!
-      ;; If you have encountered OOM issue in build phase, try disable it.
-      ;; #:parallel-build? #f
-      
       ;; Some dynamic lib was determined at runtime, so rpath check may fail.
       #:validate-runpath? #f))
     (inputs (list bzip2
