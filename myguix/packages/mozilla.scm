@@ -21,6 +21,7 @@
 ;;; Copyright © 2021, 2022, 2023 John Kehayias <john.kehayias@protonmail.com>
 ;;; Copyright © 2022 Pierre Langlois <pierre.langlois@gmx.com>
 ;;; Copyright © 2023 Tomas Volf <wolf@wolfsden.cz>
+;;; Copyright © 2025 Nicolas Graves <ngraves@ngraves.fr>
 
 (define-module (myguix packages mozilla)
   #:use-module (srfi srfi-26)
@@ -346,9 +347,9 @@
                      (lambda* (#:key (make-flags '())
                                (parallel-build? #t) #:allow-other-keys)
                        (apply invoke "./mach" "build"
-                              ;; mach will use parallel build if possible by default
                               `(,@(if parallel-build?
-                                      '()
+                                      `(,(string-append "-j"
+                                                        (number->string (parallel-job-count))))
                                       '("-j1")) ,@make-flags))))
                    (add-after 'build 'neutralise-store-references
                      (lambda _
@@ -595,13 +596,13 @@ Release (ESR) version.")
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-build-id
-  "20250203132324")
+  "20250218001747")
 
 (define-public firefox
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "135.0")
+    (version "135.0.1")
     (source
      (origin
        (method url-fetch)
@@ -615,7 +616,7 @@ Release (ESR) version.")
                        "firefox-esr-compare-paths.patch"
                        "firefox-use-system-wide-dir.patch")))
        (sha256
-        (base32 "0q5r2q6q56kyzl5pknrir9bzlhmzbvv9hi5gi4852izgcali4zl2"))))
+        (base32 "01krqfx3havzknjl45affmlhl3dkk3is951iy3rr1qrvrvfxzyvl"))))
     (arguments
      (substitute-keyword-arguments (package-arguments firefox-esr)
        ((#:phases phases)
