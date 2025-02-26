@@ -170,15 +170,16 @@ found in Pinebook Pro.")
     (build-system gnu-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'install-license-files 'relocate-copyright
-                     (lambda* _
-                       (install-file (string-append #$output
-                                      "/lib/firmware/BCM-LEGAL.txt")
-                                     (string-append #$output
-                                      "/share/doc/bluez-firmware-"
-                                      #$(package-version bluez-firmware)
-                                      "/BCM-LEGAL.txt")))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install-license-files 'relocate-copyright
+            (lambda* _
+              (install-file (string-append #$output
+                                           "/lib/firmware/BCM-LEGAL.txt")
+                            (string-append #$output
+                                           "/share/doc/bluez-firmware-"
+                                           #$(package-version bluez-firmware)
+                                           "/BCM-LEGAL.txt")))))))
     (synopsis "Firmware for Broadcom BCM203x and STLC2300 Bluetooth chips")
     (description "This package provides firmware for Broadcom BCM203x
 and STLC2300 Bluetooth chips.")
@@ -214,7 +215,8 @@ and STLC2300 Bluetooth chips.")
     (arguments
      (list
       #:substitutable? #f
-      #:install-plan #~'(("firmware.bin" "/lib/firmware/facetimehd/"))
+      #:install-plan
+      #~'(("firmware.bin" "/lib/firmware/facetimehd/"))
       #:phases (let ((dmg-subset-size 207733123)
                      (dmg-subset-offset 204909802)
                      (firmware-size 603715)
@@ -276,8 +278,9 @@ patjak's facetimehd wiki} for more information.")
     (build-system copy-build-system)
     (arguments
      (list
-      #:install-plan #~'(("." "/lib/firmware/facetimehd/"
-                          #:include-regexp ("[0-9]{4}_01XX\\.dat")))
+      #:install-plan
+      #~'(("." "/lib/firmware/facetimehd/"
+           #:include-regexp ("[0-9]{4}_01XX\\.dat")))
       #:phases (let ((calibration-files '(("1771_01XX.dat" 19040 1644880)
                                           ("1871_01XX.dat" 19040 1606800)
                                           ("1874_01XX.dat" 19040 1625840)

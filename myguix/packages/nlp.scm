@@ -222,13 +222,14 @@
                   ((guix build pyproject-build-system)
                    #:prefix py:)
                   (guix build utils))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'build 'build-python-module
-                     (assoc-ref py:%standard-phases
-                                'build))
-                   (add-after 'build-python-module 'install-python-module
-                     (assoc-ref py:%standard-phases
-                                'install)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases
+                       'install)))
       #:cargo-inputs `(("rust-pyo3" ,rust-pyo3-0.22)
                        ("rust-regex" ,rust-regex-1)
                        ("rust-fancy-regex" ,rust-fancy-regex-0.13)

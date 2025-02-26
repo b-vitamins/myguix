@@ -353,17 +353,19 @@ stable, responsive and smooth desktop experience.")))
       #:tests? #f
       #:strip-binaries? #f
       #:validate-runpath? #f
-      #:make-flags #~(list (string-append "DESTDIR="
-                                          #$output))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'patch-out-check_whence.py
-                     (lambda _
-                       ;; The 'check_whence.py' script requires git (and the
-                       ;; repository metadata).
-                       (substitute* "copy-firmware.sh"
-                         (("./check_whence.py")
-                          "true"))))
-                   (delete 'configure))))
+      #:make-flags
+      #~(list (string-append "DESTDIR="
+                             #$output))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'patch-out-check_whence.py
+            (lambda _
+              ;; The 'check_whence.py' script requires git (and the
+              ;; repository metadata).
+              (substitute* "copy-firmware.sh"
+                (("./check_whence.py")
+                 "true"))))
+          (delete 'configure))))
     (native-inputs (list parallel rdfind zstd))
     (home-page
      "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git")
@@ -861,20 +863,21 @@ network adapters.")
       (build-system linux-module-build-system)
       (arguments
        (list
-        #:make-flags #~(list (string-append "CC="
-                                            #$(cc-for-target))
-                             (string-append "KSRC="
-                                            (assoc-ref %build-inputs
-                                                       "linux-module-builder")
-                                            "/lib/modules/build"))
-        #:phases #~(modify-phases %standard-phases
-                     (replace 'build
-                       (lambda* (#:key (make-flags '())
-                                 (parallel-build? #t) #:allow-other-keys)
-                         (apply invoke "make"
-                                `(,@(if parallel-build?
-                                        `("-j" ,(number->string (parallel-job-count)))
-                                        '()) ,@make-flags)))))
+        #:make-flags
+        #~(list (string-append "CC="
+                               #$(cc-for-target))
+                (string-append "KSRC="
+                               (assoc-ref %build-inputs "linux-module-builder")
+                               "/lib/modules/build"))
+        #:phases
+        #~(modify-phases %standard-phases
+            (replace 'build
+              (lambda* (#:key (make-flags '())
+                        (parallel-build? #t) #:allow-other-keys)
+                (apply invoke "make"
+                       `(,@(if parallel-build?
+                               `("-j" ,(number->string (parallel-job-count)))
+                               '()) ,@make-flags)))))
         #:tests? #f)) ;no test suite
       (home-page "https://github.com/tomaspinho/rtl8821ce")
       (synopsis "Linux driver for Realtek RTL8821CE wireless network adapters")
@@ -902,20 +905,21 @@ network adapters.")
       (build-system linux-module-build-system)
       (arguments
        (list
-        #:make-flags #~(list (string-append "CC="
-                                            #$(cc-for-target))
-                             (string-append "KSRC="
-                                            (assoc-ref %build-inputs
-                                                       "linux-module-builder")
-                                            "/lib/modules/build"))
-        #:phases #~(modify-phases %standard-phases
-                     (replace 'build
-                       (lambda* (#:key (make-flags '())
-                                 (parallel-build? #t) #:allow-other-keys)
-                         (apply invoke "make"
-                                `(,@(if parallel-build?
-                                        `("-j" ,(number->string (parallel-job-count)))
-                                        '()) ,@make-flags)))))
+        #:make-flags
+        #~(list (string-append "CC="
+                               #$(cc-for-target))
+                (string-append "KSRC="
+                               (assoc-ref %build-inputs "linux-module-builder")
+                               "/lib/modules/build"))
+        #:phases
+        #~(modify-phases %standard-phases
+            (replace 'build
+              (lambda* (#:key (make-flags '())
+                        (parallel-build? #t) #:allow-other-keys)
+                (apply invoke "make"
+                       `(,@(if parallel-build?
+                               `("-j" ,(number->string (parallel-job-count)))
+                               '()) ,@make-flags)))))
         #:tests? #f))
       (home-page "https://github.com/morrownr/8821cu-20210916")
       (synopsis "Linux driver for Realtek USB WiFi adapters")
@@ -1263,13 +1267,14 @@ driver:
     (build-system copy-build-system)
     (arguments
      (list
-      #:install-plan #~(let ((doc (string-append "share/doc/"
-                                                 #$name "-"
-                                                 #$version "/")))
-                         `(("intel-ucode" "lib/firmware/")
-                           ("README.md" ,doc)
-                           ("releasenote.md" ,doc)
-                           ("security.md" ,doc)))))
+      #:install-plan
+      #~(let ((doc (string-append "share/doc/"
+                                  #$name "-"
+                                  #$version "/")))
+          `(("intel-ucode" "lib/firmware/")
+            ("README.md" ,doc)
+            ("releasenote.md" ,doc)
+            ("security.md" ,doc)))))
     (home-page
      "https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files")
     (synopsis "Processor microcode firmware for Intel CPUs")
@@ -1355,7 +1360,8 @@ loaded by Linux.")
     (build-system copy-build-system)
     (arguments
      (list
-      #:install-plan #~'(("include" "include"))))
+      #:install-plan
+      #~'(("include" "include"))))
     (synopsis "Headers of the HFI1 Linux driver")
     (description "This package provides headers of the HFI1 Linux driver.")
     (license (list license:gpl2 license:bsd-3))))
@@ -1374,26 +1380,27 @@ loaded by Linux.")
                       opa-hfi1-headers)))
     (arguments
      (list
-      #:make-flags #~(list (string-append "LDFLAGS=-Wl,-rpath="
-                                          #$output "/lib")
-                           (string-append "IFS_HFI_HEADER_PATH="
-                                          #$(this-package-input
-                                             "opa-hfi1-headers")
-                                          "/include/uapi") "PSM_CUDA=1")
+      #:make-flags
+      #~(list (string-append "LDFLAGS=-Wl,-rpath="
+                             #$output "/lib")
+              (string-append "IFS_HFI_HEADER_PATH="
+                             #$(this-package-input "opa-hfi1-headers")
+                             "/include/uapi") "PSM_CUDA=1")
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'configure)
-                   (add-after 'unpack 'patch-Makefiles
-                     (lambda _
-                       (substitute* '("Makefile" "compat/Makefile")
-                         (("/lib64")
-                          "/lib")
-                         (("/usr")
-                          ""))))
-                   (replace 'install
-                     (lambda _
-                       (setenv "DESTDIR" %output)
-                       (invoke "make" "install"))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (add-after 'unpack 'patch-Makefiles
+            (lambda _
+              (substitute* '("Makefile" "compat/Makefile")
+                (("/lib64")
+                 "/lib")
+                (("/usr")
+                 ""))))
+          (replace 'install
+            (lambda _
+              (setenv "DESTDIR" %output)
+              (invoke "make" "install"))))))
     (synopsis
      "Intel PSM2 communication library, with NVIDIA GPU Direct support")))
 

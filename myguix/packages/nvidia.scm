@@ -314,205 +314,192 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                   (ice-9 rdelim)
                   (ice-9 regex)
                   (srfi srfi-26))
-      #:install-plan #~`((#$(match (or (%current-target-system)
-                                       (%current-system))
-                              ("i686-linux" "32")
-                              ("x86_64-linux" ".")
-                              (_ "."))
-                          "lib/"
-                          #:include-regexp ("^./[^/]+\\.so"))
-                         ("." "lib/nvidia/wine/"
-                          #:include-regexp ("_?nvngx\\.dll$"))
-                         ("." "share/nvidia/"
-                          #:include-regexp ("nvidia-application-profiles"))
-                         ("." "share/egl/egl_external_platform.d/"
-                          #:include-regexp ("(gbm|wayland)\\.json"))
-                         ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
-                         ("90-nvidia.rules" "lib/udev/rules.d/")
-                         ("nvidia-drm-outputclass.conf"
-                          "share/X11/xorg.conf.d/")
-                         ("nvidia-dbus.conf" "share/dbus-1/system.d/")
-                         ("nvidia.icd" "etc/OpenCL/vendors/")
-                         ("nvidia_icd.json" "share/vulkan/icd.d/")
-                         ("nvidia_layers.json"
-                          "share/vulkan/implicit_layer.d/"))
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'unpack
-                     (lambda* (#:key source #:allow-other-keys)
-                       (invoke "tar" "xvf" source)))
-                   (delete 'strip)
-                   (add-after 'unpack 'create-misc-files
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       ;; EGL external platform configuraiton
-                       (substitute* '("10_nvidia_wayland.json"
-                                      "15_nvidia_gbm.json")
-                         (("libnvidia-egl-(wayland|gbm)\\.so\\.." all)
-                          (search-input-file inputs
-                                             (string-append "lib/" all))))
+      #:install-plan
+      #~`((#$(match (or (%current-target-system)
+                        (%current-system))
+               ("i686-linux" "32")
+               ("x86_64-linux" ".")
+               (_ "."))
+           "lib/"
+           #:include-regexp ("^./[^/]+\\.so"))
+          ("." "lib/nvidia/wine/"
+           #:include-regexp ("_?nvngx\\.dll$"))
+          ("." "share/nvidia/"
+           #:include-regexp ("nvidia-application-profiles"))
+          ("." "share/egl/egl_external_platform.d/"
+           #:include-regexp ("(gbm|wayland)\\.json"))
+          ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
+          ("90-nvidia.rules" "lib/udev/rules.d/")
+          ("nvidia-drm-outputclass.conf" "share/X11/xorg.conf.d/")
+          ("nvidia-dbus.conf" "share/dbus-1/system.d/")
+          ("nvidia.icd" "etc/OpenCL/vendors/")
+          ("nvidia_icd.json" "share/vulkan/icd.d/")
+          ("nvidia_layers.json" "share/vulkan/implicit_layer.d/"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "tar" "xvf" source)))
+          (delete 'strip)
+          (add-after 'unpack 'create-misc-files
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; EGL external platform configuraiton
+              (substitute* '("10_nvidia_wayland.json" "15_nvidia_gbm.json")
+                (("libnvidia-egl-(wayland|gbm)\\.so\\.." all)
+                 (search-input-file inputs
+                                    (string-append "lib/" all))))
 
-                       ;; EGL vendor ICD configuration
-                       (substitute* "10_nvidia.json"
-                         (("libEGL_nvidia\\.so\\.." all)
-                          (string-append #$output "/lib/" all)))
+              ;; EGL vendor ICD configuration
+              (substitute* "10_nvidia.json"
+                (("libEGL_nvidia\\.so\\.." all)
+                 (string-append #$output "/lib/" all)))
 
-                       ;; OpenCL vendor ICD configuration
-                       (substitute* "nvidia.icd"
-                         (("libnvidia-opencl\\.so\\.." all)
-                          (string-append #$output "/lib/" all)))
+              ;; OpenCL vendor ICD configuration
+              (substitute* "nvidia.icd"
+                (("libnvidia-opencl\\.so\\.." all)
+                 (string-append #$output "/lib/" all)))
 
-                       ;; Vulkan ICD & layer configuraiton
-                       (substitute* '("nvidia_icd.json" "nvidia_layers.json")
-                         (("libGLX_nvidia\\.so\\.." all)
-                          (string-append #$output "/lib/" all)))
+              ;; Vulkan ICD & layer configuraiton
+              (substitute* '("nvidia_icd.json" "nvidia_layers.json")
+                (("libGLX_nvidia\\.so\\.." all)
+                 (string-append #$output "/lib/" all)))
 
-                       ;; Add udev rules
-                       (symlink #$%nvidia-udev-rules "90-nvidia.rules")))
-                   (add-after 'install 'add-architecture-to-filename
-                     (lambda _
-                       (for-each (lambda (path)
-                                   (let* ((out #$output)
-                                          (system #$(or (%current-target-system)
-                                                        (%current-system)))
-                                          (dash (string-index system #\-))
-                                          (arch (string-take system dash))
+              ;; Add udev rules
+              (symlink #$%nvidia-udev-rules "90-nvidia.rules")))
+          (add-after 'install 'add-architecture-to-filename
+            (lambda _
+              (for-each (lambda (path)
+                          (let* ((out #$output)
+                                 (system #$(or (%current-target-system)
+                                               (%current-system)))
+                                 (dash (string-index system #\-))
+                                 (arch (string-take system dash))
 
-                                          (dot (string-index-right path #\.))
-                                          (base (string-take path dot))
-                                          (ext (string-drop path
-                                                            (+ 1 dot))))
-                                     ;; <...>/nvidia.icd -> <...>/nvidia.x86_64.icd
-                                     ;; <...>/nvidia_icd.json -> <...>/nvidia_icd.x86_64.json
-                                     (rename-file (string-append out path)
-                                                  (string-append out
-                                                                 base
-                                                                 "."
-                                                                 arch
-                                                                 "."
-                                                                 ext))))
-                                 '("/etc/OpenCL/vendors/nvidia.icd"
-                                   "/share/egl/egl_external_platform.d/10_nvidia_wayland.json"
-                                   "/share/egl/egl_external_platform.d/15_nvidia_gbm.json"
-                                   "/share/glvnd/egl_vendor.d/10_nvidia.json"
-                                   "/share/vulkan/icd.d/nvidia_icd.json"
-                                   "/share/vulkan/implicit_layer.d/nvidia_layers.json"))))
-                   (add-after 'install 'patch-elf
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (let* ((ld.so (search-input-file inputs
-                                                        #$(glibc-dynamic-linker)))
-                              (rpath (string-join (cons* (dirname ld.so)
-                                                         (string-append #$output
-                                                          "/lib")
-                                                         (map (lambda (name)
-                                                                (dirname (search-input-file
-                                                                          inputs
-                                                                          (string-append
-                                                                           "lib/"
-                                                                           name))))
-                                                              '("libX11.so.6"
-                                                                "libXext.so.6"
-                                                                "libcrypto.so.1.1"
-                                                                "libcrypto.so.3"
-                                                                "libdrm.so.2"
-                                                                "libgbm.so.1"
-                                                                "libgcc_s.so.1"
-                                                                "libwayland-client.so.0"
-                                                                "libxcb.so.1")))
-                                                  ":")))
-                         (define (patch-elf file)
-                           (format #t "Patching ~a ..." file)
-                           (unless (string-contains file ".so")
-                             (invoke "patchelf" "--set-interpreter" ld.so file))
-                           (invoke "patchelf" "--set-rpath" rpath file)
-                           (display " done\n"))
+                                 (dot (string-index-right path #\.))
+                                 (base (string-take path dot))
+                                 (ext (string-drop path
+                                                   (+ 1 dot))))
+                            ;; <...>/nvidia.icd -> <...>/nvidia.x86_64.icd
+                            ;; <...>/nvidia_icd.json -> <...>/nvidia_icd.x86_64.json
+                            (rename-file (string-append out path)
+                                         (string-append out
+                                                        base
+                                                        "."
+                                                        arch
+                                                        "."
+                                                        ext))))
+                        '("/etc/OpenCL/vendors/nvidia.icd"
+                          "/share/egl/egl_external_platform.d/10_nvidia_wayland.json"
+                          "/share/egl/egl_external_platform.d/15_nvidia_gbm.json"
+                          "/share/glvnd/egl_vendor.d/10_nvidia.json"
+                          "/share/vulkan/icd.d/nvidia_icd.json"
+                          "/share/vulkan/implicit_layer.d/nvidia_layers.json"))))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let* ((ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (rpath (string-join (cons* (dirname ld.so)
+                                                (string-append #$output "/lib")
+                                                (map (lambda (name)
+                                                       (dirname (search-input-file
+                                                                 inputs
+                                                                 (string-append
+                                                                  "lib/" name))))
+                                                     '("libX11.so.6"
+                                                       "libXext.so.6"
+                                                       "libcrypto.so.1.1"
+                                                       "libcrypto.so.3"
+                                                       "libdrm.so.2"
+                                                       "libgbm.so.1"
+                                                       "libgcc_s.so.1"
+                                                       "libwayland-client.so.0"
+                                                       "libxcb.so.1"))) ":")))
+                (define (patch-elf file)
+                  (format #t "Patching ~a ..." file)
+                  (unless (string-contains file ".so")
+                    (invoke "patchelf" "--set-interpreter" ld.so file))
+                  (invoke "patchelf" "--set-rpath" rpath file)
+                  (display " done\n"))
 
-                         (for-each (lambda (file)
-                                     (when (elf-file? file)
-                                       (patch-elf file)))
-                                   (find-files #$output)))))
-                   (add-before 'patch-elf 'install-commands
-                     (lambda _
-                       (when (string-match "x86_64-linux"
-                                           (or #$(%current-target-system)
-                                               #$(%current-system)))
-                         (for-each (lambda (binary)
-                                     (let ((bindir (string-append #$output
-                                                                  "/bin"))
-                                           (manual (string-append binary
-                                                                  ".1.gz"))
-                                           (mandir (string-append #$output
-                                                    "/share/man/man1")))
-                                       (install-file binary bindir)
-                                       (when (file-exists? manual)
-                                         (install-file manual mandir))))
-                                   '("nvidia-cuda-mps-control"
-                                     "nvidia-cuda-mps-server" "nvidia-smi")))))
-                   (add-before 'patch-elf 'relocate-libraries
-                     (lambda _
-                       (let* ((version #$(package-version this-package))
-                              (libdir (string-append #$output "/lib"))
-                              (gbmdir (string-append libdir "/gbm"))
-                              (vdpaudir (string-append libdir "/vdpau"))
-                              (xorgmoddir (string-append libdir
-                                                         "/xorg/modules"))
-                              (xorgdrvdir (string-append xorgmoddir "/drivers"))
-                              (xorgextdir (string-append xorgmoddir
-                                                         "/extensions"))
-                              (move-to-dir (lambda (file dir)
-                                             (install-file file dir)
-                                             (delete-file file))))
-                         (for-each (lambda (file)
-                                     (mkdir-p gbmdir)
-                                     (with-directory-excursion gbmdir
-                                       (symlink file "nvidia-drm_gbm.so")))
-                                   (find-files libdir
-                                               "libnvidia-allocator\\.so\\."))
+                (for-each (lambda (file)
+                            (when (elf-file? file)
+                              (patch-elf file)))
+                          (find-files #$output)))))
+          (add-before 'patch-elf 'install-commands
+            (lambda _
+              (when (string-match "x86_64-linux"
+                                  (or #$(%current-target-system)
+                                      #$(%current-system)))
+                (for-each (lambda (binary)
+                            (let ((bindir (string-append #$output "/bin"))
+                                  (manual (string-append binary ".1.gz"))
+                                  (mandir (string-append #$output
+                                                         "/share/man/man1")))
+                              (install-file binary bindir)
+                              (when (file-exists? manual)
+                                (install-file manual mandir))))
+                          '("nvidia-cuda-mps-control" "nvidia-cuda-mps-server"
+                            "nvidia-smi")))))
+          (add-before 'patch-elf 'relocate-libraries
+            (lambda _
+              (let* ((version #$(package-version this-package))
+                     (libdir (string-append #$output "/lib"))
+                     (gbmdir (string-append libdir "/gbm"))
+                     (vdpaudir (string-append libdir "/vdpau"))
+                     (xorgmoddir (string-append libdir "/xorg/modules"))
+                     (xorgdrvdir (string-append xorgmoddir "/drivers"))
+                     (xorgextdir (string-append xorgmoddir "/extensions"))
+                     (move-to-dir (lambda (file dir)
+                                    (install-file file dir)
+                                    (delete-file file))))
+                (for-each (lambda (file)
+                            (mkdir-p gbmdir)
+                            (with-directory-excursion gbmdir
+                              (symlink file "nvidia-drm_gbm.so")))
+                          (find-files libdir "libnvidia-allocator\\.so\\."))
 
-                         (for-each (cut move-to-dir <> vdpaudir)
-                                   (find-files libdir
-                                               "libvdpau_nvidia\\.so\\."))
+                (for-each (cut move-to-dir <> vdpaudir)
+                          (find-files libdir "libvdpau_nvidia\\.so\\."))
 
-                         (for-each (cut move-to-dir <> xorgdrvdir)
-                                   (find-files libdir "nvidia_drv\\.so$"))
+                (for-each (cut move-to-dir <> xorgdrvdir)
+                          (find-files libdir "nvidia_drv\\.so$"))
 
-                         (for-each (lambda (file)
-                                     (move-to-dir file xorgextdir)
-                                     (with-directory-excursion xorgextdir
-                                       (symlink (basename file)
-                                                "libglxserver_nvidia.so")))
-                                   (find-files libdir
-                                               "libglxserver_nvidia\\.so\\.")))))
-                   (add-after 'patch-elf 'create-short-name-symlinks
-                     (lambda _
-                       (define (get-soname file)
-                         (when (elf-file? file)
-                           (let* ((cmd (string-append
-                                        "patchelf --print-soname " file))
-                                  (port (open-input-pipe cmd))
-                                  (soname (read-line port)))
-                             (close-pipe port) soname)))
-                       (for-each (lambda (lib)
-                                   (let ((lib-soname (get-soname lib)))
-                                     (when (string? lib-soname)
-                                       (let* ((soname (string-append (dirname
-                                                                      lib) "/"
-                                                       lib-soname))
-                                              (base (string-append (regexp-substitute
-                                                                    #f
-                                                                    (string-match
-                                                                     "(.*)\\.so.*"
-                                                                     soname) 1)
-                                                                   ".so"))
-                                              (source (basename lib)))
-                                         (for-each (lambda (target)
-                                                     (unless (file-exists?
-                                                              target)
-                                                       (format #t
-                                                        "Symlinking ~a -> ~a..."
-                                                        target source)
-                                                       (symlink source target)
-                                                       (display " done\n")))
-                                                   (list soname base))))))
-                                 (find-files #$output "\\.so\\.")))))))
+                (for-each (lambda (file)
+                            (move-to-dir file xorgextdir)
+                            (with-directory-excursion xorgextdir
+                              (symlink (basename file)
+                                       "libglxserver_nvidia.so")))
+                          (find-files libdir "libglxserver_nvidia\\.so\\.")))))
+          (add-after 'patch-elf 'create-short-name-symlinks
+            (lambda _
+              (define (get-soname file)
+                (when (elf-file? file)
+                  (let* ((cmd (string-append "patchelf --print-soname " file))
+                         (port (open-input-pipe cmd))
+                         (soname (read-line port)))
+                    (close-pipe port) soname)))
+              (for-each (lambda (lib)
+                          (let ((lib-soname (get-soname lib)))
+                            (when (string? lib-soname)
+                              (let* ((soname (string-append (dirname lib) "/"
+                                                            lib-soname))
+                                     (base (string-append (regexp-substitute
+                                                                             #f
+                                                                             (string-match
+                                                                              "(.*)\\.so.*"
+                                                                              soname)
+                                                                             1)
+                                                          ".so"))
+                                     (source (basename lib)))
+                                (for-each (lambda (target)
+                                            (unless (file-exists? target)
+                                              (format #t
+                                               "Symlinking ~a -> ~a..." target
+                                               source)
+                                              (symlink source target)
+                                              (display " done\n")))
+                                          (list soname base))))))
+                        (find-files #$output "\\.so\\.")))))))
     (supported-systems '("i686-linux" "x86_64-linux"))
     (native-inputs (list patchelf-0.16))
     (inputs (list egl-gbm
@@ -577,13 +564,15 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
       (name "nvidia-firmware")
       (arguments
        (list
-        #:install-plan #~'(("firmware" #$(string-append "lib/firmware/nvidia/"
-                                          (package-version this-package))))
-        #:phases #~(modify-phases %standard-phases
-                     (delete 'strip)
-                     (replace 'unpack
-                       (lambda* (#:key source #:allow-other-keys)
-                         (invoke "tar" "xvf" source))))))
+        #:install-plan
+        #~'(("firmware" #$(string-append "lib/firmware/nvidia/"
+                                         (package-version this-package))))
+        #:phases
+        #~(modify-phases %standard-phases
+            (delete 'strip)
+            (replace 'unpack
+              (lambda* (#:key source #:allow-other-keys)
+                (invoke "tar" "xvf" source))))))
       (propagated-inputs '())
       (inputs '())
       (native-inputs '())
@@ -622,33 +611,34 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
       #:linux linux-lts
       #:source-directory "kernel"
       #:tests? #f
-      #:make-flags #~(list (string-append "CC="
-                                          #$(cc-for-target)))
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'unpack
-                     (lambda* (#:key source #:allow-other-keys)
-                       (invoke "tar" "xvf" source)))
-                   (delete 'strip)
-                   (add-before 'configure 'fixpath
-                     (lambda* (#:key (source-directory ".") #:allow-other-keys)
-                       (substitute* (string-append source-directory "/Kbuild")
-                         (("/bin/sh")
-                          (which "sh")))))
-                   (replace 'build
-                     (lambda* (#:key (make-flags '())
-                               (parallel-build? #t)
-                               (source-directory ".") inputs
-                               #:allow-other-keys)
-                       (apply invoke
-                              "make"
-                              "-C"
-                              (canonicalize-path source-directory)
-                              (string-append "SYSSRC="
-                                             (search-input-directory inputs
-                                              "/lib/modules/build"))
-                              `(,@(if parallel-build?
-                                      `("-j" ,(number->string (parallel-job-count)))
-                                      '()) ,@make-flags)))))))
+      #:make-flags
+      #~(list (string-append "CC="
+                             #$(cc-for-target)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "tar" "xvf" source)))
+          (delete 'strip)
+          (add-before 'configure 'fixpath
+            (lambda* (#:key (source-directory ".") #:allow-other-keys)
+              (substitute* (string-append source-directory "/Kbuild")
+                (("/bin/sh")
+                 (which "sh")))))
+          (replace 'build
+            (lambda* (#:key (make-flags '())
+                      (parallel-build? #t)
+                      (source-directory ".") inputs #:allow-other-keys)
+              (apply invoke
+                     "make"
+                     "-C"
+                     (canonicalize-path source-directory)
+                     (string-append "SYSSRC="
+                                    (search-input-directory inputs
+                                     "/lib/modules/build"))
+                     `(,@(if parallel-build?
+                             `("-j" ,(number->string (parallel-job-count)))
+                             '()) ,@make-flags)))))))
     (supported-systems '("x86_64-linux"))
     (home-page "https://www.nvidia.com")
     (synopsis "Proprietary NVIDIA driver (kernel modules)")
@@ -736,38 +726,38 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (arguments
      (list
       #:tests? #f ;no test suite
-      #:make-flags #~(list "NV_USE_BUNDLED_LIBJANSSON=0"
-                           (string-append "PREFIX="
-                                          #$output)
-                           (string-append "CC="
-                                          #$(cc-for-target)))
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'configure)
-                   (add-after 'unpack 'fix-application-profile-path
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (substitute* "src/gtk+-2.x/ctkappprofile.c"
-                         (("/usr")
-                          "/run/booted-system/profile"))))
-                   (add-after 'install 'install-desktop-file
-                     (lambda _
-                       (substitute* "doc/nvidia-settings.desktop"
-                         (("^Exec=.*")
-                          "Exec=nvidia-settings\n")
-                         (("__NVIDIA_SETTINGS_DESKTOP_CATEGORIES__")
-                          "Settings"))
-                       (install-file "doc/nvidia-settings.desktop"
-                                     (string-append #$output
-                                                    "/share/applications"))
-                       (install-file "doc/nvidia-settings.png"
-                                     (string-append #$output
-                                      "/share/icons/hicolor/128x128/apps"))))
-                   (add-after 'install 'wrap-program
-                     (lambda* (#:key outputs #:allow-other-keys)
-                       (let ((out (assoc-ref outputs "out")))
-                         (wrap-program (string-append out
-                                                      "/bin/nvidia-settings")
-                           `("LD_LIBRARY_PATH" ":" prefix
-                             (,(string-append out "/lib/"))))))))))
+      #:make-flags
+      #~(list "NV_USE_BUNDLED_LIBJANSSON=0"
+              (string-append "PREFIX="
+                             #$output)
+              (string-append "CC="
+                             #$(cc-for-target)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (add-after 'unpack 'fix-application-profile-path
+            (lambda* (#:key inputs #:allow-other-keys)
+              (substitute* "src/gtk+-2.x/ctkappprofile.c"
+                (("/usr")
+                 "/run/booted-system/profile"))))
+          (add-after 'install 'install-desktop-file
+            (lambda _
+              (substitute* "doc/nvidia-settings.desktop"
+                (("^Exec=.*")
+                 "Exec=nvidia-settings\n")
+                (("__NVIDIA_SETTINGS_DESKTOP_CATEGORIES__")
+                 "Settings"))
+              (install-file "doc/nvidia-settings.desktop"
+                            (string-append #$output "/share/applications"))
+              (install-file "doc/nvidia-settings.png"
+                            (string-append #$output
+                             "/share/icons/hicolor/128x128/apps"))))
+          (add-after 'install 'wrap-program
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out")))
+                (wrap-program (string-append out "/bin/nvidia-settings")
+                  `("LD_LIBRARY_PATH" ":" prefix
+                    (,(string-append out "/lib/"))))))))))
     (native-inputs (list m4 pkg-config))
     (inputs (list bash-minimal
                   dbus
@@ -882,12 +872,13 @@ configuration, creating application profiles, gpu monitoring and more.")
     (arguments
      (list
       #:modules '((guix build union))
-      #:builder #~(begin
-                    (use-modules (guix build union))
-                    (union-build #$output
-                                 '#$(list (this-package-input "libglvnd")
-                                          (this-package-input "mesa")
-                                          (this-package-input "nvidia-driver"))))))
+      #:builder
+      #~(begin
+          (use-modules (guix build union))
+          (union-build #$output
+                       '#$(list (this-package-input "libglvnd")
+                                (this-package-input "mesa")
+                                (this-package-input "nvidia-driver"))))))
     (native-search-paths
      (list
       ;; https://github.com/NVIDIA/egl-wayland/issues/39
@@ -941,13 +932,13 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (arguments
      (list
       #:modules '((guix build union))
-      #:builder #~(begin
-                    (use-modules (guix build union))
-                    (union-build #$output
-                                 '#$(list (this-package-input "libglvnd")
-                                          (this-package-input "mesa")
-                                          (this-package-input
-                                           "nvidia-driver-beta"))))))
+      #:builder
+      #~(begin
+          (use-modules (guix build union))
+          (union-build #$output
+                       '#$(list (this-package-input "libglvnd")
+                                (this-package-input "mesa")
+                                (this-package-input "nvidia-driver-beta"))))))
     (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
                                (package-propagated-inputs nvidia-driver-beta)))
     (inputs (list mesa-for-nvda nvidia-driver-beta))))
@@ -1056,22 +1047,25 @@ and usage.")
     (build-system copy-build-system)
     (arguments
      (list
-      #:install-plan #~`(("nvx" "bin/"))
-      #:modules #~((guix build copy-build-system)
-                   (guix build utils)
-                   (srfi srfi-1))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'install 'wrap-nvx
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (wrap-program (string-append #$output "/bin/nvx")
-                         `("PATH" ":" prefix
-                           ,(fold (lambda (input paths)
-                                    (let* ((in (assoc-ref inputs input))
-                                           (bin (string-append in "/bin")))
-                                      (append (filter file-exists?
-                                                      (list bin)) paths)))
-                                  '()
-                                  '("jq" "lshw" "lsof")))))))))
+      #:install-plan
+      #~`(("nvx" "bin/"))
+      #:modules
+      #~((guix build copy-build-system)
+         (guix build utils)
+         (srfi srfi-1))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'wrap-nvx
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (wrap-program (string-append #$output "/bin/nvx")
+                `("PATH" ":" prefix
+                  ,(fold (lambda (input paths)
+                           (let* ((in (assoc-ref inputs input))
+                                  (bin (string-append in "/bin")))
+                             (append (filter file-exists?
+                                             (list bin)) paths)))
+                         '()
+                         '("jq" "lshw" "lsof")))))))))
     (inputs (list bash-minimal jq lshw lsof))
     (home-page "https://github.com/pedro00dk/nvidia-exec")
     (synopsis "GPU switching without login out for Nvidia Optimus laptops")
@@ -1093,13 +1087,14 @@ laptops.")
     (build-system python-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-libnvidia
-                     (lambda _
-                       (substitute* "nvidia-htop.py"
-                         (("nvidia-smi")
-                          (string-append #$(this-package-input "nvidia-driver")
-                                         "/bin/nvidia-smi"))))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-libnvidia
+            (lambda _
+              (substitute* "nvidia-htop.py"
+                (("nvidia-smi")
+                 (string-append #$(this-package-input "nvidia-driver")
+                                "/bin/nvidia-smi"))))))))
     (inputs (list nvidia-driver))
     (propagated-inputs (list python-termcolor))
     (home-page "https://github.com/peci1/nvidia-htop")
@@ -1125,10 +1120,11 @@ nvidia-smi.")
     (build-system copy-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'unpack
-                     (lambda* (#:key source #:allow-other-keys)
-                       (invoke "sh" source "--tar" "xvf"))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "sh" source "--tar" "xvf"))))
       #:install-plan ''(("payload/nvml/lib" "lib")
                         ("payload/nvml/include" "include/nvidia/gdk")
                         ("payload/nvml/example" "src/gdk/nvml/examples")
@@ -1163,25 +1159,26 @@ simultaneous NVML calls from multiple threads.")
     (arguments
      (list
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-nvidia-smi
-                     (lambda _
-                       (let ((nvidia-smi (string-append #$(this-package-input
-                                                           "nvidia-driver")
-                                                        "/bin/nvidia-smi")))
-                         (substitute* "src/core/InfoProvider.cpp"
-                           (("nvidia-smi")
-                            nvidia-smi))
-                         (substitute* "src/main.cpp"
-                           (("which nvidia-smi")
-                            (string-append "which " nvidia-smi))
-                           (("exec..nvidia-smi")
-                            (string-append "exec(\"" nvidia-smi))))))
-                   (replace 'install
-                     (lambda* (#:key outputs #:allow-other-keys)
-                       (let ((bin (string-append #$output "/bin")))
-                         (mkdir-p bin)
-                         (install-file "qnvsm" bin)))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-nvidia-smi
+            (lambda _
+              (let ((nvidia-smi (string-append #$(this-package-input
+                                                  "nvidia-driver")
+                                               "/bin/nvidia-smi")))
+                (substitute* "src/core/InfoProvider.cpp"
+                  (("nvidia-smi")
+                   nvidia-smi))
+                (substitute* "src/main.cpp"
+                  (("which nvidia-smi")
+                   (string-append "which " nvidia-smi))
+                  (("exec..nvidia-smi")
+                   (string-append "exec(\"" nvidia-smi))))))
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((bin (string-append #$output "/bin")))
+                (mkdir-p bin)
+                (install-file "qnvsm" bin)))))))
     (inputs (list qtbase-5 qtdeclarative-5 nvidia-driver))
     (home-page "https://github.com/congard/nvidia-system-monitor-qt")
     (synopsis "Task manager for Nvidia graphics cards")
@@ -1202,13 +1199,14 @@ simultaneous NVML calls from multiple threads.")
     (build-system python-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-libnvidia
-                     (lambda _
-                       (substitute* "pynvml.py"
-                         (("libnvidia-ml.so.1")
-                          (string-append #$(this-package-input "nvidia-driver")
-                                         "/lib/libnvidia-ml.so.1"))))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-libnvidia
+            (lambda _
+              (substitute* "pynvml.py"
+                (("libnvidia-ml.so.1")
+                 (string-append #$(this-package-input "nvidia-driver")
+                                "/lib/libnvidia-ml.so.1"))))))))
     (inputs (list nvidia-driver))
     (home-page "https://forums.developer.nvidia.com")
     (synopsis "Python Bindings for the NVIDIA Management Library")
@@ -1230,13 +1228,14 @@ Management Library")
     (build-system python-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-libnvidia
-                     (lambda _
-                       (substitute* "py3nvml/py3nvml.py"
-                         (("libnvidia-ml.so.1")
-                          (string-append #$(this-package-input "nvidia-driver")
-                                         "/lib/libnvidia-ml.so.1"))))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-libnvidia
+            (lambda _
+              (substitute* "py3nvml/py3nvml.py"
+                (("libnvidia-ml.so.1")
+                 (string-append #$(this-package-input "nvidia-driver")
+                                "/lib/libnvidia-ml.so.1"))))))))
     (propagated-inputs (list nvidia-driver python-xmltodict))
     (home-page "https://github.com/fbcotter/py3nvml")
     (synopsis "Unoffcial Python 3 Bindings for the NVIDIA Management Library")
@@ -1267,95 +1266,91 @@ NVIDIA Management Library")
       #:substitutable? #t
       #:strip-binaries? #f
       #:validate-runpath? #f
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'unpack
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (define ld.so
-                         (search-input-file inputs
-                                            #$(glibc-dynamic-linker)))
-                       (let ((source (assoc-ref inputs "source")))
-                         (invoke "sh" source "--keep" "--noexec")
-                         (chdir "pkg"))))
-                   (delete 'configure)
-                   (delete 'check)
-                   (replace 'build
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (define libc
-                         (assoc-ref inputs "libc"))
-                       (define gcc-lib
-                         (assoc-ref inputs "gcc:lib"))
-                       (define ld.so
-                         (search-input-file inputs
-                                            #$(glibc-dynamic-linker)))
-                       (define rpath
-                         (string-join (list "$ORIGIN"
-                                            (string-append #$output "/lib")
-                                            (string-append #$output
-                                                           "/nvvm/lib64")
-                                            (string-append libc "/lib")
-                                            (string-append gcc-lib "/lib"))
-                                      ":"))
-                       (define (patch-elf file)
-                         (make-file-writable file)
-                         (format #t "Setting RPATH on '~a'...~%" file)
-                         ;; RPATH should be modified before the interpreter. If
-                         ;; done the other way around, it nukes the resulting
-                         ;; binary.
-                         (invoke "patchelf" "--set-rpath" rpath
-                                 "--force-rpath" file)
-                         (unless (string-contains file ".so")
-                           (format #t "Setting interpreter on '~a'...~%" file)
-                           (invoke "patchelf" "--set-interpreter" ld.so file)))
-                       (for-each (lambda (file)
-                                   (when (elf-file? file)
-                                     (patch-elf file)))
-                                 (find-files "."
-                                             (lambda (file stat)
-                                               (eq? 'regular
-                                                    (stat:type stat)))))))
-                   (replace 'install
-                     (lambda _
-                       (define (copy-from-directory directory)
-                         (for-each (lambda (entry)
-                                     (define sub-directory
-                                       (string-append directory "/" entry))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key inputs #:allow-other-keys)
+              (define ld.so
+                (search-input-file inputs
+                                   #$(glibc-dynamic-linker)))
+              (let ((source (assoc-ref inputs "source")))
+                (invoke "sh" source "--keep" "--noexec")
+                (chdir "pkg"))))
+          (delete 'configure)
+          (delete 'check)
+          (replace 'build
+            (lambda* (#:key inputs #:allow-other-keys)
+              (define libc
+                (assoc-ref inputs "libc"))
+              (define gcc-lib
+                (assoc-ref inputs "gcc:lib"))
+              (define ld.so
+                (search-input-file inputs
+                                   #$(glibc-dynamic-linker)))
+              (define rpath
+                (string-join (list "$ORIGIN"
+                                   (string-append #$output "/lib")
+                                   (string-append #$output "/nvvm/lib64")
+                                   (string-append libc "/lib")
+                                   (string-append gcc-lib "/lib")) ":"))
+              (define (patch-elf file)
+                (make-file-writable file)
+                (format #t "Setting RPATH on '~a'...~%" file)
+                ;; RPATH should be modified before the interpreter. If
+                ;; done the other way around, it nukes the resulting
+                ;; binary.
+                (invoke "patchelf" "--set-rpath" rpath "--force-rpath" file)
+                (unless (string-contains file ".so")
+                  (format #t "Setting interpreter on '~a'...~%" file)
+                  (invoke "patchelf" "--set-interpreter" ld.so file)))
+              (for-each (lambda (file)
+                          (when (elf-file? file)
+                            (patch-elf file)))
+                        (find-files "."
+                                    (lambda (file stat)
+                                      (eq? 'regular
+                                           (stat:type stat)))))))
+          (replace 'install
+            (lambda _
+              (define (copy-from-directory directory)
+                (for-each (lambda (entry)
+                            (define sub-directory
+                              (string-append directory "/" entry))
 
-                                     (define target
-                                       (string-append #$output "/"
-                                                      (basename entry)))
+                            (define target
+                              (string-append #$output "/"
+                                             (basename entry)))
 
-                                     (when (file-exists? sub-directory)
-                                       (copy-recursively sub-directory target)))
-                                   '("bin" "targets/x86_64-linux/lib"
-                                     "targets/x86_64-linux/include" "nvvm/bin"
-                                     "nvvm/include" "nvvm/lib64")))
+                            (when (file-exists? sub-directory)
+                              (copy-recursively sub-directory target)))
+                          '("bin" "targets/x86_64-linux/lib"
+                            "targets/x86_64-linux/include" "nvvm/bin"
+                            "nvvm/include" "nvvm/lib64")))
 
-                       (setenv "COLUMNS" "200")
-                       (with-directory-excursion "builds"
-                         (for-each copy-from-directory
-                                   (scandir "."
-                                            (match-lambda
-                                              ((or "." "..")
-                                               #f)
-                                              (_ #t))))
-                         (copy-recursively "cuda_nvcc/nvvm/libdevice"
-                                           (string-append #$output
-                                                          "/nvvm/libdevice")))
-                       (symlink (string-append #$output "/lib/stubs")
-                                (string-append #$output "/lib64/stubs"))))
-                   (add-after 'install 'symlink-libcuda
-                     (lambda _
-                       (with-directory-excursion (string-append #$output
-                                                                "/lib/stubs")
-                         (symlink "libcuda.so" "libcuda.so.1"))))
+              (setenv "COLUMNS" "200")
+              (with-directory-excursion "builds"
+                (for-each copy-from-directory
+                          (scandir "."
+                                   (match-lambda
+                                     ((or "." "..")
+                                      #f)
+                                     (_ #t))))
+                (copy-recursively "cuda_nvcc/nvvm/libdevice"
+                                  (string-append #$output "/nvvm/libdevice")))
+              (symlink (string-append #$output "/lib/stubs")
+                       (string-append #$output "/lib64/stubs"))))
+          (add-after 'install 'symlink-libcuda
+            (lambda _
+              (with-directory-excursion (string-append #$output "/lib/stubs")
+                (symlink "libcuda.so" "libcuda.so.1"))))
 
-                   (add-after 'install 'install-cupti
-                     (lambda _
-                       (copy-recursively "builds/cuda_cupti/extras/CUPTI"
-                                         #$output)))
-                   (add-after 'install 'delete-stray-symlinks
-                     (lambda _
-                       (delete-file (string-append #$output "/include/include")))))))
+          (add-after 'install 'install-cupti
+            (lambda _
+              (copy-recursively "builds/cuda_cupti/extras/CUPTI"
+                                #$output)))
+          (add-after 'install 'delete-stray-symlinks
+            (lambda _
+              (delete-file (string-append #$output "/include/include")))))))
     (native-inputs (list which patchelf-0.16 perl python-2))
     (inputs `(("gcc:lib" ,gcc "lib")))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
@@ -1388,50 +1383,48 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
       #:substitutable? #t
       #:strip-binaries? #f
       #:validate-runpath? #f
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'configure)
-                   (delete 'check)
-                   (replace 'build
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (define libc
-                         (assoc-ref inputs "libc"))
-                       (define gcc-lib
-                         (assoc-ref inputs "gcc:lib"))
-                       (define ld.so
-                         (search-input-file inputs
-                                            #$(glibc-dynamic-linker)))
-                       (define rpath
-                         (string-join (list "$ORIGIN"
-                                            (string-append #$output "/lib")
-                                            (string-append #$output
-                                                           "/nvvm/lib64")
-                                            (string-append libc "/lib")
-                                            (string-append gcc-lib "/lib"))
-                                      ":"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'check)
+          (replace 'build
+            (lambda* (#:key inputs #:allow-other-keys)
+              (define libc
+                (assoc-ref inputs "libc"))
+              (define gcc-lib
+                (assoc-ref inputs "gcc:lib"))
+              (define ld.so
+                (search-input-file inputs
+                                   #$(glibc-dynamic-linker)))
+              (define rpath
+                (string-join (list "$ORIGIN"
+                                   (string-append #$output "/lib")
+                                   (string-append #$output "/nvvm/lib64")
+                                   (string-append libc "/lib")
+                                   (string-append gcc-lib "/lib")) ":"))
 
-                       (define (patch-elf file)
-                         (make-file-writable file)
-                         (unless (string-contains file ".so")
-                           (format #t "Setting interpreter on '~a'...~%" file)
-                           (invoke "patchelf" "--set-interpreter" ld.so file))
-                         (format #t "Setting RPATH on '~a'...~%" file)
-                         (invoke "patchelf" "--set-rpath" rpath
-                                 "--force-rpath" file))
+              (define (patch-elf file)
+                (make-file-writable file)
+                (unless (string-contains file ".so")
+                  (format #t "Setting interpreter on '~a'...~%" file)
+                  (invoke "patchelf" "--set-interpreter" ld.so file))
+                (format #t "Setting RPATH on '~a'...~%" file)
+                (invoke "patchelf" "--set-rpath" rpath "--force-rpath" file))
 
-                       (for-each (lambda (file)
-                                   (when (elf-file? file)
-                                     (patch-elf file)))
-                                 (find-files "."
-                                             (lambda (file stat)
-                                               (eq? 'regular
-                                                    (stat:type stat)))))))
-                   (replace 'install
-                     (lambda _
-                       (let ((lib (string-append #$output "/lib"))
-                             (include (string-append #$output "/include")))
-                         (mkdir-p #$output)
-                         (copy-recursively "lib" lib)
-                         (copy-recursively "include" include)))))))
+              (for-each (lambda (file)
+                          (when (elf-file? file)
+                            (patch-elf file)))
+                        (find-files "."
+                                    (lambda (file stat)
+                                      (eq? 'regular
+                                           (stat:type stat)))))))
+          (replace 'install
+            (lambda _
+              (let ((lib (string-append #$output "/lib"))
+                    (include (string-append #$output "/include")))
+                (mkdir-p #$output)
+                (copy-recursively "lib" lib)
+                (copy-recursively "include" include)))))))
     (native-inputs (list patchelf-0.16))
     (inputs `(("gcc:lib" ,gcc "lib")))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
@@ -1475,28 +1468,28 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                   (guix build union)
                   (guix build utils))
       #:imported-modules `(,@%pyproject-build-system-modules (guix build union))
-      #:phases #~(modify-phases %standard-phases
-                   (add-before 'build 'set_cuda_paths
-                     (lambda _
-                       (substitute* "python/cudnn/__init__.py"
-                         (("@store-cudnn\\.so-path@")
-                          (format #f "\"~a/lib/libcudnn.so\""
-                                  #$(this-package-input "cudnn"))))
-                       (setenv "CUDA_PATH"
-                               #$(this-package-input "cuda-toolkit"))
-                       (setenv "CUDNN_PATH"
-                               #$(this-package-input "cudnn"))
-                       (setenv "CUDNN_FRONTEND_FETCH_PYBINDS_IN_CMAKE" "0")
-                       (setenv "CMAKE_BUILD_PARALLEL_LEVEL"
-                               (number->string (parallel-job-count)))))
-                   (add-after 'install 'post-install
-                     (lambda _
-                       (union-build (string-append #$output "/include")
-                                    (find-files (string-append #$output "/lib")
-                                                (lambda (file stat)
-                                                  (string-suffix? "include"
-                                                                  file))
-                                                #:directories? #t)))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'set_cuda_paths
+            (lambda _
+              (substitute* "python/cudnn/__init__.py"
+                (("@store-cudnn\\.so-path@")
+                 (format #f "\"~a/lib/libcudnn.so\""
+                         #$(this-package-input "cudnn"))))
+              (setenv "CUDA_PATH"
+                      #$(this-package-input "cuda-toolkit"))
+              (setenv "CUDNN_PATH"
+                      #$(this-package-input "cudnn"))
+              (setenv "CUDNN_FRONTEND_FETCH_PYBINDS_IN_CMAKE" "0")
+              (setenv "CMAKE_BUILD_PARALLEL_LEVEL"
+                      (number->string (parallel-job-count)))))
+          (add-after 'install 'post-install
+            (lambda _
+              (union-build (string-append #$output "/include")
+                           (find-files (string-append #$output "/lib")
+                                       (lambda (file stat)
+                                         (string-suffix? "include" file))
+                                       #:directories? #t)))))))
     (native-inputs (list cmake dlpack pybind11 python-setuptools python-wheel))
     (inputs (list cuda-toolkit nlohmann-json cudnn))
     (propagated-inputs (list nvda))
@@ -1527,36 +1520,37 @@ autotuning.")
     (build-system cmake-build-system)
     (arguments
      (list
-      #:configure-flags #~(list "-DCUTLASS_ENABLE_EXAMPLES=NO"
-                                "-DCUTLASS_ENABLE_TOOLS=YES"
-                                "-DCUTLASS_ENABLE_LIBRARY=YES"
-                                "-DCUTLASS_ENABLE_PROFILER=YES"
-                                "-DCUTLASS_ENABLE_PERFORMANCE=YES"
-                                "-DCUTLASS_ENABLE_CUDNN=YES"
-                                "-DCUTLASS_ENABLE_CUBLAS=YES"
-                                "-DCUTLASS_ENABLE_F16C=YES"
-                                "-DCUTLASS_ENABLE_TESTS=NO"
-                                "-DCUTLASS_INSTALL_TESTS=NO"
-                                "-DCUTLASS_NVCC_ARCHS=80;86;89"
-                                "-DCUTLASS_LIBRARY_KERNELS=all")
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-cuda-build
-                     (lambda _
-                       (substitute* "CMakeLists.txt"
-                         (("--user")
-                          (string-append "--prefix="
-                                         #$output)))
-                       (setenv "PYTHONPATH"
-                               (string-append (getcwd) "/python"))))
-                   (add-before 'build 'set_cuda_paths
-                     (lambda _
-                       (setenv "CUDACXX"
-                               #$(file-append (this-package-input
-                                               "cuda-toolkit") "/bin/nvcc"))))
-                   (add-after 'install 'cleanup
-                     (lambda _
-                       (delete-file-recursively (string-append #$output
-                                                               "/test")))))))
+      #:configure-flags
+      #~(list "-DCUTLASS_ENABLE_EXAMPLES=NO"
+              "-DCUTLASS_ENABLE_TOOLS=YES"
+              "-DCUTLASS_ENABLE_LIBRARY=YES"
+              "-DCUTLASS_ENABLE_PROFILER=YES"
+              "-DCUTLASS_ENABLE_PERFORMANCE=YES"
+              "-DCUTLASS_ENABLE_CUDNN=YES"
+              "-DCUTLASS_ENABLE_CUBLAS=YES"
+              "-DCUTLASS_ENABLE_F16C=YES"
+              "-DCUTLASS_ENABLE_TESTS=NO"
+              "-DCUTLASS_INSTALL_TESTS=NO"
+              "-DCUTLASS_NVCC_ARCHS=80;86;89"
+              "-DCUTLASS_LIBRARY_KERNELS=all")
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-cuda-build
+            (lambda _
+              (substitute* "CMakeLists.txt"
+                (("--user")
+                 (string-append "--prefix="
+                                #$output)))
+              (setenv "PYTHONPATH"
+                      (string-append (getcwd) "/python"))))
+          (add-before 'build 'set_cuda_paths
+            (lambda _
+              (setenv "CUDACXX"
+                      #$(file-append (this-package-input "cuda-toolkit")
+                                     "/bin/nvcc"))))
+          (add-after 'install 'cleanup
+            (lambda _
+              (delete-file-recursively (string-append #$output "/test")))))))
     (native-inputs (list python python-setuptools git-minimal))
     (inputs (list cuda-toolkit cudnn))
     (propagated-inputs (list nvidia-driver
@@ -1692,17 +1686,19 @@ implement cuBLAS and cuDNN.")
     (build-system gnu-build-system)
     (arguments
      (list
-      #:make-flags #~(list (string-append "CUDA_HOME="
-                                          #$(this-package-input "cuda-toolkit")))
+      #:make-flags
+      #~(list (string-append "CUDA_HOME="
+                             #$(this-package-input "cuda-toolkit")))
       ;; No tests in source.
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   ;; No configure script.
-                   (delete 'configure)
-                   (add-before 'install 'set-prefix
-                     (lambda _
-                       (setenv "PREFIX"
-                               #$output))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; No configure script.
+          (delete 'configure)
+          (add-before 'install 'set-prefix
+            (lambda _
+              (setenv "PREFIX"
+                      #$output))))))
     (native-inputs (list python which))
     (inputs (list cuda-toolkit))
     (propagated-inputs (list nvidia-driver))
@@ -1762,20 +1758,20 @@ library for NVIDIA GPUs.")
     (arguments
      (list
       #:modules '((guix build utils))
-      #:builder #~(begin
-                    (use-modules (guix build utils))
+      #:builder
+      #~(begin
+          (use-modules (guix build utils))
 
-                    (let* ((header "/include/bits/floatn.h")
-                           (target (string-append #$output
-                                                  (dirname header)))
-                           (libc #$(this-package-input "libc")))
-                      (mkdir-p target)
-                      (install-file (string-append libc header) target)
-                      (substitute* (string-append target "/"
-                                                  (basename header))
-                        (("#([[:blank:]]*)define __HAVE_FLOAT128[[:blank:]]+1"
-                          _ space)
-                         (string-append "#" space "define __HAVE_FLOAT128 0")))))))
+          (let* ((header "/include/bits/floatn.h")
+                 (target (string-append #$output
+                                        (dirname header)))
+                 (libc #$(this-package-input "libc")))
+            (mkdir-p target)
+            (install-file (string-append libc header) target)
+            (substitute* (string-append target "/"
+                                        (basename header))
+              (("#([[:blank:]]*)define __HAVE_FLOAT128[[:blank:]]+1" _ space)
+               (string-append "#" space "define __HAVE_FLOAT128 0")))))))
     (inputs `(("libc" ,glibc)))
     (home-page "https://hpc.guix.info")
     (synopsis "@file{<bits/floatn.h>} header that disables float128 support")
@@ -1867,36 +1863,35 @@ See also
     (build-system gnu-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'configure)
-                   (add-before 'build 'set-correct-cflags
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (setenv "CFLAGS" "-fPIC")
-                       (display "setting CFLAGS\n")
-                       (substitute* "modprobe-utils/nvidia-modprobe-utils.c"
-                         (("^static int nvidia_cap_get_device_file_attrs")
-                          "int nvidia_cap_get_device_file_attrs"))))
-                   (add-after 'build 'build-static-link-libraries
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (invoke "ar" "rcs"
-                               "_out/Linux_x86_64/libnvidia-modprobe-utils.a"
-                               "_out/Linux_x86_64/nvidia-modprobe-utils.o"
-                               "_out/Linux_x86_64/pci-sysfs.o")
-                       (copy-recursively "_out/Linux_x86_64/"
-                                         (string-append (assoc-ref %outputs
-                                                                   "out")
-                                                        "/lib"))))
-                   (delete 'check)
-                   (add-after 'patch-source-shebangs 'replace-prefix
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (setenv "CC" "gcc")
-                       (setenv "PREFIX"
-                               (assoc-ref %outputs "out"))
-                       (copy-recursively "modprobe-utils/"
-                                         (string-append (assoc-ref %outputs
-                                                                   "out")
-                                                        "/include")) #t) ;must return true for success
-                     ))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (add-before 'build 'set-correct-cflags
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (setenv "CFLAGS" "-fPIC")
+              (display "setting CFLAGS\n")
+              (substitute* "modprobe-utils/nvidia-modprobe-utils.c"
+                (("^static int nvidia_cap_get_device_file_attrs")
+                 "int nvidia_cap_get_device_file_attrs"))))
+          (add-after 'build 'build-static-link-libraries
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (invoke "ar" "rcs"
+                      "_out/Linux_x86_64/libnvidia-modprobe-utils.a"
+                      "_out/Linux_x86_64/nvidia-modprobe-utils.o"
+                      "_out/Linux_x86_64/pci-sysfs.o")
+              (copy-recursively "_out/Linux_x86_64/"
+                                (string-append (assoc-ref %outputs "out")
+                                               "/lib"))))
+          (delete 'check)
+          (add-after 'patch-source-shebangs 'replace-prefix
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (setenv "CC" "gcc")
+              (setenv "PREFIX"
+                      (assoc-ref %outputs "out"))
+              (copy-recursively "modprobe-utils/"
+                                (string-append (assoc-ref %outputs "out")
+                                               "/include")) #t) ;must return true for success
+            ))
       #:tests? #f))
     (native-inputs (list gcc-toolchain m4))
     (synopsis
@@ -1927,63 +1922,64 @@ See also
     (build-system gnu-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'configure)
-                   (delete 'build)
-                   (delete 'check)
-                   (add-after 'unpack 'ensure-writable-source
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (setenv "HOME" "/tmp")
-                       (make-file-writable "src/ldcache.c")
-                       (make-file-writable "src/ldcache.h")
-                       (make-file-writable "src/nvc_info.c")))
-                   (add-after 'patch-source-shebangs 'replace-prefix
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (substitute* "Makefile"
-                         (("/usr/local")
-                          (assoc-ref outputs "out")) ;this overrides the prefix
-                         (("debug??libdir?")
-                          "debug") ;ensure debug files get installed in the correct subdir
-                         ((".*nvidia-modprobe.mk.*")
-                          "\n")
-                         (("^all: shared static tools")
-                          "all: shared tools")
-                         ((".*LIB_STATIC.*libdir.*$")
-                          ""))
-                       (substitute* "mk/nvcgo.mk"
-                         ((".*-rf.*")
-                          "	mkdir -p ${SRCS_DIR} && echo \"sources dir: ${SRCS_DIR}\"
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'build)
+          (delete 'check)
+          (add-after 'unpack 'ensure-writable-source
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (setenv "HOME" "/tmp")
+              (make-file-writable "src/ldcache.c")
+              (make-file-writable "src/ldcache.h")
+              (make-file-writable "src/nvc_info.c")))
+          (add-after 'patch-source-shebangs 'replace-prefix
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (substitute* "Makefile"
+                (("/usr/local")
+                 (assoc-ref outputs "out")) ;this overrides the prefix
+                (("debug??libdir?")
+                 "debug") ;ensure debug files get installed in the correct subdir
+                ((".*nvidia-modprobe.mk.*")
+                 "\n")
+                (("^all: shared static tools")
+                 "all: shared tools")
+                ((".*LIB_STATIC.*libdir.*$")
+                 ""))
+              (substitute* "mk/nvcgo.mk"
+                ((".*-rf.*")
+                 "	mkdir -p ${SRCS_DIR} && echo \"sources dir: ${SRCS_DIR}\"
 ")
-                         (("CURDIR./src/..PREFIX.")
-                          "CURDIR)/src/$(PREFIX)/*")) ;deleting sources fails
-                       (substitute* "src/cli/libnvc.c"
-                         (("libnvidia-ml.so.1")
-                          "/run/current-system/profile/lib/libnvidia-ml.so.1"))
-                       (substitute* "src/nvc_internal.h"
-                         (("libnvidia-ml.so.1")
-                          "/run/current-system/profile/lib/libnvidia-ml.so.1"))
-                       (setenv "C_INCLUDE_PATH"
-                               (string-append (getenv "C_INCLUDE_PATH") ":"
-                                              (string-append #$libtirpc
-                                                             "/include/tirpc")))
-                       (setenv "LIBRARY_PATH"
-                               (string-append (getenv "LIBRARY_PATH") ":"
-                                              (string-append #$libtirpc "/lib")))
-                       (setenv "LDFLAGS"
-                               (string-append (or (getenv "LDFLAGS") "")
-                                " -ltirpc -lseccomp -lcap -Wl,-rpath="
-                                (assoc-ref outputs "out") "/lib"))
-                       (setenv "CFLAGS"
-                               (string-append (or (getenv "CFLAGS") "")
-                                              " -DWITH_TIRPC -g"))
-                       (substitute* "Makefile"
-                         (("^WITH_LIBELF.*no")
-                          "WITH_LIBELF ?= yes"))
-                       (substitute* "mk/common.mk"
-                         (("^REVISION.*")
-                          (string-append "REVISION ?= "
-                                         #$version "\n" "CC := gcc\n")))
-                       #t)))
+                (("CURDIR./src/..PREFIX.")
+                 "CURDIR)/src/$(PREFIX)/*")) ;deleting sources fails
+              (substitute* "src/cli/libnvc.c"
+                (("libnvidia-ml.so.1")
+                 "/run/current-system/profile/lib/libnvidia-ml.so.1"))
+              (substitute* "src/nvc_internal.h"
+                (("libnvidia-ml.so.1")
+                 "/run/current-system/profile/lib/libnvidia-ml.so.1"))
+              (setenv "C_INCLUDE_PATH"
+                      (string-append (getenv "C_INCLUDE_PATH") ":"
+                                     (string-append #$libtirpc
+                                                    "/include/tirpc")))
+              (setenv "LIBRARY_PATH"
+                      (string-append (getenv "LIBRARY_PATH") ":"
+                                     (string-append #$libtirpc "/lib")))
+              (setenv "LDFLAGS"
+                      (string-append (or (getenv "LDFLAGS") "")
+                                     " -ltirpc -lseccomp -lcap -Wl,-rpath="
+                                     (assoc-ref outputs "out") "/lib"))
+              (setenv "CFLAGS"
+                      (string-append (or (getenv "CFLAGS") "")
+                                     " -DWITH_TIRPC -g"))
+              (substitute* "Makefile"
+                (("^WITH_LIBELF.*no")
+                 "WITH_LIBELF ?= yes"))
+              (substitute* "mk/common.mk"
+                (("^REVISION.*")
+                 (string-append "REVISION ?= "
+                                #$version "\n" "CC := gcc\n")))
+              #t)))
       #:tests? #f))
     (native-inputs (list libseccomp
                          nvidia-modprobe
@@ -2023,23 +2019,23 @@ See also
     (arguments
      (list
       #:import-path "github.com/NVIDIA/nvidia-container-toolkit"
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'fix-paths
-                     (lambda* (#:key inputs outputs #:allow-other-keys)
-                       (substitute* "src/github.com/NVIDIA/nvidia-container-toolkit/internal/config/config.go"
-                         (("/usr/bin")
-                          "/run/current-system/profile/bin"))))
-                   (replace 'build
-                     (lambda arguments
-                       (for-each (lambda (directory)
-                                   (apply (assoc-ref %standard-phases
-                                                     'build)
-                                          (append arguments
-                                                  (list #:import-path
-                                                        directory))))
-                                 '("github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-ctk"
-                                   "github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-container-runtime"
-                                   "github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-container-runtime-hook")))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-paths
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (substitute* "src/github.com/NVIDIA/nvidia-container-toolkit/internal/config/config.go"
+                (("/usr/bin")
+                 "/run/current-system/profile/bin"))))
+          (replace 'build
+            (lambda arguments
+              (for-each (lambda (directory)
+                          (apply (assoc-ref %standard-phases
+                                            'build)
+                                 (append arguments
+                                         (list #:import-path directory))))
+                        '("github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-ctk"
+                          "github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-container-runtime"
+                          "github.com/NVIDIA/nvidia-container-toolkit/cmd/nvidia-container-runtime-hook")))))
       #:tests? #f
       #:install-source? #f))
     (propagated-inputs (list libnvidia-container))

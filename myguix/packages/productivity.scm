@@ -51,56 +51,59 @@
       ;; almost 300MB
       #:substitutable? #f
       #:validate-runpath? #f ;TODO: fails on wrapped binary and included other files
-      #:wrapper-plan #~(map (lambda (file)
-                              (string-append "opt/Anytype/" file))
-                            '("anytype" "chrome-sandbox"
-                              "chrome_crashpad_handler"
-                              "libEGL.so"
-                              "libffmpeg.so"
-                              "libGLESv2.so"
-                              "libvk_swiftshader.so"
-                              "libvulkan.so.1"
-                              "resources/app.asar.unpacked/node_modules/keytar/build/Release/keytar.node"
-                              "resources/app.asar.unpacked/node_modules/keytar/build/Release/obj.target/keytar.node"))
-      #:install-plan #~'(("opt/" "/share")
-                         ("usr/share/" "/share"))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'binary-unpack 'disable-auto-updates
-                     (lambda _
-                       (delete-file "opt/Anytype/resources/app-update.yml")))
-                   ;; We don't need regedit, a node library to interact with Windows
-                   ;; hosts.
-                   (add-after 'binary-unpack 'strip-regedit
-                     (lambda _
-                       (delete-file-recursively (string-append
-                                                 "opt/Anytype/resources/app.asar.unpacked/"
-                                                 "node_modules/regedit"))))
-                   (add-after 'binary-unpack 'strip-python
-                     (lambda _
-                       (delete-file (string-append
-                                     "opt/Anytype/resources/app.asar.unpacked/"
-                                     "node_modules/keytar/build/node_gyp_bins/python3"))))
-                   (add-before 'install 'patch-assets
-                     (lambda _
-                       (let* ((bin (string-append #$output "/bin"))
-                              (usr/share "./usr/share")
-                              (old-exe "/opt/Anytype/anytype")
-                              (exe (string-append bin "/anytype")))
-                         (substitute* (string-append usr/share
-                                       "/applications/anytype.desktop")
-                           (((string-append "^Exec=" old-exe))
-                            (string-append "Exec=" exe))))))
-                   (add-before 'install-wrapper 'symlink-entrypoint
-                     (lambda _
-                       (let* ((bin (string-append #$output "/bin"))
-                              (exe (string-append bin "/anytype"))
-                              (share (string-append #$output "/share/Anytype"))
-                              (target (string-append share "/anytype")))
-                         (mkdir-p bin)
-                         (symlink target exe)
-                         (wrap-program exe
-                           `("LD_LIBRARY_PATH" =
-                             (,share)))))))))
+      #:wrapper-plan
+      #~(map (lambda (file)
+               (string-append "opt/Anytype/" file))
+             '("anytype" "chrome-sandbox"
+               "chrome_crashpad_handler"
+               "libEGL.so"
+               "libffmpeg.so"
+               "libGLESv2.so"
+               "libvk_swiftshader.so"
+               "libvulkan.so.1"
+               "resources/app.asar.unpacked/node_modules/keytar/build/Release/keytar.node"
+               "resources/app.asar.unpacked/node_modules/keytar/build/Release/obj.target/keytar.node"))
+      #:install-plan
+      #~'(("opt/" "/share")
+          ("usr/share/" "/share"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'binary-unpack 'disable-auto-updates
+            (lambda _
+              (delete-file "opt/Anytype/resources/app-update.yml")))
+          ;; We don't need regedit, a node library to interact with Windows
+          ;; hosts.
+          (add-after 'binary-unpack 'strip-regedit
+            (lambda _
+              (delete-file-recursively (string-append
+                                        "opt/Anytype/resources/app.asar.unpacked/"
+                                        "node_modules/regedit"))))
+          (add-after 'binary-unpack 'strip-python
+            (lambda _
+              (delete-file (string-append
+                            "opt/Anytype/resources/app.asar.unpacked/"
+                            "node_modules/keytar/build/node_gyp_bins/python3"))))
+          (add-before 'install 'patch-assets
+            (lambda _
+              (let* ((bin (string-append #$output "/bin"))
+                     (usr/share "./usr/share")
+                     (old-exe "/opt/Anytype/anytype")
+                     (exe (string-append bin "/anytype")))
+                (substitute* (string-append usr/share
+                                            "/applications/anytype.desktop")
+                  (((string-append "^Exec=" old-exe))
+                   (string-append "Exec=" exe))))))
+          (add-before 'install-wrapper 'symlink-entrypoint
+            (lambda _
+              (let* ((bin (string-append #$output "/bin"))
+                     (exe (string-append bin "/anytype"))
+                     (share (string-append #$output "/share/Anytype"))
+                     (target (string-append share "/anytype")))
+                (mkdir-p bin)
+                (symlink target exe)
+                (wrap-program exe
+                  `("LD_LIBRARY_PATH" =
+                    (,share)))))))))
     (inputs (list bzip2
                   flac
                   gdk-pixbuf
@@ -152,69 +155,69 @@ synchronization.")
       ;; ~70 MiB
       #:substitutable? #f
       #:validate-runpath? #t
-      #:wrapper-plan #~'("zotero-bin")
-      #:phases #~(modify-phases %standard-phases
-                   (add-before 'install-wrapper 'install-entrypoint
-                     (lambda _
-                       (let* ((bin (string-append #$output "/bin")))
-                         (mkdir-p bin)
-                         (symlink (string-append #$output "/zotero")
-                                  (string-append bin "/zotero")))))
-                   (add-after 'install 'create-desktop-file
-                     (lambda _
-                       (make-desktop-entry-file (string-append #$output
-                                                 "/share/applications/zotero.desktop")
-                                                #:name "Zotero"
-                                                #:type "Application"
-                                                #:generic-name
-                                                "Reference Management"
-                                                #:exec (string-append #$output
-                                                        "/bin/zotero -url %U")
-                                                #:icon "zotero"
-                                                #:keywords '("zotero")
-                                                #:categories '("Office"
-                                                               "Database")
-                                                #:terminal #f
-                                                #:startup-notify #t
-                                                #:startup-w-m-class "zotero"
-                                                ;; MIME-type list taken from Zotero's shipped .desktop file
-                                                #:mime-type '("x-scheme-handler/zotero"
-                                                              "text/plain"
-                                                              "application/x-research-info-systems"
-                                                              "text/x-research-info-systems"
-                                                              "text/ris"
-                                                              "application/x-endnote-refer"
-                                                              "application/x-inst-for-Scientific-info"
-                                                              "application/mods+xml"
-                                                              "application/rdf+xml"
-                                                              "application/x-bibtex"
-                                                              "text/x-bibtex"
-                                                              "application/marc"
-                                                              "application/vnd.citationstyles.style+xml")
-                                                #:comment '(("en"
-                                                             "Collect, organize, cite, and share your research sources")
-                                                            (#f
-                                                             "Collect, organize, cite, and share your research sources")))))
-                   (add-after 'install 'install-icons
-                     (lambda _
-                       (let ((icon-sizes (list 16 32 48 256)))
-                         (for-each (lambda (size)
-                                     (mkdir-p (string-append #$output
-                                               "/share/icons/hicolor/"
-                                               size
-                                               "x"
-                                               size
-                                               "/apps"))
-                                     (copy-file (string-append
-                                                 "chrome/icons/default/default"
-                                                 size ".png")
-                                                (string-append #$output
-                                                 "/share/icons/hicolor/"
-                                                 size
-                                                 "x"
-                                                 size
-                                                 "/apps/zotero.png")))
-                                   (map number->string icon-sizes))))))))
+      #:wrapper-plan
+      #~'("zotero-bin")
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'install-wrapper 'install-entrypoint
+            (lambda _
+              (let* ((bin (string-append #$output "/bin")))
+                (mkdir-p bin)
+                (symlink (string-append #$output "/zotero")
+                         (string-append bin "/zotero")))))
+          (add-after 'install 'create-desktop-file
+            (lambda _
+              (make-desktop-entry-file (string-append #$output
+                                        "/share/applications/zotero.desktop")
+                                       #:name "Zotero"
+                                       #:type "Application"
+                                       #:generic-name "Reference Management"
+                                       #:exec (string-append #$output
+                                               "/bin/zotero -url %U")
+                                       #:icon "zotero"
+                                       #:keywords '("zotero")
+                                       #:categories '("Office" "Database")
+                                       #:terminal #f
+                                       #:startup-notify #t
+                                       #:startup-w-m-class "zotero"
+                                       ;; MIME-type list taken from Zotero's shipped .desktop file
+                                       #:mime-type '("x-scheme-handler/zotero"
+                                                     "text/plain"
+                                                     "application/x-research-info-systems"
+                                                     "text/x-research-info-systems"
+                                                     "text/ris"
+                                                     "application/x-endnote-refer"
+                                                     "application/x-inst-for-Scientific-info"
+                                                     "application/mods+xml"
+                                                     "application/rdf+xml"
+                                                     "application/x-bibtex"
+                                                     "text/x-bibtex"
+                                                     "application/marc"
+                                                     "application/vnd.citationstyles.style+xml")
+                                       #:comment '(("en"
+                                                    "Collect, organize, cite, and share your research sources")
+                                                   (#f
+                                                    "Collect, organize, cite, and share your research sources")))))
+          (add-after 'install 'install-icons
+            (lambda _
+              (let ((icon-sizes (list 16 32 48 256)))
+                (for-each (lambda (size)
+                            (mkdir-p (string-append #$output
+                                                    "/share/icons/hicolor/"
+                                                    size
+                                                    "x"
+                                                    size
+                                                    "/apps"))
+                            (copy-file (string-append
+                                        "chrome/icons/default/default" size
+                                        ".png")
+                                       (string-append #$output
+                                                      "/share/icons/hicolor/"
+                                                      size
+                                                      "x"
+                                                      size
+                                                      "/apps/zotero.png")))
+                          (map number->string icon-sizes))))))))
     ;; The zotero script that we wrap (which produces .zotero-real), has
     ;; this open file limit step done for us. If that script ever goes
     ;; away, then we can just uncomment this one.

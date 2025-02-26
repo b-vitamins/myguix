@@ -216,9 +216,10 @@ for VAAPI.")
     (arguments
      (list
       #:tests? #f ;Tests are run as part of the normal build step
-      #:configure-flags #~(list "-DENABLE_NONFREE_KERNELS=OFF"
-                                (string-append "-DLIBVA_DRIVERS_PATH="
-                                               #$output "/lib/dri"))))
+      #:configure-flags
+      #~(list "-DENABLE_NONFREE_KERNELS=OFF"
+              (string-append "-DLIBVA_DRIVERS_PATH="
+                             #$output "/lib/dri"))))
     ;; XXX Because of <https://issues.guix.gnu.org/issue/22138>, we need to add
     ;; this to all VA-API back ends instead of once to libva.
     (native-search-paths

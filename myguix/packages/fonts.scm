@@ -179,14 +179,15 @@ Included fonts:
     (build-system font-build-system)
     (arguments
      (list
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'unpack
-                     (lambda* (#:key source inputs #:allow-other-keys)
-                       (let ((7z-exe (search-input-file inputs "/bin/7z")))
-                         (invoke 7z-exe "x" source)
-                         (invoke 7z-exe "x"
-                                 (car (find-files "." "\\.pkg$")))
-                         (invoke 7z-exe "x" "Payload~")))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source inputs #:allow-other-keys)
+              (let ((7z-exe (search-input-file inputs "/bin/7z")))
+                (invoke 7z-exe "x" source)
+                (invoke 7z-exe "x"
+                        (car (find-files "." "\\.pkg$")))
+                (invoke 7z-exe "x" "Payload~")))))))
     (native-inputs (list p7zip))
     (home-page "https://developer.apple.com/fonts")
     (synopsis (string-append font-name " typeface by Apple."))

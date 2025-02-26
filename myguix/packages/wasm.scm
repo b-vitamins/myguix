@@ -39,16 +39,17 @@
       ;; does not support the memory.copy opcode.
       ;; See https://bugzilla.mozilla.org/show_bug.cgi?id=1773200#c4
       #:make-flags ''("BULK_MEMORY_SOURCES=")
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'configure)
-                   (add-before 'build 'set-sysroot-include
-                     (lambda _
-                       (setenv "C_INCLUDE_PATH"
-                               (string-append (getcwd) "/sysroot/include"))))
-                   (add-before 'install 'set-install-dir
-                     (lambda _
-                       (setenv "INSTALL_DIR"
-                               (string-append #$output "/wasm32-wasi")))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (add-before 'build 'set-sysroot-include
+            (lambda _
+              (setenv "C_INCLUDE_PATH"
+                      (string-append (getcwd) "/sysroot/include"))))
+          (add-before 'install 'set-install-dir
+            (lambda _
+              (setenv "INSTALL_DIR"
+                      (string-append #$output "/wasm32-wasi")))))))
     (home-page "https://wasi.dev")
     (synopsis "WASI libc implementation for WebAssembly")
     (description
@@ -79,22 +80,22 @@ other APIs.")
       ;; Stripping binaries breaks wasm linking, resulting in the following
       ;; error: "archive has no index; run ranlib to add one".
       #:strip-binaries? #f
-      #:configure-flags #~(list "-DCMAKE_C_COMPILER=clang"
-                                "-DCMAKE_C_COMPILER_TARGET=wasm32-wasi"
-                                (string-append "-DCMAKE_SYSROOT="
-                                               #$wasi-libc "/wasm32-wasi")
-                                (string-append "-DCMAKE_C_FLAGS=-I "
-                                               #$wasi-libc
-                                               "/wasm32-wasi/include")
+      #:configure-flags
+      #~(list "-DCMAKE_C_COMPILER=clang"
+              "-DCMAKE_C_COMPILER_TARGET=wasm32-wasi"
+              (string-append "-DCMAKE_SYSROOT="
+                             #$wasi-libc "/wasm32-wasi")
+              (string-append "-DCMAKE_C_FLAGS=-I "
+                             #$wasi-libc "/wasm32-wasi/include")
 
-                                "-DCOMPILER_RT_OS_DIR=wasi"
+              "-DCOMPILER_RT_OS_DIR=wasi"
 
-                                "-DCOMPILER_RT_BAREMETAL_BUILD=On"
-                                "-DCOMPILER_RT_DEFAULT_TARGET_ONLY=On"
+              "-DCOMPILER_RT_BAREMETAL_BUILD=On"
+              "-DCOMPILER_RT_DEFAULT_TARGET_ONLY=On"
 
-                                ;; WASM only needs libclang_rt.builtins-wasm32.a from
-                                ;; compiler-rt.
-                                "../source/compiler-rt/lib/builtins")))))
+              ;; WASM only needs libclang_rt.builtins-wasm32.a from
+              ;; compiler-rt.
+              "../source/compiler-rt/lib/builtins")))))
 
 ;; FIXME: Ideally we wouldn't need to build a separate compiler because clang
 ;; can support multiple targets at runtime.  However Guix patches the default
@@ -133,48 +134,48 @@ other APIs.")
     (build-system cmake-build-system)
     (arguments
      (list
-      #:configure-flags #~(list (string-append "-S ../source/runtimes")
+      #:configure-flags
+      #~(list (string-append "-S ../source/runtimes")
 
-                                "-DLLVM_ENABLE_RUNTIMES=libcxx;libcxxabi"
+              "-DLLVM_ENABLE_RUNTIMES=libcxx;libcxxabi"
 
-                                (string-append "-DCMAKE_SYSROOT="
-                                               #$wasi-libc "/wasm32-wasi")
+              (string-append "-DCMAKE_SYSROOT="
+                             #$wasi-libc "/wasm32-wasi")
 
-                                (string-append "-DCMAKE_INCLUDE_PATH="
-                                               #$wasi-libc
-                                               "/wasm32-wasi/include")
+              (string-append "-DCMAKE_INCLUDE_PATH="
+                             #$wasi-libc "/wasm32-wasi/include")
 
-                                (string-append "-DCMAKE_STAGING_PREFIX="
-                                               #$output "/wasm32-wasi")
+              (string-append "-DCMAKE_STAGING_PREFIX="
+                             #$output "/wasm32-wasi")
 
-                                "-DCMAKE_C_COMPILER=clang"
-                                "-DCMAKE_C_COMPILER_WORKS=ON"
-                                "-DCMAKE_CXX_COMPILER=clang++"
-                                "-DCMAKE_CXX_COMPILER_WORKS=ON"
-                                "-DCMAKE_C_COMPILER_TARGET=wasm32-wasi"
-                                "-DCMAKE_CXX_COMPILER_TARGET=wasm32-wasi"
+              "-DCMAKE_C_COMPILER=clang"
+              "-DCMAKE_C_COMPILER_WORKS=ON"
+              "-DCMAKE_CXX_COMPILER=clang++"
+              "-DCMAKE_CXX_COMPILER_WORKS=ON"
+              "-DCMAKE_C_COMPILER_TARGET=wasm32-wasi"
+              "-DCMAKE_CXX_COMPILER_TARGET=wasm32-wasi"
 
-                                "-DLIBCXX_LIBDIR_SUFFIX=/wasm32-wasi"
+              "-DLIBCXX_LIBDIR_SUFFIX=/wasm32-wasi"
 
-                                "-DLIBCXX_ENABLE_EXCEPTIONS=OFF"
-                                "-DLIBCXX_ENABLE_SHARED=OFF"
-                                "-DLIBCXX_ENABLE_THREADS=OFF"
-                                "-DLIBCXX_ENABLE_FILESYSTEM=OFF"
+              "-DLIBCXX_ENABLE_EXCEPTIONS=OFF"
+              "-DLIBCXX_ENABLE_SHARED=OFF"
+              "-DLIBCXX_ENABLE_THREADS=OFF"
+              "-DLIBCXX_ENABLE_FILESYSTEM=OFF"
 
-                                "-DLIBCXXABI_LIBDIR_SUFFIX=/wasm32-wasi"
+              "-DLIBCXXABI_LIBDIR_SUFFIX=/wasm32-wasi"
 
-                                "-DLIBCXXABI_ENABLE_EXCEPTIONS=OFF"
-                                "-DLIBCXXABI_ENABLE_SHARED=OFF"
-                                "-DLIBCXXABI_ENABLE_THREADS=OFF"
-                                "-DLIBCXXABI_ENABLE_FILESYSTEM=OFF")
+              "-DLIBCXXABI_ENABLE_EXCEPTIONS=OFF"
+              "-DLIBCXXABI_ENABLE_SHARED=OFF"
+              "-DLIBCXXABI_ENABLE_THREADS=OFF"
+              "-DLIBCXXABI_ENABLE_FILESYSTEM=OFF")
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'set-paths 'adjust-CPLUS_INCLUDE_PATH
-                     (lambda _
-                       (setenv "CPLUS_INCLUDE_PATH"
-                               (string-append #$wasi-libc
-                                              "/wasm32-wasi/include:"
-                                              (getenv "CPLUS_INCLUDE_PATH"))))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'set-paths 'adjust-CPLUS_INCLUDE_PATH
+            (lambda _
+              (setenv "CPLUS_INCLUDE_PATH"
+                      (string-append #$wasi-libc "/wasm32-wasi/include:"
+                                     (getenv "CPLUS_INCLUDE_PATH"))))))))
     (native-inputs (list lld python wasm32-wasi-clang))
     (inputs (list wasi-libc))
     (home-page "https://libcxx.llvm.org")

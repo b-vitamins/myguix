@@ -760,12 +760,13 @@ OpenAI API.")
     (arguments
      (list
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'remove-invalid-classifier
-                     (lambda _
-                       (substitute* "pyproject.toml"
-                         (("Programming Language :: Python :: 3.13")
-                          "Programming Language :: Python :: 3.12")))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'remove-invalid-classifier
+            (lambda _
+              (substitute* "pyproject.toml"
+                (("Programming Language :: Python :: 3.13")
+                 "Programming Language :: Python :: 3.12")))))))
     (home-page "https://github.com/BoboTiG/python-mss")
     (synopsis
      "An ultra fast cross-platform multiple screenshots module in pure python using ctypes.")
@@ -791,12 +792,11 @@ ctypes.")
                       (build-system pyproject-build-system)
                       (arguments
                        (list
-                        #:phases #~(modify-phases %standard-phases
-                                     (add-before 'check 'extend-test-timeout
-                                       (lambda _
-                                         (setenv
-                                          "WEBSOCKETS_TESTS_TIMEOUT_FACTOR"
-                                          "10"))))))
+                        #:phases
+                        #~(modify-phases %standard-phases
+                            (add-before 'check 'extend-test-timeout
+                              (lambda _
+                                (setenv "WEBSOCKETS_TESTS_TIMEOUT_FACTOR" "10"))))))
                       (native-inputs (list python-setuptools python-wheel))
                       (home-page "https://github.com/aaugustin/websockets")
                       (synopsis
@@ -1210,36 +1210,35 @@ parallelism.")))
                   ((guix build pyproject-build-system)
                    #:prefix py:)
                   (guix build utils))
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'install)
-                   (add-after 'unpack 'override-jemalloc
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (let ((jemalloc (assoc-ref inputs "jemalloc")))
-                         ;; This flag is needed when not using the bundled jemalloc.
-                         ;; https://github.com/tikv/jemallocator/issues/19
-                         (setenv
-                          "CARGO_FEATURE_UNPREFIXED_MALLOC_ON_SUPPORTED_PLATFORMS"
-                          "1")
-                         (setenv "JEMALLOC_OVERRIDE"
-                                 (string-append jemalloc "/lib/libjemalloc.so")))))
-                   (add-after 'build 'build-python-module
-                     (assoc-ref py:%standard-phases
-                                'build))
-                   (add-after 'build-python-module 'install-python-module
-                     (lambda* (#:key outputs #:allow-other-keys)
-                       ;; We'll do a manual ‘pip install’ to prefix=$out and trust that
-                       ;; it installs the compiled `ruff` binary without trying to parse it.
-                       (let* ((out (assoc-ref outputs "out"))
-                              (wheel (car (find-files "target/wheels"
-                                                      "\\.whl$"))))
-                         (invoke "pip"
-                                 "--no-cache-dir"
-                                 "--no-input"
-                                 "install"
-                                 "--no-deps"
-                                 "--prefix"
-                                 out
-                                 wheel)))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'install)
+          (add-after 'unpack 'override-jemalloc
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((jemalloc (assoc-ref inputs "jemalloc")))
+                ;; This flag is needed when not using the bundled jemalloc.
+                ;; https://github.com/tikv/jemallocator/issues/19
+                (setenv
+                 "CARGO_FEATURE_UNPREFIXED_MALLOC_ON_SUPPORTED_PLATFORMS" "1")
+                (setenv "JEMALLOC_OVERRIDE"
+                        (string-append jemalloc "/lib/libjemalloc.so")))))
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-after 'build-python-module 'install-python-module
+            (lambda* (#:key outputs #:allow-other-keys)
+              ;; We'll do a manual ‘pip install’ to prefix=$out and trust that
+              ;; it installs the compiled `ruff` binary without trying to parse it.
+              (let* ((out (assoc-ref outputs "out"))
+                     (wheel (car (find-files "target/wheels" "\\.whl$"))))
+                (invoke "pip"
+                        "--no-cache-dir"
+                        "--no-input"
+                        "install"
+                        "--no-deps"
+                        "--prefix"
+                        out
+                        wheel)))))
       #:cargo-inputs `(("rust-aho-corasick" ,rust-aho-corasick-1)
                        ("rust-anstream" ,rust-anstream-0.6)
                        ("rust-anstyle" ,rust-anstyle-1)

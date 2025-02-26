@@ -90,16 +90,17 @@
                   ((guix build pyproject-build-system)
                    #:prefix py:)
                   (guix build utils))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'chdir
-                     (lambda* _
-                       (chdir "bindings/python")))
-                   (add-after 'build 'build-python-module
-                     (assoc-ref py:%standard-phases
-                                'build))
-                   (add-after 'build-python-module 'install-python-module
-                     (assoc-ref py:%standard-phases
-                                'install)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'chdir
+            (lambda* _
+              (chdir "bindings/python")))
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases
+                       'install)))
       #:cargo-inputs `(("rust-pyo3" ,rust-pyo3-0.21)
                        ("rust-serde-json" ,rust-serde-json-1)
                        ("rust-memmap2" ,rust-memmap2-0.9))))
@@ -132,22 +133,23 @@
                   ((guix build pyproject-build-system)
                    #:prefix py:)
                   (guix build utils))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'chdir
-                     (lambda* _
-                       (delete-file "bindings/python/.cargo/config.toml")
-                       (chdir "bindings/python")))
-                   (add-after 'chdir 'version-tokenizers
-                     (lambda* _
-                       (substitute* "Cargo.toml"
-                         (("^\\[dependencies.tokenizers\\].*$" all)
-                          (string-append all "version = \"0.19.1\"\n")))))
-                   (add-after 'build 'build-python-module
-                     (assoc-ref py:%standard-phases
-                                'build))
-                   (add-after 'build-python-module 'install-python-module
-                     (assoc-ref py:%standard-phases
-                                'install)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'chdir
+            (lambda* _
+              (delete-file "bindings/python/.cargo/config.toml")
+              (chdir "bindings/python")))
+          (add-after 'chdir 'version-tokenizers
+            (lambda* _
+              (substitute* "Cargo.toml"
+                (("^\\[dependencies.tokenizers\\].*$" all)
+                 (string-append all "version = \"0.19.1\"\n")))))
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases
+                       'install)))
       #:cargo-inputs `(("rust-rayon" ,rust-rayon-1)
                        ("rust-serde" ,rust-serde-1)
                        ("rust-serde-json" ,rust-serde-json-1)
@@ -223,14 +225,15 @@
     (arguments
      (list
       #:tests? #f ;there are none
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'use-eigen-package
-                     (lambda _
-                       (substitute* "setup.py"
-                         (("third_party/eigen")
-                          (string-append #$(this-package-input
-                                            "eigen-for-python-ml-dtypes")
-                                         "/include/eigen3"))))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'use-eigen-package
+            (lambda _
+              (substitute* "setup.py"
+                (("third_party/eigen")
+                 (string-append #$(this-package-input
+                                   "eigen-for-python-ml-dtypes")
+                                "/include/eigen3"))))))))
     (inputs (list eigen-for-python-ml-dtypes))
     (propagated-inputs (list python-numpy))
     (native-inputs (list pybind11
@@ -471,119 +474,117 @@ cleaning up argument parsing scripts.")
                           "//python/tensorstore:_tensorstore__shared_objects")
         #:build-targets '(list
                           "//python/tensorstore:_tensorstore__shared_objects")
-        #:bazel-configuration #~(begin
-                                  ;; Make numpy headers available at expected location.  See
-                                  ;; snippet above for more information.
-                                  (let ((python-version #$(version-major+minor
-                                                           (package-version (this-package-input
-                                                                             "python-wrapper")))))
-                                    (copy-recursively (string-append #$(this-package-input
-                                                                        "python-numpy")
-                                                       "/lib/python"
-                                                       python-version
-                                                       "/site-packages/numpy/core/include/numpy")
-                                                      "/tmp/numpy-include"))
-                                  ;; You can get the list of possible values of
-                                  ;; TENSORSTORE_SYSTEM_PYTHON_LIBS and
-                                  ;; TENSORSTORE_SYSTEM_LIBS by searching the tensorstore
-                                  ;; checkout for system_build_file.  Any match is a possible
-                                  ;; replacement.
-                                  (setenv "TENSORSTORE_SYSTEM_PYTHON_LIBS"
-                                          (string-join '#$tensorstore-python-packages
-                                                       ","))
-                                  (setenv "TENSORSTORE_SYSTEM_LIBS"
-                                          (string-join (list
-                                                        ;; We don't seem to have a
-                                                        ;; conventional library with headers,
-                                                        ;; even though we use rust-blake3
-                                                        ;; successfully in python-blake3.
-                                                        ;; "blake3"
-                                                        ;; when building with our variant we
-                                                        ;; get this error: reference to
-                                                        ;; ‘basic_json’ is ambiguous
-                                                        ;; "com_github_nlohmann_json"
-                                                        "com_github_pybind_pybind11"
-                                                        ;; "com_google_boringssl"
-                                                        "com_google_brotli"
-                                                        "com_google_snappy"
-                                                        "jpeg"
-                                                        "libtiff"
-                                                        "libwebp"
-                                                        "nasm"
-                                                        "net_zlib"
-                                                        "net_zstd"
-                                                        "org_aomedia_avif"
-                                                        "org_blosc_cblosc"
-                                                        "org_lz4"
-                                                        "org_nghttp2"
-                                                        "org_sourceware_bzip2"
-                                                        "org_tukaani_xz"
-                                                        "png"
-                                                        "se_curl") ",")))
-        #:bazel-arguments #~(list "-c"
-                             "opt"
-                             ;; We need a more recent version of platforms, because the
-                             ;; included cpu package does not define cpu:wasm32.
-                             (string-append "--override_repository=platforms="
-                              #$(this-package-native-input "bazel-platforms"))
-                             "--extra_toolchains=@bazel_tools//tools/python:autodetecting_toolchain_nonstrict"
-                             "--action_env=GUIX_PYTHONPATH"
-                             "--host_action_env=GUIX_PYTHONPATH"
-                             "--action_env=TENSORSTORE_SYSTEM_PYTHON_LIBS"
-                             "--host_action_env=TENSORSTORE_SYSTEM_PYTHON_LIBS"
-                             "--action_env=TENSORSTORE_SYSTEM_LIBS"
-                             "--host_action_env=TENSORSTORE_SYSTEM_LIBS"
-                             "--action_env=PYTHON_LIB_PATH"
-                             "--host_action_env=PYTHON_LIB_PATH"
-                             "--action_env=PYTHON_BIN_PATH"
-                             "--host_action_env=PYTHON_BIN_PATH"
-                             (string-append "--python_path="
-                                            #$(this-package-input
-                                               "python-wrapper") "/bin/python"))
+        #:bazel-configuration
+        #~(begin
+            ;; Make numpy headers available at expected location.  See
+            ;; snippet above for more information.
+            (let ((python-version #$(version-major+minor (package-version (this-package-input
+                                                                           "python-wrapper")))))
+              (copy-recursively (string-append #$(this-package-input
+                                                  "python-numpy")
+                                 "/lib/python" python-version
+                                 "/site-packages/numpy/core/include/numpy")
+                                "/tmp/numpy-include"))
+            ;; You can get the list of possible values of
+            ;; TENSORSTORE_SYSTEM_PYTHON_LIBS and
+            ;; TENSORSTORE_SYSTEM_LIBS by searching the tensorstore
+            ;; checkout for system_build_file.  Any match is a possible
+            ;; replacement.
+            (setenv "TENSORSTORE_SYSTEM_PYTHON_LIBS"
+                    (string-join '#$tensorstore-python-packages ","))
+            (setenv "TENSORSTORE_SYSTEM_LIBS"
+                    (string-join (list
+                                  ;; We don't seem to have a
+                                  ;; conventional library with headers,
+                                  ;; even though we use rust-blake3
+                                  ;; successfully in python-blake3.
+                                  ;; "blake3"
+                                  ;; when building with our variant we
+                                  ;; get this error: reference to
+                                  ;; ‘basic_json’ is ambiguous
+                                  ;; "com_github_nlohmann_json"
+                                  "com_github_pybind_pybind11"
+                                  ;; "com_google_boringssl"
+                                  "com_google_brotli"
+                                  "com_google_snappy"
+                                  "jpeg"
+                                  "libtiff"
+                                  "libwebp"
+                                  "nasm"
+                                  "net_zlib"
+                                  "net_zstd"
+                                  "org_aomedia_avif"
+                                  "org_blosc_cblosc"
+                                  "org_lz4"
+                                  "org_nghttp2"
+                                  "org_sourceware_bzip2"
+                                  "org_tukaani_xz"
+                                  "png"
+                                  "se_curl") ",")))
+        #:bazel-arguments
+        #~(list "-c"
+           "opt"
+           ;; We need a more recent version of platforms, because the
+           ;; included cpu package does not define cpu:wasm32.
+           (string-append "--override_repository=platforms="
+                          #$(this-package-native-input "bazel-platforms"))
+           "--extra_toolchains=@bazel_tools//tools/python:autodetecting_toolchain_nonstrict"
+           "--action_env=GUIX_PYTHONPATH"
+           "--host_action_env=GUIX_PYTHONPATH"
+           "--action_env=TENSORSTORE_SYSTEM_PYTHON_LIBS"
+           "--host_action_env=TENSORSTORE_SYSTEM_PYTHON_LIBS"
+           "--action_env=TENSORSTORE_SYSTEM_LIBS"
+           "--host_action_env=TENSORSTORE_SYSTEM_LIBS"
+           "--action_env=PYTHON_LIB_PATH"
+           "--host_action_env=PYTHON_LIB_PATH"
+           "--action_env=PYTHON_BIN_PATH"
+           "--host_action_env=PYTHON_BIN_PATH"
+           (string-append "--python_path="
+                          #$(this-package-input "python-wrapper")
+                          "/bin/python"))
         #:vendored-inputs-hash
         "1sdwk3fnf0gfk1h2fb5082r87ahzhswznj21p9d1y0g0x97hw6zk"
-        #:phases #~(modify-phases (@ (myguix build bazel-build-system)
-                                     %standard-phases)
-                     (add-after 'unpack 'patch-python-build-system
-                       (lambda _
-                         (substitute* "pyproject.toml"
-                           (("oldest-supported-numpy")
-                            "numpy"))
-                         ;; This rule expects that
-                         ;; _tensorstore.cpython-310-x86_64-linux-gnu.so exists,
-                         ;; but we've only built _tensorstore.so.
-                         (substitute* "setup.py"
-                           (("os.path.basename\\(ext_full_path\\)")
-                            "'_tensorstore.so'")
-                           (("'fallback_version': '0.0.0'")
-                            (string-append "'fallback_version': '"
-                                           #$version "'")))
-                         ;; Make numpy headers available at expected location.  See
-                         ;; snippet above for more information.
-                         (let ((python-version #$(version-major+minor (package-version
-                                                                       (this-package-input
-                                                                        "python-wrapper")))))
-                           (copy-recursively (string-append #$(this-package-input
-                                                               "python-numpy")
-                                              "/lib/python" python-version
-                                              "/site-packages/numpy/core/include/numpy")
-                                             "/tmp/numpy-include"))))
-                     (add-after 'build 'prepare-python
-                       (lambda _
-                         (setenv "TENSORSTORE_PREBUILT_DIR"
-                                 (string-append (getcwd) "/bazel-bin/python/"))))
-                     (add-after 'prepare-python 'build-python
-                       (assoc-ref pyproject:%standard-phases
-                                  'build))
-                     (add-after 'build-python 'install-python
-                       (assoc-ref pyproject:%standard-phases
-                                  'install))
-                     (add-after 'install-python 'create-entrypoints
-                       (assoc-ref pyproject:%standard-phases
-                                  'create-entrypoints))
-                     (add-after 'create-entrypoints 'compile-bytecode
-                       (assoc-ref pyproject:%standard-phases
-                                  'compile-bytecode)))))
+        #:phases
+        #~(modify-phases (@ (myguix build bazel-build-system) %standard-phases)
+            (add-after 'unpack 'patch-python-build-system
+              (lambda _
+                (substitute* "pyproject.toml"
+                  (("oldest-supported-numpy")
+                   "numpy"))
+                ;; This rule expects that
+                ;; _tensorstore.cpython-310-x86_64-linux-gnu.so exists,
+                ;; but we've only built _tensorstore.so.
+                (substitute* "setup.py"
+                  (("os.path.basename\\(ext_full_path\\)")
+                   "'_tensorstore.so'")
+                  (("'fallback_version': '0.0.0'")
+                   (string-append "'fallback_version': '"
+                                  #$version "'")))
+                ;; Make numpy headers available at expected location.  See
+                ;; snippet above for more information.
+                (let ((python-version #$(version-major+minor (package-version (this-package-input
+                                                                               "python-wrapper")))))
+                  (copy-recursively (string-append #$(this-package-input
+                                                      "python-numpy")
+                                     "/lib/python" python-version
+                                     "/site-packages/numpy/core/include/numpy")
+                                    "/tmp/numpy-include"))))
+            (add-after 'build 'prepare-python
+              (lambda _
+                (setenv "TENSORSTORE_PREBUILT_DIR"
+                        (string-append (getcwd) "/bazel-bin/python/"))))
+            (add-after 'prepare-python 'build-python
+              (assoc-ref pyproject:%standard-phases
+                         'build))
+            (add-after 'build-python 'install-python
+              (assoc-ref pyproject:%standard-phases
+                         'install))
+            (add-after 'install-python 'create-entrypoints
+              (assoc-ref pyproject:%standard-phases
+                         'create-entrypoints))
+            (add-after 'create-entrypoints 'compile-bytecode
+              (assoc-ref pyproject:%standard-phases
+                         'compile-bytecode)))))
       (propagated-inputs (list python-absl-py
                                python-appdirs
                                python-asttokens
@@ -838,75 +839,77 @@ arrays that:
         #:build-targets '(list
                           "//tensorflow/tools/pip_package:build_pip_package"
                           "//tensorflow/tools/lib_package:libtensorflow")
-        #:bazel-arguments #~(list
-                             "--extra_toolchains=@bazel_tools//tools/python:autodetecting_toolchain_nonstrict"
-                             "--action_env=PYTHON_LIB_PATH"
-                             "--host_action_env=PYTHON_LIB_PATH"
-                             "--action_env=PYTHON_BIN_PATH"
-                             "--host_action_env=PYTHON_BIN_PATH"
-                             (string-append "--python_path="
-                                            #$(this-package-input
-                                               "python-wrapper") "/bin/python"))
+        #:bazel-arguments
+        #~(list
+           "--extra_toolchains=@bazel_tools//tools/python:autodetecting_toolchain_nonstrict"
+           "--action_env=PYTHON_LIB_PATH"
+           "--host_action_env=PYTHON_LIB_PATH"
+           "--action_env=PYTHON_BIN_PATH"
+           "--host_action_env=PYTHON_BIN_PATH"
+           (string-append "--python_path="
+                          #$(this-package-input "python-wrapper")
+                          "/bin/python"))
         #:vendored-inputs-hash
         "0bqlwf9br68mrm5ambnm3dg31gnpsa12wfm2q2gqszknhmk1nyj8"
-        #:phases #~(modify-phases %standard-phases
-                     (add-after 'unpack-vendored-inputs 'configure
-                       (lambda _
-                         (define bazel-out
-                           (string-append (getenv "NIX_BUILD_TOP") "/output"))
-                         ;; XXX: Our version of protobuf leads to "File already
-                         ;; exists in database" when loading in Python.
-                         (substitute* (string-append bazel-out
-                                       "/external/tf_runtime/third_party/systemlibs/protobuf.BUILD")
-                           (("-lprotobuf")
-                            "-l:libprotobuf.a")
-                           (("-lprotoc")
-                            "-l:libprotoc.a"))
-                         ;; Do not mess with RUNPATH
-                         (substitute* "tensorflow/tools/pip_package/build_pip_package.sh"
-                           (("patchelf ")
-                            "echo -- "))
-                         (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
-                         (setenv "USER" "homeless-shelter")
-                         (setenv "TF_SYSTEM_LIBS"
-                                 (string-join '#$tensorflow-system-libs ","))))
-                     (add-after 'build 'install
-                       (lambda _
-                         ;; Install library
-                         (mkdir-p #$output)
-                         (invoke "tar" "-xf"
-                          "bazel-bin/tensorflow/tools/lib_package/libtensorflow.tar.gz"
-                          "-C"
-                          #$output)
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'unpack-vendored-inputs 'configure
+              (lambda _
+                (define bazel-out
+                  (string-append (getenv "NIX_BUILD_TOP") "/output"))
+                ;; XXX: Our version of protobuf leads to "File already
+                ;; exists in database" when loading in Python.
+                (substitute* (string-append bazel-out
+                              "/external/tf_runtime/third_party/systemlibs/protobuf.BUILD")
+                  (("-lprotobuf")
+                   "-l:libprotobuf.a")
+                  (("-lprotoc")
+                   "-l:libprotoc.a"))
+                ;; Do not mess with RUNPATH
+                (substitute* "tensorflow/tools/pip_package/build_pip_package.sh"
+                  (("patchelf ")
+                   "echo -- "))
+                (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
+                (setenv "USER" "homeless-shelter")
+                (setenv "TF_SYSTEM_LIBS"
+                        (string-join '#$tensorflow-system-libs ","))))
+            (add-after 'build 'install
+              (lambda _
+                ;; Install library
+                (mkdir-p #$output)
+                (invoke "tar" "-xf"
+                 "bazel-bin/tensorflow/tools/lib_package/libtensorflow.tar.gz"
+                 "-C"
+                 #$output)
 
-                         ;; Write pkgconfig file
-                         (mkdir-p (string-append #$output "/lib/pkgconfig"))
-                         (call-with-output-file (string-append #$output
-                                                 "/lib/pkgconfig/tensorflow.pc")
-                           (lambda (port)
-                             (format port
-                              "Name: TensorFlow
+                ;; Write pkgconfig file
+                (mkdir-p (string-append #$output "/lib/pkgconfig"))
+                (call-with-output-file (string-append #$output
+                                        "/lib/pkgconfig/tensorflow.pc")
+                  (lambda (port)
+                    (format port
+                     "Name: TensorFlow
 Version: ~a
 Description: Library for computation using data flow graphs for scalable machine learning
 Requires:
 Libs: -L~a/lib -ltensorflow
 Cflags: -I~a/include/tensorflow
 "
-                              #$version
-                              #$output
-                              #$output)))
+                     #$version
+                     #$output
+                     #$output)))
 
-                         ;; Install python bindings
-                         ;; Build the source code, then copy it to the "python" output.
-                         ;;
-                         ;; TODO: build_pip_package includes symlinks so we must
-                         ;; dereference them.
-                         (let ((here (string-append (getcwd) "/dist")))
-                           (invoke
-                            "bazel-bin/tensorflow/tools/pip_package/build_pip_package"
-                            "--src" here)
-                           (copy-recursively here
-                                             #$output:python)))))))
+                ;; Install python bindings
+                ;; Build the source code, then copy it to the "python" output.
+                ;;
+                ;; TODO: build_pip_package includes symlinks so we must
+                ;; dereference them.
+                (let ((here (string-append (getcwd) "/dist")))
+                  (invoke
+                   "bazel-bin/tensorflow/tools/pip_package/build_pip_package"
+                   "--src" here)
+                  (copy-recursively here
+                                    #$output:python)))))))
       (outputs '("out" "python"))
       (inputs (list curl
                     double-conversion
@@ -1027,82 +1030,81 @@ a delightful developer experience.")
       (arguments
        (list
         #:tests? #f
-        #:phases #~(modify-phases %standard-phases
-                     (replace 'unpack
-                       (lambda _
-                         (mkdir-p "source")
-                         (copy-recursively #$tensorflow:python "source")
-                         (chdir "source")
-                         ;; XXX: the "python" output of the tensorflow package
-                         ;; contains broken symlinks.
-                         (delete-file-recursively "third_party/eigen3")
-                         (mkdir-p "third_party/eigen3")
-                         (copy-recursively #$eigen-for-python-ml-dtypes
-                                           "third_party/eigen3")
-                         (with-output-to-file "third_party/eigen3/LICENSE"
-                           (lambda ()
-                             (display "")))))
-                     (add-after 'unpack 'relax-dependencies
-                       (lambda _
-                         (substitute* "setup.py"
-                           ;; We don't have tensorflow-io yet
-                           (("'tensorflow-io-gcs-filesystem.*")
-                            "None,")
-                           (("'platform_system.*")
-                            "")
-                           ;; Versions above 0.4 break tests, but that's okay
-                           ;; because we aren't running them.
-                           (("gast >= 0.2.1, <= 0.4.0")
-                            "gast >= 0.2.1")
-                           (("'typing_extensions>=3.6.6,<4.6.0'")
-                            "'typing_extensions>=3.6.6'")
-                           ;; Drop all of tensorboard and tensorflow_estimator
-                           (("'(tensorboard|tensorflow_estimator) >.*',")
-                            " None,")
-                           ;; Our clang bindings have a different name.
-                           (("libclang")
-                            "clang")
-                           ;; No tensorboard, sorry.
-                           (("standard_or_nightly\\('tensorboard = tensorboard.main:run_main', None\\),")
-                            "")
-                           (("'import_pb_to_tensorboard = tensorflow.python.tools.import_pb_to_tensorboard:main',")
-                            "")
-                           ;; We don't have tensorflow-estimator yet.
-                           (("'estimator_ckpt_converter = '")
-                            "")
-                           (("'tensorflow_estimator.python.estimator.tools.checkpoint_converter:main',")
-                            ""))))
-                     ;; XXX: this is really ugly, but many shared objects cannot
-                     ;; find libtensorflow_framework.so.2 and libbfloat16.so.so
-                     (add-after 'unpack 'find-tensorflow-libraries
-                       (lambda _
-                         ;; XXX: not all .so files need this.
-                         (let ((libraries (find-files "." ".*\\.so$")))
-                           (for-each (lambda (lib)
-                                       (make-file-writable lib)
-                                       (system (format #f
-                                                "patchelf --set-rpath ~a:~a:$(patchelf --print-rpath ~a) ~a"
-                                                ;; for libtensorflow_framework.so.2
-                                                (string-append #$(this-package-input
-                                                                  "tensorflow")
-                                                               "/lib")
-                                                ;; for libbfloat16.so.so
-                                                (string-append #$output
-                                                 "/lib/python3.10/site-packages/tensorflow/tsl/python/lib/core/")
-                                                lib
-                                                lib))) libraries))))
-                     (add-after 'install 'install-missing-libraries
-                       (lambda _
-                         ;; libtensorflow_cc.so.2 is not installed.  See
-                         ;; https://github.com/tensorflow/tensorflow/issues/60326.
-                         (let ((dir (string-append #$output
-                                     "/lib/python3.10/site-packages/tensorflow/"))
-                               (lib (string-append "libtensorflow_cc.so."
-                                                   #$(package-version
-                                                      this-package))))
-                           (install-file (string-append "tensorflow/" lib) dir)
-                           (with-directory-excursion dir
-                             (symlink lib "libtensorflow_cc.so.2"))))))))
+        #:phases
+        #~(modify-phases %standard-phases
+            (replace 'unpack
+              (lambda _
+                (mkdir-p "source")
+                (copy-recursively #$tensorflow:python "source")
+                (chdir "source")
+                ;; XXX: the "python" output of the tensorflow package
+                ;; contains broken symlinks.
+                (delete-file-recursively "third_party/eigen3")
+                (mkdir-p "third_party/eigen3")
+                (copy-recursively #$eigen-for-python-ml-dtypes
+                                  "third_party/eigen3")
+                (with-output-to-file "third_party/eigen3/LICENSE"
+                  (lambda ()
+                    (display "")))))
+            (add-after 'unpack 'relax-dependencies
+              (lambda _
+                (substitute* "setup.py"
+                  ;; We don't have tensorflow-io yet
+                  (("'tensorflow-io-gcs-filesystem.*")
+                   "None,")
+                  (("'platform_system.*")
+                   "")
+                  ;; Versions above 0.4 break tests, but that's okay
+                  ;; because we aren't running them.
+                  (("gast >= 0.2.1, <= 0.4.0")
+                   "gast >= 0.2.1")
+                  (("'typing_extensions>=3.6.6,<4.6.0'")
+                   "'typing_extensions>=3.6.6'")
+                  ;; Drop all of tensorboard and tensorflow_estimator
+                  (("'(tensorboard|tensorflow_estimator) >.*',")
+                   " None,")
+                  ;; Our clang bindings have a different name.
+                  (("libclang")
+                   "clang")
+                  ;; No tensorboard, sorry.
+                  (("standard_or_nightly\\('tensorboard = tensorboard.main:run_main', None\\),")
+                   "")
+                  (("'import_pb_to_tensorboard = tensorflow.python.tools.import_pb_to_tensorboard:main',")
+                   "")
+                  ;; We don't have tensorflow-estimator yet.
+                  (("'estimator_ckpt_converter = '")
+                   "")
+                  (("'tensorflow_estimator.python.estimator.tools.checkpoint_converter:main',")
+                   ""))))
+            ;; XXX: this is really ugly, but many shared objects cannot
+            ;; find libtensorflow_framework.so.2 and libbfloat16.so.so
+            (add-after 'unpack 'find-tensorflow-libraries
+              (lambda _
+                ;; XXX: not all .so files need this.
+                (let ((libraries (find-files "." ".*\\.so$")))
+                  (for-each (lambda (lib)
+                              (make-file-writable lib)
+                              (system (format #f
+                                       "patchelf --set-rpath ~a:~a:$(patchelf --print-rpath ~a) ~a"
+                                       ;; for libtensorflow_framework.so.2
+                                       (string-append #$(this-package-input
+                                                         "tensorflow") "/lib")
+                                       ;; for libbfloat16.so.so
+                                       (string-append #$output
+                                        "/lib/python3.10/site-packages/tensorflow/tsl/python/lib/core/")
+                                       lib
+                                       lib))) libraries))))
+            (add-after 'install 'install-missing-libraries
+              (lambda _
+                ;; libtensorflow_cc.so.2 is not installed.  See
+                ;; https://github.com/tensorflow/tensorflow/issues/60326.
+                (let ((dir (string-append #$output
+                            "/lib/python3.10/site-packages/tensorflow/"))
+                      (lib (string-append "libtensorflow_cc.so."
+                                          #$(package-version this-package))))
+                  (install-file (string-append "tensorflow/" lib) dir)
+                  (with-directory-excursion dir
+                    (symlink lib "libtensorflow_cc.so.2"))))))))
       (outputs '("out"))
       (propagated-inputs (modify-inputs (package-propagated-inputs tensorflow)
                            (append python-clang-13 python-keras-for-tensorflow)))
@@ -1196,61 +1198,59 @@ providing utilities for various projects.")
       (arguments
        (list
         #:tests? #f ;there are none
-        #:bazel-configuration #~(setenv "TF_SYSTEM_LIBS"
-                                        (string-join '#$jaxlib-system-libs ","))
+        #:bazel-configuration
+        #~(setenv "TF_SYSTEM_LIBS"
+                  (string-join '#$jaxlib-system-libs ","))
         #:fetch-targets '(list "//jaxlib/tools:build_wheel"
                                "@mkl_dnn_v1//:mkl_dnn")
         #:build-targets '(list "//jaxlib/tools:build_wheel")
-        #:run-command #~(list (string-append "--output_path="
-                                             #$output)
-                              (string-append "--cpu="
-                                             #$(match (or (%current-target-system)
-                                                          (%current-system))
-                                                 ("x86_64-linux" "x86_64")
-                                                 ("i686-linux" "i686")
-                                                 ("mips64el-linux" "mips64")
-                                                 ("aarch64-linux" "aarch64"))))
-        #:bazel-arguments #~(list "-c"
-                                  "opt"
-                                  ;; We need a more recent version of platforms, because the
-                                  ;; included cpu package does not define cpu:wasm32.
-                                  (string-append
-                                   "--override_repository=platforms="
-                                   #$(this-package-native-input
-                                      "bazel-platforms"))
-                                  "--config=mkl_open_source_only"
-                                  (string-append "--define="
-                                                 "PROTOBUF_INCLUDE_PATH="
-                                                 #$static-protobuf "/include"))
+        #:run-command
+        #~(list (string-append "--output_path="
+                               #$output)
+                (string-append "--cpu="
+                               #$(match (or (%current-target-system)
+                                            (%current-system))
+                                   ("x86_64-linux" "x86_64")
+                                   ("i686-linux" "i686")
+                                   ("mips64el-linux" "mips64")
+                                   ("aarch64-linux" "aarch64"))))
+        #:bazel-arguments
+        #~(list "-c"
+                "opt"
+                ;; We need a more recent version of platforms, because the
+                ;; included cpu package does not define cpu:wasm32.
+                (string-append "--override_repository=platforms="
+                               #$(this-package-native-input "bazel-platforms"))
+                "--config=mkl_open_source_only"
+                (string-append "--define=" "PROTOBUF_INCLUDE_PATH="
+                               #$static-protobuf "/include"))
         #:vendored-inputs-hash
         "1fa4f8qx0765zdwmqaz1jnc60nvb3j4qxqy0mxrpqj58qdclycfs"
-        #:phases #~(modify-phases %standard-phases
-                     (add-after 'unpack-vendored-inputs 'configure
-                       (lambda _
-                         ;; XXX: Our version of protobuf leads to "File already
-                         ;; exists in database" when loading jax in Python.
-                         ;; Using the static library is what Nix does, but it
-                         ;; doesn't help us.
-                         (let ((bazel-out (string-append (getenv
-                                                          "NIX_BUILD_TOP")
-                                                         "/output")))
-                           (setenv "JAXLIB_RELEASE" "1")
-                           (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
-                           (setenv "TF_SYSTEM_LIBS"
-                                   (string-join '#$jaxlib-system-libs ","))
-                           (call-with-output-file ".jax_configure.bazelrc"
-                             (lambda (port)
-                               ;; build --define PROTOBUF_INCLUDE_PATH=" #$(this-package-input "protobuf") "/include
-                               (display (string-append
-                                         "
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'unpack-vendored-inputs 'configure
+              (lambda _
+                ;; XXX: Our version of protobuf leads to "File already
+                ;; exists in database" when loading jax in Python.
+                ;; Using the static library is what Nix does, but it
+                ;; doesn't help us.
+                (let ((bazel-out (string-append (getenv "NIX_BUILD_TOP")
+                                                "/output")))
+                  (setenv "JAXLIB_RELEASE" "1")
+                  (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
+                  (setenv "TF_SYSTEM_LIBS"
+                          (string-join '#$jaxlib-system-libs ","))
+                  (call-with-output-file ".jax_configure.bazelrc"
+                    (lambda (port)
+                      ;; build --define PROTOBUF_INCLUDE_PATH=" #$(this-package-input "protobuf") "/include
+                      (display (string-append
+                                "
 build --strategy=Genrule=standalone
 build --repo_env PYTHON_BIN_PATH="
-                                         #$(this-package-input
-                                            "python-wrapper")
-                                         "/bin/python\nbuild --python_path="
-                                         #$(this-package-input
-                                            "python-wrapper")
-                                         "/bin/python
+                                #$(this-package-input "python-wrapper")
+                                "/bin/python\nbuild --python_path="
+                                #$(this-package-input "python-wrapper")
+                                "/bin/python
 build --distinct_host_configuration=false
 build --features=-layering_check
 build --experimental_strict_java_deps=off
@@ -1260,7 +1260,7 @@ build --toolchain_resolution_debug=\".*\"
 build --local_ram_resources=HOST_RAM*.5
 build --local_cpu_resources=HOST_CPUS*.75
 ")
-                                        port)))))))))
+                               port)))))))))
       (inputs (list curl
                     double-conversion
                     flatbuffers
@@ -1337,14 +1337,14 @@ arbitrarily to any order.")
     (arguments
      (list
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (delete 'unpack)
-                   (replace 'build
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (mkdir-p "dist")
-                       (install-file (car (find-files (assoc-ref inputs
-                                                       "python-jaxlib")
-                                                      "\\.whl$")) "dist"))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'unpack)
+          (replace 'build
+            (lambda* (#:key inputs #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file (car (find-files (assoc-ref inputs "python-jaxlib")
+                                             "\\.whl$")) "dist"))))))
     (native-inputs (list python-jaxlib/wheel))))
 
 ;; Keep in sync with jaxlib above
@@ -1482,10 +1482,11 @@ library for JAX.")
       ;;
       ;; One can only hope.
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'chdir
-                     (lambda _
-                       (chdir "checkpoint"))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'chdir
+            (lambda _
+              (chdir "checkpoint"))))))
     (propagated-inputs (list python-absl-py
                              python-cached-property
                              python-etils
@@ -1896,14 +1897,15 @@ Note: This package provides NVIDIA GPU support.")
      (list
       ;; The test suite is expensive and there is no easy way to subset it.
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'setenv
-                     (lambda _
-                       (let ((jpegdir #$(this-package-input "libjpeg-turbo")))
-                         (setenv "TORCHVISION_INCLUDE"
-                                 (string-append jpegdir "/include/"))
-                         (setenv "TORCHVISION_LIBRARY"
-                                 (string-append jpegdir "/lib/"))))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'setenv
+            (lambda _
+              (let ((jpegdir #$(this-package-input "libjpeg-turbo")))
+                (setenv "TORCHVISION_INCLUDE"
+                        (string-append jpegdir "/include/"))
+                (setenv "TORCHVISION_LIBRARY"
+                        (string-append jpegdir "/lib/"))))))))
     (inputs (list ffmpeg-cuda libpng libjpeg-turbo))
     (propagated-inputs (list python-numpy
                              python-typing-extensions

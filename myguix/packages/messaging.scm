@@ -56,25 +56,26 @@
     (arguments
      (list
       #:validate-runpath? #f ;TODO: fails on wrapped binary and included other files
-      #:wrapper-plan #~'(("lib/Element/element-desktop" (("out" "/lib/Element"))))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'binary-unpack 'setup-cwd
-                     (lambda _
-                       (copy-recursively "usr/" ".")
-                       ;; Use the more standard lib directory for everything.
-                       (rename-file "opt/" "lib")
-                       ;; Remove unneeded files.
-                       (delete-file-recursively "usr")
-                       ;; Fix the .desktop file binary location.
-                       (substitute* '("share/applications/element-desktop.desktop")
-                         (("/opt/Element/")
-                          (string-append #$output "/bin/")))))
-                   (add-after 'install 'symlink-binary-file
-                     (lambda _
-                       (mkdir-p (string-append #$output "/bin"))
-                       (symlink (string-append #$output
-                                               "/lib/Element/element-desktop")
-                                (string-append #$output "/bin/element-desktop")))))))
+      #:wrapper-plan
+      #~'(("lib/Element/element-desktop" (("out" "/lib/Element"))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'binary-unpack 'setup-cwd
+            (lambda _
+              (copy-recursively "usr/" ".")
+              ;; Use the more standard lib directory for everything.
+              (rename-file "opt/" "lib")
+              ;; Remove unneeded files.
+              (delete-file-recursively "usr")
+              ;; Fix the .desktop file binary location.
+              (substitute* '("share/applications/element-desktop.desktop")
+                (("/opt/Element/")
+                 (string-append #$output "/bin/")))))
+          (add-after 'install 'symlink-binary-file
+            (lambda _
+              (mkdir-p (string-append #$output "/bin"))
+              (symlink (string-append #$output "/lib/Element/element-desktop")
+                       (string-append #$output "/bin/element-desktop")))))))
     (home-page "https://github.com/vector-im/element-desktop")
     (synopsis "Matrix collaboration client for desktop")
     (description
@@ -105,25 +106,26 @@ its core.")
     (arguments
      (list
       #:validate-runpath? #f ;TODO: fails on wrapped binary and included other files
-      #:wrapper-plan #~'(("lib/Signal/signal-desktop" (("out" "/lib/Signal"))))
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'binary-unpack 'setup-cwd
-                     (lambda _
-                       (copy-recursively "usr/" ".")
-                       ;; Use the more standard lib directory for everything.
-                       (rename-file "opt/" "lib")
-                       ;; Remove unneeded files.
-                       (delete-file-recursively "usr")
-                       ;; Fix the .desktop file binary location.
-                       (substitute* '("share/applications/signal-desktop.desktop")
-                         (("/opt/Signal/")
-                          (string-append #$output "/bin/")))))
-                   (add-after 'install 'symlink-binary-file
-                     (lambda _
-                       (mkdir-p (string-append #$output "/bin"))
-                       (symlink (string-append #$output
-                                               "/lib/Signal/signal-desktop")
-                                (string-append #$output "/bin/signal-desktop")))))))
+      #:wrapper-plan
+      #~'(("lib/Signal/signal-desktop" (("out" "/lib/Signal"))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'binary-unpack 'setup-cwd
+            (lambda _
+              (copy-recursively "usr/" ".")
+              ;; Use the more standard lib directory for everything.
+              (rename-file "opt/" "lib")
+              ;; Remove unneeded files.
+              (delete-file-recursively "usr")
+              ;; Fix the .desktop file binary location.
+              (substitute* '("share/applications/signal-desktop.desktop")
+                (("/opt/Signal/")
+                 (string-append #$output "/bin/")))))
+          (add-after 'install 'symlink-binary-file
+            (lambda _
+              (mkdir-p (string-append #$output "/bin"))
+              (symlink (string-append #$output "/lib/Signal/signal-desktop")
+                       (string-append #$output "/bin/signal-desktop")))))))
     (home-page "https://signal.org/")
     (synopsis "Private messenger using the Signal protocol")
     (description
@@ -190,173 +192,168 @@ or iOS.")
             ("lib/zoom/zoom" ,libs)
             ("lib/zoom/zopen" ,libs)
             ("lib/zoom/aomhost" ,libs)))
-      #:phases #~(modify-phases %standard-phases
-                   (replace 'unpack
-                     (lambda* (#:key source #:allow-other-keys)
-                       (invoke "tar" "xvf" source)
-                       ;; Use the more standard lib directory for everything.
-                       (mkdir-p "lib")
-                       (rename-file "zoom/" "lib/zoom")))
-                   (add-after 'install 'wrap-where-patchelf-does-not-work
-                     (lambda _
-                       (wrap-program (string-append #$output "/lib/zoom/zopen")
-                         `("LD_LIBRARY_PATH" prefix
-                           ,(list #$@(map (lambda (pkg)
-                                            (file-append (this-package-input
-                                                          pkg) "/lib"))
-                                          '("fontconfig-minimal" "freetype"
-                                            "gcc"
-                                            "glib"
-                                            "libxcomposite"
-                                            "libxdamage"
-                                            "libxkbcommon"
-                                            "libxkbfile"
-                                            "libxrandr"
-                                            "libxrender"
-                                            "zlib")))))
-                       (wrap-program (string-append #$output "/lib/zoom/zoom")
-                         '("QML2_IMPORT_PATH" = ())
-                         '("QT_PLUGIN_PATH" = ())
-                         '("QT_SCREEN_SCALE_FACTORS" = ())
-                         `("FONTCONFIG_PATH" ":" prefix
-                           (,(string-join (list (string-append #$(this-package-input
-                                                                  "fontconfig-minimal")
-                                                               "/etc/fonts")
-                                                #$output) ":")))
-                         `("LD_LIBRARY_PATH" prefix
-                           ,(list (string-append #$(this-package-input "nss")
-                                                 "/lib/nss")
-                                  #$@(map (lambda (pkg)
-                                            (file-append (this-package-input
-                                                          pkg) "/lib"))
-                                          ;; TODO: Reuse this long list as it is
-                                          ;; needed for aomhost.  Or perhaps
-                                          ;; aomhost has a shorter needed list,
-                                          ;; but untested.
-                                          '("alsa-lib" "atk"
-                                            "at-spi2-atk"
-                                            "at-spi2-core"
-                                            "cairo"
-                                            "cups"
-                                            "dbus"
-                                            "eudev"
-                                            "expat"
-                                            "gcc"
-                                            "glib"
-                                            "mesa"
-                                            "mit-krb5"
-                                            "nspr"
-                                            "libxcb"
-                                            "libxcomposite"
-                                            "libxdamage"
-                                            "libxext"
-                                            "libxkbcommon"
-                                            "libxkbfile"
-                                            "libxrandr"
-                                            "libxshmfence"
-                                            "pango"
-                                            "pulseaudio"
-                                            "xcb-util"
-                                            "xcb-util-image"
-                                            "xcb-util-keysyms"
-                                            "xcb-util-wm"
-                                            "xcb-util-renderutil"
-                                            "zlib")))))
-                       (wrap-program (string-append #$output
-                                                    "/lib/zoom/aomhost")
-                         `("FONTCONFIG_PATH" ":" prefix
-                           (,(string-join (list (string-append #$(this-package-input
-                                                                  "fontconfig-minimal")
-                                                               "/etc/fonts")
-                                                #$output) ":")))
-                         `("LD_LIBRARY_PATH" prefix
-                           ,(list (string-append #$(this-package-input "nss")
-                                                 "/lib/nss")
-                                  #$@(map (lambda (pkg)
-                                            (file-append (this-package-input
-                                                          pkg) "/lib"))
-                                          '("alsa-lib" "atk"
-                                            "at-spi2-atk"
-                                            "at-spi2-core"
-                                            "cairo"
-                                            "cups"
-                                            "dbus"
-                                            "eudev"
-                                            "expat"
-                                            "gcc"
-                                            "glib"
-                                            "mesa"
-                                            "mit-krb5"
-                                            "nspr"
-                                            "libxcb"
-                                            "libxcomposite"
-                                            "libxdamage"
-                                            "libxext"
-                                            "libxkbcommon"
-                                            "libxkbfile"
-                                            "libxrandr"
-                                            "libxshmfence"
-                                            "pango"
-                                            "pulseaudio"
-                                            "xcb-util"
-                                            "xcb-util-image"
-                                            "xcb-util-keysyms"
-                                            "xcb-util-wm"
-                                            "xcb-util-renderutil"
-                                            "zlib")))))))
-                   (add-after 'wrap-where-patchelf-does-not-work 'rename-binary
-                     ;; IPC (for single sign-on and handling links) fails if the
-                     ;; name does not end in "zoom," so rename the real binary.
-                     ;; Thanks to the Nix packagers for figuring this out.
-                     (lambda _
-                       (rename-file (string-append #$output
-                                                   "/lib/zoom/.zoom-real")
-                                    (string-append #$output "/lib/zoom/.zoom"))
-                       (substitute* (string-append #$output "/lib/zoom/zoom")
-                         (("zoom-real")
-                          "zoom"))))
-                   (add-after 'rename-binary 'symlink-binaries
-                     (lambda _
-                       (delete-file (string-append #$output
-                                                   "/environment-variables"))
-                       (mkdir-p (string-append #$output "/bin"))
-                       (symlink (string-append #$output "/lib/zoom/aomhost")
-                                (string-append #$output "/bin/aomhost"))
-                       (symlink (string-append #$output "/lib/zoom/zoom")
-                                (string-append #$output "/bin/zoom"))
-                       (symlink (string-append #$output "/lib/zoom/zopen")
-                                (string-append #$output "/bin/zopen"))
-                       (symlink (string-append #$output
-                                               "/lib/zoom/ZoomLauncher")
-                                (string-append #$output "/bin/ZoomLauncher"))))
-                   (add-after 'symlink-binaries 'create-desktop-file
-                     (lambda _
-                       (let ((apps (string-append #$output
-                                                  "/share/applications")))
-                         (mkdir-p apps)
-                         (make-desktop-entry-file (string-append apps
-                                                   "/zoom.desktop")
-                                                  #:name "Zoom"
-                                                  #:generic-name
-                                                  "Zoom Client for Linux"
-                                                  #:exec (string-append #$output
-                                                          "/bin/ZoomLauncher %U")
-                                                  #:mime-type (list
-                                                               "x-scheme-handler/zoommtg"
-                                                               "x-scheme-handler/zoomus"
-                                                               "x-scheme-handler/tel"
-                                                               "x-scheme-handler/callto"
-                                                               "x-scheme-handler/zoomphonecall"
-                                                               "application/x-zoom")
-                                                  #:categories '("Network"
-                                                                 "InstantMessaging"
-                                                                 "VideoConference"
-                                                                 "Telephony")
-                                                  #:startup-w-m-class "zoom"
-                                                  #:comment '(("en"
-                                                               "Zoom Video Conference")
-                                                              (#f
-                                                               "Zoom Video Conference")))))))))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "tar" "xvf" source)
+              ;; Use the more standard lib directory for everything.
+              (mkdir-p "lib")
+              (rename-file "zoom/" "lib/zoom")))
+          (add-after 'install 'wrap-where-patchelf-does-not-work
+            (lambda _
+              (wrap-program (string-append #$output "/lib/zoom/zopen")
+                `("LD_LIBRARY_PATH" prefix
+                  ,(list #$@(map (lambda (pkg)
+                                   (file-append (this-package-input pkg)
+                                                "/lib"))
+                                 '("fontconfig-minimal" "freetype"
+                                   "gcc"
+                                   "glib"
+                                   "libxcomposite"
+                                   "libxdamage"
+                                   "libxkbcommon"
+                                   "libxkbfile"
+                                   "libxrandr"
+                                   "libxrender"
+                                   "zlib")))))
+              (wrap-program (string-append #$output "/lib/zoom/zoom")
+                '("QML2_IMPORT_PATH" = ())
+                '("QT_PLUGIN_PATH" = ())
+                '("QT_SCREEN_SCALE_FACTORS" = ())
+                `("FONTCONFIG_PATH" ":" prefix
+                  (,(string-join (list (string-append #$(this-package-input
+                                                         "fontconfig-minimal")
+                                                      "/etc/fonts")
+                                       #$output) ":")))
+                `("LD_LIBRARY_PATH" prefix
+                  ,(list (string-append #$(this-package-input "nss")
+                                        "/lib/nss")
+                         #$@(map (lambda (pkg)
+                                   (file-append (this-package-input pkg)
+                                                "/lib"))
+                                 ;; TODO: Reuse this long list as it is
+                                 ;; needed for aomhost.  Or perhaps
+                                 ;; aomhost has a shorter needed list,
+                                 ;; but untested.
+                                 '("alsa-lib" "atk"
+                                   "at-spi2-atk"
+                                   "at-spi2-core"
+                                   "cairo"
+                                   "cups"
+                                   "dbus"
+                                   "eudev"
+                                   "expat"
+                                   "gcc"
+                                   "glib"
+                                   "mesa"
+                                   "mit-krb5"
+                                   "nspr"
+                                   "libxcb"
+                                   "libxcomposite"
+                                   "libxdamage"
+                                   "libxext"
+                                   "libxkbcommon"
+                                   "libxkbfile"
+                                   "libxrandr"
+                                   "libxshmfence"
+                                   "pango"
+                                   "pulseaudio"
+                                   "xcb-util"
+                                   "xcb-util-image"
+                                   "xcb-util-keysyms"
+                                   "xcb-util-wm"
+                                   "xcb-util-renderutil"
+                                   "zlib")))))
+              (wrap-program (string-append #$output "/lib/zoom/aomhost")
+                `("FONTCONFIG_PATH" ":" prefix
+                  (,(string-join (list (string-append #$(this-package-input
+                                                         "fontconfig-minimal")
+                                                      "/etc/fonts")
+                                       #$output) ":")))
+                `("LD_LIBRARY_PATH" prefix
+                  ,(list (string-append #$(this-package-input "nss")
+                                        "/lib/nss")
+                         #$@(map (lambda (pkg)
+                                   (file-append (this-package-input pkg)
+                                                "/lib"))
+                                 '("alsa-lib" "atk"
+                                   "at-spi2-atk"
+                                   "at-spi2-core"
+                                   "cairo"
+                                   "cups"
+                                   "dbus"
+                                   "eudev"
+                                   "expat"
+                                   "gcc"
+                                   "glib"
+                                   "mesa"
+                                   "mit-krb5"
+                                   "nspr"
+                                   "libxcb"
+                                   "libxcomposite"
+                                   "libxdamage"
+                                   "libxext"
+                                   "libxkbcommon"
+                                   "libxkbfile"
+                                   "libxrandr"
+                                   "libxshmfence"
+                                   "pango"
+                                   "pulseaudio"
+                                   "xcb-util"
+                                   "xcb-util-image"
+                                   "xcb-util-keysyms"
+                                   "xcb-util-wm"
+                                   "xcb-util-renderutil"
+                                   "zlib")))))))
+          (add-after 'wrap-where-patchelf-does-not-work 'rename-binary
+            ;; IPC (for single sign-on and handling links) fails if the
+            ;; name does not end in "zoom," so rename the real binary.
+            ;; Thanks to the Nix packagers for figuring this out.
+            (lambda _
+              (rename-file (string-append #$output "/lib/zoom/.zoom-real")
+                           (string-append #$output "/lib/zoom/.zoom"))
+              (substitute* (string-append #$output "/lib/zoom/zoom")
+                (("zoom-real")
+                 "zoom"))))
+          (add-after 'rename-binary 'symlink-binaries
+            (lambda _
+              (delete-file (string-append #$output "/environment-variables"))
+              (mkdir-p (string-append #$output "/bin"))
+              (symlink (string-append #$output "/lib/zoom/aomhost")
+                       (string-append #$output "/bin/aomhost"))
+              (symlink (string-append #$output "/lib/zoom/zoom")
+                       (string-append #$output "/bin/zoom"))
+              (symlink (string-append #$output "/lib/zoom/zopen")
+                       (string-append #$output "/bin/zopen"))
+              (symlink (string-append #$output "/lib/zoom/ZoomLauncher")
+                       (string-append #$output "/bin/ZoomLauncher"))))
+          (add-after 'symlink-binaries 'create-desktop-file
+            (lambda _
+              (let ((apps (string-append #$output "/share/applications")))
+                (mkdir-p apps)
+                (make-desktop-entry-file (string-append apps "/zoom.desktop")
+                                         #:name "Zoom"
+                                         #:generic-name
+                                         "Zoom Client for Linux"
+                                         #:exec (string-append #$output
+                                                 "/bin/ZoomLauncher %U")
+                                         #:mime-type (list
+                                                      "x-scheme-handler/zoommtg"
+                                                      "x-scheme-handler/zoomus"
+                                                      "x-scheme-handler/tel"
+                                                      "x-scheme-handler/callto"
+                                                      "x-scheme-handler/zoomphonecall"
+                                                      "application/x-zoom")
+                                         #:categories '("Network"
+                                                        "InstantMessaging"
+                                                        "VideoConference"
+                                                        "Telephony")
+                                         #:startup-w-m-class "zoom"
+                                         #:comment '(("en"
+                                                      "Zoom Video Conference")
+                                                     (#f
+                                                      "Zoom Video Conference")))))))))
     (native-inputs (list tar))
     (inputs (list alsa-lib
                   at-spi2-atk

@@ -65,144 +65,139 @@
      (list
       #:strip-binaries? #f
       #:tests? #f
-      #:phases #~(modify-phases %standard-phases
-                   (add-after 'unpack 'prepare-jars
-                     (lambda* (#:key inputs #:allow-other-keys)
-                       (copy-file (search-input-file inputs
-                                   "/share/java/commons-collections-3.2.2.jar")
-                        "third_party/apache_commons_collections/commons-collections-3.2.2.jar")
-                       (copy-file (search-input-file inputs
-                                   "/lib/m2/org/apache/commons/commons-compress/1.21/commons-compress-1.21.jar")
-                        "third_party/apache_commons_compress/apache-commons-compress-1.19.jar")
-                       (copy-file (search-input-file inputs
-                                   "/lib/m2/commons-io/commons-io/2.5/commons-io-2.5.jar")
-                        "third_party/apache_commons_io/commons-io-2.4.jar")
-                       (copy-file (search-input-file inputs
-                                   "/share/java/commons-lang-2.6.jar")
-                        "third_party/apache_commons_lang/commons-lang-2.6.jar")
-                       (copy-file (search-input-file inputs
-                                   "/lib/m2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar")
-                        "third_party/hamcrest/hamcrest-core-1.3.jar")
-                       (copy-file (search-input-file inputs
-                                   "/lib/m2/com/google/code/findbugs/jsr305/3.0.1/jsr305-3.0.1.jar")
-                                  "third_party/jsr305/jsr-305.jar")
-                       (copy-file (search-input-file inputs
-                                   "/lib/m2/org/tukaani/xz/1.9/xz-1.9.jar")
-                                  "third_party/xz/xz-1.9.jar")))
-                   (delete 'configure)
-                   (replace 'build
-                     (lambda _
-                       (setenv "EXTRA_BAZEL_ARGS"
-                               (string-append
-                                "--tool_java_runtime_version=local_jdk --noremote_accept_cached --verbose_failures --subcommands --action_env=PATH --action_env=LIBRARY_PATH --action_env=C_INCLUDE_PATH --action_env=CPLUS_INCLUDE_PATH --action_env=GUIX_LOCPATH --host_action_env=PATH --host_action_env=LIBRARY_PATH --host_action_env=C_INCLUDE_PATH --host_action_env=CPLUS_INCLUDE_PATH --host_action_env=GUIX_LOCPATH --define=distribution=debian
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'prepare-jars
+            (lambda* (#:key inputs #:allow-other-keys)
+              (copy-file (search-input-file inputs
+                          "/share/java/commons-collections-3.2.2.jar")
+               "third_party/apache_commons_collections/commons-collections-3.2.2.jar")
+              (copy-file (search-input-file inputs
+                          "/lib/m2/org/apache/commons/commons-compress/1.21/commons-compress-1.21.jar")
+               "third_party/apache_commons_compress/apache-commons-compress-1.19.jar")
+              (copy-file (search-input-file inputs
+                          "/lib/m2/commons-io/commons-io/2.5/commons-io-2.5.jar")
+                         "third_party/apache_commons_io/commons-io-2.4.jar")
+              (copy-file (search-input-file inputs
+                          "/share/java/commons-lang-2.6.jar")
+               "third_party/apache_commons_lang/commons-lang-2.6.jar")
+              (copy-file (search-input-file inputs
+                          "/lib/m2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar")
+                         "third_party/hamcrest/hamcrest-core-1.3.jar")
+              (copy-file (search-input-file inputs
+                          "/lib/m2/com/google/code/findbugs/jsr305/3.0.1/jsr305-3.0.1.jar")
+                         "third_party/jsr305/jsr-305.jar")
+              (copy-file (search-input-file inputs
+                          "/lib/m2/org/tukaani/xz/1.9/xz-1.9.jar")
+                         "third_party/xz/xz-1.9.jar")))
+          (delete 'configure)
+          (replace 'build
+            (lambda _
+              (setenv "EXTRA_BAZEL_ARGS"
+                      (string-append
+                       "--tool_java_runtime_version=local_jdk --noremote_accept_cached --verbose_failures --subcommands --action_env=PATH --action_env=LIBRARY_PATH --action_env=C_INCLUDE_PATH --action_env=CPLUS_INCLUDE_PATH --action_env=GUIX_LOCPATH --host_action_env=PATH --host_action_env=LIBRARY_PATH --host_action_env=C_INCLUDE_PATH --host_action_env=CPLUS_INCLUDE_PATH --host_action_env=GUIX_LOCPATH --define=distribution=debian
 --override_repository=com_google_protobuf="
-                                (getcwd)
-                                "/tools/distributions/debian/protobuf --override_repository=remote_java_tools_linux="
-                                (getcwd)
-                                "/mock_repos/remote_java_tools_linux --override_repository=io_bazel_skydoc="
-                                (getcwd)
-                                "/mock_repos/bazel_skydoc --override_repository=rules_cc="
-                                (getcwd)
-                                "/mock_repos/rules_cc --override_repository=rules_java="
-                                (getcwd)
-                                "/mock_repos/rules_java --override_repository=rules_proto="
-                                (getcwd)
-                                "/mock_repos/rules_proto --override_repository=platforms="
-                                (getcwd)
-                                "/mock_repos/platforms "))
-                       (substitute* "third_party/py/mock/setup.py"
-                         (("#! /usr/bin/env python")
-                          (string-append "#!"
-                                         (which "python"))))
-                       (substitute* "tools/distributions/debian/deps.bzl"
-                         (("/usr/include/google/protobuf")
-                          (string-append #$(this-package-native-input
-                                            "protobuf")
-                                         "/include/google/protobuf"))
-                         (("\"grpc_java_plugin.*")
-                          "")
-                         (("/usr/bin/protoc")
-                          (string-append #$(this-package-native-input
-                                            "protobuf") "/bin/protoc"))
-                         (("/usr/bin/grpc_cpp_plugin")
-                          (string-append #$(this-package-input "grpc")
-                                         "/bin/grpc_cpp_plugin"))
-                         (("\"java\": \"/usr/share/java\",")
-                          (string-append "\"jars\": \""
-                                         (getcwd) "/derived/jars\",")))
-                       (substitute* "tools/distributions/distribution_rules.bzl"
-                         (("if \"debian\"")
-                          "if \"shmebian\""))
-                       (substitute* "third_party/grpc-java/compiler/src/java_plugin/cpp/java_generator.cpp"
-                         (("google/protobuf/compiler/java/java_names.h")
-                          "google/protobuf/compiler/java/names.h"))
-                       (substitute* "tools/distributions/debian/debian_java.BUILD"
-                         (("\"java/protobuf-util.jar\",")
-                          (string-append "\""
-                           "jars/com_google_protobuf/java/util/libutil.jar"
-                           "\","))
-                         (("\"java/protobuf.jar\",")
-                          (string-append "\""
-                           "jars/com_google_protobuf/java/core/libcore.jar"
-                           "\","))
-                         (("jars = \\[\"java/protobuf-util.jar\"")
-                          (string-append "jars = [\""
-                           "jars/com_google_protobuf/java/util/libutil.jar"
-                           "\""))
-                         (("jars = \\[\"java/protobuf.jar\"")
-                          (string-append "jars = [\""
-                           "jars/com_google_protobuf/java/core/libcore.jar"
-                           "\", \""
-                           "jars/com_google_protobuf/java/core/liblite.jar"
-                           "\",")))
-                       (substitute* "third_party/grpc/build_defs.bzl"
-                         (("command = \"cp" m)
-                          (string-append "use_default_shell_env = True,\n" m)))
-                       (substitute* "src/main/java/com/google/devtools/build/lib/BUILD"
-                         (("\"@com_google_protobuf//java/util\",")
-                          ""))
-                       (substitute* '("src/conditions/BUILD"
-                                      "src/conditions/BUILD.tools")
-                         (("@platforms//cpu:riscv64")
-                          "@platforms//cpu:x86_64")
-                         (("@platforms//cpu:mips64")
-                          "@platforms//cpu:x86_64"))
-                       (substitute* "src/main/java/com/google/devtools/build/lib/runtime/commands/license/merge_licenses.bzl"
-                         (("\"OUT\": ctx.outputs.out.path," m)
-                          (string-append m "\n\"PATH\": \""
-                                         (getenv "PATH") "\",")))
-                       (substitute* "scripts/bootstrap/compile.sh"
-                         (("#!/bin/sh")
-                          (string-append "#!"
-                                         (which "sh"))))
-                       (substitute* '("src/main/java/com/google/devtools/build/lib/analysis/BashCommandConstructor.java"
-                                      "tools/build_rules/java_rules_skylark.bzl"
-                                      "tools/build_rules/test_rules.bzl"
-                                      "tools/android/android_sdk_repository_template.bzl")
-                         (("#!/bin/bash")
-                          (string-append "#!"
-                                         (which "bash"))))
-                       (substitute* '("src/main/java/com/google/devtools/build/lib/analysis/CommandHelper.java"
-                                      "src/main/java/com/google/devtools/build/lib/analysis/ShellConfiguration.java"
-                                      "src/main/java/com/google/devtools/build/lib/bazel/rules/BazelRuleClassProvider.java"
-                                      "src/main/java/com/google/devtools/build/lib/bazel/rules/sh/BazelShRuleClasses.java"
-                                      "src/main/java/com/google/devtools/build/lib/util/CommandBuilder.java")
-                         (("\"/bin/bash\"")
-                          (string-append "\""
-                                         (which "bash") "\"")))
-                       (substitute* '("src/main/java/com/google/devtools/build/lib/bazel/rules/python/BazelPythonSemantics.java"
-                                      "src/main/java/com/google/devtools/build/lib/starlarkbuildapi/python/PyRuntimeInfoApi.java"
-                                      "src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt"
-                                      "src/test/java/com/google/devtools/build/lib/standalone/StandaloneSpawnStrategyTest.java"
-                                      "src/test/java/com/google/devtools/build/lib/bazel/rules/python/BazelPyBinaryConfiguredTargetTest.java"
-                                      "tools/python/toolchain.bzl")
-                         (("/usr/bin/env")
-                          (which "env")))
-                       (invoke "bash" "compile.sh")))
-                   (replace 'install
-                     (lambda _
-                       (install-file "output/bazel"
-                                     (string-append #$output "/bin")))))))
+                       (getcwd)
+                       "/tools/distributions/debian/protobuf --override_repository=remote_java_tools_linux="
+                       (getcwd)
+                       "/mock_repos/remote_java_tools_linux --override_repository=io_bazel_skydoc="
+                       (getcwd)
+                       "/mock_repos/bazel_skydoc --override_repository=rules_cc="
+                       (getcwd)
+                       "/mock_repos/rules_cc --override_repository=rules_java="
+                       (getcwd)
+                       "/mock_repos/rules_java --override_repository=rules_proto="
+                       (getcwd)
+                       "/mock_repos/rules_proto --override_repository=platforms="
+                       (getcwd)
+                       "/mock_repos/platforms "))
+              (substitute* "third_party/py/mock/setup.py"
+                (("#! /usr/bin/env python")
+                 (string-append "#!"
+                                (which "python"))))
+              (substitute* "tools/distributions/debian/deps.bzl"
+                (("/usr/include/google/protobuf")
+                 (string-append #$(this-package-native-input "protobuf")
+                                "/include/google/protobuf"))
+                (("\"grpc_java_plugin.*")
+                 "")
+                (("/usr/bin/protoc")
+                 (string-append #$(this-package-native-input "protobuf")
+                                "/bin/protoc"))
+                (("/usr/bin/grpc_cpp_plugin")
+                 (string-append #$(this-package-input "grpc")
+                                "/bin/grpc_cpp_plugin"))
+                (("\"java\": \"/usr/share/java\",")
+                 (string-append "\"jars\": \""
+                                (getcwd) "/derived/jars\",")))
+              (substitute* "tools/distributions/distribution_rules.bzl"
+                (("if \"debian\"")
+                 "if \"shmebian\""))
+              (substitute* "third_party/grpc-java/compiler/src/java_plugin/cpp/java_generator.cpp"
+                (("google/protobuf/compiler/java/java_names.h")
+                 "google/protobuf/compiler/java/names.h"))
+              (substitute* "tools/distributions/debian/debian_java.BUILD"
+                (("\"java/protobuf-util.jar\",")
+                 (string-append "\""
+                  "jars/com_google_protobuf/java/util/libutil.jar" "\","))
+                (("\"java/protobuf.jar\",")
+                 (string-append "\""
+                  "jars/com_google_protobuf/java/core/libcore.jar" "\","))
+                (("jars = \\[\"java/protobuf-util.jar\"")
+                 (string-append "jars = [\""
+                  "jars/com_google_protobuf/java/util/libutil.jar" "\""))
+                (("jars = \\[\"java/protobuf.jar\"")
+                 (string-append "jars = [\""
+                  "jars/com_google_protobuf/java/core/libcore.jar" "\", \""
+                  "jars/com_google_protobuf/java/core/liblite.jar" "\",")))
+              (substitute* "third_party/grpc/build_defs.bzl"
+                (("command = \"cp" m)
+                 (string-append "use_default_shell_env = True,\n" m)))
+              (substitute* "src/main/java/com/google/devtools/build/lib/BUILD"
+                (("\"@com_google_protobuf//java/util\",")
+                 ""))
+              (substitute* '("src/conditions/BUILD"
+                             "src/conditions/BUILD.tools")
+                (("@platforms//cpu:riscv64")
+                 "@platforms//cpu:x86_64")
+                (("@platforms//cpu:mips64")
+                 "@platforms//cpu:x86_64"))
+              (substitute* "src/main/java/com/google/devtools/build/lib/runtime/commands/license/merge_licenses.bzl"
+                (("\"OUT\": ctx.outputs.out.path," m)
+                 (string-append m "\n\"PATH\": \""
+                                (getenv "PATH") "\",")))
+              (substitute* "scripts/bootstrap/compile.sh"
+                (("#!/bin/sh")
+                 (string-append "#!"
+                                (which "sh"))))
+              (substitute* '("src/main/java/com/google/devtools/build/lib/analysis/BashCommandConstructor.java"
+                             "tools/build_rules/java_rules_skylark.bzl"
+                             "tools/build_rules/test_rules.bzl"
+                             "tools/android/android_sdk_repository_template.bzl")
+                (("#!/bin/bash")
+                 (string-append "#!"
+                                (which "bash"))))
+              (substitute* '("src/main/java/com/google/devtools/build/lib/analysis/CommandHelper.java"
+                             "src/main/java/com/google/devtools/build/lib/analysis/ShellConfiguration.java"
+                             "src/main/java/com/google/devtools/build/lib/bazel/rules/BazelRuleClassProvider.java"
+                             "src/main/java/com/google/devtools/build/lib/bazel/rules/sh/BazelShRuleClasses.java"
+                             "src/main/java/com/google/devtools/build/lib/util/CommandBuilder.java")
+                (("\"/bin/bash\"")
+                 (string-append "\""
+                                (which "bash") "\"")))
+              (substitute* '("src/main/java/com/google/devtools/build/lib/bazel/rules/python/BazelPythonSemantics.java"
+                             "src/main/java/com/google/devtools/build/lib/starlarkbuildapi/python/PyRuntimeInfoApi.java"
+                             "src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt"
+                             "src/test/java/com/google/devtools/build/lib/standalone/StandaloneSpawnStrategyTest.java"
+                             "src/test/java/com/google/devtools/build/lib/bazel/rules/python/BazelPyBinaryConfiguredTargetTest.java"
+                             "tools/python/toolchain.bzl")
+                (("/usr/bin/env")
+                 (which "env")))
+              (invoke "bash" "compile.sh")))
+          (replace 'install
+            (lambda _
+              (install-file "output/bazel"
+                            (string-append #$output "/bin")))))))
     (inputs (list `(,openjdk11 "jdk")
                   grpc
                   python

@@ -26,13 +26,15 @@
     (arguments
      (list
       #:strip-binaries? #f ;TODO: For some reason it fails validate-runpath
-      #:install-plan #~'(("geekbench5" "bin/")
-                         ("geekbench.plar" "bin/")
-                         ("geekbench_x86_64" "bin/"))
-      #:patchelf-plan #~(list (list "geekbench5"
-                                    '("glibc" "gcc:lib"))
-                              (list "geekbench_x86_64"
-                                    '("glibc" "gcc:lib")))))
+      #:install-plan
+      #~'(("geekbench5" "bin/")
+          ("geekbench.plar" "bin/")
+          ("geekbench_x86_64" "bin/"))
+      #:patchelf-plan
+      #~(list (list "geekbench5"
+                    '("glibc" "gcc:lib"))
+              (list "geekbench_x86_64"
+                    '("glibc" "gcc:lib")))))
     (supported-systems '("x86_64-linux"))
     (inputs `(("gcc:lib" ,gcc "lib")
               ("glibc" ,glibc)))
