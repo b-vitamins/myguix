@@ -544,7 +544,7 @@
         font-iosevka-etoile
         font-iosevka-ss08
         font-iosevka-ss09
-        font-iosevka-comfy))
+        font-aporetic))
 
 (define %microsoft-fonts
   (list font-microsoft-andale-mono
