@@ -112,6 +112,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages video)
+  #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages nvidia))
 
@@ -1568,3 +1569,25 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
               (replace "python-lion-pytorch" python-lion-pytorch-cuda)
               (append python-bitsandbytes)))
     (propagated-inputs (list nvidia-driver cuda-toolkit))))
+
+(define-public python-hatch-regex-commit
+  (package
+    (name "python-hatch-regex-commit")
+    (version "0.0.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hatch_regex_commit" version))
+       (sha256
+        (base32 "0f4v1vmim33nwi1r6v5sbf62f3aq2rvkbrl63j86gmnq3li4nvps"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-hatchling))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/frankie567/hatch-regex-commit")
+    (synopsis "Hatch plugin to create a commit and tag when bumping version")
+    (description
+     "Hatch plugin to create a commit and tag when bumping version.")
+    (license license:expat)))
