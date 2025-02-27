@@ -19,6 +19,7 @@
 
 (define %my-gnome-shell-assets
   (list gnome-tweaks
+        gnome-boxes
         gnome-shell-extensions
         gnome-shell-extension-dash-to-dock
         gnome-shell-extension-vitals
