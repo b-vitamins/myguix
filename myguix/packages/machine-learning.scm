@@ -1974,3 +1974,55 @@ and common image transformations for computer vision.")
     (inherit python-lion-pytorch)
     (name "python-lion-pytorch-cuda")
     (propagated-inputs (list python-pytorch-cuda cuda-toolkit nvidia-driver))))
+
+(define-public python-bitsandbytes
+  (package
+    (name "python-bitsandbytes")
+    (version "0.44.1")
+    (home-page "https://github.com/bitsandbytes-foundation/bitsandbytes")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url home-page)
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0jd7nsih9z2zp0aa82sl5kgxaqyjzlgv7hhfbrw9lawc57kl7z6a"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'configure
+            (lambda _
+              (invoke "cmake" "-DCOMPUTE_BACKEND=cpu" "-S" ".")
+              (invoke "make")))
+          (delete 'strip-binaries)
+          (add-after 'install 'add-libbitsandbytes_cpu.so
+            (lambda _
+              (let* ((site (string-append #$output "/lib/python"
+                                          #$(version-major+minor (package-version
+                                                                  python))
+                                          "/site-packages/bitsandbytes")))
+                (install-file "bitsandbytes/libbitsandbytes_cpu.so" site)))))))
+    (inputs (list python-setuptools
+                  python-pytest
+                  python-lion-pytorch
+                  python-einops
+                  python-wheel
+                  python-scipy
+                  python-pandas
+                  python-matplotlib))
+    (native-inputs (list cmake-minimal))
+    (synopsis "Fuzzy matching library for Python")
+    (description
+     "The @code{bitsandbytes} library is a lightweight Python wrapper around CUDA custom functions, in particular 8-bit optimizers, matrix multiplication (LLM.int8()), and 8 & 4-bit quantization functions.
+
+The library includes quantization primitives for 8-bit & 4-bit operations, through @code{bitsandbytes.nn.Linear8bitLt} and @code{bitsandbytes.nn.Linear4bit} and 8-bit optimizers through @code{bitsandbytes.optim module}.
+
+There are ongoing efforts to support further hardware backends, i.e. Intel CPU + GPU, AMD GPU, Apple Silicon. Windows support is quite far along and is on its way as well.
+
+Please head to the official documentation page: @url{https://huggingface.co/docs/bitsandbytes/main}")
+    (license license:asl2.0)))
