@@ -1951,3 +1951,20 @@ and common image transformations for computer vision.")
      "The torchvision package consists of popular datasets, model architectures,
 and common image transformations for computer vision.")
     (license license:bsd-3)))
+
+(define-public python-lion-pytorch
+  (package
+    (name "python-lion-pytorch")
+    (version "0.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "lion_pytorch" version))
+       (sha256
+        (base32 "18pp6k02nfd6p2yfqqrz7v1cyi3k11mksl2sq2n87hsp3b53xba6"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-pytorch))
+    (home-page "https://github.com/lucidrains/lion-pytorch")
+    (synopsis "Lion Optimizer - Pytorch")
+    (description "Lion Optimizer - Pytorch.")
+    (license license:expat)))
