@@ -2026,3 +2026,36 @@ There are ongoing efforts to support further hardware backends, i.e. Intel CPU +
 
 Please head to the official documentation page: @url{https://huggingface.co/docs/bitsandbytes/main}")
     (license license:asl2.0)))
+
+(define-public python-bitsandbytes-cuda
+  (package
+    (inherit python-bitsandbytes)
+    (name "python-bitsandbytes-cuda")
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'configure
+            (lambda _
+              (invoke "cmake" "-DCOMPUTE_BACKEND=cuda"
+                      "-DCOMPUTE_CAPABILITY=80;86" "-S" ".")
+              (invoke "make")))
+          (delete 'strip-binaries)
+          (add-after 'install 'add-libbitsandbytes_cuda124.so
+            (lambda _
+              (let* ((site (string-append #$output "/lib/python"
+                                          #$(version-major+minor (package-version
+                                                                  python))
+                                          "/site-packages/bitsandbytes")))
+                (install-file "bitsandbytes/libbitsandbytes_cuda124.so" site)
+                (install-file (string-append #$(this-package-input
+                                                "python-bitsandbytes")
+                               "/lib/python"
+                               #$(version-major+minor (package-version python))
+                               "/site-packages/bitsandbytes/libbitsandbytes_cpu.so")
+                              site)))))))
+    (inputs (modify-inputs (package-inputs python-bitsandbytes)
+              (replace "python-lion-pytorch" python-lion-pytorch-cuda)
+              (append python-bitsandbytes)))
+    (propagated-inputs (list nvidia-driver cuda-toolkit))))
