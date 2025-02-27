@@ -101,6 +101,7 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages machine-learning)
   #:use-module ((myguix packages rust-pqrs)
                 #:hide (rust-cc-1 rust-libc-0.2 rust-pkg-config-0.3))
   #:use-module (myguix packages linux)
@@ -464,7 +465,8 @@
         python-jedi-language-server
         python-flake8
         python-black
-        python-ruff))
+        python-ruff
+        python-safetensors))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
