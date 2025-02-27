@@ -1612,3 +1612,38 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
     (synopsis "Fief Client for Python")
     (description "Fief Client for Python.")
     (license license:expat)))
+
+(define-public python-codecarbon
+  (package
+    (name "python-codecarbon")
+    (version "2.8.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "codecarbon" version))
+       (sha256
+        (base32 "0s8ji43pfipglwsgzjfgxn39g10c3rix3v4kz1a03xn5l6pxaz83"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-arrow
+                             python-click
+                             python-fief-client
+                             python-pandas
+                             python-prometheus-client
+                             python-psutil
+                             python-py-cpuinfo
+                             python-py3nvml
+                             python-questionary
+                             python-rapidfuzz
+                             python-requests
+                             python-rich
+                             python-typer))
+    (native-inputs (list python-hatchling))
+    (home-page "https://mlco2.github.io/codecarbon")
+    (synopsis
+     "Estimate and track carbon emissions from your computer, quantify and analyze their impact.")
+    (description
+     "CodeCarbon started with a quite simple question: What is the carbon emission impact of my computer program? We found some global data like computing currently represents roughly 0.5% of the world’s energy consumption but nothing on our individual/organisation level impact. At CodeCarbon, we believe, along with Niels Bohr, that Nothing exists until it is measured. So we found a way to estimate how much CO2 we produce while running our code. How? We created a Python package that estimates your hardware electricity power consumption (GPU + CPU + RAM) and we apply to it the carbon intensity of the region where the computing is done.")
+    (license license:expat)))
