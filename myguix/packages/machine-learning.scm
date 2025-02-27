@@ -1964,6 +1964,7 @@ and common image transformations for computer vision.")
         (base32 "18pp6k02nfd6p2yfqqrz7v1cyi3k11mksl2sq2n87hsp3b53xba6"))))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-pytorch))
+    (native-inputs (list python-setuptools))
     (home-page "https://github.com/lucidrains/lion-pytorch")
     (synopsis "Lion Optimizer - Pytorch")
     (description "Lion Optimizer - Pytorch.")
@@ -2059,3 +2060,42 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
               (replace "python-lion-pytorch" python-lion-pytorch-cuda)
               (append python-bitsandbytes)))
     (propagated-inputs (list nvidia-driver cuda-toolkit))))
+
+(define-public python-accelerate
+  (package
+    (name "python-accelerate")
+    (version "1.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "accelerate" version))
+       (sha256
+        (base32 "19bkhx9smk3fm6cgb8inwvk16gpp3hhsw219rlf6if2cnvhi7m1p"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-huggingface-hub
+                             python-numpy
+                             python-packaging
+                             python-psutil
+                             python-pyyaml
+                             python-setuptools
+                             python-safetensors
+                             python-pytorch))
+    (native-inputs (list python-bitsandbytes
+                         python-black
+                         python-parameterized
+                         python-pytest
+                         python-pytest-subtests
+                         python-pytest-xdist
+                         python-rich
+                         python-ruff
+                         python-setuptools
+                         python-scikit-learn
+                         python-scipy
+                         python-tqdm))
+    (home-page "https://github.com/huggingface/accelerate")
+    (synopsis "Accelerate")
+    (description "Accelerate.")
+    (license license:asl2.0)))
