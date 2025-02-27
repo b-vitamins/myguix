@@ -1968,3 +1968,9 @@ and common image transformations for computer vision.")
     (synopsis "Lion Optimizer - Pytorch")
     (description "Lion Optimizer - Pytorch.")
     (license license:expat)))
+
+(define-public python-lion-pytorch-cuda
+  (package
+    (inherit python-lion-pytorch)
+    (name "python-lion-pytorch-cuda")
+    (propagated-inputs (list python-pytorch-cuda cuda-toolkit nvidia-driver))))
