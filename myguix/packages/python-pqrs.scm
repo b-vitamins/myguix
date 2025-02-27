@@ -85,6 +85,7 @@
   #:use-module (gnu packages databases)
   #:use-module (gnu packages image)
   #:use-module (gnu packages machine-learning)
+  #:use-module (gnu packages monitoring)
   #:use-module (gnu packages time)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages pkg-config)
@@ -1460,3 +1461,25 @@ parallelism.")))
     (synopsis "Gremlin-Python for Apache TinkerPop")
     (description "Gremlin-Python for Apache @code{TinkerPop}.")
     (license license:asl2.0)))
+
+(define-public python-questionary
+  (package
+    (name "python-questionary")
+    (version "2.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "questionary" version))
+       (sha256
+        (base32 "11smz75cm5ixfiz2ignrmb8zr2skx5s4fqz6yvc6g5mi8pbcs0k3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-prompt-toolkit))
+    (native-inputs (list python-poetry-core))
+    (home-page "https://github.com/tmbo/questionary")
+    (synopsis "Python library to build pretty command line user prompts â­ï¸")
+    (description
+     "Python library to build pretty command line user prompts â­ï¸.")
+    (license license:expat)))
