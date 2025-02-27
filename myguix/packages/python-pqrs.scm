@@ -1591,3 +1591,24 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
     (description
      "Hatch plugin to create a commit and tag when bumping version.")
     (license license:expat)))
+
+(define-public python-fief-client
+  (package
+    (name "python-fief-client")
+    (version "0.20.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "fief_client" version))
+       (sha256
+        (base32 "1mrlqjxzn1pccgic9hfmynv5ylq88ym47j65x8n419f40dnr1yyv"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-httpx python-jwcrypto))
+    (native-inputs (list python-hatch-regex-commit python-hatchling))
+    (home-page "https://github.com/fief-dev/fief-python")
+    (synopsis "Fief Client for Python")
+    (description "Fief Client for Python.")
+    (license license:expat)))
