@@ -21,7 +21,7 @@
   #:use-module (gnu packages libevent)
   #:use-module (gnu packages llvm)
   #:use-module ((gnu packages machine-learning)
-                #:hide (python-torchvision))
+                #:hide (python-torchvision tensorflow))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages ninja)
@@ -1011,7 +1011,8 @@ subclassing API with an imperative style for advanced research.")
                                                            python-h5py
                                                            python-namex
                                                            python-numpy
-                                                           python-rich))
+                                                           python-rich
+                                                           python-setuptools))
                                        (home-page
                                         "https://github.com/keras-team/keras")
                                        (synopsis "Deep learning API")
@@ -1049,6 +1050,8 @@ a delightful developer experience.")
             (add-after 'unpack 'relax-dependencies
               (lambda _
                 (substitute* "setup.py"
+                  (("numpy >= 1.22, <= 1.24.3")
+                   "numpy >= 1.22")
                   ;; We don't have tensorflow-io yet
                   (("'tensorflow-io-gcs-filesystem.*")
                    "None,")
@@ -1107,10 +1110,12 @@ a delightful developer experience.")
                     (symlink lib "libtensorflow_cc.so.2"))))))))
       (outputs '("out"))
       (propagated-inputs (modify-inputs (package-propagated-inputs tensorflow)
-                           (append python-clang-13 python-keras-for-tensorflow)))
+                           (append python-astunparse python-clang-13
+                                   python-keras-for-tensorflow)))
       (inputs (list tensorflow))
       (native-inputs (list eigen-for-python-ml-dtypes patchelf
-                           `(,tensorflow "python"))))))
+                           `(,tensorflow "python") python-setuptools
+                           python-wheel)))))
 
 ;; This package provides *independent* modules that are meant to be
 ;; imported selectively.  Each module has its own Bazel BUILD file,
