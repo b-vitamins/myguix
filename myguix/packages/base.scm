@@ -492,11 +492,6 @@
         python-tensorstore
         python-tensorflow
         python-jax
-        python-chex
-        python-optax
-        python-orbax-checkpoint
-        python-flax
-        python-torch-diffeq
         python-pytorch-cuda
         python-torchvision-cuda
         python-torchdata-cuda
