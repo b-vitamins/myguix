@@ -1455,6 +1455,19 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
         (base32 "0p286gnjslz06z9vff136pq8srkax75nbklmvg4r11g2cxr8ind6"))
        (method url-fetch)))))
 
+(define-public cudnn-8.6
+  (package
+    (inherit cudnn)
+    (version "8.6.0.163")
+    (source
+     (origin
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
+             version "_cuda11-archive.tar.xz"))
+       (sha256
+        (base32 "0p286gnjslz06z9vff136pq8srkax75nbklmvg4r11g2cxr8ind6"))
+       (method url-fetch)))))
+
 (define-public cudnn-frontend
   (package
     (name "cudnn-frontend")
