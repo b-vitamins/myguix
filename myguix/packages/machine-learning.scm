@@ -1542,6 +1542,14 @@ reliable JAX code.  This includes utils to help:
 ")
     (license license:asl2.0)))
 
+(define-public python-chex-cuda
+  (package
+    (inherit python-chex)
+    (name "python-chex-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-chex)
+                         (replace "python-jax" python-jax-cuda)
+                         (replace "python-jaxlib" python-jaxlib-cuda)))))
+
 (define-public python-optax
   (package
     (name "python-optax")
