@@ -216,6 +216,91 @@ mechanism for serializing structured data.")
 cleaning up argument parsing scripts.")
     (license license:expat)))
 
+(define-public python-bitsandbytes
+  (package
+    (name "python-bitsandbytes")
+    (version "0.44.1")
+    (home-page "https://github.com/bitsandbytes-foundation/bitsandbytes")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url home-page)
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0jd7nsih9z2zp0aa82sl5kgxaqyjzlgv7hhfbrw9lawc57kl7z6a"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'configure
+            (lambda _
+              (invoke "cmake" "-DCOMPUTE_BACKEND=cpu" "-S" ".")
+              (invoke "make")))
+          (delete 'strip-binaries)
+          (add-after 'install 'add-libbitsandbytes_cpu.so
+            (lambda _
+              (let* ((site (string-append #$output "/lib/python"
+                                          #$(version-major+minor (package-version
+                                                                  python))
+                                          "/site-packages/bitsandbytes")))
+                (install-file "bitsandbytes/libbitsandbytes_cpu.so" site)))))))
+    (inputs (list python-setuptools
+                  python-pytest
+                  python-lion-pytorch
+                  python-einops
+                  python-wheel
+                  python-scipy
+                  python-pandas
+                  python-matplotlib))
+    (native-inputs (list cmake-minimal))
+    (synopsis "Fuzzy matching library for Python")
+    (description
+     "The @code{bitsandbytes} library is a lightweight Python wrapper around CUDA custom functions, in particular 8-bit optimizers, matrix multiplication (LLM.int8()), and 8 & 4-bit quantization functions.
+
+The library includes quantization primitives for 8-bit & 4-bit operations, through @code{bitsandbytes.nn.Linear8bitLt} and @code{bitsandbytes.nn.Linear4bit} and 8-bit optimizers through @code{bitsandbytes.optim module}.
+
+There are ongoing efforts to support further hardware backends, i.e. Intel CPU + GPU, AMD GPU, Apple Silicon. Windows support is quite far along and is on its way as well.
+
+Please head to the official documentation page: @url{https://huggingface.co/docs/bitsandbytes/main}")
+    (license license:asl2.0)))
+
+(define-public python-bitsandbytes-cuda
+  (package
+    (inherit python-bitsandbytes)
+    (name "python-bitsandbytes-cuda")
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'configure
+            (lambda _
+              (invoke "cmake" "-DCOMPUTE_BACKEND=cuda"
+                      "-DCOMPUTE_CAPABILITY=80;86" "-S" ".")
+              (invoke "make")))
+          (delete 'strip-binaries)
+          (add-after 'install 'add-libbitsandbytes_cuda124.so
+            (lambda _
+              (let* ((site (string-append #$output "/lib/python"
+                                          #$(version-major+minor (package-version
+                                                                  python))
+                                          "/site-packages/bitsandbytes")))
+                (install-file "bitsandbytes/libbitsandbytes_cuda124.so" site)
+                (install-file (string-append #$(this-package-input
+                                                "python-bitsandbytes")
+                               "/lib/python"
+                               #$(version-major+minor (package-version python))
+                               "/site-packages/bitsandbytes/libbitsandbytes_cpu.so")
+                              site)))))))
+    (inputs (modify-inputs (package-inputs python-bitsandbytes)
+              (replace "python-lion-pytorch" python-lion-pytorch-cuda)
+              (append python-bitsandbytes)))
+    (propagated-inputs (list nvidia-driver cuda-toolkit))))
+
 (define-public python-tensorstore
   (let ((tensorstore-python-packages (list "absl_py"
                                            ;; "alabaster"
@@ -1700,36 +1785,15 @@ SavedModel format.")
 designed for flexibility.")
     (license license:asl2.0)))
 
-(define-public python-torch-diffeq
+(define-public python-flax-cuda
   (package
-    (name "python-torch-diffeq")
-    (version "0.2.2")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/rtqichen/torchdiffeq")
-             (commit "97e93deddcb18f67330f0b9caa75808f38b94c89")))
-       (sha256
-        (base32 "04gmc13jf0wnbdvslgvzzbnnmzl1f7q44b73xbpaa7s7s4ijprxd"))))
-    (build-system python-build-system)
-    (arguments
-     ;; Looks like the tests require network connection.
-     '(#:tests? #f))
-    (inputs (list python-pytorch python-pillow python-scipy))
-    (home-page "https://github.com/rtqichen/torchdiffeq")
-    (synopsis
-     "Differentiable ODE solvers with full GPU support and O(1)-memory
-backpropagation.")
-    (description
-     "This library provides ordinary differential equation (ODE) solvers
-implemented in PyTorch. Backpropagation through ODE solutions is supported using
-the adjoint method for constant memory cost. For usage of ODE solvers in deep
-learning applications.
-
-As the solvers are implemented in PyTorch, algorithms in this repository are
-fully supported to run on the GPU.")
-    (license license:expat)))
+    (inherit python-flax)
+    (name "python-optax-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-flax)
+                         (replace "python-jax" python-jax-cuda)
+                         (replace "python-optax" python-optax-cuda)))
+    (native-inputs (modify-inputs (package-native-inputs python-flax)
+                     (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public gloo-cuda
   (let ((version "0.0.0")
@@ -2105,112 +2169,33 @@ and common image transformations for computer vision.")
     (name "python-lion-pytorch-cuda")
     (propagated-inputs (list python-pytorch-cuda cuda-toolkit nvidia-driver))))
 
-(define-public python-bitsandbytes
+(define-public python-torch-diffeq
   (package
-    (name "python-bitsandbytes")
-    (version "0.44.1")
-    (home-page "https://github.com/bitsandbytes-foundation/bitsandbytes")
+    (name "python-torch-diffeq")
+    (version "0.2.2")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
-             (url home-page)
-             (commit version)))
-       (file-name (git-file-name name version))
+             (url "https://github.com/rtqichen/torchdiffeq")
+             (commit "97e93deddcb18f67330f0b9caa75808f38b94c89")))
        (sha256
-        (base32 "0jd7nsih9z2zp0aa82sl5kgxaqyjzlgv7hhfbrw9lawc57kl7z6a"))))
+        (base32 "04gmc13jf0wnbdvslgvzzbnnmzl1f7q44b73xbpaa7s7s4ijprxd"))))
     (build-system python-build-system)
     (arguments
-     (list
-      #:tests? #f
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-before 'build 'configure
-            (lambda _
-              (invoke "cmake" "-DCOMPUTE_BACKEND=cpu" "-S" ".")
-              (invoke "make")))
-          (delete 'strip-binaries)
-          (add-after 'install 'add-libbitsandbytes_cpu.so
-            (lambda _
-              (let* ((site (string-append #$output "/lib/python"
-                                          #$(version-major+minor (package-version
-                                                                  python))
-                                          "/site-packages/bitsandbytes")))
-                (install-file "bitsandbytes/libbitsandbytes_cpu.so" site)))))))
-    (inputs (list python-setuptools
-                  python-pytest
-                  python-lion-pytorch
-                  python-einops
-                  python-wheel
-                  python-scipy
-                  python-pandas
-                  python-matplotlib))
-    (native-inputs (list cmake-minimal))
-    (synopsis "Fuzzy matching library for Python")
+     ;; Looks like the tests require network connection.
+     '(#:tests? #f))
+    (inputs (list python-pytorch python-pillow python-scipy))
+    (home-page "https://github.com/rtqichen/torchdiffeq")
+    (synopsis
+     "Differentiable ODE solvers with full GPU support and O(1)-memory
+backpropagation.")
     (description
-     "The @code{bitsandbytes} library is a lightweight Python wrapper around CUDA custom functions, in particular 8-bit optimizers, matrix multiplication (LLM.int8()), and 8 & 4-bit quantization functions.
+     "This library provides ordinary differential equation (ODE) solvers
+implemented in PyTorch. Backpropagation through ODE solutions is supported using
+the adjoint method for constant memory cost. For usage of ODE solvers in deep
+learning applications.
 
-The library includes quantization primitives for 8-bit & 4-bit operations, through @code{bitsandbytes.nn.Linear8bitLt} and @code{bitsandbytes.nn.Linear4bit} and 8-bit optimizers through @code{bitsandbytes.optim module}.
-
-There are ongoing efforts to support further hardware backends, i.e. Intel CPU + GPU, AMD GPU, Apple Silicon. Windows support is quite far along and is on its way as well.
-
-Please head to the official documentation page: @url{https://huggingface.co/docs/bitsandbytes/main}")
-    (license license:asl2.0)))
-
-(define-public python-bitsandbytes-cuda
-  (package
-    (inherit python-bitsandbytes)
-    (name "python-bitsandbytes-cuda")
-    (arguments
-     (list
-      #:tests? #f
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-before 'build 'configure
-            (lambda _
-              (invoke "cmake" "-DCOMPUTE_BACKEND=cuda"
-                      "-DCOMPUTE_CAPABILITY=80;86" "-S" ".")
-              (invoke "make")))
-          (delete 'strip-binaries)
-          (add-after 'install 'add-libbitsandbytes_cuda124.so
-            (lambda _
-              (let* ((site (string-append #$output "/lib/python"
-                                          #$(version-major+minor (package-version
-                                                                  python))
-                                          "/site-packages/bitsandbytes")))
-                (install-file "bitsandbytes/libbitsandbytes_cuda124.so" site)
-                (install-file (string-append #$(this-package-input
-                                                "python-bitsandbytes")
-                               "/lib/python"
-                               #$(version-major+minor (package-version python))
-                               "/site-packages/bitsandbytes/libbitsandbytes_cpu.so")
-                              site)))))))
-    (inputs (modify-inputs (package-inputs python-bitsandbytes)
-              (replace "python-lion-pytorch" python-lion-pytorch-cuda)
-              (append python-bitsandbytes)))
-    (propagated-inputs (list nvidia-driver cuda-toolkit))))
-
-(define-public cuda-toolkit-11.8
-  (package
-    (inherit cuda-toolkit)
-    (version "11.8.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri
-        "https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run")
-       (sha256
-        (base32 "05jskb06lw0v1m52pg2zhm5v78837cb9pgcsxnxsgr7b7apw88wj"))))))
-
-(define-public cudnn-8.9
-  (package
-    (inherit cudnn)
-    (version "8.9.1.23")
-    (source
-     (origin
-       (uri (string-append
-             "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
-             version "_cuda11-archive.tar.xz"))
-       (sha256
-        (base32 "0p286gnjslz06z9vff136pq8srkax75nbklmvg4r11g2cxr8ind6"))
-       (method url-fetch)))))
+As the solvers are implemented in PyTorch, algorithms in this repository are
+fully supported to run on the GPU.")
+    (license license:expat)))
