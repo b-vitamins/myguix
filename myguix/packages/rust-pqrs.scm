@@ -2796,7 +2796,8 @@ for `@code{NonNull<T>`}, and the function `ptrdistance`.")
         (base32 "0y1yw681b9vhaihmq15qa5h5af0yi6iyc1mg6dys167r0plalk5r"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-half" ,rust-half-2)
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-half" ,rust-half-2)
                        ("rust-libc" ,rust-libc-0.2)
                        ("rust-nalgebra" ,rust-nalgebra-0.32)
                        ("rust-ndarray" ,rust-ndarray-0.16)
