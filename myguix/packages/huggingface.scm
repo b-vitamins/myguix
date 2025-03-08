@@ -154,6 +154,11 @@ datasets and other repos on the @url{huggingface.co} hub.")
           (add-after 'unpack 'chdir
             (lambda* _
               (chdir "bindings/python")))
+          (add-after 'chdir 'version-tokenizers
+            (lambda* _
+              (substitute* "Cargo.toml"
+                (("^\\[dependencies.safetensors\\].*$" all)
+                 (string-append all "version = \"0.5.3\"\n")))))
           (add-after 'build 'build-python-module
             (assoc-ref py:%standard-phases
                        'build))
