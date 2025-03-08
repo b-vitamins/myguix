@@ -928,149 +928,6 @@ when implementing custom derives.")
     (description "Raw FFI bindings to platform libraries like libc.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-pyo3-macros-backend-0.21
-  (package
-    (name "rust-pyo3-macros-backend")
-    (version "0.21.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-macros-backend" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0fycsj0b8ajz2rnb002sjhm3dkcdi0mi5jqkcl1i0gamxgbvzywk"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-heck" ,rust-heck-0.4)
-                       ("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.21)
-                       ("rust-quote" ,rust-quote-1)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Code generation for PyO3 package")
-    (description "Code generation for @code{PyO3} package")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-macros-0.21
-  (package
-    (name "rust-pyo3-macros")
-    (version "0.21.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-macros" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "04ym6vg3mn4z199lm01swh883abfhcl74f396n7b5sqirsgik2jb"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-pyo3-macros-backend" ,rust-pyo3-macros-backend-0.21)
-                       ("rust-quote" ,rust-quote-1)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Proc macros for PyO3 package")
-    (description "Proc macros for @code{PyO3} package")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-ffi-0.21
-  (package
-    (name "rust-pyo3-ffi")
-    (version "0.21.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-ffi" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1ba6y12xq9hbp1viv5cbr75dwx443fgg4ncvj22212jaq27xm9q9"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-libc" ,rust-libc-0.2)
-                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.21))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Python-API bindings for the PyO3 ecosystem")
-    (description "Python-API bindings for the @code{PyO3} ecosystem")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-build-config-0.21
-  (package
-    (name "rust-pyo3-build-config")
-    (version "0.21.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-build-config" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1xxfyh7kihdsngmzl267mwb6hszbsszp279bn2ywvdk3shscl3b5"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-once-cell" ,rust-once-cell-1)
-                       ("rust-python3-dll-a" ,rust-python3-dll-a-0.2)
-                       ("rust-python3-dll-a" ,rust-python3-dll-a-0.2)
-                       ("rust-target-lexicon" ,rust-target-lexicon-0.12)
-                       ("rust-target-lexicon" ,rust-target-lexicon-0.12))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Build configuration for the PyO3 ecosystem")
-    (description "Build configuration for the @code{PyO3} ecosystem")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-0.21
-  (package
-    (name "rust-pyo3")
-    (version "0.21.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0sx17rgkxf8v607nwibqyv2imggq7nhhirnmd0bpc66h1fcv3a57"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
-                       ("rust-cfg-if" ,rust-cfg-if-1)
-                       ("rust-chrono" ,rust-chrono-0.4)
-                       ("rust-chrono-tz" ,rust-chrono-tz-0.6)
-                       ("rust-either" ,rust-either-1)
-                       ("rust-eyre" ,rust-eyre-0.6)
-                       ("rust-hashbrown" ,rust-hashbrown-0.9)
-                       ("rust-indexmap" ,rust-indexmap-1)
-                       ("rust-indoc" ,rust-indoc-2)
-                       ("rust-inventory" ,rust-inventory-0.3)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-memoffset" ,rust-memoffset-0.9)
-                       ("rust-num-bigint" ,rust-num-bigint-0.4)
-                       ("rust-num-complex" ,rust-num-complex-0.2)
-                       ("rust-parking-lot" ,rust-parking-lot-0.11)
-                       ("rust-portable-atomic" ,rust-portable-atomic-1)
-                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.21)
-                       ("rust-pyo3-ffi" ,rust-pyo3-ffi-0.21)
-                       ("rust-pyo3-macros" ,rust-pyo3-macros-0.21)
-                       ("rust-rust-decimal" ,rust-rust-decimal-1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-smallvec" ,rust-smallvec-1)
-                       ("rust-unindent" ,rust-unindent-0.2))
-       #:cargo-development-inputs (("rust-assert-approx-eq" ,rust-assert-approx-eq-1)
-                                   ("rust-chrono" ,rust-chrono-0.4)
-                                   ("rust-chrono-tz" ,rust-chrono-tz-0.6)
-                                   ("rust-futures" ,rust-futures-0.3)
-                                   ("rust-proptest" ,rust-proptest-1)
-                                   ("rust-rayon" ,rust-rayon-1)
-                                   ("rust-send-wrapper" ,rust-send-wrapper-0.6)
-                                   ("rust-serde" ,rust-serde-1)
-                                   ("rust-serde-json" ,rust-serde-json-1)
-                                   ("rust-trybuild" ,rust-trybuild-1))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Bindings to Python interpreter")
-    (description "Bindings to Python interpreter")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-cfg-if-1
   (package
     (name "rust-cfg-if")
@@ -2923,140 +2780,6 @@ for `@code{NonNull<T>`}, and the function `ptrdistance`.")
     (home-page "https://github.com/rust-num/num-integer")
     (synopsis "Integer traits and functions")
     (description "Integer traits and functions")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-macros-backend-0.21
-  (package
-    (name "rust-pyo3-macros-backend")
-    (version "0.21.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-macros-backend" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0p58yp8ajlc8bq56wghw1syrjszmadasasdfpsjy3d9dychhf9h8"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-heck" ,rust-heck-0.4)
-                       ("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.21)
-                       ("rust-quote" ,rust-quote-1)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Code generation for PyO3 package")
-    (description "Code generation for @code{PyO3} package")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-macros-0.21
-  (package
-    (name "rust-pyo3-macros")
-    (version "0.21.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-macros" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0g65z9yj2iffjrkrkzan9hwhhj7rrchh7lfv64dy30h6zill1cvp"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-pyo3-macros-backend" ,rust-pyo3-macros-backend-0.21)
-                       ("rust-quote" ,rust-quote-1)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Proc macros for PyO3 package")
-    (description "Proc macros for @code{PyO3} package")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-ffi-0.21
-  (package
-    (name "rust-pyo3-ffi")
-    (version "0.21.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-ffi" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "00vlp4gmzn76gz250pz1r3fydd5r41nwl7dd9nmidfb0vi1migh1"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-libc" ,rust-libc-0.2)
-                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.21))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Python-API bindings for the PyO3 ecosystem")
-    (description "Python-API bindings for the @code{PyO3} ecosystem")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-build-config-0.21
-  (package
-    (name "rust-pyo3-build-config")
-    (version "0.21.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3-build-config" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0l0vxvnqsbjrpdmysnwaljf4q3zcr1kb526qq23svzgs6mcdz0vq"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-once-cell" ,rust-once-cell-1)
-                       ("rust-python3-dll-a" ,rust-python3-dll-a-0.2)
-                       ("rust-python3-dll-a" ,rust-python3-dll-a-0.2)
-                       ("rust-target-lexicon" ,rust-target-lexicon-0.12)
-                       ("rust-target-lexicon" ,rust-target-lexicon-0.12))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Build configuration for the PyO3 ecosystem")
-    (description "Build configuration for the @code{PyO3} ecosystem")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-pyo3-0.21
-  (package
-    (name "rust-pyo3")
-    (version "0.21.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "pyo3" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1n39y183jfqbyvimscqr0ysxxa6804pn46ivw048ww91lnb0pq55"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
-                       ("rust-cfg-if" ,rust-cfg-if-1)
-                       ("rust-chrono" ,rust-chrono-0.4)
-                       ("rust-chrono-tz" ,rust-chrono-tz-0.6)
-                       ("rust-either" ,rust-either-1)
-                       ("rust-eyre" ,rust-eyre-0.6)
-                       ("rust-hashbrown" ,rust-hashbrown-0.9)
-                       ("rust-indexmap" ,rust-indexmap-1)
-                       ("rust-indoc" ,rust-indoc-2)
-                       ("rust-inventory" ,rust-inventory-0.3)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-memoffset" ,rust-memoffset-0.9)
-                       ("rust-num-bigint" ,rust-num-bigint-0.4)
-                       ("rust-num-complex" ,rust-num-complex-0.2)
-                       ("rust-parking-lot" ,rust-parking-lot-0.11)
-                       ("rust-portable-atomic" ,rust-portable-atomic-1)
-                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.21)
-                       ("rust-pyo3-ffi" ,rust-pyo3-ffi-0.21)
-                       ("rust-pyo3-macros" ,rust-pyo3-macros-0.21)
-                       ("rust-rust-decimal" ,rust-rust-decimal-1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-smallvec" ,rust-smallvec-1)
-                       ("rust-unindent" ,rust-unindent-0.2))))
-    (home-page "https://github.com/pyo3/pyo3")
-    (synopsis "Bindings to Python interpreter")
-    (description "Bindings to Python interpreter")
     (license (list license:expat license:asl2.0))))
 
 (define-public rust-numpy-0.23
@@ -14165,4 +13888,155 @@ implementation.")
     (synopsis "Rust wrappers for the PyTorch C++ api (libtorch)")
     (description
      "This package provides Rust wrappers for the @code{PyTorch} C++ api (libtorch).")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-pyo3-macros-backend-0.23
+  (package
+    (name "rust-pyo3-macros-backend")
+    (version "0.23.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pyo3-macros-backend" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0a10yxj41kvjhh9vywzd2zj3h6iwm4bg3mlkw2frrnpks1m759pw"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-heck" ,rust-heck-0.5)
+                       ("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.23)
+                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.23)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/pyo3/pyo3")
+    (synopsis "Code generation for PyO3 package")
+    (description
+     "This package provides Code generation for @code{PyO3} package.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-pyo3-macros-0.23
+  (package
+    (name "rust-pyo3-macros")
+    (version "0.23.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pyo3-macros" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1nm9i19aff7zn245v35qb0lbr3cxr19zdgcayq84fg7n509j1hpv"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-pyo3-macros-backend" ,rust-pyo3-macros-backend-0.23)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-2))))
+    (home-page "https://github.com/pyo3/pyo3")
+    (synopsis "Proc macros for PyO3 package")
+    (description "This package provides Proc macros for @code{PyO3} package.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-pyo3-ffi-0.23
+  (package
+    (name "rust-pyo3-ffi")
+    (version "0.23.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pyo3-ffi" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "13fxvxijl59vilv39akdzwqd1l7fb6c70f53n27irfy0672b9wg9"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-libc" ,rust-libc-0.2)
+                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.23))))
+    (home-page "https://github.com/pyo3/pyo3")
+    (synopsis "Python-API bindings for the PyO3 ecosystem")
+    (description
+     "This package provides Python-API bindings for the @code{PyO3} ecosystem.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-pyo3-build-config-0.23
+  (package
+    (name "rust-pyo3-build-config")
+    (version "0.23.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pyo3-build-config" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1yqhw1k466k65rqvy2d4xz2shl0hzkry1xlxinciigzkdvlcpxll"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-python3-dll-a" ,rust-python3-dll-a-0.2)
+                       ("rust-python3-dll-a" ,rust-python3-dll-a-0.2)
+                       ("rust-target-lexicon" ,rust-target-lexicon-0.12)
+                       ("rust-target-lexicon" ,rust-target-lexicon-0.12))))
+    (home-page "https://github.com/pyo3/pyo3")
+    (synopsis "Build configuration for the PyO3 ecosystem")
+    (description
+     "This package provides Build configuration for the @code{PyO3} ecosystem.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public rust-pyo3-0.23
+  (package
+    (name "rust-pyo3")
+    (version "0.23.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "pyo3" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0wm8z6jgg18z2cgr99wc34mbkffhcnb50igmq5d1ff6ghpyvyy3p"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
+                       ("rust-cfg-if" ,rust-cfg-if-1)
+                       ("rust-chrono" ,rust-chrono-0.4)
+                       ("rust-chrono-tz" ,rust-chrono-tz-0.10)
+                       ("rust-either" ,rust-either-1)
+                       ("rust-eyre" ,rust-eyre-0.6)
+                       ("rust-hashbrown" ,rust-hashbrown-0.15)
+                       ("rust-indexmap" ,rust-indexmap-2)
+                       ("rust-indoc" ,rust-indoc-2)
+                       ("rust-inventory" ,rust-inventory-0.3)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-memoffset" ,rust-memoffset-0.9)
+                       ("rust-num-bigint" ,rust-num-bigint-0.4)
+                       ("rust-num-complex" ,rust-num-complex-0.4)
+                       ("rust-num-rational" ,rust-num-rational-0.4)
+                       ("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-portable-atomic" ,rust-portable-atomic-1)
+                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.23)
+                       ("rust-pyo3-ffi" ,rust-pyo3-ffi-0.23)
+                       ("rust-pyo3-macros" ,rust-pyo3-macros-0.23)
+                       ("rust-rust-decimal" ,rust-rust-decimal-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-smallvec" ,rust-smallvec-1)
+                       ("rust-unindent" ,rust-unindent-0.2))
+       #:cargo-development-inputs (("rust-assert-approx-eq" ,rust-assert-approx-eq-1)
+                                   ("rust-chrono" ,rust-chrono-0.4)
+                                   ("rust-chrono-tz" ,rust-chrono-tz-0.10)
+                                   ("rust-futures" ,rust-futures-0.3)
+                                   ("rust-proptest" ,rust-proptest-1)
+                                   ("rust-rayon" ,rust-rayon-1)
+                                   ("rust-send-wrapper" ,rust-send-wrapper-0.6)
+                                   ("rust-serde" ,rust-serde-1)
+                                   ("rust-serde-json" ,rust-serde-json-1)
+                                   ("rust-static-assertions" ,rust-static-assertions-1)
+                                   ("rust-tempfile" ,rust-tempfile-3)
+                                   ("rust-trybuild" ,rust-trybuild-1)
+                                   ("rust-uuid" ,rust-uuid-1))))
+    (home-page "https://github.com/pyo3/pyo3")
+    (synopsis "Bindings to Python interpreter")
+    (description "This package provides Bindings to Python interpreter.")
     (license (list license:expat license:asl2.0))))
