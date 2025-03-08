@@ -1707,5 +1707,3 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
     (synopsis "Fast Iterable JSON parser")
     (description "This package provides Fast Iterable JSON parser.")
     (license license:expat)))
-
-python-openai-next
