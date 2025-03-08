@@ -1577,6 +1577,15 @@ reliable JAX code.  This includes utils to help:
 library for JAX.")
     (license license:asl2.0)))
 
+(define-public python-optax-cuda
+  (package
+    (inherit python-optax)
+    (name "python-optax-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-optax)
+                         (replace "python-chex" python-chex-cuda)
+                         (replace "python-jax" python-jax-cuda)
+                         (replace "python-jaxlib" python-jaxlib-cuda)))))
+
 (define-public python-orbax-checkpoint
   (package
     (name "python-orbax-checkpoint")
