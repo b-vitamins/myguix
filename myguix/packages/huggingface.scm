@@ -399,4 +399,41 @@ datasets and other repos on the @url{huggingface.co} hub.")
      "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow")
     (description
      "State-of-the-art Machine Learning for JAX, @code{PyTorch} and @code{TensorFlow}.")
-    (license #f)))
+    (license license:asl2.0)))
+
+(define-public python-optimum
+  (package
+    (name "python-optimum")
+    (version "1.24.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "optimum" version))
+       (sha256
+        (base32 "0l852l8d50p82zmqfvhihsrs221ip43zy7mv1qvp7fvqpyps40mm"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
+    (propagated-inputs (list python-huggingface-hub python-numpy
+                             python-packaging python-pytorch-cuda
+                             python-transformers))
+    (native-inputs (list python-black
+                         python-einops
+                         python-parameterized
+                         python-pillow
+                         python-pytest
+                         python-pytest-xdist
+                         python-requests
+                         python-scikit-learn
+                         python-sentencepiece
+                         python-setuptools
+                         python-torchvision-cuda
+                         python-wheel))
+    (home-page "https://github.com/huggingface/optimum")
+    (synopsis
+     "Optimum Library is an extension of the Hugging Face Transformers library, providing a framework to integrate third-party libraries from Hardware Partners and interface with their specific functionality.")
+    (description
+     "Optimum Library is an extension of the Hugging Face Transformers library,
+providing a framework to integrate third-party libraries from Hardware Partners
+and interface with their specific functionality.")
+    (license license:asl2.0)))
