@@ -479,8 +479,7 @@
         python-pytest))
 
 (define %machine-learning-packages
-  (list python-spacy
-        python-gensim
+  (list python-gensim
         python-scikit-learn
         python-scikit-learn-extra
         python-nltk
