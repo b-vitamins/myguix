@@ -1868,37 +1868,6 @@ of the file.")
      "This package provides a hash table with consistent order and fast iteration.")
     (license (list license:asl2.0 license:expat))))
 
-(define-public rust-serde-json-1
-  (package
-    (name "rust-serde-json")
-    (version "1.0.115")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde_json" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1pcpcik3jmfkw845irc61vd8f91zlpwnq6z7ypsgvsd8v935rp0j"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-indexmap" ,rust-indexmap-2)
-                       ("rust-itoa" ,rust-itoa-1)
-                       ("rust-ryu" ,rust-ryu-1)
-                       ("rust-serde" ,rust-serde-1))
-       #:cargo-development-inputs (("rust-automod" ,rust-automod-1)
-                                   ("rust-indoc" ,rust-indoc-2)
-                                   ("rust-ref-cast" ,rust-ref-cast-1)
-                                   ("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-serde" ,rust-serde-1)
-                                   ("rust-serde-bytes" ,rust-serde-bytes-0.11)
-                                   ("rust-serde-derive" ,rust-serde-derive-1)
-                                   ("rust-serde-stacker" ,rust-serde-stacker-0.1)
-                                   ("rust-trybuild" ,rust-trybuild-1))))
-    (home-page "https://github.com/serde-rs/json")
-    (synopsis "A JSON serialization file format")
-    (description "This package provides a JSON serialization file format")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-itoa-1
   (package
     (name "rust-itoa")
@@ -2948,82 +2917,6 @@ in order to be used in Cargo build scripts.")
     (description "Utilities for concurrent programming")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-serde-derive-1
-  (package
-    (name "rust-serde-derive")
-    (version "1.0.198")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde_derive" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1nb6hn1xpvhih00x6jkfm42na6pwz59h2zayj2x865xhd6wdm3p8"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-quote" ,rust-quote-1.0.35)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://serde.rs")
-    (synopsis "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]")
-    (description
-     "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-serde-1
-  (package
-    (name "rust-serde")
-    (version "1.0.198")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1k0z8mwkkl46bwfk16z7v8xidi5pwnj4a9fsf42k8cchjw6a8ilq"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-serde-derive" ,rust-serde-derive-1)
-                       ("rust-serde-derive" ,rust-serde-derive-1))
-       #:cargo-development-inputs (("rust-serde-derive" ,rust-serde-derive-1))))
-    (home-page "https://serde.rs")
-    (synopsis "A generic serialization/deserialization framework")
-    (description
-     "This package provides a generic serialization/deserialization framework")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-serde-json-1
-  (package
-    (name "rust-serde-json")
-    (version "1.0.116")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde_json" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "04r81f5myl41zrsyghnbmbl39c4n3azldb9zxfafnzyi4rqxn5ry"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-indexmap" ,rust-indexmap-2)
-                       ("rust-itoa" ,rust-itoa-1)
-                       ("rust-ryu" ,rust-ryu-1)
-                       ("rust-serde" ,rust-serde-1))
-       #:cargo-development-inputs (("rust-automod" ,rust-automod-1)
-                                   ("rust-indoc" ,rust-indoc-2)
-                                   ("rust-ref-cast" ,rust-ref-cast-1)
-                                   ("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-serde" ,rust-serde-1)
-                                   ("rust-serde-bytes" ,rust-serde-bytes-0.11)
-                                   ("rust-serde-derive" ,rust-serde-derive-1)
-                                   ("rust-serde-stacker" ,rust-serde-stacker-0.1)
-                                   ("rust-trybuild" ,rust-trybuild-1))))
-    (home-page "https://github.com/serde-rs/json")
-    (synopsis "A JSON serialization file format")
-    (description "This package provides a JSON serialization file format")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-fnv-1
   (package
     (name "rust-fnv")
@@ -3555,34 +3448,6 @@ in stable Rust.")
     (home-page "https://github.com/servo/rust-url/")
     (synopsis "Percent encoding and decoding")
     (description "Percent encoding and decoding")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-serde-json-1
-  (package
-    (name "rust-serde-json")
-    (version "1.0.114")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde_json" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1q4saigxwkf8bw4y5kp6k33dnavlvvwa2q4zmag59vrjsqdrpw65"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-indexmap" ,rust-indexmap-1)
-                       ("rust-itoa" ,rust-itoa-0.4)
-                       ("rust-ryu" ,rust-ryu-1)
-                       ("rust-serde" ,rust-serde-1))
-       #:cargo-development-inputs (("rust-automod" ,rust-automod-1)
-                                   ("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-serde-bytes" ,rust-serde-bytes-0.11)
-                                   ("rust-serde-derive" ,rust-serde-derive-1)
-                                   ("rust-serde-stacker" ,rust-serde-stacker-0.1)
-                                   ("rust-trybuild" ,rust-trybuild-1))))
-    (home-page "https://github.com/serde-rs/json")
-    (synopsis "A JSON serialization file format")
-    (description "This package provides a JSON serialization file format")
     (license (list license:expat license:asl2.0))))
 
 (define-public rust-stacker-0.1
@@ -9225,37 +9090,6 @@ statistical guarantees.")
     (synopsis "Native Serde adapter for wasm-bindgen")
     (description "Native Serde adapter for wasm-bindgen")
     (license license:expat)))
-
-(define-public rust-serde-json-1
-  (package
-    (name "rust-serde-json")
-    (version "1.0.113")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde_json" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0ycaiff7ar4qx5sy9kvi1kv9rnnfl15kcfmhxiiwknn3n5q1p039"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-indexmap" ,rust-indexmap-2)
-                       ("rust-itoa" ,rust-itoa-1)
-                       ("rust-ryu" ,rust-ryu-1)
-                       ("rust-serde" ,rust-serde-1))
-       #:cargo-development-inputs (("rust-automod" ,rust-automod-1)
-                                   ("rust-indoc" ,rust-indoc-2)
-                                   ("rust-ref-cast" ,rust-ref-cast-1)
-                                   ("rust-rustversion" ,rust-rustversion-1)
-                                   ("rust-serde" ,rust-serde-1)
-                                   ("rust-serde-bytes" ,rust-serde-bytes-0.11)
-                                   ("rust-serde-derive" ,rust-serde-derive-1)
-                                   ("rust-serde-stacker" ,rust-serde-stacker-0.1)
-                                   ("rust-trybuild" ,rust-trybuild-1))))
-    (home-page "https://github.com/serde-rs/json")
-    (synopsis "A JSON serialization file format")
-    (description "This package provides a JSON serialization file format")
-    (license (list license:expat license:asl2.0))))
 
 (define-public rust-serde-test-1
   (package
