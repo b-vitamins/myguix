@@ -181,60 +181,6 @@ of the file.")
     (description "Bindings to Python")
     (license license:expat)))
 
-(define-public rust-rustix-0.38
-  (package
-    (name "rust-rustix")
-    (version "0.38.34")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "rustix" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "03vkqa2ism7q56rkifyy8mns0wwqrk70f4i4fd53r97p8b05xp3h"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-bitflags" ,rust-bitflags-2)
-                       ("rust-compiler-builtins" ,rust-compiler-builtins-0.1)
-                       ("rust-errno" ,rust-errno-0.3)
-                       ("rust-itoa" ,rust-itoa-1)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-linux-raw-sys" ,rust-linux-raw-sys-0.4)
-                       ("rust-once-cell" ,rust-once-cell-1)
-                       ("rust-rustc-std-workspace-alloc" ,rust-rustc-std-workspace-alloc-1)
-                       ("rust-rustc-std-workspace-core" ,rust-rustc-std-workspace-core-1)
-                       ("rust-windows-sys" ,rust-windows-sys-0.52))))
-    (home-page "https://github.com/bytecodealliance/rustix")
-    (synopsis "Safe Rust bindings to POSIX/Unix/Linux/Winsock-like syscalls")
-    (description
-     "Safe Rust bindings to POSIX/Unix/Linux/Winsock-like syscalls")
-    (license (list license:asl2.0 license:asl2.0 license:expat))))
-
-(define-public rust-tempfile-3
-  (package
-    (name "rust-tempfile")
-    (version "3.10.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "tempfile" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1wdzz35ri168jn9al4s1g2rnsrr5ci91khgarc2rvpb3nappzdw5"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
-                       ("rust-fastrand" ,rust-fastrand-2)
-                       ("rust-rustix" ,rust-rustix-0.38)
-                       ("rust-windows-sys" ,rust-windows-sys-0.52))))
-    (home-page "https://stebalien.com/projects/tempfile-rs/")
-    (synopsis "A library for managing temporary files and directories.")
-    (description
-     "This package provides a library for managing temporary files and directories.")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-unicode-segmentation-1
   (package
     (name "rust-unicode-segmentation")
@@ -5361,31 +5307,6 @@ browser's console.")
     (description "Counts the number of live instances of types")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-tempfile-3
-  (package
-    (name "rust-tempfile")
-    (version "3.5.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "tempfile" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "163rp254r3x7i5hisagrpxid2166pq94jvk511dpkmc1yf2fryxr"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
-                       ("rust-fastrand" ,rust-fastrand-1)
-                       ("rust-redox-syscall" ,rust-redox-syscall-0.3)
-                       ("rust-rustix" ,rust-rustix-0.37)
-                       ("rust-windows-sys" ,rust-windows-sys-0.45))))
-    (home-page "https://stebalien.com/projects/tempfile-rs/")
-    (synopsis "A library for managing temporary files and directories.")
-    (description
-     "This package provides a library for managing temporary files and directories.")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-crossbeam-queue-0.3
   (package
     (name "rust-crossbeam-queue")
@@ -9617,31 +9538,6 @@ support for Unicode and emojis as well as machine hyphenation.")
     (home-page "https://github.com/dtolnay/syn")
     (synopsis "Parser for Rust source code")
     (description "This package provides Parser for Rust source code.")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-tempfile-3
-  (package
-    (name "rust-tempfile")
-    (version "3.9.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "tempfile" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1ypkl7rvv57n16q28psxpb61rnyhmfaif12ascdnsyljm90l3kh1"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-cfg-if" ,rust-cfg-if-1)
-                       ("rust-fastrand" ,rust-fastrand-2)
-                       ("rust-redox-syscall" ,rust-redox-syscall-0.4)
-                       ("rust-rustix" ,rust-rustix-0.38)
-                       ("rust-windows-sys" ,rust-windows-sys-0.52))
-       #:cargo-development-inputs (("rust-doc-comment" ,rust-doc-comment-0.3))))
-    (home-page "https://stebalien.com/projects/tempfile-rs/")
-    (synopsis "A library for managing temporary files and directories.")
-    (description
-     "This package provides a library for managing temporary files and directories.")
     (license (list license:expat license:asl2.0))))
 
 (define-public rust-test-case-3
