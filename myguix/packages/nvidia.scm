@@ -75,6 +75,7 @@
   #:use-module (myguix packages linux)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages machine-learning)
+  #:use-module (myguix packages video)
   #:use-module (ice-9 match))
 
 (define-public %nvidia-environment-variable-regexps
@@ -878,7 +879,8 @@ configuration, creating application profiles, gpu monitoring and more.")
           (union-build #$output
                        '#$(list (this-package-input "libglvnd")
                                 (this-package-input "mesa")
-                                (this-package-input "nvidia-driver"))))))
+                                (this-package-input "nvidia-driver")
+                                (this-package-input "nvidia-vaapi-driver"))))))
     (native-search-paths
      (list
       ;; https://github.com/NVIDIA/egl-wayland/issues/39
@@ -893,6 +895,11 @@ configuration, creating application profiles, gpu monitoring and more.")
       (search-path-specification
        (variable "GBM_BACKENDS_PATH")
        (files '("lib/gbm")))
+      ;; XXX Because of <https://issues.guix.gnu.org/issue/22138>, we need to add
+      ;; this to all VA-API back ends instead of once to libva.
+      (search-path-specification
+       (variable "LIBVA_DRIVERS_PATH")
+       (files '("lib/dri")))
       (search-path-specification
        (variable "VDPAU_DRIVER_PATH")
        (files '("lib/vdpau"))
@@ -917,7 +924,7 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (native-inputs '())
     (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
                                (package-propagated-inputs nvidia-driver)))
-    (inputs (list mesa-for-nvda nvidia-driver))
+    (inputs (list mesa-for-nvda nvidia-driver nvidia-vaapi-driver))
     (outputs '("out"))
     (license (package-license nvidia-driver))
     (home-page (package-home-page nvidia-driver))))
