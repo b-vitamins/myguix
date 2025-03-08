@@ -78,7 +78,8 @@
                         rust-anyhow-1
                         rust-anstyle-1
                         rust-anstream-0.6
-                        rust-aho-corasick-1))
+                        rust-aho-corasick-1
+                        rust-num-traits-0.2))
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages jemalloc)
   #:use-module (gnu packages sphinx)
@@ -113,7 +114,8 @@
   #:use-module (guix utils)
   #:use-module (myguix packages video)
   #:use-module (myguix packages machine-learning)
-  #:use-module (myguix packages rust-pqrs)
+  #:use-module ((myguix packages rust-pqrs)
+                #:hide (rust-lexical-parse-float-0.8))
   #:use-module (myguix packages nvidia))
 
 (define-public python-grobid-client-python
@@ -1646,4 +1648,64 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
      "Estimate and track carbon emissions from your computer, quantify and analyze their impact.")
     (description
      "CodeCarbon started with a quite simple question: What is the carbon emission impact of my computer program? We found some global data like computing currently represents roughly 0.5% of the world’s energy consumption but nothing on our individual/organisation level impact. At CodeCarbon, we believe, along with Niels Bohr, that Nothing exists until it is measured. So we found a way to estimate how much CO2 we produce while running our code. How? We created a Python package that estimates your hardware electricity power consumption (GPU + CPU + RAM) and we apply to it the carbon intensity of the region where the computing is done.")
+    (license license:expat)))
+
+(define-public python-jiter
+  (package
+    (name "python-jiter")
+    (version "0.8.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pydantic/jiter")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "02fnjgiw9avjqxzrx3bgy828l5g7ngp4nysgx9yb1k3zmd1z0lz8"))
+       (modules '((guix build utils)))
+       (snippet '(begin
+                   (substitute* "crates/jiter/Cargo.toml"
+                     (("version = \\{ workspace = true \\}")
+                      "version = \"0.8.2\""))))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'install)
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-before 'build-python-module 'chdir
+            (lambda* _
+              (chdir "crates/jiter-python")))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases
+                       'install)))
+      #:cargo-inputs `(("rust-ahash" ,rust-ahash-0.8)
+                       ("rust-bitvec" ,rust-bitvec-1)
+                       ("rust-lexical-parse-float" ,rust-lexical-parse-float-0.8)
+                       ("rust-num-bigint" ,rust-num-bigint-0.4)
+                       ("rust-num-traits" ,rust-num-traits-0.2)
+                       ("rust-pyo3" ,rust-pyo3-0.23)
+                       ("rust-pyo3-build-config" ,rust-pyo3-build-config-0.23)
+                       ("rust-smallvec" ,rust-smallvec-1))
+      #:cargo-development-inputs `(("rust-bencher" ,rust-bencher-0.1)
+                                   ("rust-codspeed-bencher-compat" ,rust-codspeed-bencher-compat-2)
+                                   ("rust-paste" ,rust-paste-1)
+                                   ("rust-pyo3" ,rust-pyo3-0.23)
+                                   ("rust-serde" ,rust-serde-1)
+                                   ("rust-serde-json" ,rust-serde-json-1))
+      #:install-source? #f))
+    (inputs (list maturin))
+    (native-inputs (list python-wrapper))
+    (home-page "https://github.com/pydantic/jiter/")
+    (synopsis "Fast Iterable JSON parser")
+    (description "This package provides Fast Iterable JSON parser.")
     (license license:expat)))
