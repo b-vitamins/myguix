@@ -69,49 +69,6 @@
   #:use-module (myguix packages bazel)
   #:use-module (ice-9 match))
 
-(define-public python-safetensors
-  (package
-    (name "python-safetensors")
-    (version "0.4.3")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/huggingface/safetensors")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "09ck97wnhi53j1qbcl0y9vynn42zmxqic6yqpn2cl9shxbnsiks5"))))
-    (build-system cargo-build-system)
-    (arguments
-     (list
-      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
-      #:modules '((guix build cargo-build-system)
-                  ((guix build pyproject-build-system)
-                   #:prefix py:)
-                  (guix build utils))
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'unpack 'chdir
-            (lambda* _
-              (chdir "bindings/python")))
-          (add-after 'build 'build-python-module
-            (assoc-ref py:%standard-phases
-                       'build))
-          (add-after 'build-python-module 'install-python-module
-            (assoc-ref py:%standard-phases
-                       'install)))
-      #:cargo-inputs `(("rust-pyo3" ,rust-pyo3-0.21)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-memmap2" ,rust-memmap2-0.9))))
-    (inputs (list maturin))
-    (native-inputs (list python-wrapper))
-    (home-page "https://github.com/huggingface/safetensors")
-    (synopsis "Safely store tensors")
-    (description
-     "This repository implements a new simple format for storing tensors safely (as opposed to pickle) and that is still fast (zero-copy).")
-    (license license:expat)))
-
 (define-public python-tokenizers
   (package
     (name "python-tokenizers")

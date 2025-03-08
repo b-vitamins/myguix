@@ -96,6 +96,7 @@
   #:use-module (myguix packages compression)
   #:use-module (myguix packages maths)
   #:use-module (myguix packages machine-learning)
+  #:use-module (myguix packages huggingface)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages fonts)
   #:use-module (myguix packages llvm-pqrs)

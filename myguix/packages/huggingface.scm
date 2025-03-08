@@ -24,6 +24,7 @@
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages nlp))
@@ -123,6 +124,49 @@
      "This package provides a client library to download and publish models,
 datasets and other repos on the @url{huggingface.co} hub.")
     (license license:asl2.0)))
+
+(define-public python-safetensors
+  (package
+    (name "python-safetensors")
+    (version "0.5.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/huggingface/safetensors")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "05kafi6pspi11iwwsfwl2yi68j9pbjn2vhpj6mbvb66jwlq47c71"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'chdir
+            (lambda* _
+              (chdir "bindings/python")))
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases
+                       'install)))
+      #:cargo-inputs `(("rust-pyo3" ,rust-pyo3-0.23)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-memmap2" ,rust-memmap2-0.9))))
+    (inputs (list maturin))
+    (native-inputs (list python-wrapper))
+    (home-page "https://github.com/huggingface/safetensors")
+    (synopsis "Safely store tensors")
+    (description
+     "This repository implements a new simple format for storing tensors safely (as opposed to pickle) and that is still fast (zero-copy).")
+    (license license:expat)))
 
 (define-public python-accelerate
   (package
