@@ -9,6 +9,7 @@
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system pyproject)
+  #:use-module (guix build-system meson)
   #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module (guix packages)
@@ -251,3 +252,43 @@ graphics hardware.")
     (description (string-append (package-description intel-media-driver)
                   "  This build of intel-media-driver includes nonfree blobs to fully enable the
 video decode capabilities of supported Intel GPUs."))))
+
+(define-public nvidia-vaapi-driver
+  (package
+    (name "nvidia-vaapi-driver")
+    (version "0.0.13")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/elFarto/nvidia-vaapi-driver")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ycrik4sdiy14miqvin5vg79776p7p2pazm0s8la4kngbgss1qr9"))))
+    (build-system meson-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'configure 'fix-install-path
+            (lambda _
+              (substitute* "meson.build"
+                (("(nvidia_install_dir = ).*" _ prefix)
+                 (format #f "~a'~a/lib/dri'" prefix
+                         #$output))))))))
+    (native-inputs (list pkg-config))
+    (inputs (list libva mesa nv-codec-headers))
+    ;; XXX Because of <https://issues.guix.gnu.org/issue/22138>, we need to add
+    ;; this to all VA-API back ends instead of once to libva.
+    (native-search-paths
+     (list (search-path-specification
+            (variable "LIBVA_DRIVERS_PATH")
+            (files '("lib/dri")))))
+    (home-page "https://github.com/elFarto/nvidia-vaapi-driver")
+    (synopsis "VA-API implemention using NVIDIA's NVDEC.")
+    (description
+     "This is an VA-API implementation that uses NVDEC as a backend,
+specifically designed to be used by Firefox for accelerated decoding of web
+content.")
+    (license license:expat)))
