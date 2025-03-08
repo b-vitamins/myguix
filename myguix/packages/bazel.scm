@@ -405,3 +405,32 @@ repositories, and large numbers of users.")
                              "third_party/hamcrest/hamcrest-core-1.3.jar"
                              "third_party/jsr305/jsr-305.jar"
                              "third_party/xz/xz-1.9.jar")))))))
+
+(define-public bazel
+  (package
+    (inherit bazel-6.4)
+    (name "bazel")
+    (version "6.5.0")
+    (source
+     (origin
+       (method url-fetch/zipbomb)
+       (uri (string-append "https://github.com/bazelbuild/bazel/"
+                           "releases/download/"
+                           version
+                           "/bazel-"
+                           version
+                           "-dist.zip"))
+       (sha256
+        (base32 "1liypfiw9fhqfab61jw3zskfkv3h2bhaa67zwhlrya0mjj8xm2gw"))
+       (patches (search-patches "myguix/patches/bazel-mock-repos.patch"
+                                "myguix/patches/bazel-workspace.patch"
+                                "myguix/patches/bazel-recreate-markers.patch"))
+       ;; This is just a start.  There are so many more jars.
+       (snippet '(for-each delete-file
+                           '("third_party/apache_commons_collections/commons-collections-3.2.2.jar"
+                             "third_party/apache_commons_io/commons-io-2.4.jar"
+                             "third_party/apache_commons_lang/commons-lang-2.6.jar"
+                             "third_party/hamcrest/hamcrest-core-1.3.jar"
+                             "third_party/jsr305/jsr-305.jar"
+                             "third_party/xz/xz-1.9.jar")))))))
+
