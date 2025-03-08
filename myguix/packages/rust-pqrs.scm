@@ -681,28 +681,6 @@ when implementing custom derives.")
      "Rust macro to automatically implement the builder pattern for arbitrary structs.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-memmap2-0.9
-  (package
-    (name "rust-memmap2")
-    (version "0.9.4")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "memmap2" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "08hkmvri44j6h14lyq4yw5ipsp91a9jacgiww4bs9jm8whi18xgy"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-libc" ,rust-libc-0.2)
-                       ("rust-stable-deref-trait" ,rust-stable-deref-trait-1))
-       #:cargo-development-inputs (("rust-owning-ref" ,rust-owning-ref-0.4)
-                                   ("rust-tempfile" ,rust-tempfile-3))))
-    (home-page "https://github.com/RazrFalcon/memmap2-rs")
-    (synopsis "Cross-platform Rust API for memory-mapped file IO")
-    (description "Cross-platform Rust API for memory-mapped file IO")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-cfg-if-1
   (package
     (name "rust-cfg-if")
