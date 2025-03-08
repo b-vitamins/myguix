@@ -1117,137 +1117,229 @@ Cflags: -I~a/include/tensorflow
     (native-inputs (modify-inputs (package-native-inputs tensorflow)
                      (append python-wrapper)))))
 
-(define-public python-tensorflow
-  (let ((python-keras-for-tensorflow (package
-                                       (name "python-keras")
-                                       (version "2.13.1")
-                                       (source
-                                        (origin
-                                          (method url-fetch)
-                                          (uri (pypi-uri "keras" version))
-                                          (sha256
-                                           (base32
-                                            "0s6ciib94x5qinj4pdfr4774yx5jxv055d6xclds25d08712rwax"))))
-                                       (build-system pyproject-build-system)
-                                       (arguments
-                                        (list
-                                         #:tests? #f ;needs tensorflow
-                                         #:phases
-                                         ;; We need this for tensorflow, so we can't have tensorflow
-                                         ;; here, and this causes the sanity check to fail.  That fine,
-                                         ;; because this is not sane.
-                                         '(modify-phases %standard-phases
-                                            (delete 'sanity-check))))
-                                       (propagated-inputs (list python-absl-py
-                                                           python-dm-tree
-                                                           python-h5py
-                                                           python-namex
-                                                           python-numpy
-                                                           python-rich
-                                                           python-setuptools))
-                                       (home-page
-                                        "https://github.com/keras-team/keras")
-                                       (synopsis "Deep learning API")
-                                       (description
-                                        "Keras is a deep learning API written in Python,
+(define python-keras-for-tensorflow
+  (package
+    (name "python-keras")
+    (version "2.13.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "keras" version))
+       (sha256
+        (base32 "0s6ciib94x5qinj4pdfr4774yx5jxv055d6xclds25d08712rwax"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;needs tensorflow
+      #:phases
+      ;; We need this for tensorflow, so we can't have tensorflow
+      ;; here, and this causes the sanity check to fail.  That fine,
+      ;; because this is not sane.
+      '(modify-phases %standard-phases
+         (delete 'sanity-check))))
+    (propagated-inputs (list python-absl-py
+                             python-dm-tree
+                             python-h5py
+                             python-namex
+                             python-numpy
+                             python-rich
+                             python-setuptools))
+    (home-page "https://github.com/keras-team/keras")
+    (synopsis "Deep learning API")
+    (description
+     "Keras is a deep learning API written in Python,
 running on top of the machine learning platform TensorFlow.  It was
 developed with a focus on enabling fast experimentation and providing
 a delightful developer experience.")
-                                       (license license:asl2.0))))
-    (package
-      (inherit tensorflow)
-      (name "python-tensorflow")
-      (source
-       #f)
-      (build-system pyproject-build-system)
-      (arguments
-       (list
-        #:tests? #f
-        #:phases
-        #~(modify-phases %standard-phases
-            (replace 'unpack
-              (lambda _
-                (mkdir-p "source")
-                (copy-recursively #$tensorflow:python "source")
-                (chdir "source")
-                ;; XXX: the "python" output of the tensorflow package
-                ;; contains broken symlinks.
-                (delete-file-recursively "third_party/eigen3")
-                (mkdir-p "third_party/eigen3")
-                (copy-recursively #$eigen-for-python-ml-dtypes
-                                  "third_party/eigen3")
-                (with-output-to-file "third_party/eigen3/LICENSE"
-                  (lambda ()
-                    (display "")))))
-            (add-after 'unpack 'relax-dependencies
-              (lambda _
-                (substitute* "setup.py"
-                  (("numpy >= 1.22, <= 1.24.3")
-                   "numpy >= 1.22")
-                  ;; We don't have tensorflow-io yet
-                  (("'tensorflow-io-gcs-filesystem.*")
-                   "None,")
-                  (("'platform_system.*")
-                   "")
-                  ;; Versions above 0.4 break tests, but that's okay
-                  ;; because we aren't running them.
-                  (("gast >= 0.2.1, <= 0.4.0")
-                   "gast >= 0.2.1")
-                  (("'typing_extensions>=3.6.6,<4.6.0'")
-                   "'typing_extensions>=3.6.6'")
-                  ;; Drop all of tensorboard and tensorflow_estimator
-                  (("'(tensorboard|tensorflow_estimator) >.*',")
-                   " None,")
-                  ;; Our clang bindings have a different name.
-                  (("libclang")
-                   "clang")
-                  ;; No tensorboard, sorry.
-                  (("standard_or_nightly\\('tensorboard = tensorboard.main:run_main', None\\),")
-                   "")
-                  (("'import_pb_to_tensorboard = tensorflow.python.tools.import_pb_to_tensorboard:main',")
-                   "")
-                  ;; We don't have tensorflow-estimator yet.
-                  (("'estimator_ckpt_converter = '")
-                   "")
-                  (("'tensorflow_estimator.python.estimator.tools.checkpoint_converter:main',")
-                   ""))))
-            ;; XXX: this is really ugly, but many shared objects cannot
-            ;; find libtensorflow_framework.so.2 and libbfloat16.so.so
-            (add-after 'unpack 'find-tensorflow-libraries
-              (lambda _
-                ;; XXX: not all .so files need this.
-                (let ((libraries (find-files "." ".*\\.so$")))
-                  (for-each (lambda (lib)
-                              (make-file-writable lib)
-                              (system (format #f
-                                       "patchelf --set-rpath ~a:~a:$(patchelf --print-rpath ~a) ~a"
-                                       ;; for libtensorflow_framework.so.2
-                                       (string-append #$(this-package-input
-                                                         "tensorflow") "/lib")
-                                       ;; for libbfloat16.so.so
-                                       (string-append #$output
-                                        "/lib/python3.10/site-packages/tensorflow/tsl/python/lib/core/")
-                                       lib
-                                       lib))) libraries))))
-            (add-after 'install 'install-missing-libraries
-              (lambda _
-                ;; libtensorflow_cc.so.2 is not installed.  See
-                ;; https://github.com/tensorflow/tensorflow/issues/60326.
-                (let ((dir (string-append #$output
-                            "/lib/python3.10/site-packages/tensorflow/"))
-                      (lib (string-append "libtensorflow_cc.so."
-                                          #$(package-version this-package))))
-                  (install-file (string-append "tensorflow/" lib) dir)
-                  (with-directory-excursion dir
-                    (symlink lib "libtensorflow_cc.so.2"))))))))
-      (outputs '("out"))
-      (propagated-inputs (modify-inputs (package-propagated-inputs tensorflow)
-                           (append python-astunparse python-clang-13
-                                   python-keras-for-tensorflow)))
-      (inputs (list tensorflow))
-      (native-inputs (list eigen-for-python-ml-dtypes patchelf
-                           `(,tensorflow "python") python-setuptools
-                           python-wheel)))))
+    (license license:asl2.0)))
+
+(define-public python-tensorflow
+  (package
+    (inherit tensorflow)
+    (name "python-tensorflow")
+    (source
+     #f)
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda _
+              (mkdir-p "source")
+              (copy-recursively #$tensorflow:python "source")
+              (chdir "source")
+              ;; XXX: the "python" output of the tensorflow package
+              ;; contains broken symlinks.
+              (delete-file-recursively "third_party/eigen3")
+              (mkdir-p "third_party/eigen3")
+              (copy-recursively #$eigen-for-python-ml-dtypes
+                                "third_party/eigen3")
+              (with-output-to-file "third_party/eigen3/LICENSE"
+                (lambda ()
+                  (display "")))))
+          (add-after 'unpack 'relax-dependencies
+            (lambda _
+              (substitute* "setup.py"
+                (("numpy >= 1.22, <= 1.24.3")
+                 "numpy >= 1.22")
+                ;; We don't have tensorflow-io yet
+                (("'tensorflow-io-gcs-filesystem.*")
+                 "None,")
+                (("'platform_system.*")
+                 "")
+                ;; Versions above 0.4 break tests, but that's okay
+                ;; because we aren't running them.
+                (("gast >= 0.2.1, <= 0.4.0")
+                 "gast >= 0.2.1")
+                (("'typing_extensions>=3.6.6,<4.6.0'")
+                 "'typing_extensions>=3.6.6'")
+                ;; Drop all of tensorboard and tensorflow_estimator
+                (("'(tensorboard|tensorflow_estimator) >.*',")
+                 " None,")
+                ;; Our clang bindings have a different name.
+                (("libclang")
+                 "clang")
+                ;; No tensorboard, sorry.
+                (("standard_or_nightly\\('tensorboard = tensorboard.main:run_main', None\\),")
+                 "")
+                (("'import_pb_to_tensorboard = tensorflow.python.tools.import_pb_to_tensorboard:main',")
+                 "")
+                ;; We don't have tensorflow-estimator yet.
+                (("'estimator_ckpt_converter = '")
+                 "")
+                (("'tensorflow_estimator.python.estimator.tools.checkpoint_converter:main',")
+                 ""))))
+          ;; XXX: this is really ugly, but many shared objects cannot
+          ;; find libtensorflow_framework.so.2 and libbfloat16.so.so
+          (add-after 'unpack 'find-tensorflow-libraries
+            (lambda _
+              ;; XXX: not all .so files need this.
+              (let ((libraries (find-files "." ".*\\.so$")))
+                (for-each (lambda (lib)
+                            (make-file-writable lib)
+                            (system (format #f
+                                     "patchelf --set-rpath ~a:~a:$(patchelf --print-rpath ~a) ~a"
+                                     ;; for libtensorflow_framework.so.2
+                                     (string-append #$(this-package-input
+                                                       "tensorflow") "/lib")
+                                     ;; for libbfloat16.so.so
+                                     (string-append #$output
+                                      "/lib/python3.10/site-packages/tensorflow/tsl/python/lib/core/")
+                                     lib
+                                     lib))) libraries))))
+          (add-after 'install 'install-missing-libraries
+            (lambda _
+              ;; libtensorflow_cc.so.2 is not installed.  See
+              ;; https://github.com/tensorflow/tensorflow/issues/60326.
+              (let ((dir (string-append #$output
+                          "/lib/python3.10/site-packages/tensorflow/"))
+                    (lib (string-append "libtensorflow_cc.so."
+                                        #$(package-version this-package))))
+                (install-file (string-append "tensorflow/" lib) dir)
+                (with-directory-excursion dir
+                  (symlink lib "libtensorflow_cc.so.2"))))))))
+    (outputs '("out"))
+    (propagated-inputs (modify-inputs (package-propagated-inputs tensorflow)
+                         (append python-astunparse python-clang-13
+                                 python-keras-for-tensorflow)))
+    (inputs (list tensorflow))
+    (native-inputs (list eigen-for-python-ml-dtypes patchelf
+                         `(,tensorflow "python") python-setuptools
+                         python-wheel))))
+
+(define-public python-tensorflow-cuda
+  (package
+    (inherit tensorflow-cuda)
+    (name "python-tensorflow-cuda")
+    (source
+     #f)
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda _
+              (mkdir-p "source")
+              (copy-recursively #$tensorflow-cuda:python "source")
+              (chdir "source")
+              ;; XXX: the "python" output of the tensorflow package
+              ;; contains broken symlinks.
+              (delete-file-recursively "third_party/eigen3")
+              (mkdir-p "third_party/eigen3")
+              (copy-recursively #$eigen-for-python-ml-dtypes
+                                "third_party/eigen3")
+              (with-output-to-file "third_party/eigen3/LICENSE"
+                (lambda ()
+                  (display "")))))
+          (add-after 'unpack 'relax-dependencies
+            (lambda _
+              (substitute* "setup.py"
+                ;; We don't have tensorflow-io yet
+                (("'tensorflow-io-gcs-filesystem.*")
+                 "None,")
+                (("'platform_system.*")
+                 "")
+                ;; Versions above 0.4 break tests, but that's okay
+                ;; because we aren't running them.
+                (("gast >= 0.2.1, <= 0.4.0")
+                 "gast >= 0.2.1")
+                ;; Drop all of tensorboard and tensorflow_estimator
+                (("'(tensorboard|tensorflow_estimator) >.*',")
+                 " None,")
+                ;; Our clang bindings have a different name.
+                (("libclang")
+                 "clang")
+                ;; No tensorboard, sorry.
+                (("standard_or_nightly\\('tensorboard = tensorboard.main:run_main', None\\),")
+                 "")
+                (("'import_pb_to_tensorboard = tensorflow.python.tools.import_pb_to_tensorboard:main',")
+                 "")
+                ;; We don't have tensorflow-estimator yet.
+                (("'estimator_ckpt_converter = '")
+                 "")
+                (("'tensorflow_estimator.python.estimator.tools.checkpoint_converter:main',")
+                 ""))))
+          ;; XXX: this is really ugly, but many shared objects cannot
+          ;; find libtensorflow_framework.so.2 and libbfloat16.so.so
+          (add-after 'unpack 'find-tensorflow-libraries
+            (lambda _
+              ;; XXX: not all .so files need this.
+              (let ((libraries (find-files "." ".*\\.so$")))
+                (for-each (lambda (lib)
+                            (make-file-writable lib)
+                            (system (format #f
+                                     "patchelf --set-rpath ~a:~a:$(patchelf --print-rpath ~a) ~a"
+                                     ;; for libtensorflow_framework.so.2
+                                     (string-append #$(this-package-input
+                                                       "tensorflow-cuda")
+                                                    "/lib")
+                                     ;; for libbfloat16.so.so
+                                     (string-append #$output
+                                      "/lib/python3.10/site-packages/tensorflow/tsl/python/lib/core/")
+                                     lib
+                                     lib))) libraries))))
+          (add-after 'install 'install-missing-libraries
+            (lambda _
+              ;; libtensorflow_cc.so.2 is not installed.  See
+              ;; https://github.com/tensorflow/tensorflow/issues/60326.
+              (let ((dir (string-append #$output
+                          "/lib/python3.10/site-packages/tensorflow/"))
+                    (lib (string-append "libtensorflow_cc.so."
+                                        #$(package-version this-package))))
+                (install-file (string-append "tensorflow/" lib) dir)
+                (with-directory-excursion dir
+                  (symlink lib "libtensorflow_cc.so.2"))))))))
+    (outputs '("out"))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       tensorflow-cuda)
+                         (append python-clang-13 python-keras-for-tensorflow)))
+    (inputs (list tensorflow-cuda))
+    (native-inputs (list eigen-for-python-ml-dtypes patchelf
+                         `(,tensorflow-cuda "python")))))
 
 ;; This package provides *independent* modules that are meant to be
 ;; imported selectively.  Each module has its own Bazel BUILD file,
