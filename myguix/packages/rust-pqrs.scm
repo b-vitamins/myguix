@@ -1149,51 +1149,6 @@ shorthands for guards with one of the implemented strategies.")
     (description "Targeting utilities for compilers and related tools")
     (license (list license:asl2.0))))
 
-(define-public rust-serde-derive-1
-  (package
-    (name "rust-serde-derive")
-    (version "1.0.201")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde_derive" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0r98v8h47s7zhml7gz0sl6wv82vyzh1hv27f1g0g35lp1f9hbr65"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-quote" ,rust-quote-1)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://serde.rs")
-    (synopsis "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]")
-    (description
-     "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-serde-1
-  (package
-    (name "rust-serde")
-    (version "1.0.201")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0g1nrz2s6l36na6gdbph8k07xf9h5p3s6f0s79sy8a8nxpmiq3vq"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-serde-derive" ,rust-serde-derive-1)
-                       ("rust-serde-derive" ,rust-serde-derive-1))))
-    (home-page "https://serde.rs")
-    (synopsis "A generic serialization/deserialization framework")
-    (description
-     "This package provides a generic serialization/deserialization framework")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-bytemuck-1
   (package
     (name "rust-bytemuck")
@@ -1825,51 +1780,6 @@ unsized int, being the size of a JSON header, the JSON header refers the `dtype`
 the `shape` and `data_offsets` which are the offsets for the values in the rest
 of the file.")
     (license license:asl2.0)))
-
-(define-public rust-serde-derive-1
-  (package
-    (name "rust-serde-derive")
-    (version "1.0.197")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde_derive" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "02v1x0sdv8qy06lpr6by4ar1n3jz3hmab15cgimpzhgd895v7c3y"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
-                       ("rust-quote" ,rust-quote-1)
-                       ("rust-syn" ,rust-syn-2))))
-    (home-page "https://serde.rs")
-    (synopsis "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]")
-    (description
-     "Macros 1.1 implementation of #[derive(Serialize, Deserialize)]")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-serde-1
-  (package
-    (name "rust-serde")
-    (version "1.0.197")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "serde" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1qjcxqd3p4yh5cmmax9q4ics1zy34j5ij32cvjj5dc5rw5rwic9z"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-serde-derive" ,rust-serde-derive-1)
-                       ("rust-serde-derive" ,rust-serde-derive-1))
-       #:cargo-development-inputs (("rust-serde-derive" ,rust-serde-derive-1))))
-    (home-page "https://serde.rs")
-    (synopsis "A generic serialization/deserialization framework")
-    (description
-     "This package provides a generic serialization/deserialization framework")
-    (license (list license:expat license:asl2.0))))
 
 (define-public rust-indexmap-2
   (package
