@@ -3059,35 +3059,34 @@ for `@code{NonNull<T>`}, and the function `ptrdistance`.")
     (description "Bindings to Python interpreter")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-numpy-0.21
+(define-public rust-numpy-0.23
   (package
     (name "rust-numpy")
-    (version "0.21.0")
+    (version "0.23.0")
     (source
      (origin
        (method url-fetch)
        (uri (crate-uri "numpy" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1x1p5x7lwfc5nsccwj98sln5vx3g3n8sbgm5fmfmy5rpr8rhf5zc"))))
+        (base32 "0y1yw681b9vhaihmq15qa5h5af0yi6iyc1mg6dys167r0plalk5r"))))
     (build-system cargo-build-system)
     (arguments
      `(#:cargo-inputs (("rust-half" ,rust-half-2)
                        ("rust-libc" ,rust-libc-0.2)
                        ("rust-nalgebra" ,rust-nalgebra-0.32)
-                       ("rust-ndarray" ,rust-ndarray-0.13)
-                       ("rust-num-complex" ,rust-num-complex-0.2)
+                       ("rust-ndarray" ,rust-ndarray-0.16)
+                       ("rust-num-complex" ,rust-num-complex-0.4)
                        ("rust-num-integer" ,rust-num-integer-0.1)
                        ("rust-num-traits" ,rust-num-traits-0.2)
-                       ("rust-pyo3" ,rust-pyo3-0.21)
-                       ("rust-rustc-hash" ,rust-rustc-hash-1))
+                       ("rust-pyo3" ,rust-pyo3-0.23)
+                       ("rust-rustc-hash" ,rust-rustc-hash-2))
        #:cargo-development-inputs (("rust-nalgebra" ,rust-nalgebra-0.32)
-                                   ("rust-pyo3" ,rust-pyo3-0.21))))
-    (native-inputs `(("python3" ,python-3)
-                     ("numpy" ,python-numpy)))
+                                   ("rust-pyo3" ,rust-pyo3-0.23))))
     (home-page "https://github.com/PyO3/rust-numpy")
     (synopsis "PyO3-based Rust bindings of the NumPy C-API")
-    (description "@code{PyO3-based} Rust bindings of the @code{NumPy} C-API")
+    (description
+     "This package provides @code{PyO3-based} Rust bindings of the @code{NumPy} C-API.")
     (license license:bsd-2)))
 
 (define-public rust-proc-macro2-1
