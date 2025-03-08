@@ -188,7 +188,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1s8jccf3a0bqphrrw5762gg1nx1ajbawywsvvfy6fxlwisvh18dh"))))
+        (base32 "09ns9byxl149r4jawsdlj2g99aardyzmd71syy1769bgb64mgbhv"))))
     (build-system cargo-build-system)
     (arguments
      (list
@@ -207,7 +207,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
             (lambda* _
               (substitute* "Cargo.toml"
                 (("^\\[dependencies.tokenizers\\].*$" all)
-                 (string-append all "version = \"0.19.1\"\n")))))
+                 (string-append all "version = \"0.21.0\"\n")))))
           (add-after 'build 'build-python-module
             (assoc-ref py:%standard-phases
                        'build))
