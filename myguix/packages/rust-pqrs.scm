@@ -341,69 +341,6 @@ specialized and not intended for general use.")
      "Experimental iterator wrapper that is conditionally parallel or serial.")
     (license (list license:asl2.0 license:expat))))
 
-(define-public rust-onig-sys-69
-  (package
-    (name "rust-onig-sys")
-    (version "69.8.1")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "onig_sys" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1rw6y2qkb765gzylmrydbbd90hdzhnqyvs2y65z4riwwgqyrx0kv"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-bindgen" ,rust-bindgen-0.59)
-                       ("rust-cc" ,rust-cc-1)
-                       ("rust-pkg-config" ,rust-pkg-config-0.3))))
-    (home-page "http://github.com/iwillspeak/rust-onig")
-    (synopsis "The `onig_sys` crate contains raw rust bindings to the
-oniguruma library. This crate exposes a set of unsafe
-functions which can then be used by other crates to
-create safe wrappers around Oniguruma.
-
-You probably don't want to link to this crate directly;
-instead check out the `onig` crate.
-")
-    (description
-     "The `onig_sys` crate contains raw rust bindings to the oniguruma library.  This
-crate exposes a set of unsafe functions which can then be used by other crates
-to create safe wrappers around Oniguruma.  You probably don't want to link to
-this crate directly; instead check out the `onig` crate.")
-    (license license:expat)))
-
-(define-public rust-onig-6
-  (package
-    (name "rust-onig")
-    (version "6.4.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "onig" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0kyaz2fwa5dkr04rvk5ga2yv5jkqn1ymblvpdlf1gn9afb432jwc"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-bitflags" ,rust-bitflags-1)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-once-cell" ,rust-once-cell-1)
-                       ("rust-onig-sys" ,rust-onig-sys-69))))
-    (home-page "http://github.com/iwillspeak/rust-onig")
-    (synopsis "Rust-Onig is a set of Rust bindings for the
-Oniguruma regular expression library. Oniguruma
-is a modern regex library with support for
-multiple character encodings and regex syntaxes.
-")
-    (description
-     "Rust-Onig is a set of Rust bindings for the Oniguruma regular expression
-library.  Oniguruma is a modern regex library with support for multiple
-character encodings and regex syntaxes.")
-    (license license:expat)))
-
 (define-public rust-syn-2
   (package
     (name "rust-syn")
