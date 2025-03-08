@@ -437,3 +437,51 @@ datasets and other repos on the @url{huggingface.co} hub.")
 providing a framework to integrate third-party libraries from Hardware Partners
 and interface with their specific functionality.")
     (license license:asl2.0)))
+
+(define-public python-peft
+  (package
+    (name "python-peft")
+    (version "0.14.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "peft" version))
+       (sha256
+        (base32 "1p3jmmv2qgzdhzhxgramc2p1gjcbh7nn2cixb9qyzxa2gfpnjval"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f
+       #:phases (modify-phases %standard-phases
+                  ;; Disable the sanity check, which fails with the following error:
+                  ;;
+                  ;; File "/gnu/store/...-python-requests-2.32.2/lib/python3.10/site-packages/requests/adapters.py", line 77, in <module>
+                  ;; _preloaded_ssl_context.load_verify_locations(
+                  ;; FileNotFoundError: [Errno 2] No such file or directory
+                  (delete 'sanity-check))))
+    (propagated-inputs (list python-accelerate
+                             python-huggingface-hub
+                             python-numpy
+                             python-packaging
+                             python-psutil
+                             python-pyyaml
+                             python-safetensors
+                             python-pytorch-cuda
+                             python-tqdm
+                             python-transformers))
+    (native-inputs (list python-black
+                         python-datasets
+                         python-diffusers
+                         python-parameterized
+                         python-protobuf
+                         python-pytest
+                         python-pytest-cov
+                         python-pytest-xdist
+                         python-ruff
+                         python-scipy
+                         python-sentencepiece
+                         python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/huggingface/peft")
+    (synopsis "Parameter-Efficient Fine-Tuning (PEFT)")
+    (description "Parameter-Efficient Fine-Tuning (PEFT).")
+    (license license:asl2.0)))
