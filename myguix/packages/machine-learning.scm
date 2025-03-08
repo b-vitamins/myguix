@@ -968,6 +968,155 @@ build models quickly by plugging together building blocks and a
 subclassing API with an imperative style for advanced research.")
       (license license:asl2.0))))
 
+(define-public tensorflow-cuda
+  (package
+    (inherit tensorflow)
+    (name "tensorflow-cuda")
+    (version (package-version tensorflow))
+    (arguments
+     (substitute-keyword-arguments (package-arguments tensorflow)
+       ((#:bazel _ #f)
+        bazel-6.1)
+       ((#:vendored-inputs-hash _)
+        "02hypf92w8sp8f2bpc9x2xb0px18i0vsw5022xgwdq1l8vs0cap9")
+       ((#:bazel-configuration conf)
+        #~(begin
+            #$conf
+            ;; When building with CUDA, Bazel uses ldconfig and
+            ;; complains that it can't open /etc/ld.so.cache.
+            ;; So we fake ldconfig.
+            (mkdir-p "/tmp/dummy-ldconfig")
+            (symlink (which "true") "/tmp/dummy-ldconfig/ldconfig")
+            (setenv "PATH"
+                    (string-append "/tmp/dummy-ldconfig:"
+                                   (getenv "PATH")))))
+       ((#:bazel-arguments args)
+        #~(append #$args
+                  (list "--config=cuda"
+                        "--local_ram_resources=8192"
+                        "--action_env=TF_NEED_CUDA=1"
+                        (string-append "--action_env=TF_CUDA_PATHS="
+                                       #$(this-package-input "cuda-toolkit")
+                                       ","
+                                       #$(this-package-input "cudnn"))
+                        (string-append "--action_env=TF_CUDA_VERSION="
+                                       #$(version-major+minor (package-version
+                                                               (this-package-input
+                                                                "cuda-toolkit"))))
+                        (string-append "--action_env=TF_CUDNN_VERSION="
+                                       #$(version-major (package-version (this-package-input
+                                                                          "cudnn")))))))
+       ((#:phases phases)
+        (with-imported-modules (source-module-closure '((guix build utils)
+                                                        (guix build union)
+                                                        (guix build
+                                                         gnu-build-system)
+                                                        (guix-science build
+                                                         bazel-build-system)))
+                               #~(modify-phases #$phases
+                                   (add-before 'configure 'patch-compiler-wrapper
+                                     (lambda _
+                                       (let ((bazel-out (string-append (getenv
+                                                                        "NIX_BUILD_TOP")
+                                                         "/output")))
+                                         (patch-shebang
+                                          "third_party/gpus/crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl")
+
+                                         ;; This wrapper insists on passing
+                                         ;; no-canonical-prefixes, which makes it
+                                         ;; impossible for GCC to find
+                                         ;; architecture-specific headers like
+                                         ;; bits/c++config.h.
+                                         (substitute* "third_party/gpus/crosstool/cc_toolchain_config.bzl.tpl"
+                                           (("\"-no-canonical-prefixes\",")
+                                            "")))))
+                                   ;; XXX: this should be a function of the features
+                                   ;; supported by the given CUDA library version.  Our
+                                   ;; CUDA 11 version does not support the virtual
+                                   ;; architecture "compute_90", for example.
+                                   (add-after 'configure 'set-cuda-capabilities
+                                     (lambda _
+                                       (setenv "TF_CUDA_COMPUTE_CAPABILITIES"
+                                        "sm_52,sm_60,sm_70,sm_80,compute_90")))
+                                   (add-after 'set-cuda-capabilities 'configure-with-cuda
+                                     (lambda _
+                                       ;; When building with CUDA, Bazel uses ldconfig and
+                                       ;; complains that it can't open /etc/ld.so.cache.
+                                       ;; So we fake ldconfig.
+                                       (mkdir-p "/tmp/dummy-ldconfig")
+                                       (symlink (which "true")
+                                        "/tmp/dummy-ldconfig/ldconfig")
+                                       (setenv "PATH"
+                                               (string-append
+                                                "/tmp/dummy-ldconfig:"
+                                                (getenv "PATH")))
+                                       ;; Bazel expects the GCC and CUDA toolchains to be
+                                       ;; under the same prefix.
+                                       (use-modules (guix build union))
+                                       (let ((toolchain (string-append (getenv
+                                                                        "NIX_BUILD_TOP")
+                                                         "/toolchain")))
+                                         (union-build toolchain
+                                                      (cons #$(this-package-input
+                                                               "cuda-toolkit")
+                                                            (match '#$(standard-packages)
+                                                              (((labels directories . rest)
+                                                                ...)
+                                                               directories))))
+                                         (setenv "GCC_HOST_COMPILER_PREFIX"
+                                                 (string-append toolchain
+                                                                "/bin"))
+                                         (setenv "GCC_HOST_COMPILER_PATH"
+                                                 (string-append toolchain
+                                                                "/bin/gcc")))))
+                                   (replace 'install
+                                     (lambda _
+                                       ;; Install library
+                                       (mkdir-p #$output)
+                                       (invoke "tar" "-xf"
+                                        "bazel-bin/tensorflow/tools/lib_package/libtensorflow.tar.gz"
+                                        "-C"
+                                        #$output)
+
+                                       ;; Write pkgconfig file
+                                       (mkdir-p (string-append #$output
+                                                 "/lib/pkgconfig"))
+                                       (call-with-output-file (string-append #$output
+                                                               "/lib/pkgconfig/tensorflow.pc")
+                                         (lambda (port)
+                                           (format port
+                                            "Name: TensorFlow CUDA
+Version: ~a
+Description: Library for computation using data flow graphs for scalable machine learning
+Requires:
+Libs: -L~a/lib -ltensorflow
+Cflags: -I~a/include/tensorflow
+"
+                                            #$version
+                                            #$output
+                                            #$output)))
+
+                                       ;; Install python bindings
+                                       ;; Build the source code, then copy it to the "python" output.
+                                       ;;
+                                       ;; TODO: build_pip_package includes symlinks so we must
+                                       ;; dereference them.
+                                       (let ((here (string-append (getcwd)
+                                                                  "/dist")))
+                                         (invoke
+                                          "bazel-bin/tensorflow/tools/pip_package/build_pip_package"
+                                          "--gpu" "--src" here)
+                                         (copy-recursively here
+                                                           #$output:python)))))))))
+    (inputs (modify-inputs (package-inputs tensorflow)
+              (replace "python-jax" python-jax-cuda)
+              ;; See compatibility matrix here:
+              ;; https://www.tensorflow.org/install/source#gpu
+              (append cuda-toolkit-11.8 cudnn-8.6)))
+    ;; For crosstool_wrapper_driver_is_not_gcc
+    (native-inputs (modify-inputs (package-native-inputs tensorflow)
+                     (append python-wrapper)))))
+
 (define-public python-tensorflow
   (let ((python-keras-for-tensorflow (package
                                        (name "python-keras")
