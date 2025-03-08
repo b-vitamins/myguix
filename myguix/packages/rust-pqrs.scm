@@ -2625,39 +2625,40 @@ routines for 1, 2 or 3 byte search and single substring search.")
 with two cases.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-ndarray-0.15
+(define-public rust-ndarray-0.16
   (package
     (name "rust-ndarray")
-    (version "0.15.6")
+    (version "0.16.1")
     (source
      (origin
        (method url-fetch)
        (uri (crate-uri "ndarray" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "0cpsm28hyk8qfjs4g9649dprv3hm53z12qqwyyjqbi3yjr72vcdd"))))
+        (base32 "0ha8sg5ad501pgkxw0wczh8myc2ma3gyxgcny4mq8rckrqnxfbl8"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-inputs (("rust-approx" ,rust-approx-0.4)
-                       ("rust-approx" ,rust-approx-0.5)
+     `(#:cargo-inputs (("rust-approx" ,rust-approx-0.5)
                        ("rust-cblas-sys" ,rust-cblas-sys-0.1)
                        ("rust-libc" ,rust-libc-0.2)
                        ("rust-matrixmultiply" ,rust-matrixmultiply-0.3)
                        ("rust-num-complex" ,rust-num-complex-0.4)
                        ("rust-num-integer" ,rust-num-integer-0.1)
                        ("rust-num-traits" ,rust-num-traits-0.2)
+                       ("rust-portable-atomic" ,rust-portable-atomic-1)
+                       ("rust-portable-atomic-util" ,rust-portable-atomic-util-0.2)
                        ("rust-rawpointer" ,rust-rawpointer-0.2)
                        ("rust-rayon" ,rust-rayon-1)
                        ("rust-serde" ,rust-serde-1))
-       #:cargo-development-inputs (("rust-approx" ,rust-approx-0.4)
+       #:cargo-development-inputs (("rust-approx" ,rust-approx-0.5)
                                    ("rust-defmac" ,rust-defmac-0.2)
-                                   ("rust-itertools" ,rust-itertools-0.10)
+                                   ("rust-itertools" ,rust-itertools-0.13)
                                    ("rust-quickcheck" ,rust-quickcheck-1))))
     (home-page "https://github.com/rust-ndarray/ndarray")
     (synopsis
-     "An n-dimensional array for general elements and for numerics. Lightweight array views and slicing; views support chunking and splitting.")
+     "An n-dimensional array for general elements and for numerics. Lightweight array views and slicing; views support chunking and splitting")
     (description
-     "An n-dimensional array for general elements and for numerics.  Lightweight array
+     "This package provides An n-dimensional array for general elements and for numerics.  Lightweight array
 views and slicing; views support chunking and splitting.")
     (license (list license:expat license:asl2.0))))
 
