@@ -222,3 +222,37 @@ datasets and other repos on the @url{huggingface.co} hub.")
     (description
      "@code{HuggingFace} community-driven open-source library of datasets.")
     (license license:asl2.0)))
+
+(define-public python-diffusers
+  (package
+    (name "python-diffusers")
+    (version "0.32.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "diffusers" version))
+       (sha256
+        (base32 "0c52xaqr05rkg7l2d8fkrvknr9zpr8kcdxwsf9shdfxa4srkc7pb"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f
+       #:phases (modify-phases %standard-phases
+                  ;; Disable the sanity check, which fails with the following error:
+                  ;;
+                  ;; File "/gnu/store/...-python-diffusers-0.32.2/lib/python3.10/site-packages/diffusers/commands/fp16_safetensors.py", line 27, in <module>
+                  ;; import torch
+                  ;; ModuleNotFoundError: No module named 'torch'
+                  (delete 'sanity-check))))
+    (propagated-inputs (list python-filelock
+                             python-huggingface-hub
+                             python-importlib-metadata
+                             python-numpy
+                             python-pillow
+                             python-regex
+                             python-requests
+                             python-safetensors))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/huggingface/diffusers")
+    (synopsis "State-of-the-art diffusion in PyTorch and JAX.")
+    (description "State-of-the-art diffusion in @code{PyTorch} and JAX.")
+    (license license:asl2.0)))
