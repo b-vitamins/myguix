@@ -1995,34 +1995,6 @@ of the file.")
     (description "This package provides a lightweight logging facade for Rust")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-env-logger-0.11
-  (package
-    (name "rust-env-logger")
-    (version "0.11.3")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "env_logger" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1fa34dr082zfih5pw821d13kr6lcg18x6z08pa09d0aip8wmicrq"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-anstream" ,rust-anstream-0.6)
-                       ("rust-anstyle" ,rust-anstyle-1)
-                       ("rust-env-filter" ,rust-env-filter-0.1)
-                       ("rust-humantime" ,rust-humantime-2)
-                       ("rust-log" ,rust-log-0.4))))
-    (home-page "https://github.com/rust-cli/env_logger")
-    (synopsis
-     "A logging implementation for `log` which is configured via an environment
-variable.
-")
-    (description
-     "This package provides a logging implementation for `log` which is configured via
-an environment variable.")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-anstream-0.6
   (package
     (name "rust-anstream")
@@ -5616,34 +5588,6 @@ and the Standard Directory guidelines on @code{macOS}.")
 ")
     (description
      "This package provides a runtime guard for implementing linear types.")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-env-logger-0.11
-  (package
-    (name "rust-env-logger")
-    (version "0.11.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "env_logger" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1pbrv61fzmr11wz2mpb85gq2bfcv8n6f6jsis8pnd1fpg0k39swy"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-anstream" ,rust-anstream-0.6)
-                       ("rust-anstyle" ,rust-anstyle-1)
-                       ("rust-env-filter" ,rust-env-filter-0.1)
-                       ("rust-humantime" ,rust-humantime-2)
-                       ("rust-log" ,rust-log-0.4))))
-    (home-page "https://github.com/rust-cli/env_logger")
-    (synopsis
-     "A logging implementation for `log` which is configured via an environment
-variable.
-")
-    (description
-     "This package provides a logging implementation for `log` which is configured via
-an environment variable.")
     (license (list license:expat license:asl2.0))))
 
 (define-public rust-fern-0.6
