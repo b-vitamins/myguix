@@ -489,7 +489,6 @@
         python-safetensors
         python-tokenizers
         python-tiktoken
-        python-tensorstore
         python-tensorflow
         python-jax
         python-pytorch-cuda
