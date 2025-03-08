@@ -7,6 +7,7 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bittorrent)
   #:use-module (gnu packages cdrom)
+  #:use-module (gnu packages check)
   #:use-module (gnu packages chromium)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages code)
@@ -44,6 +45,7 @@
   #:use-module (gnu packages kde)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages llvm)
+  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages monitoring)
   #:use-module (gnu packages mp3)
@@ -64,6 +66,7 @@
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages python-science)
+  #:use-module (gnu packages python-web)
   #:use-module (gnu packages rsync)
   #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
@@ -143,6 +146,7 @@
             %rust-packages
             %python-packages
             %perl-packages
+            %machine-learning-packages
             ;; Search and Index bundles
             %search-packages
             %opencog-packages
@@ -415,11 +419,6 @@
         magma-cuda
         ffmpeg-cuda
         mpv-cuda
-        python-pytorch-cuda
-        python-torchvision-cuda
-        python-torchdata-cuda
-        whisper-cpp-cuda
-        llama-cpp-cuda
         nvidia-container-toolkit))
 
 (define %tree-sitter-packages
@@ -466,7 +465,43 @@
         python-flake8
         python-black
         python-ruff
-        python-safetensors))
+        python-openai-next
+        python-tqdm
+        python-requests
+        python-pyalex
+        python-bibtexparser-1
+        python-beautifulsoup4
+        python-pylatexenc
+        python-grobid-client-python
+        python-nodriver
+        python-aiohttp
+        python-aiofiles
+        python-pytest))
+
+(define %machine-learning-packages
+  (list python-spacy
+        python-gensim
+        python-scikit-learn
+        python-scikit-learn-extra
+        python-nltk
+        tensorflow
+        python-tensorflow
+        python-safetensors
+        python-tokenizers
+        python-tiktoken
+        python-tensorstore
+        python-tensorflow
+        python-jax
+        python-chex
+        python-optax
+        python-orbax-checkpoint
+        python-flax
+        python-torch-diffeq
+        python-pytorch-cuda
+        python-torchvision-cuda
+        python-torchdata-cuda
+        whisper-cpp-cuda
+        llama-cpp-cuda))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
