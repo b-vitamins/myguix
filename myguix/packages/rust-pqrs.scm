@@ -3524,46 +3524,20 @@ Standard Annex #11 rules.")
      "Core random number generator traits and tools for implementation.")
     (license (list license:expat license:asl2.0))))
 
-(define-public rust-tokenizers-0.19
+(define-public rust-tokenizers-0.21
   (package
     (name "rust-tokenizers")
-    (version "0.19.1")
+    (version "0.21.0")
     (source
      (origin
        (method url-fetch)
        (uri (crate-uri "tokenizers" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1zg6ffpllygijb5bh227m9p4lrhf0pjkysky68kddwrsvp8zl075"))))
+        (base32 "1bicr9l2cx68b56pvk1q7lyfamg2i40531p4az39p9k8xpgxxkly"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:cargo-test-flags '("--release" "--"
-                            "--skip=lstrip_tokens"
-                            "--skip=rstrip_tokens"
-                            "--skip=overlapping_tokens"
-                            "--skip=single_word_tokens"
-                            "--skip=quicktour_slow_train"
-                            "--skip=train_pipeline_bert"
-                            "--skip=pipeline"
-                            "--skip=pipeline_bert"
-                            "--skip=quicktour"
-                            "--skip=load_tokenizer"
-                            "--skip=train_tokenizer"
-                            "--skip=byte_level_pre_tokenized_sequence_with_trimming"
-                            "--skip=byte_level_pre_tokenized_sequence"
-                            "--skip=byte_level_basic"
-                            "--skip=byte_level_double_sequence"
-                            "--skip=byte_level_unicode"
-                            "--skip=split_on_added_tokens_bert"
-                            "--skip=bpe_serde"
-                            "--skip=test_deserialize_long_file"
-                            "--skip=wordlevel_serde"
-                            "--skip=wordpiece_serde"
-                            "--skip=bpe_values_after_training"
-                            "--skip=bpe_continuing_subword_prefix_error"
-                            "--skip=test_unigram_from_file"
-                            "--skip=test_train_unigram_from_file")
-       #:cargo-inputs (("rust-aho-corasick" ,rust-aho-corasick-1)
+     `(#:cargo-inputs (("rust-aho-corasick" ,rust-aho-corasick-1)
                        ("rust-derive-builder" ,rust-derive-builder-0.20)
                        ("rust-esaxx-rs" ,rust-esaxx-rs-0.1)
                        ("rust-fancy-regex" ,rust-fancy-regex-0.13)
@@ -3591,11 +3565,12 @@ Standard Annex #11 rules.")
                        ("rust-unicode-categories" ,rust-unicode-categories-0.1))
        #:cargo-development-inputs (("rust-assert-approx-eq" ,rust-assert-approx-eq-1)
                                    ("rust-criterion" ,rust-criterion-0.5)
-                                   ("rust-tempfile" ,rust-tempfile-3))))
+                                   ("rust-tempfile" ,rust-tempfile-3)
+                                   ("rust-tracing" ,rust-tracing-0.1)
+                                   ("rust-tracing-subscriber" ,rust-tracing-subscriber-0.3))))
     (home-page "https://github.com/huggingface/tokenizers")
     (synopsis "Provides an implementation of today's most used tokenizers,
-with a focus on performances and versatility.
-")
+with a focus on performances and versatility.")
     (description
      "This package provides an implementation of today's most used tokenizers, with a
 focus on performances and versatility.")
