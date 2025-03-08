@@ -147,7 +147,9 @@
             %rust-packages
             %python-packages
             %perl-packages
-            %machine-learning-packages
+            ;; Machine learning packages
+            %deep-learning-framework-packages
+            %huggingface-packages
             ;; Search and Index bundles
             %search-packages
             %opencog-packages
@@ -467,6 +469,7 @@
         python-black
         python-ruff
         python-openai-next
+        python-tiktoken
         python-tqdm
         python-requests
         python-pyalex
@@ -477,25 +480,28 @@
         python-nodriver
         python-aiohttp
         python-aiofiles
-        python-pytest))
+        python-pytest
+        python-gensim))
 
-(define %machine-learning-packages
-  (list python-gensim
+(define %deep-learning-framework-packages
+  (list whisper-cpp-cuda
+        llama-cpp-cuda
         python-scikit-learn
         python-scikit-learn-extra
-        python-nltk
-        tensorflow
-        python-tensorflow
-        python-safetensors
-        python-tokenizers
-        python-tiktoken
-        python-tensorflow
-        python-jax
         python-pytorch-cuda
         python-torchvision-cuda
-        python-torchdata-cuda
-        whisper-cpp-cuda
-        llama-cpp-cuda))
+        python-torchdata-cuda))
+
+(define %huggingface-packages
+  (list python-huggingface-hub
+        python-safetensors
+        python-tokenizers
+        python-accelerate
+        python-datasets
+        python-diffusers
+        python-transformers
+        python-optimum
+        python-peft))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
