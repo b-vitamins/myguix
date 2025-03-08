@@ -22,7 +22,6 @@
                         rust-typed-arena-2
                         rust-toml-0.8
                         rust-test-case-3
-                        rust-tempfile-3
                         rust-syn-2
                         rust-strum-macros-0.26
                         rust-static-assertions-1
@@ -31,8 +30,6 @@
                         rust-shellexpand-3
                         rust-serde-with-3
                         rust-serde-test-1
-                        rust-serde-json-1
-                        rust-serde-1
                         rust-seahash-4
                         rust-schemars-0.8
                         rust-regex-1
@@ -50,7 +47,6 @@
                         rust-lsp-server-0.7
                         rust-log-0.4
                         rust-libcst-1
-                        rust-libc-0.2
                         rust-js-sys-0.3
                         rust-is-wsl-0.4
                         rust-insta-1
@@ -59,11 +55,9 @@
                         rust-indexmap-2
                         rust-ignore-0.4
                         rust-filetime-0.2
-                        rust-env-logger-0.11
                         rust-crossbeam-0.8
                         rust-console-log-1
                         rust-globset-0.4
-                        rust-rayon-1
                         rust-console-error-panic-hook-0.1
                         rust-codspeed-criterion-compat-2
                         rust-clap-4
