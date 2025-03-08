@@ -491,25 +491,25 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                     (close-pipe port) soname)))
               (for-each (lambda (lib)
                           (let ((lib-soname (get-soname lib)))
-                            (when (string? lib-let)
-                              (sonamef* ((soname (string-append (dirname lib)
-                                                                "/" lib-soname))
-                                         (base (string-append (regexp-substitute
-                                                               #f
-                                                               (string-match
-                                                                "(.*)\\.so.*"
-                                                                soname) 1)
-                                                              ".so"))
-                                         (source (basename lib)))
-                                        (for-each (lambda (target)
-                                                    (unless (file-exists?
-                                                             target)
-                                                      (format #t
-                                                       "Symlinking ~a -> ~a..."
-                                                       target source)
-                                                      (symlink source target)
-                                                      (display " done\n")))
-                                                  (list soname base))))))
+                            (when (string? lib-soname)
+                              (let* ((soname (string-append (dirname lib) "/"
+                                                            lib-soname))
+                                     (base (string-append (regexp-substitute
+                                                                             #f
+                                                                             (string-match
+                                                                              "(.*)\\.so.*"
+                                                                              soname)
+                                                                             1)
+                                                          ".so"))
+                                     (source (basename lib)))
+                                (for-each (lambda (target)
+                                            (unless (file-exists? target)
+                                              (format #t
+                                               "Symlinking ~a -> ~a..." target
+                                               source)
+                                              (symlink source target)
+                                              (display " done\n")))
+                                          (list soname base))))))
                         (find-files #$output "\\.so\\.")))))))
     (supported-systems '("i686-linux" "x86_64-linux"))
     (native-inputs (list patchelf-0.16))
