@@ -162,3 +162,63 @@ datasets and other repos on the @url{huggingface.co} hub.")
     (synopsis "Accelerate")
     (description "Accelerate.")
     (license license:asl2.0)))
+
+(define python-requests-for-datasets
+  (package
+    (inherit python-requests)
+    (name "python-requests")
+    (version "2.32.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "requests" version))
+       (sha256
+        (base32 "129j8gidirf8ycpfg6l3v90snpa9fyx061xl4smb7qzkxksiz5fx"))))
+    (native-inputs (modify-inputs (package-native-inputs python-requests)
+                     (prepend nss-certs-for-test)))))
+
+(define-public python-datasets
+  (package
+    (name "python-datasets")
+    (version "3.3.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/huggingface/datasets")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0r6rnrsk7cwcrc1ixiqajrj1mnpka0p8hndz8gapzy2dijnxkj5i"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f
+       #:phases (modify-phases %standard-phases
+                  ;; Disable the sanity check, which fails with the following error:
+                  ;;
+                  ;; File "/gnu/store/...-python-requests-2.32.2/lib/python3.10/site-packages/requests/adapters.py", line 77, in <module>
+                  ;; _preloaded_ssl_context.load_verify_locations(
+                  ;; FileNotFoundError: [Errno 2] No such file or directory
+                  (delete 'sanity-check))))
+    (propagated-inputs (list python-aiohttp
+                             python-dill
+                             python-filelock
+                             python-fsspec
+                             python-huggingface-hub
+                             python-multiprocess
+                             python-numpy
+                             python-packaging
+                             python-pandas
+                             python-pyarrow
+                             python-pyyaml
+                             python-requests-for-datasets
+                             python-setuptools
+                             python-tqdm
+                             python-xxhash))
+    (native-inputs (list python-librosa python-pillow python-soundfile
+                         python-soxr python-huggingface-hub))
+    (home-page "https://github.com/huggingface/datasets")
+    (synopsis "HuggingFace community-driven open-source library of datasets")
+    (description
+     "@code{HuggingFace} community-driven open-source library of datasets.")
+    (license license:asl2.0)))
