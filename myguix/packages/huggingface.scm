@@ -3,6 +3,7 @@
                 #:prefix license:)
   #:use-module (gnu packages)
   #:use-module (gnu packages certs)
+  #:use-module (gnu packages crates-io)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages digest)
@@ -219,12 +220,12 @@ datasets and other repos on the @url{huggingface.co} hub.")
                        ("rust-serde-json" ,rust-serde-json-1)
                        ("rust-libc" ,rust-libc-0.2)
                        ("rust-env-logger" ,rust-env-logger-0.11)
-                       ("rust-pyo3" ,rust-pyo3-0.23)
-                       ("rust-numpy" ,rust-numpy-0.23)
-                       ("rust-ndarray" ,rust-ndarray-0.16)
+                       ("rust-pyo3" ,rust-pyo3-0.22)
+                       ("rust-numpy" ,rust-numpy-0.22)
+                       ("rust-ndarray" ,rust-ndarray-0.15)
                        ("rust-onig" ,rust-onig-6)
                        ("rust-itertools" ,rust-itertools-0.12))
-      #:cargo-development-inputs `(("rust-pyo3" ,rust-pyo3-0.23)
+      #:cargo-development-inputs `(("rust-pyo3" ,rust-pyo3-0.22)
                                    ("rust-tempfile" ,rust-tempfile-3)
                                    ("rust-tokenizers" ,rust-tokenizers-0.21))))
     (inputs (list maturin))
@@ -367,3 +368,35 @@ datasets and other repos on the @url{huggingface.co} hub.")
     (synopsis "State-of-the-art diffusion in PyTorch and JAX.")
     (description "State-of-the-art diffusion in @code{PyTorch} and JAX.")
     (license license:asl2.0)))
+
+(define-public python-transformers
+  (package
+    (name "python-transformers")
+    (version "4.49.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "transformers" version))
+       (sha256
+        (base32 "17h8sbdkq504zkykmgdgpa10qrp3vkdmlprzfi43zp5qnm0fch3y"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
+    (propagated-inputs (list python-filelock
+                             python-huggingface-hub
+                             python-numpy
+                             python-packaging
+                             python-pyyaml
+                             python-regex
+                             python-requests
+                             python-safetensors
+                             python-tokenizers
+                             python-tqdm))
+    (native-inputs (list python-setuptools python-wheel python-pytorch-cuda
+                         python-rich))
+    (home-page "https://github.com/huggingface/transformers")
+    (synopsis
+     "State-of-the-art Machine Learning for JAX, PyTorch and TensorFlow")
+    (description
+     "State-of-the-art Machine Learning for JAX, @code{PyTorch} and @code{TensorFlow}.")
+    (license #f)))
