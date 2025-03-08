@@ -1442,6 +1442,19 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (license:nonfree
               "https://docs.nvidia.com/deeplearning/cudnn/sla/index.html"))))
 
+(define-public cudnn-8.9
+  (package
+    (inherit cudnn)
+    (version "8.9.1.23")
+    (source
+     (origin
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
+             version "_cuda11-archive.tar.xz"))
+       (sha256
+        (base32 "17hm24bw4q3haksdr0hbr2zv33309mkh1ih9viz6ak198zgrdhxv"))
+       (method url-fetch)))))
+
 (define-public cudnn-frontend
   (package
     (name "cudnn-frontend")
