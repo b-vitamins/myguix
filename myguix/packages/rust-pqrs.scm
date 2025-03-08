@@ -181,27 +181,6 @@ of the file.")
     (description "Bindings to Python")
     (license license:expat)))
 
-(define-public rust-libc-0.2
-  (package
-    (name "rust-libc")
-    (version "0.2.154")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "libc" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "0inkwrnwzrr1kw75x944ihdajrhhldkgg4irx1n19y9gp4w36x5f"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:skip-build? #t
-       #:cargo-inputs (("rust-rustc-std-workspace-core" ,rust-rustc-std-workspace-core-1))))
-    (home-page "https://github.com/rust-lang/libc")
-    (synopsis "Raw FFI bindings to platform libraries like libc.
-")
-    (description "Raw FFI bindings to platform libraries like libc.")
-    (license (list license:expat license:asl2.0))))
-
 (define-public rust-rustix-0.38
   (package
     (name "rust-rustix")
@@ -839,26 +818,6 @@ when implementing custom derives.")
     (home-page "https://github.com/RazrFalcon/memmap2-rs")
     (synopsis "Cross-platform Rust API for memory-mapped file IO")
     (description "Cross-platform Rust API for memory-mapped file IO")
-    (license (list license:expat license:asl2.0))))
-
-(define-public rust-libc-0.2
-  (package
-    (name "rust-libc")
-    (version "0.2.153")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "libc" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "1gg7m1ils5dms5miq9fyllrcp0jxnbpgkx71chd2i0lafa8qy6cw"))))
-    (build-system cargo-build-system)
-    (arguments
-     `(#:cargo-inputs (("rust-rustc-std-workspace-core" ,rust-rustc-std-workspace-core-1))))
-    (home-page "https://github.com/rust-lang/libc")
-    (synopsis "Raw FFI bindings to platform libraries like libc.
-")
-    (description "Raw FFI bindings to platform libraries like libc.")
     (license (list license:expat license:asl2.0))))
 
 (define-public rust-cfg-if-1
