@@ -593,34 +593,32 @@ It is the recommended replacement for Python's original
 information in various formats.")
     (license license:asl2.0)))
 
-(define-public python-openai
+(define-public python-openai-next
   (package
     (name "python-openai")
-    (version "1.35.7")
+    (version "1.65.4")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "openai" version))
        (sha256
-        (base32 "02gb9cp4gmk9nrl8rnf6pdb5ccj2s4v5krbvv1jfziy90hazm6q0"))))
+        (base32 "0xiw40ifpl3z7kvyi74qn0z1g7384c8ay0a7cp3gamnm4n3ca20b"))))
     (build-system pyproject-build-system)
-    (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
-                         python-hatch-vcs))
     (arguments
      (list
       #:tests? #f))
     (propagated-inputs (list python-anyio
-                             python-cached-property
                              python-distro
                              python-httpx
+                             python-jiter
                              python-pydantic
                              python-sniffio
                              python-tqdm
                              python-typing-extensions))
+    (native-inputs (list python-hatch-fancy-pypi-readme python-hatchling))
     (home-page "https://github.com/openai/openai-python")
-    (synopsis "Python client library for the OpenAI API")
-    (description "This package provides a Python client library for the
-OpenAI API.")
+    (synopsis "The official Python library for the openai API")
+    (description "The official Python library for the openai API.")
     (license license:expat)))
 
 (define-public python-bibtexparser
@@ -1709,3 +1707,5 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
     (synopsis "Fast Iterable JSON parser")
     (description "This package provides Fast Iterable JSON parser.")
     (license license:expat)))
+
+python-openai-next
