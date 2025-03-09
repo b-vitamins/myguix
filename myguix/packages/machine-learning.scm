@@ -1341,6 +1341,62 @@ a delightful developer experience.")
     (native-inputs (list eigen-for-python-ml-dtypes patchelf
                          `(,tensorflow-cuda "python")))))
 
+(define* (pypi-wheel-url name
+                         version
+                         #:optional (dist "py3")
+                         (python "py3")
+                         (abi "none")
+                         (platform "any"))
+  (string-append "https://files.pythonhosted.org/packages"
+                 "/"
+                 dist
+                 "/"
+                 (string-take name 1)
+                 "/"
+                 name
+                 "/"
+                 name
+                 "-"
+                 version
+                 "-"
+                 python
+                 "-"
+                 abi
+                 "-"
+                 platform
+                 ".whl"))
+
+;; This package is a stop-gap that builds Tensorboard from the pre-built wheels, instead of
+;; packaging it from scratch, which requires a Bazel+NPM build
+(define-public python-tensorboard-data-server
+  (package
+    (name "python-tensorboard-data-server")
+    (version "0.7.2")
+    (build-system pyproject-build-system)
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-wheel-url "tensorboard_data_server" version))
+       (sha256
+        (base32 "1nqdimbqzdzbjklzggvvgrxzk04f17f0bv1n72c8i5c80p9101ky"))
+       (file-name (string-append name "-" version ".whl"))))
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist"))))))
+    (home-page "https://www.tensorflow.org")
+    (synopsis "Fast data loading for TensorBoard")
+    (description
+     "The Tensorboard Data Server is the backend component of TensorBoard that efficiently processes
+and serves log data. It improves TensorBoard's performance by handling large-scale event files
+asynchronously, enabling faster data loading and reduced memory usage.")
+    (license license:asl2.0)))
+
 ;; This package provides *independent* modules that are meant to be
 ;; imported selectively.  Each module has its own Bazel BUILD file,
 ;; but no separate pyproject.toml.  Bundling everything up as a single
