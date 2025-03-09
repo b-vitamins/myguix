@@ -302,10 +302,10 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
 (define-public nvidia-driver
   (package
     (name "nvidia-driver")
-    (version "550.144.03")
+    (version "570.124.04")
     (source
      (nvidia-source version
-                    "1i5ai3dksgdy06i8zxl6a9mxb6gppk9w0yin0w74qvmjrpi3hj3a"))
+                    "1i2k1phmx0b3j68qs53c3667fkwad03l1bjqdhhw9mr2f55nly0v"))
     (build-system copy-build-system)
     (arguments
      (list
@@ -328,14 +328,16 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
           ("." "share/nvidia/"
            #:include-regexp ("nvidia-application-profiles"))
           ("." "share/egl/egl_external_platform.d/"
-           #:include-regexp ("(gbm|wayland)\\.json"))
+           #:include-regexp ("(gbm|wayland|xcb|xlib)\\.json"))
           ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
           ("90-nvidia.rules" "lib/udev/rules.d/")
           ("nvidia-drm-outputclass.conf" "share/X11/xorg.conf.d/")
           ("nvidia-dbus.conf" "share/dbus-1/system.d/")
           ("nvidia.icd" "etc/OpenCL/vendors/")
           ("nvidia_icd.json" "share/vulkan/icd.d/")
-          ("nvidia_layers.json" "share/vulkan/implicit_layer.d/"))
+          ("nvidia_icd_vksc.json" "etc/vulkansc/icd.d/")
+          ("nvidia_layers.json" "share/vulkan/implicit_layer.d/")
+          ("sandboxutils-filelist.json" "share/nvidia/files.d/"))
       #:phases
       #~(modify-phases %standard-phases
           (replace 'unpack
@@ -345,8 +347,9 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
           (add-after 'unpack 'create-misc-files
             (lambda* (#:key inputs #:allow-other-keys)
               ;; EGL external platform configuraiton
-              (substitute* '("10_nvidia_wayland.json" "15_nvidia_gbm.json")
-                (("libnvidia-egl-(wayland|gbm)\\.so\\.." all)
+              (substitute* '("10_nvidia_wayland.json" "15_nvidia_gbm.json"
+                             "20_nvidia_xcb.json" "20_nvidia_xlib.json")
+                (("libnvidia-egl-(wayland|gbm|xcb|xlib)\\.so\\.." all)
                  (search-input-file inputs
                                     (string-append "lib/" all))))
 
@@ -363,6 +366,11 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
               ;; Vulkan ICD & layer configuraiton
               (substitute* '("nvidia_icd.json" "nvidia_layers.json")
                 (("libGLX_nvidia\\.so\\.." all)
+                 (string-append #$output "/lib/" all)))
+
+              ;; VulkanSC ICD configuration
+              (substitute* "nvidia_icd_vksc.json"
+                (("libnvidia-vksc-core\\.so\\.." all)
                  (string-append #$output "/lib/" all)))
 
               ;; Add udev rules
@@ -392,6 +400,8 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                         '("/etc/OpenCL/vendors/nvidia.icd"
                           "/share/egl/egl_external_platform.d/10_nvidia_wayland.json"
                           "/share/egl/egl_external_platform.d/15_nvidia_gbm.json"
+                          "/share/egl/egl_external_platform.d/20_nvidia_xcb.json"
+                          "/share/egl/egl_external_platform.d/20_nvidia_xlib.json"
                           "/share/glvnd/egl_vendor.d/10_nvidia.json"
                           "/share/vulkan/icd.d/nvidia_icd.json"
                           "/share/vulkan/implicit_layer.d/nvidia_layers.json"))))
@@ -440,7 +450,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                               (when (file-exists? manual)
                                 (install-file manual mandir))))
                           '("nvidia-cuda-mps-control" "nvidia-cuda-mps-server"
-                            "nvidia-smi")))))
+                            "nvidia-pcc" "nvidia-smi")))))
           (add-before 'patch-elf 'relocate-libraries
             (lambda _
               (let* ((version #$(package-version this-package))
@@ -505,6 +515,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
     (native-inputs (list patchelf-0.16))
     (inputs (list egl-gbm
                   egl-wayland
+                  egl-x11
                   `(,gcc "lib")
                   glibc
                   mesa-for-nvda
@@ -520,6 +531,15 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
     (license (license:nonfree (format #f
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
+
+(define-public nvidia-driver-beta
+  (package
+    (inherit nvidia-driver)
+    (name "nvidia-driver-beta")
+    (version "570.86.16")
+    (source
+     (nvidia-source version
+                    "1mfbc59g5v1c6dqissg1mfawvaknqrr7r985214py92lnr5ylqs5"))))
 
 (define-public nvidia-libs
   (deprecated-package "nvidia-libs" nvidia-driver))
@@ -557,6 +577,14 @@ product.
 
 To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
 @code{kernel-arguments} field of the @code{operating-system} configuration."))))
+
+(define-public nvidia-firmware-beta
+  (package
+    (inherit nvidia-firmware)
+    (name "nvidia-firmware-beta")
+    (version (package-version nvidia-driver-beta))
+    (source
+     (package-source nvidia-driver-beta))))
 
 
 ;;;
@@ -618,6 +646,14 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
+(define-public nvidia-module-beta
+  (package
+    (inherit nvidia-module)
+    (name "nvidia-module-beta")
+    (version (package-version nvidia-driver-beta))
+    (source
+     (package-source nvidia-driver-beta))))
+
 (define-public nvidia-module-open
   (let ((base nvidia-module))
     (package
@@ -648,6 +684,14 @@ If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
       (license license-gnu:gpl2))))
 
+(define-public nvidia-module-open-beta
+  (package
+    (inherit nvidia-module-open)
+    (name "nvidia-module-open-beta")
+    (version (package-version nvidia-driver-beta))
+    (source
+     (package-source nvidia-driver-beta))))
+
 
 ;;;
 ;;; ‘nvidia-settings’ packages
@@ -666,10 +710,10 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define-public nvidia-settings
   (package
     (name "nvidia-settings")
-    (version "550.144.03")
+    (version "570.124.04")
     (source
      (nvidia-settings-source name version
-      "0bhvqjd9c6s8vvi589wijygyd2f3akcm2iaj9kps7adqf0i432k6"))
+      "13xj3b1xbmclk085vz73vhra17bg5l7xf589d8pky70qzckz9lic"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -726,6 +770,15 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 configuration, creating application profiles, gpu monitoring and more.")
     (home-page "https://github.com/NVIDIA/nvidia-settings")
     (license license-gnu:gpl2)))
+
+(define-public nvidia-settings-beta
+  (package
+    (inherit nvidia-settings)
+    (name "nvidia-settings-beta")
+    (version "565.57.01")
+    (source
+     (nvidia-settings-source name version
+      "006my5a69689wkzjcg3k1y35ifmizfyfj4n7f02naxhbgrxq9fqz"))))
 
 
 ;;;
@@ -866,10 +919,36 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (license (package-license nvidia-driver))
     (home-page (package-home-page nvidia-driver))))
 
+(define-public nvdb
+  (package
+    (inherit nvda)
+    (name "nvdb")
+    (version (string-pad-right (package-version nvidia-driver-beta)
+                               (string-length (package-version mesa-for-nvda))
+                               #\0))
+    (arguments
+     (list
+      #:modules '((guix build union))
+      #:builder
+      #~(begin
+          (use-modules (guix build union))
+          (union-build #$output
+                       '#$(list (this-package-input "libglvnd")
+                                (this-package-input "mesa")
+                                (this-package-input "nvidia-driver-beta"))))))
+    (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
+                               (package-propagated-inputs nvidia-driver-beta)))
+    (inputs (list mesa-for-nvda nvidia-driver-beta))))
+
 (define mesa/fake
   (package
     (inherit mesa)
     (replacement nvda)))
+
+(define-public mesa/fake-beta
+  (hidden-package (package
+                    (inherit mesa)
+                    (replacement nvdb))))
 
 (define-public replace-mesa
   (package-input-rewriting `((,mesa unquote mesa/fake))))
