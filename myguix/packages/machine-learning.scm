@@ -1397,6 +1397,57 @@ and serves log data. It improves TensorBoard's performance by handling large-sca
 asynchronously, enabling faster data loading and reduced memory usage.")
     (license license:asl2.0)))
 
+;; This package is a stop-gap that builds Tensorboard from the pre-built wheels, instead of
+;; packaging it from scratch, which requires a Bazel+NPM build
+(define-public python-tensorboard
+  (package
+    (name "python-tensorboard")
+    (version "2.18.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-wheel-url "tensorboard" version))
+       (sha256
+        (base32 "1asyfhkd7xw2yvk122vrkzrr9dm9f3zm0b50xwm3xxs52y1a8z0h"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+
+          (add-before 'sanity-check 'relax-dependencies
+            (lambda* (#:key outputs #:allow-other-keys)
+              (for-each (lambda (metadata)
+                          (substitute* metadata
+                            ;; Current grpcio in Guix is 1.47
+                            (("grpcio>=1.48.2")
+                             "grpcio")))
+                        (find-files (string-append #$output "/lib") "METADATA")))))))
+
+    (propagated-inputs (list python-absl-py
+                             python-grpcio
+                             python-markdown
+                             python-numpy
+                             python-packaging
+                             python-protobuf
+                             python-six
+                             python-tensorboard-data-server
+                             python-werkzeug
+                             python-setuptools)) ;Not declared, but used at runtime
+    (home-page "https://www.tensorflow.org")
+    (synopsis "TensorFlow's Visualization Toolkit")
+    (description
+     "Tensorboard is a visualization toolkit for TensorFlow, designed to provide metrics tracking,
+model visualization, and performance analysis. It allows users to generate interactive dashboards
+for monitoring training progress, visualizing computational graphs, and analyzing data distributions.")
+    (license license:asl2.0)))
+
 ;; This package provides *independent* modules that are meant to be
 ;; imported selectively.  Each module has its own Bazel BUILD file,
 ;; but no separate pyproject.toml.  Bundling everything up as a single
