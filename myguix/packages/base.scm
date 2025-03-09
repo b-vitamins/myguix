@@ -107,7 +107,7 @@
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages machine-learning)
   #:use-module ((myguix packages rust-pqrs)
-                #:hide (rust-cc-1 rust-libc-0.2 rust-pkg-config-0.3))
+                #:hide (rust-cc-1 rust-pkg-config-0.3))
   #:use-module (myguix packages linux)
   #:use-module (myguix packages nlp)
   #:use-module (myguix packages video)
