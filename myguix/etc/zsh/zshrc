@@ -70,6 +70,8 @@ bindkey '^[d' kill-word
 bindkey '^R' history-incremental-search-backward
 bindkey '^S' history-incremental-search-forward
 
+export LD_LIBRARY_PATH="$LIBRARY_PATH"
+
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias diff='diff --color=auto'
