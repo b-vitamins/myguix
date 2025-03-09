@@ -468,20 +468,8 @@
         python-flake8
         python-black
         python-ruff
-        python-openai-next
-        python-tiktoken
-        python-tqdm
-        python-requests
-        python-pyalex
-        python-bibtexparser-1
-        python-beautifulsoup4
-        python-pylatexenc
-        python-grobid-client-python
         python-nodriver
-        python-aiohttp
-        python-aiofiles
-        python-pytest
-        python-gensim))
+        python-pytest))
 
 (define %deep-learning-framework-packages
   (list whisper-cpp-cuda
