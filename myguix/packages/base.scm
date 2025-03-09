@@ -490,7 +490,13 @@
         python-scikit-learn-extra
         python-pytorch-cuda
         python-torchvision-cuda
-        python-torchdata-cuda))
+        python-torchdata-cuda
+        python-tensorflow-cuda
+        python-tensorboard
+        python-jax-cuda
+        python-optax-cuda
+        python-chex-cuda
+        python-flax-cuda))
 
 (define %huggingface-packages
   (list python-huggingface-hub
