@@ -1616,3 +1616,27 @@ parallelism.")))
     (synopsis "Fast Iterable JSON parser")
     (description "This package provides Fast Iterable JSON parser.")
     (license license:expat)))
+
+(define-public python-alexify
+  (package
+    (name "python-alexify")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/alexify")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0qazll4g81hinbmfac0ikdf6297fli0qjpry7dysid1aqa0zccm5"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-bibtexparser-1 python-fuzzywuzzy
+                             python-pyalex python-requests))
+    (native-inputs (list python-poetry-core python-pytest))
+    (home-page "https://github.com/b-vitamins/alexify")
+    (synopsis
+     "CLI tool and Python library for adding OpenAlex metadata to BibTeX files.")
+    (description
+     "@code{alexify} is a command-line tool and Python library that helps you enrich your BibTeX files with metadata from @url{https://openalex.org/,OpenAlex}. It automates the process of matching entries by Title and/or DOI, retrieving corresponding OpenAlex IDs, and optionally fetching detailed JSON metadata about those works.")
+    (license license:asl2.0)))
