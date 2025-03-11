@@ -1620,7 +1620,7 @@ parallelism.")))
 (define-public python-alexify
   (package
     (name "python-alexify")
-    (version "0.1.0")
+    (version "0.2.0")
     (source
      (origin
        (method git-fetch)
@@ -1629,7 +1629,7 @@ parallelism.")))
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0qazll4g81hinbmfac0ikdf6297fli0qjpry7dysid1aqa0zccm5"))))
+        (base32 "1v8cd5vjw6zk3q0wa02aigi3mzjr2pb3s52y5w69r8rp3kvldch4"))))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-bibtexparser-1 python-fuzzywuzzy
                              python-pyalex python-requests))
