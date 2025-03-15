@@ -103,7 +103,6 @@
     (inherit whisper-cpp)
     (name "whisper-cpp-cuda")
     (inputs (list cuda-toolkit openblas))
-    (propagated-inputs (list nvda))
     (arguments
      (substitute-keyword-arguments (package-arguments whisper-cpp)
        ((#:configure-flags flags
