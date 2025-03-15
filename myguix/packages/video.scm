@@ -168,7 +168,6 @@
                         "-Dvaapi=enabled"
                         "-Dvulkan=enabled")))))
     (propagated-inputs (modify-inputs (package-propagated-inputs mpv)
-                         (replace "mesa" nvda)
                          (replace "ffmpeg" ffmpeg-cuda)
                          (append cuda-toolkit nv-codec-headers)))))
 
