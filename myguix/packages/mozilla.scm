@@ -85,7 +85,7 @@
 ;;; 0: https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html
 ;; The `rust' package is too old.
 (define-public rust-firefox-esr
-  rust-1.77)
+  rust)
 (define-public rust-firefox
   rust)
 
