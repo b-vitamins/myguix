@@ -116,12 +116,8 @@
     (inherit llama-cpp)
     (name "llama-cpp-cuda")
     (inputs (list python))
-    (propagated-inputs (list nvda
-                             cuda-toolkit
-                             python-numpy
-                             python-pytorch
-                             python-sentencepiece
-                             openblas))
+    (propagated-inputs (list cuda-toolkit python-numpy python-pytorch
+                             python-sentencepiece openblas))
     (native-inputs (list git-minimal pkg-config))
     (arguments
      (substitute-keyword-arguments (package-arguments llama-cpp)
