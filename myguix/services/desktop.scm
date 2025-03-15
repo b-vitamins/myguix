@@ -63,8 +63,6 @@
                                                                  network-manager-openvpn
                                                                  network-manager-openconnect))))
            (service wpa-supplicant-service-type)
-           (simple-service 'network-manager-applet profile-service-type
-                           (list network-manager-applet))
            (service modem-manager-service-type)
            (service usb-modeswitch-service-type)
            (service ntp-service-type)
