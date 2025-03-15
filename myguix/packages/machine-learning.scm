@@ -2161,7 +2161,6 @@ designed for flexibility.")
          (sha256
           (base32 "1xw1lj8gyq4gfhhsj8syv4przqw2nk59hhwyhjf3gvik4k3yvhi4"))))
       (build-system cmake-build-system)
-      (propagated-inputs (list nvda))
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
                 (append cuda-toolkit nccl)))
