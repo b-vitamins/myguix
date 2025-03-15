@@ -83,7 +83,7 @@
     (inherit ffmpeg-7)
     (name "ffmpeg-cuda")
     (arguments
-     (substitute-keyword-arguments (package-arguments ffmpeg-7)
+     (substitute-keyword-arguments (package-arguments ffmpeg)
        ((#:configure-flags flags)
         #~(append #$flags
                   (list "--enable-nonfree"
@@ -145,7 +145,6 @@
                          (string-append "--nvcc=" cuda-nvcc)
                          configure-flags))))))))
     (inputs (modify-inputs (package-inputs ffmpeg)
-              (replace "mesa" nvda)
               (append cuda-toolkit nv-codec-headers)))
     (description
      "FFmpeg with NVIDIA hardware acceleration support using NVDEC and CUDA libraries.")
