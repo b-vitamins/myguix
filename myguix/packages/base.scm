@@ -222,7 +222,8 @@
         lrzip))
 
 (define %network-packages
-  (list net-tools
+  (list network-manager-applet
+        net-tools
         nmap
         tcpdump
         wireshark
