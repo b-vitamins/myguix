@@ -87,7 +87,7 @@
 (define-public rust-firefox-esr
   rust-1.77)
 (define-public rust-firefox
-  rust-1.77)
+  rust)
 
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
