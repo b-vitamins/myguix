@@ -1640,3 +1640,25 @@ parallelism.")))
     (description
      "@code{alexify} is a command-line tool and Python library that helps you enrich your BibTeX files with metadata from @url{https://openalex.org/,OpenAlex}. It automates the process of matching entries by Title and/or DOI, retrieving corresponding OpenAlex IDs, and optionally fetching detailed JSON metadata about those works.")
     (license license:asl2.0)))
+
+(define-public python-isosurfaces
+  (package
+    (name "python-isosurfaces")
+    (version "0.1.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "isosurfaces" version))
+       (sha256
+        (base32 "08bfimqq12rvgssd9a4z865sbma1dbfpzqihd2r5b4zacklfnlgs"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/jared-hughes/isosurfaces")
+    (synopsis
+     "Construct isolines/isosurfaces over a 2D/3D scalar field defined by a function (not a uniform grid)")
+    (description
+     "Construct isolines/isosurfaces over a 2D/3D scalar field defined by a function
+(not a uniform grid).")
+    (license license:expat)))
+
