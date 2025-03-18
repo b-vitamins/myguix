@@ -66,7 +66,6 @@
                                                     "altgr-intl"
                                                     #:options '("ctrl:nocaps")))))
    (service nscd-service-type)
-   (service syslog-service-type)
    (service guix-service-type
             (guix-configuration (build-accounts 12)
                                 (tmpdir "/tmp")))
