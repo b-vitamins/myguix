@@ -1,5 +1,6 @@
 (define-module (myguix services base)
   #:use-module (gnu)
+  #:use-module (gnu services admin)
   #:use-module (gnu services base)
   #:use-module (gnu services shepherd)
   #:use-module (gnu packages package-management)
