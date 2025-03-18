@@ -710,10 +710,10 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define-public nvidia-settings
   (package
     (name "nvidia-settings")
-    (version "570.124.04")
+    (version "570.133.07")
     (source
      (nvidia-settings-source name version
-      "13xj3b1xbmclk085vz73vhra17bg5l7xf589d8pky70qzckz9lic"))
+      "0ddgb3mdi8wrz7v90l9k9ch8zbb0434i66ngp0m966p5yhb3xjaw"))
     (build-system gnu-build-system)
     (arguments
      (list
