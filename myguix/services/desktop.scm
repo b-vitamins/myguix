@@ -33,11 +33,6 @@
 
 (define %my-desktop-services
   (append (list
-           ;; Log Rotation
-           (service log-rotation-service-type)
-           (service log-cleanup-service-type
-                    (log-cleanup-configuration (directory "/var/log/guix/drvs")))
-
            ;; X Window
            (service gdm-service-type)
            gdm-file-system-service

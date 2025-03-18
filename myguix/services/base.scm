@@ -28,7 +28,12 @@
             (map (lambda (tty)
                    (cons tty %default-console-font))
                  '("tty1" "tty2" "tty3")))
-   
+
+   ;; Log Rotation
+   (service log-rotation-service-type)
+   (service log-cleanup-service-type
+            (log-cleanup-configuration (directory "/var/log/guix/drvs")))
+
    ;; Convenient services brought by the Shepherd.
    (service shepherd-system-log-service-type)
    (service shepherd-timer-service-type)
