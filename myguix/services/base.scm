@@ -1,6 +1,7 @@
 (define-module (myguix services base)
   #:use-module (gnu)
   #:use-module (gnu services base)
+  #:use-module (gnu services shepherd)
   #:use-module (gnu packages package-management)
   #:use-module (myguix system install)
   #:export (%my-base-services))
@@ -27,6 +28,11 @@
             (map (lambda (tty)
                    (cons tty %default-console-font))
                  '("tty1" "tty2" "tty3")))
+   
+   ;; Convenient services brought by the Shepherd.
+   (service shepherd-system-log-service-type)
+   (service shepherd-timer-service-type)
+   (service shepherd-transient-service-type)
 
    (service login-service-type)
    (service virtual-terminal-service-type)
