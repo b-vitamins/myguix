@@ -799,14 +799,29 @@ configuration, creating application profiles, gpu monitoring and more.")
                         #~(modify-phases #$phases
                             (delete 'shrink-runpath))))))))
 
+(define mesa-next
+  (package
+    (inherit mesa)
+    (version "24.3.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (list (string-append "https://archive.mesa3d.org/" "mesa-" version
+                                 ".tar.xz")
+                  (string-append "ftp://ftp.freedesktop.org/pub/mesa/" "mesa-"
+                                 version ".tar.xz")))
+       (sha256
+        (base32 "09b0ss722i7ldg2cw2wh3jlylzqv486md54n46cpaf0x34kswhg6"))))))
+
 (define-public mesa-for-nvda
   (hidden-package (package
-                    (inherit mesa)
+                    (inherit mesa-next)
                     (propagated-inputs (modify-inputs (package-propagated-inputs
-                                                       mesa)
+                                                       mesa-next)
                                          (prepend libglvnd-for-nvda)))
                     (arguments
-                     (substitute-keyword-arguments (package-arguments mesa)
+                     (substitute-keyword-arguments (package-arguments
+                                                    mesa-next)
                        ((#:configure-flags flags
                          #~'())
                         #~(cons* "-Dglvnd=true"
