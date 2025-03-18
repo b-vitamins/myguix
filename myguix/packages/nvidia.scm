@@ -302,10 +302,10 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
 (define-public nvidia-driver
   (package
     (name "nvidia-driver")
-    (version "570.124.04")
+    (version "570.133.07")
     (source
      (nvidia-source version
-                    "1i2k1phmx0b3j68qs53c3667fkwad03l1bjqdhhw9mr2f55nly0v"))
+                    "09nwqj6w1vfwv79q8hpm8mnyydq0m4d8p2799mayzr8vb16fchrd"))
     (build-system copy-build-system)
     (arguments
      (list
