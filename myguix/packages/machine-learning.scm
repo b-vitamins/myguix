@@ -2325,6 +2325,9 @@ as common bridge to reuse tensor and ops across frameworks.")
                 (substitute* "torch/_inductor/compile_worker/subproc_pool.py"
                   (("os\\.environ\\.get\\(\"LD_LIBRARY_PATH\"")
                    "os.environ.get(\"LIBRARY_PATH\""))
+                (substitute* "torch/utils/cpp_extension.py"
+                  (("LD_LIBRARY_PATH")
+                   "LIBRARY_PATH"))
                 ;; XXX: Not linking gtest+gtest_main breaks compilation
                 (substitute* '("c10/cuda/test/CMakeLists.txt"
                                "caffe2/CMakeLists.txt")
@@ -2336,6 +2339,7 @@ as common bridge to reuse tensor and ops across frameworks.")
                         (number->string (parallel-job-count)))))
             (add-after 'use-system-libraries 'use-cuda-libraries
               (lambda _
+                (setenv "BUILD_TEST" "0")
                 (setenv "PYTORCH_BUILD_VERSION" "2.5.1")
                 (setenv "PYTORCH_BUILD_NUMBER" "1")
                 (setenv "TORCH_NVCC_FLAGS" "-Xfatbin -compress-all")
@@ -2350,8 +2354,8 @@ as common bridge to reuse tensor and ops across frameworks.")
                 (setenv "USE_GLOO" "1")
                 (setenv "USE_SYSTEM_NCCL" "1")
                 (setenv "USE_OPENMP" "1")
-                (setenv "USE_FLASH_ATTENTION" "0")
-                (setenv "USE_MEM_EFF_ATTENTION" "0")
+                (setenv "USE_FLASH_ATTENTION" "1")
+                (setenv "USE_MEM_EFF_ATTENTION" "1")
                 (setenv "TORCH_CUDA_ARCH_LIST" "8.6")
                 (setenv "USE_ROCM" "0")
                 (setenv "USE_NUMA" "0")
@@ -2381,7 +2385,26 @@ as common bridge to reuse tensor and ops across frameworks.")
                 (setenv "NCCL_LIB_DIR"
                         #$(file-append (this-package-input "nccl") "/lib"))
                 (setenv "NCCL_INCLUDE_DIR"
-                        #$(file-append (this-package-input "nccl") "/include"))))))))
+                        #$(file-append (this-package-input "nccl") "/include"))))
+            (add-after 'install 'add-rpath
+              (lambda* (#:key outputs inputs #:allow-other-keys)
+                (let* ((out (assoc-ref outputs "out"))
+                       (cuda (assoc-ref inputs "cuda-toolkit"))
+                       (cudnn (assoc-ref inputs "cudnn"))
+                       (nccl (assoc-ref inputs "nccl"))
+                       (rpath (string-append "$ORIGIN:$ORIGIN/..:"
+                                             cuda
+                                             "/lib64:"
+                                             cudnn
+                                             "/lib:"
+                                             nccl
+                                             "/lib")))
+                  (format #t "Embedding RPATH ~a into Torch shared objects~%"
+                          rpath)
+                  (for-each (lambda (file)
+                              (invoke "patchelf" "--set-rpath" rpath file))
+                            (find-files (string-append out "/lib/python")
+                                        "\\.so$")))))))))
 
     (inputs (modify-inputs (package-inputs python-pytorch)
               (replace "tensorpipe" tensorpipe-cuda)
