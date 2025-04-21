@@ -1021,37 +1021,6 @@ community.")
     (description "C binding automation.")
     (license license:expat)))
 
-(define-public python-doi
-  (package
-    (name "python-doi")
-    (version "0.2.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "python-doi" version))
-       (sha256
-        (base32 "16pxc7llqb14f2n5ccd88pz4sygwl51slssqm2g23g8rndpya09f"))))
-    (arguments
-     '(#:tests? #f))
-    (build-system pyproject-build-system)
-    (native-inputs (list python-coverage
-                         python-flake8
-                         python-pep8
-                         python-pytest
-                         python-pytest-cov
-                         python-pytest-xdist
-                         python-sphinx
-                         python-sphinx-autobuild
-                         python-sphinx-rtd-theme
-                         python-twine
-                         python-setuptools
-                         python-wheel))
-    (home-page "https://github.com/papis/python-doi")
-    (synopsis "Python package to work with Document Object Identifier (doi)")
-    (description
-     "Python package to work with Document Object Identifier (doi).")
-    (license license:gpl3)))
-
 (define-public python-scihub-py
   (let ((commit "82532fc4fe9b405e1286f60676b776696f4bc844")
         (version "20200619"))
