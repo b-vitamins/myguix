@@ -2569,3 +2569,30 @@ learning applications.
 As the solvers are implemented in PyTorch, algorithms in this repository are
 fully supported to run on the GPU.")
     (license license:expat)))
+
+(define-public python-entmax
+  (package
+    (name "python-entmax")
+    (version "1.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/deep-spin/entmax")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "10dijylrpkfl66dkihqlhwgw9x05qrz3di7ybzdf1a4xqly875v8"))))
+    (build-system python-build-system)
+    (propagated-inputs (list python-pytorch-cuda))
+    (arguments
+     `(#:tests? #f))
+    (home-page "https://github.com/deep-spin/entmax")
+    (synopsis "Sparse probability mappings and losses (α-entmax) for PyTorch")
+    (description
+     "Entmax generalises @code{softmax} by producing sparse probability
+distributions, which can make attention weights easier to interpret and
+sometimes improve performance.  This library provides differentiable entmax
+and sparsemax activations together with the corresponding loss functions,
+implemented for PyTorch.")
+    (license license:expat)))
