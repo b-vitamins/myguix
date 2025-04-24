@@ -2596,3 +2596,24 @@ sometimes improve performance.  This library provides differentiable entmax
 and sparsemax activations together with the corresponding loss functions,
 implemented for PyTorch.")
     (license license:expat)))
+
+(define-public python-storchastic
+  (package
+    (name "python-storchastic")
+    (version "0.3.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "storchastic" version))
+       (sha256
+        (base32 "1c0hv37frpc7gh9f05c0fjgzsf83bxzs2d4nzbhgzlrj27dv8vi3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     `(#:tests? #f))
+    (propagated-inputs (list python-entmax python-packaging python-pyro-ppl
+                             python-pytorch-cuda))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/HEmile/storchastic")
+    (synopsis "Stochastic Deep Learning for PyTorch")
+    (description "Stochastic Deep Learning for @code{PyTorch}.")
+    (license license:gpl3+)))
