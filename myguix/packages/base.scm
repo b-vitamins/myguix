@@ -469,7 +469,9 @@
         python-black
         python-ruff
         python-nodriver
-        python-pytest))
+        python-pytest
+        python-lsp-server
+        python-pylsp-mypy))
 
 (define %deep-learning-framework-packages
   (list whisper-cpp-cuda
@@ -478,7 +480,13 @@
         python-scikit-learn-extra
         python-pytorch-cuda
         python-torchvision-cuda
-        python-torchdata-cuda))
+        python-torchdata-cuda
+        python-pytorch-lightning
+        python-torch-diffeq
+        python-jax-cuda
+        python-chex-cuda
+        python-optax-cuda
+        python-flax-cuda))
 
 (define %huggingface-packages
   (list python-huggingface-hub
