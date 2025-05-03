@@ -50,7 +50,7 @@
 (define-public nv-codec-headers
   (package
     (name "nv-codec-headers")
-    (version "12.2.72.0")
+    (version "13.0.19.0")
     (source
      (origin
        (method git-fetch)
@@ -58,7 +58,7 @@
              (url "https://github.com/FFmpeg/nv-codec-headers")
              (commit (string-append "n" version))))
        (sha256
-        (base32 "1dk13wjg56ddb9g0653fwx3n0h64xs7n8m5ys696adrhhgx77pym"))))
+        (base32 "01p6bjbgm6hfc1snf0hw63b7f7hif40v7bb1xn84ic3cww2m2fcw"))))
     (build-system gnu-build-system)
     (arguments
      `(#:make-flags (list "PREFIX=" "LIBDIR=lib")
