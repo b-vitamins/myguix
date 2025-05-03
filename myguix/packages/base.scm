@@ -278,7 +278,6 @@
         feedgnuplot
         gnuplot
         hdf5
-        h5check
         nlopt
         ipopt
         nomad-optimizer
