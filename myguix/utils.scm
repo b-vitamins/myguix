@@ -16,10 +16,11 @@
   #:use-module (guix colors)
   #:use-module (guix profiles)
   #:use-module (myguix packages nvidia)
-  #:export (with-transformation specifications->packages+gpu-graft
-                                specifications->manifest+gpu-graft
-                                apply-to-type-of-record
-                                nvidia-operating-system))
+  #:export (package-input-grafting with-transformation
+                                   specifications->packages+gpu-graft
+                                   specifications->manifest+gpu-graft
+                                   apply-to-type-of-record
+                                   nvidia-operating-system))
 
 (define-public (to32 package64)
   "Build package for i686-linux.
@@ -33,6 +34,36 @@ Only x86_64-linux and i686-linux are supported.
                        `(#:system "i686-linux"
                          ,@(package-arguments package64)))))
     (_ package64)))
+
+(define (package-input-grafting replacements)
+  "Return a procedure that, when passed a package, grafts its direct and
+indirect dependencies, including implicit inputs, according to REPLACEMENTS.
+REPLACEMENTS is a list of package pairs; the first element of each pair is the
+package to replace, and the second one is the replacement.
+
+Name and version of replacement packages will be padded to meet graft
+requirement."
+  (package-input-rewriting (map (match-lambda
+                                  ((old . new) `(,old unquote
+                                                 (package
+                                                   (inherit old)
+                                                   (replacement (package
+                                                                  (inherit new)
+                                                                  (name (string-pad-right
+                                                                         (package-name
+                                                                          new)
+                                                                         (string-length
+                                                                          (package-name
+                                                                           old))
+                                                                         #\0))
+                                                                  (version (string-pad-right
+                                                                            (package-version
+                                                                             new)
+                                                                            (string-length
+                                                                             (package-version
+                                                                              old))
+                                                                            #\0))))))))
+                                replacements)))
 
 ;; For concerns and direction of improvement, see this thread:
 ;; https://lists.gnu.org/archive/html/guix-devel/2024-06/msg00275.html
