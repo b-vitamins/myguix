@@ -177,65 +177,6 @@ datasets and other repos on the @url{huggingface.co} hub.")
      "This repository implements a new simple format for storing tensors safely (as opposed to pickle) and that is still fast (zero-copy).")
     (license license:expat)))
 
-(define-public python-tokenizers
-  (package
-    (name "python-tokenizers")
-    (version "0.21.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/huggingface/tokenizers")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "09ns9byxl149r4jawsdlj2g99aardyzmd71syy1769bgb64mgbhv"))))
-    (build-system cargo-build-system)
-    (arguments
-     (list
-      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
-      #:modules '((guix build cargo-build-system)
-                  ((guix build pyproject-build-system)
-                   #:prefix py:)
-                  (guix build utils))
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'unpack 'chdir
-            (lambda* _
-              (delete-file "bindings/python/.cargo/config.toml")
-              (chdir "bindings/python")))
-          (add-after 'chdir 'version-tokenizers
-            (lambda* _
-              (substitute* "Cargo.toml"
-                (("^\\[dependencies.tokenizers\\].*$" all)
-                 (string-append all "version = \"0.21.0\"\n")))))
-          (add-after 'build 'build-python-module
-            (assoc-ref py:%standard-phases
-                       'build))
-          (add-after 'build-python-module 'install-python-module
-            (assoc-ref py:%standard-phases
-                       'install)))
-      #:cargo-inputs `(("rust-rayon" ,rust-rayon-1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-env-logger" ,rust-env-logger-0.11)
-                       ("rust-pyo3" ,rust-pyo3-0.22)
-                       ("rust-numpy" ,rust-numpy-0.22)
-                       ("rust-ndarray" ,rust-ndarray-0.15)
-                       ("rust-onig" ,rust-onig-6)
-                       ("rust-itertools" ,rust-itertools-0.12))
-      #:cargo-development-inputs `(("rust-pyo3" ,rust-pyo3-0.22)
-                                   ("rust-tempfile" ,rust-tempfile-3)
-                                   ("rust-tokenizers" ,rust-tokenizers-0.21))))
-    (inputs (list maturin))
-    (native-inputs (list python-wrapper))
-    (home-page "https://github.com/huggingface/tokenizers")
-    (synopsis "Today's most used tokenizers")
-    (description
-     "Provides an implementation of today's most used tokenizers, with a focus on performance and versatility.")
-    (license license:expat)))
-
 (define-public python-accelerate
   (package
     (name "python-accelerate")
