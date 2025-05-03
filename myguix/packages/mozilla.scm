@@ -382,6 +382,11 @@
                      ;; For hardware video acceleration via VA-API
                      (libva-lib (string-append (assoc-ref inputs "libva")
                                                "/lib"))
+                     ;; Needed for video acceleration (via libdrm which mesa
+                     ;; and libva depend on).
+                     (pciaccess-lib (string-append (assoc-ref inputs
+                                                              "libpciaccess")
+                                                   "/lib"))
                      ;; VA-API is run in the RDD (Remote Data Decoder) sandbox
                      ;; and must be explicitly given access to files it needs.
                      ;; Rather than adding the whole store (as Nix had
@@ -391,6 +396,9 @@
                      ;; runpaths of the needed libraries to add everything to
                      ;; LD_LIBRARY_PATH.  These will then be accessible in the
                      ;; RDD sandbox.
+                     ;; TODO: Properly handle the runpath of libraries needed
+                     ;; (for RDD) recursively, so the explicit libpciaccess
+                     ;; can be removed.
                      (rdd-whitelist (map (cut string-append <> "/")
                                          (delete-duplicates (append-map
                                                              runpaths-of-input
@@ -410,6 +418,7 @@
                   `("LD_LIBRARY_PATH" prefix
                     (,mesa-lib ,libnotify-lib
                      ,libva-lib
+                     ,pciaccess-lib
                      ,pulseaudio-lib
                      ,eudev-lib
                      ,@rdd-whitelist
@@ -481,6 +490,7 @@ StartupWMClass=Firefox"))
                   libgnome
                   libjpeg-turbo
                   libnotify
+                  libpciaccess
                   ;; libpng-apng
                   libva
                   libvpx
