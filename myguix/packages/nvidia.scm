@@ -72,11 +72,13 @@
                 #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (myguix utils)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages video)
-  #:use-module (ice-9 match))
+  #:use-module (ice-9 match)
+  #:export (replace-mesa))
 
 (define-public %nvidia-environment-variable-regexps
   '("^__GL_" ;NVIDIA OpenGL settings.
@@ -940,18 +942,8 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
                                (package-propagated-inputs nvidia-driver-beta)))
     (inputs (list mesa-for-nvda nvidia-driver-beta))))
 
-(define mesa/fake
-  (package
-    (inherit mesa)
-    (replacement nvda)))
-
-(define-public mesa/fake-beta
-  (hidden-package (package
-                    (inherit mesa)
-                    (replacement nvdb))))
-
-(define-public replace-mesa
-  (package-input-rewriting `((,mesa unquote mesa/fake))))
+(define replace-mesa
+  (package-input-grafting `((,mesa unquote nvda))))
 
 
 ;;;
