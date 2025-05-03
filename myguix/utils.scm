@@ -8,15 +8,10 @@
   #:use-module (ice-9 match)
   #:use-module (ice-9 textual-ports)
   #:use-module (ice-9 popen)
-  #:use-module (gnu packages)
-  #:use-module (gnu services)
-  #:use-module (gnu system)
   #:use-module (guix utils)
   #:use-module (guix packages)
-  #:use-module (guix colors)
-  #:use-module (guix profiles)
-  #:use-module (myguix packages nvidia)
-  #:export (package-input-grafting with-transformation))
+  #:use-module (gnu services)
+  #:export (package-input-grafting package-with-alias with-transformation))
 
 (define-public (to32 package64)
   "Build package for i686-linux.
@@ -96,3 +91,9 @@ matches PRED."
                             (obj (accessor obj)))
                        (with-transformation proc obj pred))) record-fields))))
     (_ obj)))
+
+(define (package-with-alias alias pkg)
+  "Return a copy of package PKG called ALIAS."
+  (package
+    (inherit pkg)
+    (name alias)))
