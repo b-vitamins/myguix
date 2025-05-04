@@ -479,10 +479,7 @@
         python-scikit-learn
         python-scikit-learn-extra
         python-pytorch-cuda
-        python-torchvision-cuda
-        python-torchdata-cuda
-        python-pytorch-lightning
-        python-torch-diffeq))
+        python-torchvision-cuda))
 
 (define %huggingface-packages
   (list python-huggingface-hub
