@@ -483,10 +483,7 @@
         python-torchdata-cuda
         python-pytorch-lightning
         python-torch-diffeq
-        python-jax-cuda
-        python-chex-cuda
-        python-optax-cuda
-        python-flax-cuda))
+        python-jax-cuda))
 
 (define %huggingface-packages
   (list python-huggingface-hub
