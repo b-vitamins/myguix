@@ -477,7 +477,6 @@
   (list whisper-cpp-cuda
         llama-cpp-cuda
         python-scikit-learn
-        python-scikit-learn-extra
         python-pytorch-cuda
         python-torchvision-cuda))
 
