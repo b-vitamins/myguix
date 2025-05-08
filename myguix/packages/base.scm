@@ -465,8 +465,6 @@
 
 (define %python-packages
   (list python
-        python-jedi
-        python-jedi-language-server
         python-flake8
         python-black
         python-ruff
@@ -475,7 +473,8 @@
         python-lsp-server
         python-pylsp-mypy
         python-neo4j
-        python-graphdatascience))
+        python-graphdatascience
+        python-qdrant-client))
 
 (define %deep-learning-framework-packages
   (list whisper-cpp-cuda llama-cpp-cuda python-scikit-learn
