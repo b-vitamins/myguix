@@ -128,16 +128,43 @@
                                (volumes '("/var/lib/clickhouse/data:/var/lib/clickhouse"
                                           "/var/log/clickhouse-server:/var/log/clickhouse-server"))))
 
+(define (get-neo4j-password)
+  (if (file-exists? "/root/neo4j.credentials")
+      (call-with-input-file "/root/neo4j.credentials"
+        read-line) ""))
+
+(define neo4j-password
+  (get-neo4j-password))
+
 ;; Define an OCI container service for Neo4j, a graph database management system.
 (define oci-neo4j-service-type
-  (oci-container-configuration (image "neo4j:latest")
+  (oci-container-configuration (image "neo4j:5.26-community")
                                (network "host")
-                               (ports '(("7474" . "7474") ("7473" . "7473")
-                                        ("7687" . "7687")))
+                               (ports '(("7474" . "7474") ;HTTP
+                                        ("7687" . "7687") ;Bolt
+                                        ("7688" . "7688"))) ;Flight
                                (volumes (list '("/var/lib/neo4j/data" . "/data")
                                               '("/var/lib/neo4j/logs" . "/logs")
                                               '("/var/lib/neo4j/import" . "/var/lib/neo4j/import")
-                                              '("/var/lib/neo4j/plugins" . "/plugins")))))
+                                              '("/var/lib/neo4j/plugins" . "/plugins")))
+                               (extra-arguments '("--ulimit"
+                                                  "nofile=262144:262144"))
+                               (environment (list `("NEO4J_AUTH" unquote
+                                                    (string-append "neo4j/"
+                                                     neo4j-password))
+                                                  '("NEO4J_ACCEPT_LICENSE_AGREEMENT" . "yes")
+                                                  ;; flight
+                                                  '("NEO4J_server_config_override__gds__arrow__enabled" . "true")
+                                                  ;; memory
+                                                  '("NEO4J_server_memory_heap_initial__size" . "4G")
+                                                  '("NEO4J_server_memory_heap_max__size" . "8G")
+                                                  '("NEO4J_db_memory_pagecache_size" . "12G")
+                                                  ;; apoc import/export
+                                                  '("NEO4J_apoc_import_file_enabled" . "true")
+                                                  '("NEO4J_apoc_export_file_enabled" . "true")
+                                                  '("NEO4J_apoc_import_file_use__neo4j__config" . "true")
+                                                  ;; unrestricted procedures
+                                                  '("NEO4J_dbms_security_procedures_unrestricted" . "gds.*,apoc.*")))))
 
 ;; Apache Cassandra is an open source NoSQL distributed database offering high availability and scalability without compromising performance.
 (define oci-cassandra-service-type
