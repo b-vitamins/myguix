@@ -156,8 +156,8 @@
                                                   ;; flight
                                                   '("NEO4J_server_config_override__gds__arrow__enabled" . "true")
                                                   ;; memory
-                                                  '("NEO4J_server_memory_heap_initial__size" . "4G")
-                                                  '("NEO4J_server_memory_heap_max__size" . "8G")
+                                                  '("NEO4J_server_memory_heap_initial__size" . "8G")
+                                                  '("NEO4J_server_memory_heap_max__size" . "16G")
                                                   '("NEO4J_db_memory_pagecache_size" . "12G")
                                                   ;; apoc import/export
                                                   '("NEO4J_apoc_import_file_enabled" . "true")
