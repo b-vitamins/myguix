@@ -99,6 +99,7 @@
   #:use-module (myguix packages huggingface)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (myguix packages fonts)
+  #:use-module (myguix packages java-pqrs)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages messaging)
   #:use-module (myguix packages mozilla)
@@ -406,7 +407,8 @@
         autoconf
         automake
         libtool
-        pkg-config))
+        pkg-config
+        cypher-shell))
 
 (define %cuda-packages
   (list cuda-toolkit
