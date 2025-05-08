@@ -175,3 +175,47 @@
                                (extra-arguments '("--ulimit"
                                                   "nofile=262144:262144"))
                                (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
+
+(define (get-qdrant-api-key)
+  (if (file-exists? "/root/qdrant.credentials")
+      (call-with-input-file "/root/qdrant.credentials"
+        read-line) ""))
+ ; fallback → disable auth
+
+(define qdrant-api-key
+  (get-qdrant-api-key))
+
+(define oci-qdrant-service-type
+  (let* ( ;---------------- tuning ----------------
+          (qdrant-cache "12G") ;mmap + HNSW cache
+         (search-threads "10")
+         (write-threads "2")
+         (data-volume '("/var/lib/qdrant/data" . "/qdrant/storage"))
+         (gpu-enabled? #t))
+    (oci-container-configuration (auto-start? #t)
+                                 (image "qdrant/qdrant:latest")
+                                 (network "host")
+                                 (ports '(("6333" . "6333") ;REST + gRPC
+                                          ("6334" . "6334"))) ;Prometheus metrics
+                                 (volumes (list data-volume))
+                                 (extra-arguments '( ;generous ulimit – Qdrant mmaps many HNSW files
+                                                     "--ulimit"
+                                                    "nofile=500000:500000"
+                                                    ;; hard RSS cap to avoid pressure on other services
+                                                    "--memory=14g"
+                                                    "--memory-swap=14g"))
+                                 (environment (append `(("QDRANT__STORAGE__CACHE_SIZE"
+                                                         unquote qdrant-cache)
+                                                        ("QDRANT__STORAGE__MMAP_THRESHOLD" . "128M")
+                                                        ("QDRANT__SERVICE__MAX_SEARCH_THREADS"
+                                                         unquote
+                                                         search-threads)
+                                                        ("QDRANT__SERVICE__WRITE_THREADS"
+                                                         unquote write-threads)
+                                                        ("QDRANT__SERVICE__API_KEY"
+                                                         unquote
+                                                         qdrant-api-key))
+                                                      (if gpu-enabled?
+                                                          '(("CUDA_VISIBLE_DEVICES" . "0")
+                                                            ("QDRANT_GPU" . "1"))
+                                                          '()))))))
