@@ -1603,3 +1603,20 @@ parallelism.")))
 (not a uniform grid).")
     (license license:expat)))
 
+(define-public python-neo4j
+  (package
+    (name "python-neo4j")
+    (version "5.28.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "neo4j" version))
+       (sha256
+        (base32 "0572k090q657xg86irvvmjx9j876rjr5khsvqxi902cmv2hkg3mf"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-pytz))
+    (native-inputs (list python-setuptools python-tomlkit python-wheel))
+    (home-page #f)
+    (synopsis "Neo4j Bolt driver for Python")
+    (description "Neo4j Bolt driver for Python.")
+    (license license:asl2.0)))
