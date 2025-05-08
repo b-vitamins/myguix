@@ -180,7 +180,7 @@
   (if (file-exists? "/root/qdrant.credentials")
       (call-with-input-file "/root/qdrant.credentials"
         read-line) ""))
- ; fallback → disable auth
+; fallback → disable auth
 
 (define qdrant-api-key
   (get-qdrant-api-key))
