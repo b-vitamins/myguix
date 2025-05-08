@@ -108,6 +108,7 @@
   #:use-module (guix utils)
   #:use-module (myguix packages video)
   #:use-module (myguix packages machine-learning)
+  #:use-module (myguix packages java-pqrs)
   #:use-module ((myguix packages rust-pqrs)
                 #:hide (rust-lexical-parse-float-0.8))
   #:use-module (myguix packages nvidia))
@@ -1620,3 +1621,70 @@ parallelism.")))
     (synopsis "Neo4j Bolt driver for Python")
     (description "Neo4j Bolt driver for Python.")
     (license license:asl2.0)))
+
+(define-public python-graphdatascience
+  (let* ((python-pyarrow-flight (package
+                                  (inherit python-pyarrow)
+                                  (name "python-pyarrow-flight")
+                                  (propagated-inputs (modify-inputs (package-propagated-inputs
+                                                                     python-pyarrow)
+                                                       (replace "apache-arrow"
+                                                        apache-arrow-flight)))
+
+                                  ;; Ensure the C++ libs are available while building wheels
+                                  (native-inputs (modify-inputs (package-native-inputs
+                                                                 python-pyarrow)
+                                                   (prepend
+                                                    apache-arrow-flight)))
+                                  (arguments
+                                   (substitute-keyword-arguments (package-arguments
+                                                                  python-pyarrow)
+                                     ((#:phases phases)
+                                      #~(modify-phases #$phases
+                                          (replace 'set-pyarrow-build-options
+                                            (lambda _
+                                              (setenv
+                                               "PYARROW_BUNDLE_ARROW_CPP_HEADERS"
+                                               "0")
+                                              (setenv "PYARROW_CMAKE_OPTIONS"
+                                                      (string-append
+                                                       "-DCMAKE_INSTALL_RPATH="
+                                                       #$output))
+                                              (setenv "PYARROW_PARALLEL"
+                                                      (number->string (parallel-job-count)))
+                                              (setenv "PYARROW_WITH_DATASET"
+                                                      "1")
+                                              (setenv "PYARROW_WITH_HDFS" "1")
+                                              (setenv "PYARROW_WITH_ORC" "1")
+                                              (setenv "PYARROW_WITH_PARQUET"
+                                                      "1")
+                                              (setenv "PYARROW_WITH_FLIGHT"
+                                                      "1"))))))))))
+    (package
+      (name "python-graphdatascience")
+      (version "1.15")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (pypi-uri "graphdatascience" version))
+         (sha256
+          (base32 "0fbkj1s1scx64w2sqcwm7rgx1852m898wjxj4f0w471m29rz5w3p"))))
+      (build-system pyproject-build-system)
+      (arguments
+       (list
+        #:tests? #f))
+      (propagated-inputs (list python-multimethod
+                               python-neo4j
+                               python-numpy
+                               python-pandas
+                               python-pyarrow-flight
+                               python-requests
+                               python-tenacity
+                               python-textdistance
+                               python-tqdm
+                               python-typing-extensions))
+      (native-inputs (list python-setuptools python-wheel))
+      (home-page "https://neo4j.com/product/graph-data-science/")
+      (synopsis "Python client for the Neo4j Graph Data Science library")
+      (description "Python interface for Neo4j Graph Data Science.")
+      (license license:asl2.0))))
