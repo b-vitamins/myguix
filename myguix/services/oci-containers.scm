@@ -4,120 +4,144 @@
   #:use-module (ice-9 rdelim)
   #:use-module (rnrs files)
   #:use-module (rnrs io simple)
-  #:export (oci-cassandra-service-type oci-grobid-service-type
-                                       oci-weaviate-service-type
-                                       oci-solr-service-type
-                                       oci-janusgraph-service-type
-                                       oci-clickhouse-service-type
-                                       oci-meilisearch-service-type
-                                       get-meili-master-key
-                                       meili-master-key
-                                       oci-neo4j-service-type))
+  #:use-module (srfi srfi-13)
+  #:export (oci-airflow-service-type oci-cassandra-service-type
+                                     oci-clickhouse-service-type
+                                     oci-embeddings-service-type
+                                     oci-grafana-service-type
+                                     oci-grobid-service-type
+                                     oci-janusgraph-service-type
+                                     oci-meilisearch-service-type
+                                     oci-minio-service-type
+                                     oci-neo4j-service-type
+                                     oci-ollama-service-type
+                                     oci-prometheus-service-type
+                                     oci-qdrant-service-type
+                                     oci-solr-service-type
+                                     oci-weaviate-service-type))
 
-;; Define an OCI container service for GROBID, a machine learning library for extracting
-;; information from scholarly documents.
-(define oci-grobid-service-type
-  (oci-container-configuration (image "grobid/grobid:0.8.1")
-                               (network "host")
-                               (ports '(("8070" . "8070")))))
+;; Common function to read secrets from files
+(define (read-secret path)
+  (if (file-exists? path)
+      (call-with-input-file path
+        (lambda (p)
+          (string-trim-both (read-line p)))) ""))
 
-;; Solr is the blazing-fast, open source, multi-modal search platform built on the full-text, vector, and geospatial search capabilities of Apache Lucene™.
-(define oci-solr-service-type
+;; Define all credentials in one place
+(define airflow-admin-password
+  (read-secret "/root/airflow-admin.credentials"))
+(define airflow-fernet-key
+  (read-secret "/root/airflow-fernet.key"))
+(define grafana-admin-password
+  (read-secret "/root/grafana-admin.credentials"))
+(define meili-master-key
+  (read-secret "/root/meili.credentials"))
+(define minio-secret
+  (read-secret "/root/minio.credentials"))
+(define neo4j-password
+  (read-secret "/root/neo4j.credentials"))
+(define postgres-password
+  (read-secret "/root/postgres.credentials"))
+(define qdrant-api-key
+  (read-secret "/root/qdrant.credentials"))
+
+;; Define common environment configurations
+(define airflow-pg-url
+  (string-append "postgresql+psycopg2://airflow:" postgres-password
+                 "@localhost:5432/airflow"))
+
+(define airflow-redis-url
+  "redis://localhost:6379/0")
+
+(define airflow-common-env
+  (list (cons "AIRFLOW__CORE__EXECUTOR" "CeleryExecutor")
+        (cons "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN" airflow-pg-url)
+        (cons "AIRFLOW__CELERY__BROKER_URL" airflow-redis-url)
+        (cons "AIRFLOW__CELERY__RESULT_BACKEND" airflow-pg-url)
+        (cons "AIRFLOW__CORE__FERNET_KEY" airflow-fernet-key)
+        '("AIRFLOW__WEBSERVER__RBAC" . "true")
+        '("AIRFLOW__CORE__LOAD_EXAMPLES" . "false")))
+
+(define cassandra-env
+  (list '("CASSANDRA_CLUSTER_NAME" . "NeurIPSCluster")
+        '("CASSANDRA_SEEDS" . "127.0.0.1")
+        '("CASSANDRA_START_RPC" . "true")
+        '("CASSANDRA_RPC_ADDRESS" . "0.0.0.0")
+        '("CASSANDRA_BROADCAST_RPC_ADDRESS" . "127.0.0.1")
+        '("MAX_HEAP_SIZE" . "1G")
+        '("HEAP_NEWSIZE" . "256M")))
+
+(define janusgraph-env
+  (list '("JAVA_OPTIONS" . "-Xms8g -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=200")
+        '("STORAGE_BACKEND" . "cql")
+        '("STORAGE_HOSTNAME" . "localhost:9042")
+        '("STORAGE_CASSANDRA_KEYSPACE" . "janusgraph")
+        '("INDEX_BACKEND" . "solr")
+        '("INDEX_HOSTNAME" . "localhost:8983")))
+
+(define neo4j-env
+  (list `("NEO4J_AUTH" unquote
+          (string-append "neo4j/" neo4j-password))
+        '("NEO4J_ACCEPT_LICENSE_AGREEMENT" . "yes")
+        '("NEO4J_server_config_override__gds__arrow__enabled" . "true")
+        '("NEO4J_server_memory_heap_initial__size" . "8G")
+        '("NEO4J_server_memory_heap_max__size" . "16G")
+        '("NEO4J_db_memory_pagecache_size" . "12G")
+        '("NEO4J_apoc_import_file_enabled" . "true")
+        '("NEO4J_apoc_export_file_enabled" . "true")
+        '("NEO4J_apoc_import_file_use__neo4j__config" . "true")
+        '("NEO4J_dbms_security_procedures_unrestricted" . "gds.*,apoc.*")))
+
+(define weaviate-modules
+  (string-append "text2vec-cohere,"
+                 "text2vec-huggingface,"
+                 "text2vec-palm,"
+                 "text2vec-openai,"
+                 "generative-openai,"
+                 "generative-cohere,"
+                 "generative-palm,"
+                 "ref2vec-centroid,"
+                 "reranker-cohere,"
+                 "qna-openai"))
+
+(define weaviate-env
+  (list '("QUERY_DEFAULTS_LIMIT" . "25")
+        '("AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED" . "true")
+        '("PERSISTENCE_DATA_PATH" . "/var/lib/weaviate")
+        '("DEFAULT_VECTORIZER_MODULE" . "none")
+        `("ENABLE_MODULES" unquote weaviate-modules)))
+
+;; Apache Airflow 2.9 (CeleryExecutor, host network)
+(define oci-airflow-service-type
   (oci-container-configuration (auto-start? #t)
-                               (image "solr:latest")
+                               (image "apache/airflow:2.9.2-python3.11")
                                (network "host")
-                               (ports '(("8983" . "8983")))
-                               (volumes '("/var/lib/solr/data:/var/solr"))
-                               (command '("solr-precreate" "gettingstarted"))
-                               (extra-arguments '("--ulimit"
-                                                  "nofile=262144:262144"))
-                               (environment (list '("SOLR_HEAP" . "800m")))))
+                               (ports '(("8080" . "8080"))) ;Web UI
+                               (volumes (list '("/var/lib/airflow/dags" . "/opt/airflow/dags")
+                                              '("/var/lib/airflow/logs" . "/opt/airflow/logs")))
+                               (environment (append airflow-common-env
+                                                    (list (cons
+                                                           "AIRFLOW_USERNAME"
+                                                           "admin")
+                                                          (cons
+                                                           "AIRFLOW_PASSWORD"
+                                                           airflow-admin-password))))
+                               (command '("bash" "-ec"
+                                          "airflow db migrate &&        airflow users create            --role Admin            --username \"$AIRFLOW_USERNAME\"            --password \"$AIRFLOW_PASSWORD\"            --firstname Admin --lastname User            --email admin@example.com || true &&        airflow scheduler &        exec airflow webserver"))))
 
-;; JanusGraph is a scalable graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.
-(define oci-janusgraph-service-type
-  (oci-container-configuration (auto-start? #t)
-                               (image "janusgraph/janusgraph:latest")
-                               (network "host")
-                               (ports '(("8182" . "8182") ("8183" . "8183")))
-                               (volumes '("/var/lib/janusgraph/data:/janusgraph/data"))
-                               (environment (list '("JAVA_OPTIONS" . "-Xms8g -Xmx8g -XX:+UseG1GC -XX:MaxGCPauseMillis=200")
-                                                  '("STORAGE_BACKEND" . "cql")
-                                                  '("STORAGE_HOSTNAME" . "localhost:9042")
-                                                  '("STORAGE_CASSANDRA_KEYSPACE" . "janusgraph")
-                                                  '("INDEX_BACKEND" . "solr")
-                                                  '("INDEX_HOSTNAME" . "localhost:8983")))))
-
+;; Apache Cassandra - NoSQL distributed database
 (define oci-cassandra-service-type
   (oci-container-configuration (auto-start? #t)
                                (image "cassandra:latest")
                                (network "host")
-                               ;; Cassandra commonly uses ports 7000, 7001, 7199, 9042, and 9160.
                                (ports '(("7000" . "7000") ("7001" . "7001")
                                         ("7199" . "7199")
                                         ("9042" . "9042")
                                         ("9160" . "9160")))
-                               ;; Mount the local Cassandra data directory to persist across container restarts.
-                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))
-                               ;; By default, the official Cassandra image runs the server in the foreground
-                               ;; so no explicit 'command' override is strictly necessary. If you want to
-                               ;; be explicit, you could do (command '("cassandra" "-f")).
-                               (environment (list ;The following environment variables configure a basic single-node cluster
-                                                  '("CASSANDRA_CLUSTER_NAME" . "NeurIPSCluster")
-                                                  '("CASSANDRA_SEEDS" . "127.0.0.1")
-                                                  '("CASSANDRA_START_RPC" . "true")
-                                                  '("CASSANDRA_RPC_ADDRESS" . "0.0.0.0")
-                                                  '("CASSANDRA_BROADCAST_RPC_ADDRESS" . "127.0.0.1")
-                                                  ;; Memory settings can be tuned as needed
-                                                  '("MAX_HEAP_SIZE" . "1G")
-                                                  '("HEAP_NEWSIZE" . "256M")))))
+                               (volumes (list '("/var/lib/cassandra/data" . "/var/lib/cassandra/data")))
+                               (environment cassandra-env)))
 
-;; Function to read MEILI_MASTER_KEY from the credentials file
-(define (get-meili-master-key)
-  (if (file-exists? "/root/meili.credentials")
-      (call-with-input-file "/root/meili.credentials"
-        read-line) ""))
-;; Return empty string if the file does not exist
-
-;; Retrieve the MEILI_MASTER_KEY for injection
-(define meili-master-key
-  (get-meili-master-key))
-
-;; Define an OCI container service for Meilisearch, an open-source search engine.
-(define oci-meilisearch-service-type
-  (oci-container-configuration (image "getmeili/meilisearch:latest")
-                               (network "host")
-                               (ports '(("7700" . "7700")))
-                               (environment (list '("MEILI_NO_ANALYTICS" . "true")
-                                                  `("MEILI_MASTER_KEY" unquote
-                                                    meili-master-key)))
-                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
-
-;; Define an OCI container service for Weaviate, an open-source vector search engine.
-(define oci-weaviate-service-type
-  (oci-container-configuration (image
-                                "cr.weaviate.io/semitechnologies/weaviate:1.28.4")
-                               (network "host")
-                               (ports '(("50051" . "50051")))
-                               (environment (list '("QUERY_DEFAULTS_LIMIT" . "25")
-                                                  '("AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED" . "true")
-                                                  '("PERSISTENCE_DATA_PATH" . "/var/lib/weaviate")
-                                                  '("DEFAULT_VECTORIZER_MODULE" . "none")
-                                                  `("ENABLE_MODULES" unquote
-                                                    (string-append
-                                                     "text2vec-cohere,"
-                                                     "text2vec-huggingface,"
-                                                     "text2vec-palm,"
-                                                     "text2vec-openai,"
-                                                     "generative-openai,"
-                                                     "generative-cohere,"
-                                                     "generative-palm,"
-                                                     "ref2vec-centroid,"
-                                                     "reranker-cohere,"
-                                                     "qna-openai"))
-                                                  '("CLUSTER_HOSTNAME" . "lagertha")))
-                               (volumes (list '("/var/lib/weaviate/data" . "/var/lib/weaviate")))))
-
-;; ClickHouse® is a high-performance, column-oriented SQL database management system (DBMS) for online analytical processing (OLAP).
+;; ClickHouse - column-oriented SQL database for OLAP
 (define oci-clickhouse-service-type
   (oci-container-configuration (auto-start? #t)
                                (image "clickhouse:latest")
@@ -125,18 +149,72 @@
                                (ports '(("8123" . "8123") ("9000" . "9000")))
                                (extra-arguments (list "--ulimit"
                                                       "nofile=262144:262144"))
-                               (volumes '("/var/lib/clickhouse/data:/var/lib/clickhouse"
-                                          "/var/log/clickhouse-server:/var/log/clickhouse-server"))))
+                               (volumes (list '("/var/lib/clickhouse/data" . "/var/lib/clickhouse")
+                                              '("/var/log/clickhouse-server" . "/var/log/clickhouse-server")))))
 
-(define (get-neo4j-password)
-  (if (file-exists? "/root/neo4j.credentials")
-      (call-with-input-file "/root/neo4j.credentials"
-        read-line) ""))
+;; Embeddings + BM25 sparse inference
+(define oci-embeddings-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image
+                                "ghcr.io/huggingface/text-embeddings-inference:cpu-0.7.2")
+                               (network "host")
+                               (ports '(("8081" . "8080"))) ;host 8081 → container 8080
+                               (environment (list '("MODEL_ID" . "allenai/scibert_scivocab_uncased")
+                                                  '("NUM_THREADS" . "8")
+                                                  '("DEVICE" . "cpu")))
+                               (extra-arguments '("--memory=6g"))))
 
-(define neo4j-password
-  (get-neo4j-password))
+;; Grafana - analytics and monitoring
+(define oci-grafana-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "grafana/grafana-oss:11.0.0")
+                               (network "host")
+                               (ports '(("3000" . "3000")))
+                               (volumes (list '("/var/lib/grafana" . "/var/lib/grafana")))
+                               (environment (list (cons
+                                                   "GF_SECURITY_ADMIN_PASSWORD"
+                                                   grafana-admin-password)))))
 
-;; Define an OCI container service for Neo4j, a graph database management system.
+;; GROBID - machine learning for scholarly document extraction
+(define oci-grobid-service-type
+  (oci-container-configuration (image "grobid/grobid:0.8.1")
+                               (network "host")
+                               (ports '(("8070" . "8070")))))
+
+;; JanusGraph - scalable graph database
+(define oci-janusgraph-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "janusgraph/janusgraph:latest")
+                               (network "host")
+                               (ports '(("8182" . "8182") ("8183" . "8183")))
+                               (volumes (list '("/var/lib/janusgraph/data" . "/janusgraph/data")))
+                               (environment janusgraph-env)))
+
+;; Meilisearch - open-source search engine
+(define oci-meilisearch-service-type
+  (oci-container-configuration (image "getmeili/meilisearch:latest")
+                               (network "host")
+                               (ports '(("7700" . "7700")))
+                               (environment `(("MEILI_NO_ANALYTICS" . "true") ("MEILI_MASTER_KEY"
+                                                                               unquote
+                                                                               meili-master-key)))
+                               (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
+
+;; MinIO - object storage
+(define oci-minio-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "minio/minio")
+                               (network "host")
+                               (ports '(("9000" . "9000") ("9001" . "9001"))) ;S3 + console
+                               (volumes (list '("/var/lib/minio/data" . "/data")))
+                               (environment (list '("MINIO_ROOT_USER" . "root")
+                                                  (cons "MINIO_ROOT_PASSWORD"
+                                                        minio-secret)
+                                                  '("MINIO_BROWSER" . "on")))
+                               (command '("server" "/data" "--console-address"
+                                          ":9001"))))
+
+;; Neo4j - graph database management system
 (define oci-neo4j-service-type
   (oci-container-configuration (image "neo4j:5.26-community")
                                (network "host")
@@ -149,73 +227,75 @@
                                               '("/var/lib/neo4j/plugins" . "/plugins")))
                                (extra-arguments '("--ulimit"
                                                   "nofile=262144:262144"))
-                               (environment (list `("NEO4J_AUTH" unquote
-                                                    (string-append "neo4j/"
-                                                     neo4j-password))
-                                                  '("NEO4J_ACCEPT_LICENSE_AGREEMENT" . "yes")
-                                                  ;; flight
-                                                  '("NEO4J_server_config_override__gds__arrow__enabled" . "true")
-                                                  ;; memory
-                                                  '("NEO4J_server_memory_heap_initial__size" . "8G")
-                                                  '("NEO4J_server_memory_heap_max__size" . "16G")
-                                                  '("NEO4J_db_memory_pagecache_size" . "12G")
-                                                  ;; apoc import/export
-                                                  '("NEO4J_apoc_import_file_enabled" . "true")
-                                                  '("NEO4J_apoc_export_file_enabled" . "true")
-                                                  '("NEO4J_apoc_import_file_use__neo4j__config" . "true")
-                                                  ;; unrestricted procedures
-                                                  '("NEO4J_dbms_security_procedures_unrestricted" . "gds.*,apoc.*")))))
+                               (environment neo4j-env)))
 
-;; Apache Cassandra is an open source NoSQL distributed database offering high availability and scalability without compromising performance.
-(define oci-cassandra-service-type
+;; Ollama - LLM inference
+(define oci-ollama-service-type
   (oci-container-configuration (auto-start? #t)
-                               (image "cassandra:latest")
+                               (image "ollama/ollama:0.1.28")
                                (network "host")
-                               (ports '(("9042" . "9042") ("7000" . "7000")))
-                               (extra-arguments '("--ulimit"
-                                                  "nofile=262144:262144"))
-                               (volumes '("/var/lib/cassandra/data:/var/lib/cassandra/data"))))
+                               (ports '(("11434" . "11434")))
+                               (volumes (list '("/var/lib/ollama" . "/root/.ollama")))
+                               (environment (list '("OLLAMA_MODELS" . "llama3")))
+                               (command '("serve"))))
 
-(define (get-qdrant-api-key)
-  (if (file-exists? "/root/qdrant.credentials")
-      (call-with-input-file "/root/qdrant.credentials"
-        read-line) ""))
-; fallback → disable auth
+;; Prometheus - monitoring
+(define oci-prometheus-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "prom/prometheus:v2.52.0")
+                               (network "host")
+                               (ports '(("9090" . "9090")))
+                               (volumes (list '("/var/lib/prometheus" . "/prometheus")
+                                              '("/etc/prometheus/prometheus.yml" . "/etc/prometheus/prometheus.yml")))))
 
-(define qdrant-api-key
-  (get-qdrant-api-key))
-
+;; Qdrant - vector search engine
 (define oci-qdrant-service-type
-  (let* ( ;---------------- tuning ----------------
-          (qdrant-cache "12G") ;mmap + HNSW cache
+  (let* ((qdrant-cache "12G")
          (search-threads "10")
          (write-threads "2")
          (data-volume '("/var/lib/qdrant/data" . "/qdrant/storage"))
-         (gpu-enabled? #t))
+         (gpu-enabled? #t)
+         (qdrant-base-env `(("QDRANT__STORAGE__CACHE_SIZE" unquote
+                             qdrant-cache)
+                            ("QDRANT__STORAGE__MMAP_THRESHOLD" . "128M")
+                            ("QDRANT__SERVICE__MAX_SEARCH_THREADS" unquote
+                             search-threads)
+                            ("QDRANT__SERVICE__WRITE_THREADS" unquote
+                             write-threads)
+                            ("QDRANT__SERVICE__API_KEY" unquote qdrant-api-key)))
+         (qdrant-gpu-env '(("CUDA_VISIBLE_DEVICES" . "0") ("QDRANT_GPU" . "1"))))
     (oci-container-configuration (auto-start? #t)
                                  (image "qdrant/qdrant:latest")
                                  (network "host")
                                  (ports '(("6333" . "6333") ;REST + gRPC
                                           ("6334" . "6334"))) ;Prometheus metrics
                                  (volumes (list data-volume))
-                                 (extra-arguments '( ;generous ulimit – Qdrant mmaps many HNSW files
-                                                     "--ulimit"
+                                 (extra-arguments '("--ulimit"
                                                     "nofile=500000:500000"
-                                                    ;; hard RSS cap to avoid pressure on other services
                                                     "--memory=14g"
                                                     "--memory-swap=14g"))
-                                 (environment (append `(("QDRANT__STORAGE__CACHE_SIZE"
-                                                         unquote qdrant-cache)
-                                                        ("QDRANT__STORAGE__MMAP_THRESHOLD" . "128M")
-                                                        ("QDRANT__SERVICE__MAX_SEARCH_THREADS"
-                                                         unquote
-                                                         search-threads)
-                                                        ("QDRANT__SERVICE__WRITE_THREADS"
-                                                         unquote write-threads)
-                                                        ("QDRANT__SERVICE__API_KEY"
-                                                         unquote
-                                                         qdrant-api-key))
+                                 (environment (append qdrant-base-env
                                                       (if gpu-enabled?
-                                                          '(("CUDA_VISIBLE_DEVICES" . "0")
-                                                            ("QDRANT_GPU" . "1"))
+                                                          qdrant-gpu-env
                                                           '()))))))
+
+;; Solr - search platform based on Lucene
+(define oci-solr-service-type
+  (oci-container-configuration (auto-start? #t)
+                               (image "solr:latest")
+                               (network "host")
+                               (ports '(("8983" . "8983")))
+                               (volumes (list '("/var/lib/solr/data" . "/var/solr")))
+                               (command '("solr-precreate" "gettingstarted"))
+                               (extra-arguments '("--ulimit"
+                                                  "nofile=262144:262144"))
+                               (environment (list '("SOLR_HEAP" . "800m")))))
+
+;; Weaviate - vector search engine
+(define oci-weaviate-service-type
+  (oci-container-configuration (image
+                                "cr.weaviate.io/semitechnologies/weaviate:1.28.4")
+                               (network "host")
+                               (ports '(("50051" . "50051")))
+                               (environment weaviate-env)
+                               (volumes (list '("/var/lib/weaviate/data" . "/var/lib/weaviate")))))
