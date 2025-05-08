@@ -84,6 +84,7 @@
   #:use-module (gnu packages time)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages pkg-config)
+  #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
                 #:hide (python-pillow-simd))
@@ -93,6 +94,7 @@
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-crypto)
   #:use-module (gnu packages python-compression)
+  #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages web)
   #:use-module (gnu packages image-processing)
@@ -509,7 +511,7 @@ glass')")
     (home-page "https://github.com/chardet/chardet")
     (synopsis "Universal encoding detector for Python 3")
     (description "Universal encoding detector for Python 3.")
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public python-deprecated
   (package
@@ -1617,7 +1619,7 @@ parallelism.")))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-pytz))
     (native-inputs (list python-setuptools python-tomlkit python-wheel))
-    (home-page #f)
+    (home-page "https://github.com/neo4j/neo4j-python-driver")
     (synopsis "Neo4j Bolt driver for Python")
     (description "Neo4j Bolt driver for Python.")
     (license license:asl2.0)))
@@ -1688,3 +1690,38 @@ parallelism.")))
       (synopsis "Python client for the Neo4j Graph Data Science library")
       (description "Python interface for Neo4j Graph Data Science.")
       (license license:asl2.0))))
+
+(define-public python-qdrant-client
+  (package
+    (name "python-qdrant-client")
+    (version "1.14.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "qdrant_client" version))
+       (sha256
+        (base32 "03dgjcdm04zqsjjqz7cgidpxg2zwmr2hvwxn609rs2bx6r6snp6s"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-httpx ;+ http2 extra already handled by PyPI wheel
+                             python-numpy
+                             python-pydantic-2
+                             python-grpcio
+                             python-protobuf
+                             python-urllib3
+                             python-portalocker))
+    (native-inputs (list python-pytest python-poetry-core))
+    (arguments
+     (list
+      ;; Skip the test subset that needs FastEmbed/ONNXRuntime
+      #:test-flags
+      #~(list "-m" "not fastembed")
+      ;; A few tests reach for the network; disarm them.
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'check 'offline
+            (lambda _
+              (setenv "HTTPX_OFFLINE" "1"))))))
+    (home-page "https://github.com/qdrant/qdrant-client")
+    (synopsis "Python client SDK for the Qdrant vector search engine")
+    (description "Typed, sync+async SDK with local-mode support for Qdrant.")
+    (license license:asl2.0)))
