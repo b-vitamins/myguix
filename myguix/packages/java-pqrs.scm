@@ -1,12 +1,21 @@
 (define-module (myguix packages java-pqrs)
-  #:use-module (guix packages)
-  #:use-module (guix download)
   #:use-module (guix build-system trivial)
+  #:use-module (guix download)
   #:use-module (guix gexp)
-  #:use-module (guix licenses)
-  #:use-module (gnu packages java)
+  #:use-module (guix git-download)
+  #:use-module ((guix licenses)
+                #:hide (openssl))
+  #:use-module (guix packages)
+  #:use-module (guix utils)
+  #:use-module (gnu packages adns)
+  #:use-module (gnu packages bash)
   #:use-module (gnu packages compression)
-  #:use-module (gnu packages bash))
+  #:use-module (gnu packages cpp)
+  #:use-module (gnu packages databases)
+  #:use-module (gnu packages java)
+  #:use-module (gnu packages regex)
+  #:use-module (gnu packages rpc)
+  #:use-module (gnu packages tls))
 
 (define-public cypher-shell
   (package
@@ -65,3 +74,46 @@ exec \"~a\" \"$@\"~%"
      "Cypher Shell lets you execute Cypher statements and administrative
 commands against a Neo4j graph database over the Bolt protocol.")
     (license gpl3+)))
+
+(define-public apache-arrow-flight
+  (let* ( ;Patched gRPC that guards against the duplicate “re2::re2”
+         
+
+         ;; target.
+         (grpc-re2fix (package
+                        (inherit grpc)
+                        (name "grpc-re2fix")
+                        (arguments
+                         (substitute-keyword-arguments (package-arguments grpc)
+                           ((#:phases phases)
+                            #~(modify-phases #$phases
+                                (add-after 'unpack 'patch-re2-target
+                                  (lambda _
+                                    ;; Avoid “target already exists” error
+                                    (substitute* "cmake/modules/Findre2.cmake"
+                                      (("add_library\\(re2::re2 INTERFACE IMPORTED\\)")
+                                       "if(NOT TARGET re2::re2)
+  add_library(re2::re2 INTERFACE IMPORTED)
+endif()"))))))))))
+         (libcares c-ares/cmake))
+    (package
+      (inherit apache-arrow)
+      (name "apache-arrow-flight")
+      (inputs (modify-inputs (package-inputs apache-arrow)
+                (replace "grpc" grpc-re2fix)
+                (append libcares ;provides “c-ares::cares” target
+                        openssl abseil-cpp re2)))
+      (arguments
+       (substitute-keyword-arguments (package-arguments apache-arrow)
+         ((#:configure-flags orig
+           #~'())
+          #~(let* ((plugin (search-input-file %build-inputs
+                                              "/bin/grpc_cpp_plugin"))
+                   (grpc-dir (dirname (dirname (search-input-file
+                                                %build-inputs
+                                                "/lib/libgrpc.so")))))
+              (append (list "-DARROW_FLIGHT=ON" "-DPYARROW_WITH_FLIGHT=ON"
+                            "-DARROW_GRPC=ON"
+                            (string-append "-DgRPC_DIR=" grpc-dir)
+                            (string-append "-DARROW_GRPC_CPP_PLUGIN=" plugin))
+                      #$orig))))))))
