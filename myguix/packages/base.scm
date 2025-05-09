@@ -207,7 +207,12 @@
         gpustat))
 
 (define %versioning-packages
-  (list git git-lfs git-tools git-crypt pass-git-helper))
+  (list git
+        git-lfs
+        git-tools
+        git-crypt
+        pass-git-helper
+        pre-commit))
 
 (define %compression-packages
   (list tar
