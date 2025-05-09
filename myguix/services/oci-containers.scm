@@ -5,20 +5,21 @@
   #:use-module (rnrs files)
   #:use-module (rnrs io simple)
   #:use-module (srfi srfi-13)
-  #:export (oci-airflow-service-type oci-cassandra-service-type
-                                     oci-clickhouse-service-type
-                                     oci-embeddings-service-type
-                                     oci-grafana-service-type
-                                     oci-grobid-service-type
-                                     oci-janusgraph-service-type
-                                     oci-meilisearch-service-type
-                                     oci-minio-service-type
-                                     oci-neo4j-service-type
-                                     oci-ollama-service-type
-                                     oci-prometheus-service-type
-                                     oci-qdrant-service-type
-                                     oci-solr-service-type
-                                     oci-weaviate-service-type))
+  #:export (read-secret oci-airflow-service-type
+                        oci-cassandra-service-type
+                        oci-clickhouse-service-type
+                        oci-embeddings-service-type
+                        oci-grafana-service-type
+                        oci-grobid-service-type
+                        oci-janusgraph-service-type
+                        oci-meilisearch-service-type
+                        oci-minio-service-type
+                        oci-neo4j-service-type
+                        oci-ollama-service-type
+                        oci-prometheus-service-type
+                        oci-qdrant-service-type
+                        oci-solr-service-type
+                        oci-weaviate-service-type))
 
 ;; Common function to read secrets from files
 (define (read-secret path)
