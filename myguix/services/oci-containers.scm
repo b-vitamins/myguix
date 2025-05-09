@@ -42,7 +42,7 @@
 (define neo4j-password
   (read-secret "/root/neo4j.credentials"))
 (define pg-pass
-  (read-secret "/root/postgres.credentials"))
+  (read-secret "/var/lib/postgresql/airflow.pwd"))
 (define qdrant-api-key
   (read-secret "/root/qdrant.credentials"))
 
