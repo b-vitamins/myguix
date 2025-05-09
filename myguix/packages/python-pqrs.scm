@@ -1769,3 +1769,26 @@ parallelism.")))
     (description
      "This package provides a Language Server Protocol implementation for Ruff.")
     (license license:expat)))
+
+(define-public python-pylsp-ruff
+  (package
+    (name "python-pylsp-ruff")
+    (version "2.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "python_lsp_ruff" version))
+       (sha256
+        (base32 "1b0ckzzxsinryydhywvk2xvkgk181gvcz8cn8mi29vm8njqbv01z"))))
+    (arguments
+     (list
+      #:tests? #f))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-cattrs python-lsprotocol python-lsp-server
+                             python-ruff python-tomli))
+    (native-inputs (list python-pre-commit python-pytest python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/python-lsp/python-lsp-ruff")
+    (synopsis "Ruff linting plugin for pylsp")
+    (description "Ruff linting plugin for pylsp.")
+    (license license:expat)))
