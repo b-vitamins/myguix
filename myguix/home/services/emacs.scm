@@ -10,7 +10,7 @@
   #:export (my-home-emacs-service-type))
 
 (define (my-home-emacs-profile-service-type config)
-  (list emacs-next
+  (list emacs
         emacs-ace-window
         emacs-adaptive-wrap
         emacs-all-the-icons
@@ -21,9 +21,9 @@
         emacs-citar
         emacs-cmake-mode
         emacs-consult
-        emacs-consult-lsp
         emacs-consult-org-roam
         emacs-corfu
+        emacs-dap-mode
         emacs-dired-hacks
         emacs-direnv
         emacs-dockerfile-mode
@@ -33,12 +33,6 @@
         emacs-engrave-faces
         emacs-exec-path-from-shell
         emacs-f
-        emacs-flycheck
-        emacs-flycheck-guile
-        emacs-flycheck-haskell
-        emacs-flycheck-inline
-        emacs-flycheck-package
-        emacs-flycheck-rust
         emacs-geiser
         emacs-geiser-guile
         emacs-gnuplot
@@ -51,8 +45,6 @@
         emacs-json-mode
         emacs-julia-mode
         emacs-kind-icon
-        emacs-lsp-mode
-        emacs-lsp-ui
         emacs-lua-mode
         emacs-magit
         emacs-marginalia
@@ -77,6 +69,7 @@
         emacs-rainbow-delimiters
         emacs-rainbow-mode
         emacs-reformatter
+        emacs-rustic
         emacs-setup
         emacs-simple-httpd
         emacs-smartparens
