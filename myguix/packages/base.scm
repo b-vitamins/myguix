@@ -76,6 +76,7 @@
   #:use-module (gnu packages scsi)
   #:use-module (gnu packages search)
   #:use-module (gnu packages shells)
+  #:use-module (gnu packages shellutils)
   #:use-module (gnu packages storage)
   #:use-module (gnu packages sync)
   #:use-module (gnu packages syndication)
@@ -408,7 +409,8 @@
         automake
         libtool
         pkg-config
-        cypher-shell))
+        cypher-shell
+        direnv))
 
 (define %cuda-packages
   (list cuda-toolkit
