@@ -593,13 +593,13 @@ information in various formats.")
 (define-public python-openai-next
   (package
     (name "python-openai")
-    (version "1.65.4")
+    (version "1.78.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "openai" version))
        (sha256
-        (base32 "0xiw40ifpl3z7kvyi74qn0z1g7384c8ay0a7cp3gamnm4n3ca20b"))))
+        (base32 "1cv2zc0z0jrkn1lnqk66096jf7fhiqs1znxxdklni138h14yyji5"))))
     (build-system pyproject-build-system)
     (arguments
      (list
