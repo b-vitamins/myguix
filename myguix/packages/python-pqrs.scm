@@ -1725,3 +1725,22 @@ parallelism.")))
     (synopsis "Python client SDK for the Qdrant vector search engine")
     (description "Typed, sync+async SDK with local-mode support for Qdrant.")
     (license license:asl2.0)))
+
+(define-public python-apache-airflow-client
+  (package
+    (name "python-apache-airflow-client")
+    (version "2.10.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "apache_airflow_client" version))
+       (sha256
+        (base32 "18v989453hcj11x9kv5jicfplqdv0x30rlggcagqvx7jxi3ilr28"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-dateutil python-urllib3 python-pytest
+                             python-pytest-cov))
+    (native-inputs (list python-hatchling))
+    (home-page "https://pypi.org/project/apache-airflow-client")
+    (synopsis "Apache Airflow API (Stable)")
+    (description "Apache Airflow API (Stable).")
+    (license license:asl2.0)))
