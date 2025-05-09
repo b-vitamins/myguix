@@ -471,7 +471,8 @@
         python-nodriver
         python-pytest
         python-lsp-server
-        python-pylsp-mypy))
+        python-pylsp-mypy
+        python-pylsp-ruff))
 
 (define %deep-learning-framework-packages
   (list whisper-cpp-cuda llama-cpp-cuda python-scikit-learn
