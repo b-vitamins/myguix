@@ -474,7 +474,9 @@
         python-pylsp-mypy
         python-neo4j
         python-graphdatascience
-        python-qdrant-client))
+        python-qdrant-client
+        python-apache-airflow-client
+        python-minio))
 
 (define %deep-learning-framework-packages
   (list whisper-cpp-cuda llama-cpp-cuda python-scikit-learn
