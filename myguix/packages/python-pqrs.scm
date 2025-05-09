@@ -1744,3 +1744,28 @@ parallelism.")))
     (synopsis "Apache Airflow API (Stable)")
     (description "Apache Airflow API (Stable).")
     (license license:asl2.0)))
+
+(define-public python-ruff-lsp
+  (package
+    (name "python-ruff-lsp")
+    (version "0.0.62")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ruff_lsp" version))
+       (sha256
+        (base32 "03cc6fymxy5i4psvrbmpvj8y3q93gv1qsg2dqqbcnglpfn9s7ckd"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-lsprotocol python-packaging python-pygls
+                             python-ruff python-typing-extensions))
+    (native-inputs (list python-hatchling
+                         python-mypy
+                         python-pytest
+                         python-pytest-asyncio
+                         python-lsp-jsonrpc
+                         python-cattrs))
+    (home-page "https://github.com/python-lsp/python-lsp-ruff")
+    (synopsis "A Language Server Protocol implementation for Ruff.")
+    (description
+     "This package provides a Language Server Protocol implementation for Ruff.")
+    (license license:expat)))
