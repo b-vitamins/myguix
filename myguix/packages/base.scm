@@ -479,7 +479,9 @@
         python-minio
         python-meilisearch
         python-grobid-client-python
-        python-openai-next))
+        python-openai-next
+        python-pyalex
+        python-bibtexparser-1))
 
 (define %deep-learning-framework-packages
   (list whisper-cpp-cuda llama-cpp-cuda python-scikit-learn
