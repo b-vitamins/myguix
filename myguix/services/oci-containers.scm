@@ -84,14 +84,23 @@
   (list `("NEO4J_AUTH" unquote
           (string-append "neo4j/" neo4j-password))
         '("NEO4J_ACCEPT_LICENSE_AGREEMENT" . "yes")
-        '("NEO4J_server_config_override__gds__arrow__enabled" . "true")
+        '("NEO4J_gds_arrow_enabled" . "true")
+
+        ;; Memory
         '("NEO4J_server_memory_heap_initial__size" . "8G")
         '("NEO4J_server_memory_heap_max__size" . "16G")
-        '("NEO4J_db_memory_pagecache_size" . "12G")
+        '("NEO4J_server_memory_pagecache_size" . "12G")
+
+        ;; APOC import / export
         '("NEO4J_apoc_import_file_enabled" . "true")
         '("NEO4J_apoc_export_file_enabled" . "true")
         '("NEO4J_apoc_import_file_use__neo4j__config" . "true")
-        '("NEO4J_dbms_security_procedures_unrestricted" . "gds.*,apoc.*")))
+
+        ;; Unrestricted procedures
+        '("NEO4J_dbms_security_procedures_unrestricted" . "gds.*,apoc.*")
+
+        ;; Optional – pull plugins automatically
+        '("NEO4J_PLUGINS" . "[\"apoc\",\"graph-data-science\"]")))
 
 (define weaviate-modules
   (string-append "text2vec-cohere,"
