@@ -471,17 +471,7 @@
         python-nodriver
         python-pytest
         python-lsp-server
-        python-pylsp-mypy
-        python-neo4j
-        python-graphdatascience
-        python-qdrant-client
-        python-apache-airflow-client
-        python-minio
-        python-meilisearch
-        python-grobid-client-python
-        python-openai-next
-        python-pyalex
-        python-bibtexparser-1))
+        python-pylsp-mypy))
 
 (define %deep-learning-framework-packages
   (list whisper-cpp-cuda llama-cpp-cuda python-scikit-learn
