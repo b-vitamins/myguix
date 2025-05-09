@@ -713,7 +713,7 @@ information in various formats.")
 (define-public python-meilisearch
   (package
     (name "python-meilisearch")
-    (version "0.33.1")
+    (version "0.34.1")
     (source
      (origin
        (method git-fetch)
@@ -723,7 +723,7 @@ information in various formats.")
              (recursive? #t)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "04lmbcrgc4pwca8yr4fgy77zm0pd8km6vprksr4mmkw5f79907pk"))))
+        (base32 "0408yjq8wh5ljr3map2zl1l6hxwkyrqvkyg8fpfkril98h1qd26b"))))
     (build-system pyproject-build-system)
     (arguments
      (list
