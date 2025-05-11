@@ -3,14 +3,16 @@
                 #:prefix license:)
   #:use-module (guix packages)
   #:use-module (gnu packages emacs)
-  #:use-module (guix build-system glib-or-gtk)
-  #:use-module (guix gexp)
-  #:use-module (guix utils)
-  #:use-module (guix git-download)
-  #:use-module (guix build-system emacs)
+  #:use-module (gnu packages emacs-xyz)
+  #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages llvm-meta)
   #:use-module (gnu packages llvm)
-  #:use-module (gnu packages emacs-xyz))
+  #:use-module (gnu packages tex)
+  #:use-module (guix build-system emacs)
+  #:use-module (guix build-system glib-or-gtk)
+  #:use-module (guix gexp)
+  #:use-module (guix git-download)
+  #:use-module (guix utils))
 
 (define-public emacs-mjolnir-mode
   (package
@@ -276,3 +278,46 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (description
      "LaTeX YASnippet collection (not only) following the 'Short Math Guide for LaTeX' by Michael Downes and Barbara Beeton.")
     (license license:gpl3+)))
+
+(define-public emacs-org-next
+  (let* ((commit "cd2269ddb64bda7203acf2ee2e26188237a578ea")
+         (revision "1")
+         (version (git-version "9.8.0" revision commit)))
+    (package
+      (inherit emacs-org)
+      (name "emacs-org-next")
+      (version version)
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://git.tecosaur.net/tec/org-mode.git")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "13mfs7nqqia9j2d27qfb14ag13niyw9azdhgirwc0j41glq23gkk"))))
+      (arguments
+       (substitute-keyword-arguments (package-arguments emacs-org)
+         ((#:phases phases)
+          #~(modify-phases #$phases
+              (add-after 'fix-tests 'fix-more-tests
+                (lambda* (#:key inputs #:allow-other-keys)
+                  (with-directory-excursion "testing/lisp"
+                    ;; /usr/bin/env is absent in the build container
+                    (substitute* "test-ob-shell.el"
+                      (("cmdline .*" all)
+                       (string-append all "  (skip-unless nil)\n")))
+                    ;; printf corner‑cases that break under dash/BusyBox
+                    (substitute* "test-org.el"
+                      (("test-org/create-math-formula .*" all)
+                       (string-append all "  (skip-unless nil)\n"))
+                      (("test-org/format-latex-as-html .*" all)
+                       (string-append all "  (skip-unless nil)\n"))))))))))
+      (native-inputs (modify-inputs (package-native-inputs emacs-org)
+                       (append texlive-scheme-basic texlive-latex-bin
+                               texlive-beamer dvisvgm imagemagick)))
+      (synopsis "Outline-based notes manager — development branch")
+      (description
+       "This package tracks Org mode’s development branch that contains the new asynchronous LaTeX preview engine and other unreleased features.")
+      (home-page "https://git.tecosaur.net/tec/org-mode")
+      (license license:gpl3+))))
