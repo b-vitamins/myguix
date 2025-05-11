@@ -61,6 +61,7 @@
         emacs-olivetti
         emacs-orderless
         emacs-org-fragtog
+        emacs-org-next
         emacs-org-roam
         emacs-org-roam-ui
         emacs-password-store
