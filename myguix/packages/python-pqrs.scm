@@ -1806,6 +1806,10 @@ parallelism.")))
          (uri (pypi-uri "scipy" new-version))
          (sha256
           (base32 new-hash))))
+      (propagated-inputs (modify-inputs (package-propagated-inputs
+                                         python-scipy)
+                           (delete "python-numpy")
+                           (prepend python-numpy-2)))
       (inputs (modify-inputs (package-inputs python-scipy)
                 (delete "pybind11-2.10")
                 (prepend pybind11)))
