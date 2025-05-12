@@ -1792,3 +1792,23 @@ parallelism.")))
     (synopsis "Ruff linting plugin for pylsp")
     (description "Ruff linting plugin for pylsp.")
     (license license:expat)))
+
+(define-public python-scipy-next
+  (let* ((new-version "1.15.1")
+         (new-hash "1xmx5qqz07z8drmi6dv4abfzvk47vyhn7058jq69fqqlmpfpafh3"))
+    (package
+      (inherit python-scipy)
+      (name "python-scipy-next")
+      (version new-version)
+      (source
+       (origin
+         (inherit (package-source python-scipy))
+         (uri (pypi-uri "scipy" new-version))
+         (sha256
+          (base32 new-hash))))
+      (inputs (modify-inputs (package-inputs python-scipy)
+                (delete "pybind11-2.10")
+                (prepend pybind11)))
+      (native-inputs (modify-inputs (package-native-inputs python-scipy)
+                       (delete "python-cython-0.29.35")
+                       (prepend python-cython-3))))))
