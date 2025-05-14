@@ -2420,8 +2420,9 @@ as common bridge to reuse tensor and ops across frameworks.")
                       nlohmann-json
                       nccl)))
     (native-inputs (package-native-inputs python-pytorch))
-    (propagated-inputs (modify-input (package-propagated-inputs python-pytorch)
-                                     (append python-triton)))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-pytorch)
+                         (append python-triton)))
     (home-page "https://pytorch.org/")
     (synopsis "Python library for tensor computation and deep neural networks")
     (description
