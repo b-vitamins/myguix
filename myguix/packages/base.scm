@@ -220,13 +220,10 @@
 
 (define %network-packages
   (list network-manager-applet
-        net-tools
         nmap
         tcpdump
         wireshark
         traceroute
-        speedtest-cli
-        whois
         openssl
         libnatpmp))
 
