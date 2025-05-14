@@ -150,7 +150,6 @@
             %python-packages
             %perl-packages
             ;; Machine learning packages
-            %deep-learning-framework-packages
             %huggingface-packages
             ;; Search and Index bundles
             %search-packages
@@ -398,10 +397,6 @@
         python-lsp-server
         python-pylsp-mypy
         python-pylsp-ruff))
-
-(define %deep-learning-framework-packages
-  (list whisper-cpp-cuda llama-cpp-cuda python-scikit-learn
-        python-pytorch-cuda python-torchvision-cuda))
 
 (define %huggingface-packages
   (list python-huggingface-hub
