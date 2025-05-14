@@ -245,35 +245,17 @@
 
 (define %math-packages
   (list calc
-        chuffed
-        glpk
         linasm
-        libcerf
         lapack
-        clapack
-        scalapack
-        feedgnuplot
+        openblas
         gnuplot
         hdf5
         nlopt
         ipopt
-        nomad-optimizer
-        cbc
-        clp
         octave
-        fast-downward
         maxima
         wxmaxima
-        openblas
-        combinatorial-blas
-        suitesparse
-        jacal
-        nauty
-        cudd
-        python-numpy
-        python-numba
-        python-scipy
-        python-sympy))
+        nauty))
 
 (define %advanced-filesystem-packages
   (list xfsprogs
