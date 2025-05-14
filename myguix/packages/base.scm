@@ -394,7 +394,6 @@
         python-flake8
         python-black
         python-ruff
-        python-nodriver
         python-pytest
         python-lsp-server
         python-pylsp-mypy
