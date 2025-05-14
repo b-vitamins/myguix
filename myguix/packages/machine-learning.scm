@@ -2617,3 +2617,178 @@ implemented for PyTorch.")
     (synopsis "Stochastic Deep Learning for PyTorch")
     (description "Stochastic Deep Learning for @code{PyTorch}.")
     (license license:gpl3+)))
+
+(define-public python-triton
+  (package
+    (name "python-triton")
+    (version "3.3.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/triton-lang/triton")
+             ;; commit behind the 3.3.0 PyPI tarball (2025-04-09)
+             (commit "819e9c8c29ad2ae96cbd93a1d3b8a3a0f4c8f09c")
+             (recursive? #t)))
+       (file-name (git-file-name name version))
+       (patches (parameterize ((%patch-path (map (lambda (directory)
+                                                   (string-append directory
+                                                    "/myguix/patches"))
+                                                 %load-path)))
+                  (search-patches "python-trition-disable-amd-backend.patch")))
+       (sha256
+        (base32 "0vvl8qlfqad7z11ir3mxhgb8m953a1520iwkpdrmd14n9k0lyx5h"))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:configure-flags
+      #~(list (string-append "-DLLVM_DIR="
+                             (assoc-ref %build-inputs "llvm")
+                             "/lib/cmake/llvm") "-DBUILD_TESTING=OFF")
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'configure 'patch-source
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; 1. stub out googletest + drop test/ unittest/ bin/
+              (with-output-to-file "unittest/googletest.cmake"
+                (lambda ()
+                  (display "return()  # stubbed for Guix\n")))
+              (substitute* "CMakeLists.txt"
+                (("include\\(unittest/googletest\\.cmake\\)")
+                 "#")
+                (("add_subdirectory\\((test|unittest|bin)\\)")
+                 "#"))
+              ;; 2. MLIR 20 namespace rename
+              (for-each (lambda (f)
+                          (substitute* f
+                            (("call_interface_impl::")
+                             "function_interface_impl::")))
+                        (find-files "lib" "\\.(cpp|h)$"))
+              ;; 3. tiny shim for MLIRGPUOps
+              (with-output-to-file "cmake/MLIRGPUCompat.cmake"
+                (lambda ()
+                  (display
+                   "if(NOT TARGET MLIRGPUOps AND TARGET MLIRGPUDialect)
+  add_library(MLIRGPUOps INTERFACE IMPORTED)
+  set_target_properties(MLIRGPUOps PROPERTIES
+                        INTERFACE_LINK_LIBRARIES MLIRGPUDialect)
+endif()
+")))
+              (substitute* "CMakeLists.txt"
+                (("(find_package\\(MLIR[^\n]*\\)\n)" all)
+                 (string-append all
+                  "include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/MLIRGPUCompat.cmake)
+")))
+              ;; 4. block pre-built LLVM download
+              (for-each (lambda (file)
+                          (substitute* file
+                            (("download_prebuilt\\(")
+                             "raise RuntimeError(\"offline\")  # ")))
+                        (find-files "python" "check\\.py$"))
+              (setenv "TRITON_DISABLE_LLVM_DOWNLOAD" "1")
+              ;; 5. drop cmake / ninja wheels from pyproject
+              (substitute* "python/pyproject.toml"
+                ((" *\"cmake[^\"]+\",?")
+                 "")
+                ((" *\"ninja[^\"]+\",?")
+                 ""))
+              ;; 6. Remove AMD from CMakeLists to avoid building it
+              (substitute* "CMakeLists.txt"
+                (("add_subdirectory\\(third_party/amd\\)")
+                 "# add_subdirectory(third_party/amd)  # Disabled"))
+              ;; 7. Disable Proton since it requires AMD roctracer
+              (substitute* "CMakeLists.txt"
+                (("add_subdirectory\\(third_party/proton\\)")
+                 "# add_subdirectory(third_party/proton)  # Disabled - requires AMD roctracer"))
+              ;; 8. Fix MLIR 20 API changes for SCF to ControlFlow pass
+              (substitute* "python/src/passes.cc"
+                (("createSCFToControlFlowPass")
+                 "mlir::createConvertSCFToCFPass"))
+              ;; 9. make setup.py entirely offline-safe
+              (setenv "TRITON_OFFLINE_BUILD" "1")
+              ;; 10. Disable Proton build
+              (setenv "TRITON_BUILD_PROTON" "OFF")
+              ;; 11. Limit parallel build jobs
+              (setenv "MAX_JOBS" "4")
+              ;; 12. use local CUDA / tool-chain
+              (let* ((llvm (assoc-ref inputs "llvm"))
+                     (cuda (assoc-ref inputs "cuda-toolkit")))
+                (setenv "TRITON_OFFLINE_BUILD" "1")
+                (setenv "TRITON_LLVM_INSTALL_DIR" llvm)
+                (setenv "LLVM_SYSPATH" llvm)
+                (setenv "CUDAToolkit_ROOT" cuda)
+                (setenv "CUDA_HOME" cuda))))
+          ;; ─────────────────────────────────────────────────────────
+          ;; build & install the wheel after the C++ libs
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (with-directory-excursion "../source/python"
+                (let* ((out (assoc-ref outputs "out"))
+                       (llvm (assoc-ref inputs "llvm"))
+                       (rapidjson (assoc-ref inputs "rapidjson"))
+                       (tmp-home (string-append (getenv "TMPDIR")
+                                                "/triton-home")))
+                  ;; Create a writable HOME directory for the build
+                  (mkdir-p tmp-home)
+                  (setenv "HOME" tmp-home)
+                  (setenv "LLVM_SYSPATH" llvm)
+                  ;; For offline builds, setup.py needs JSON_SYSPATH
+                  (setenv "JSON_SYSPATH" rapidjson)
+                  ;; Disable Proton
+                  (setenv "TRITON_BUILD_PROTON" "OFF")
+                  ;; Limit parallel jobs to prevent memory exhaustion
+                  (setenv "MAX_JOBS" "4")
+                  (let ((common-env (list (string-append "LLVM_SYSPATH=" llvm)
+                                          (string-append "JSON_SYSPATH="
+                                                         rapidjson)
+                                          (string-append "HOME=" tmp-home)
+                                          "TRITON_BUILD_PROTON=OFF"
+                                          "MAX_JOBS=4")))
+                    (apply invoke "env"
+                           (append common-env
+                                   (list "python"
+                                         "-m"
+                                         "build"
+                                         "--wheel"
+                                         "--no-isolation"
+                                         ".")))
+                    (apply invoke "env"
+                           (append common-env
+                                   (list "python" "-m" "installer"
+                                         (string-append "--prefix=" out)
+                                         (car (find-files "dist" "\\.whl$"))))))))))
+          (delete 'check))))
+    (inputs (list clang-20
+                  llvm-for-triton
+                  cuda-toolkit
+                  libffi
+                  rapidjson
+                  python
+                  python-numpy
+                  python-packaging
+                  python-filelock
+                  python-psutil
+                  python-sympy))
+    (native-inputs (list cmake
+                         ninja
+                         pkg-config
+                         llvm-for-triton
+                         python-pypa-build ;python -m build
+                         python-installer ;python -m installer
+                         python-wrapper
+                         pybind11))
+    (propagated-inputs (list cuda-toolkit))
+    (native-search-paths
+     (list (search-path-specification
+            (variable "CUDA_HOME")
+            (files '("")))))
+    (home-page "https://github.com/triton-lang/triton")
+    (synopsis "JIT-compile high-performance custom GPU kernels from Python")
+    (description
+     "Triton is an open-source language and compiler that lets you write
+high-performance GPU code directly in Python.  This Guix package ships version
+3.3.0, built against LLVM 20 and the NVIDIA CUDA toolkit, with all online
+downloads disabled for reproducible, network-free builds.")
+    (license license:asl2.0)
+    (supported-systems (list "x86_64-linux"))))
+
