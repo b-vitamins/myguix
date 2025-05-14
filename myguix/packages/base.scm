@@ -280,7 +280,6 @@
         s3cmd
         rsync
         borg
-        axel
         qbittorrent-enhanced
         yt-dlp
         aria2
