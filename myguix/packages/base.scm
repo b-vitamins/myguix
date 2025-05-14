@@ -149,7 +149,6 @@
             %rust-packages
             %python-packages
             %perl-packages
-            %opencog-packages
             ;; Font bundles
             %general-fonts
             %document-fonts
@@ -396,14 +395,6 @@
 
 (define %perl-packages
   (list perl perl-critic perltidy))
-
-(define %opencog-packages
-  (list agi-bio
-        opencog
-        cogutil
-        cogserver
-        attention
-        atomspace))
 
 (define %general-fonts
   (list font-dejavu font-bitstream-vera font-abattis-cantarell font-liberation
