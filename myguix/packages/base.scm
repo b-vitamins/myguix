@@ -344,8 +344,7 @@
   (list blender kdenlive obs))
 
 (define %development-packages
-  (list gcc-toolchain
-        direnv))
+  (list gcc-toolchain direnv))
 
 (define %cuda-packages
   (list cuda-toolkit
@@ -388,17 +387,7 @@
         `(,rust "tools")
         `(,rust "cargo")
         rust-clippy-0.0.302
-        rust-analyzer
-        rust-cc-1
-        rust-gcc-0.3
-        rust-libc-0.2
-        rust-pkg-config-0.3
-        rust-cxx-1
-        rust-tikv-jemalloc-sys-0.6
-        rust-tikv-jemallocator-0.6
-        rust-jemallocator-0.5
-        rust-cxx-gen-0.7
-        rust-cxx-build-1))
+        rust-analyzer))
 
 (define %python-packages
   (list python
