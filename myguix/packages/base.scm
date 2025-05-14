@@ -232,12 +232,7 @@
         google-chrome-stable
         icedove
         solaar
-        gnome-tweaks
-        signal-desktop
-        zoom
-        anytype
-        zotero
-        liferea))
+        gnome-tweaks))
 
 (define %audio-packages
   (list pulseaudio
