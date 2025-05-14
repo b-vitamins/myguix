@@ -62,6 +62,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix build-system bazel)
+  #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages maths)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
