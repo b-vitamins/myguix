@@ -211,17 +211,12 @@
 
 (define %compression-packages
   (list tar
-        zip
         gzip
         zstd
         (list zstd "lib")
-        bzip2
         xz
-        unzip
-        unrar
         p7zip
-        lz4
-        lrzip))
+        lz4))
 
 (define %network-packages
   (list network-manager-applet
