@@ -271,10 +271,7 @@
         davfs2
         cifs-utils
         samba
-        wsdd
-        ncftp
-        vsftpd
-        lftp))
+        wsdd))
 
 (define %file-transfer-packages
   (list wget
