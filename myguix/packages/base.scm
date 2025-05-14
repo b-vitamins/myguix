@@ -149,8 +149,6 @@
             %rust-packages
             %python-packages
             %perl-packages
-            ;; Machine learning packages
-            %huggingface-packages
             ;; Search and Index bundles
             %search-packages
             %opencog-packages
@@ -397,17 +395,6 @@
         python-lsp-server
         python-pylsp-mypy
         python-pylsp-ruff))
-
-(define %huggingface-packages
-  (list python-huggingface-hub
-        python-safetensors
-        python-tokenizers
-        python-accelerate
-        python-datasets
-        python-diffusers
-        python-transformers
-        python-optimum
-        python-peft))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
