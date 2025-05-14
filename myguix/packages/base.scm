@@ -235,11 +235,7 @@
         gnome-tweaks))
 
 (define %audio-packages
-  (list pulseaudio
-        pavucontrol
-        pulsemixer
-        alsa-plugins
-        pipewire
+  (list pipewire
         wireplumber))
 
 (define %bluetooth-packages
