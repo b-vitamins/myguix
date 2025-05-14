@@ -344,21 +344,7 @@
   (list blender kdenlive obs))
 
 (define %development-packages
-  (list node
-        openjdk
-        gcc-toolchain
-        gfortran-toolchain
-        jemalloc
-        gdb
-        patchelf
-        strace
-        ltrace
-        cmake
-        autoconf
-        automake
-        libtool
-        pkg-config
-        cypher-shell
+  (list gcc-toolchain
         direnv))
 
 (define %cuda-packages
