@@ -149,8 +149,6 @@
             %rust-packages
             %python-packages
             %perl-packages
-            ;; Search and Index bundles
-            %search-packages
             %opencog-packages
             ;; Font bundles
             %general-fonts
@@ -398,21 +396,6 @@
 
 (define %perl-packages
   (list perl perl-critic perltidy))
-
-(define %search-packages
-  (list xapian
-        omega
-        tocc
-        bool
-        dataparksearch
-        fsearch
-        recoll
-        plocate
-        xapers
-        ugrep
-        ripgrep
-        the-silver-searcher
-        cloc))
 
 (define %opencog-packages
   (list agi-bio
