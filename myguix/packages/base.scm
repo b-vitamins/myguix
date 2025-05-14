@@ -219,7 +219,7 @@
         libnatpmp))
 
 (define %desktop-packages
-  (list firefox google-chrome-stable icedove solaar gnome-tweaks))
+  (list firefox google-chrome-stable icedove gnome-tweaks))
 
 (define %audio-packages
   (list pipewire wireplumber))
