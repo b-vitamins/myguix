@@ -171,18 +171,15 @@
             %unicode-fonts))
 
 (define %core-packages
-  (list clamav
-        coreutils
+  (list coreutils
         binutils
         findutils
         pciutils
         tree
         grep
         sed
-        plocate
         shepherd-run
         parallel
-        screen
         tmux
         alacritty
         fontconfig
@@ -404,7 +401,6 @@
         gcc-toolchain
         gfortran-toolchain
         jemalloc
-        llvm
         gdb
         patchelf
         strace
