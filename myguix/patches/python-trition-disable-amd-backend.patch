@@ -1,0 +1,69 @@
+From: Ayan Das <bvits@riseup.net>
+Date: Wed, 14 May 2025 13:22:24 +0530
+Subject: [PATCH] Disable AMD backend to avoid MLIR 20 compatibility issues
+
+This patch disables the AMD backend in Triton 3.3.0 to avoid compilation
+errors due to MLIR API changes between LLVM 17 and LLVM 20. The AMD backend
+code uses deprecated APIs that have been removed or changed in MLIR 20.
+
+By disabling only the AMD backend, we can still build Triton with NVIDIA
+support while avoiding these compatibility issues.
+
+---
+ python/setup.py | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+--- a/python/setup.py	2025-05-14 13:22:03.181026036 +0530
++++ b/python/setup.py	2025-05-14 13:22:24.205173919 +0530
+@@ -52,6 +52,9 @@
+         # Initialize submodule if there is one for in-tree backends.
+         if not is_external:
+             root_dir = os.path.join(os.pardir, "third_party")
++            # Skip AMD backend
++            if backend_name == "amd":
++                return None
+             assert backend_name in os.listdir(
+                 root_dir), f"{backend_name} is requested for install but not present in {root_dir}"
+ 
+@@ -97,7 +100,12 @@
+     # Copy all in-tree backends under triton/third_party.
+     @staticmethod
+     def copy(active):
+-        return [BackendInstaller.prepare(backend) for backend in active]
++        results = []
++        for backend in active:
++            prepared = BackendInstaller.prepare(backend)
++            if prepared is not None:
++                results.append(prepared)
++        return results
+ 
+     # Copy all external plugins provided by the `TRITON_PLUGIN_DIRS` env var.
+     # TRITON_PLUGIN_DIRS is a semicolon-separated list of paths to the plugins.
+@@ -418,10 +426,11 @@
+         if cupti_include_dir == "":
+             cupti_include_dir = os.path.join(get_base_dir(), "third_party", "nvidia", "backend", "include")
+         cmake_args += ["-DCUPTI_INCLUDE_DIR=" + cupti_include_dir]
+-        roctracer_include_dir = get_env_with_keys(["TRITON_ROCTRACER_INCLUDE_PATH"])
+-        if roctracer_include_dir == "":
+-            roctracer_include_dir = os.path.join(get_base_dir(), "third_party", "amd", "backend", "include")
+-        cmake_args += ["-DROCTRACER_INCLUDE_DIR=" + roctracer_include_dir]
++        # Skip AMD-related includes when AMD backend is disabled
++        # roctracer_include_dir = get_env_with_keys(["TRITON_ROCTRACER_INCLUDE_PATH"])
++        # if roctracer_include_dir == "":
++        #     roctracer_include_dir = os.path.join(get_base_dir(), "third_party", "amd", "backend", "include")
++        # cmake_args += ["-DROCTRACER_INCLUDE_DIR=" + roctracer_include_dir]
+         return cmake_args
+ 
+     def build_extension(self, ext):
+@@ -594,7 +603,8 @@
+     url_func=lambda system, arch, version:
+     f"https://developer.download.nvidia.com/compute/cuda/redist/cuda_cupti/{system}-{arch}/cuda_cupti-{system}-{arch}-{version}-archive.tar.xz",
+ )
+-backends = [*BackendInstaller.copy(["nvidia", "amd"]), *BackendInstaller.copy_externals()]
++# Only nvidia backend for now (AMD disabled)
++backends = [*BackendInstaller.copy(["nvidia"]), *BackendInstaller.copy_externals()]
+ 
+ 
+ def add_link_to_backends():
+-- 
+2.34.1
