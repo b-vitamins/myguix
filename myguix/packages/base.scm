@@ -204,10 +204,7 @@
         gpustat))
 
 (define %versioning-packages
-  (list git
-        git-lfs
-        git-crypt
-        pre-commit))
+  (list git git-lfs git-crypt pre-commit))
 
 (define %compression-packages
   (list tar
@@ -228,18 +225,13 @@
         libnatpmp))
 
 (define %desktop-packages
-  (list firefox
-        google-chrome-stable
-        icedove
-        solaar
-        gnome-tweaks))
+  (list firefox google-chrome-stable icedove solaar gnome-tweaks))
 
 (define %audio-packages
-  (list pipewire
-        wireplumber))
+  (list pipewire wireplumber))
 
 (define %bluetooth-packages
-  (list bluez-alsa bluez blueman sbc))
+  (list bluez blueman sbc))
 
 (define %basic-filesystem-packages
   (list parted
