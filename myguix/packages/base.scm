@@ -260,10 +260,7 @@
 (define %advanced-filesystem-packages
   (list xfsprogs
         btrfs-progs
-        jfsutils
         f2fs-tools
-        ntfs-3g
-        ceph
         lvm2
         nfs-utils
         mdadm))
