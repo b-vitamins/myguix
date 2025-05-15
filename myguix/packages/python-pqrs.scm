@@ -1816,3 +1816,21 @@ parallelism.")))
       (native-inputs (modify-inputs (package-native-inputs python-scipy)
                        (delete "python-cython-0.29.35")
                        (prepend python-cython-3))))))
+
+(define-public python-pyright
+  (package
+    (name "python-pyright")
+    (version "1.1.400")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyright" version))
+       (sha256
+        (base32 "1nvbd02vyn2q6c8r4q433wwpsbyj47l2hcpviyh7p90s910bm8xq"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-nodeenv python-typing-extensions))
+    (native-inputs (list python-twine python-setuptools python-wheel))
+    (home-page "https://github.com/RobertCraigie/pyright-python")
+    (synopsis "Command line wrapper for pyright")
+    (description "Command line wrapper for pyright.")
+    (license license:expat)))
