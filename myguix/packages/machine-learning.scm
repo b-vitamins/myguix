@@ -14,6 +14,7 @@
   #:use-module (gnu packages docker)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
+  #:use-module (gnu packages golang)
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages image-processing)
@@ -40,11 +41,13 @@
   #:use-module ((gnu packages python-xyz)
                 #:hide (python-pillow-simd))
   #:use-module (gnu packages rpc)
+  #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages serialization)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages time)
   #:use-module (gnu packages tls)
+  #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
   #:use-module (gnu packages web)
   #:use-module (gnu packages xml)
@@ -2471,7 +2474,7 @@ Note: This package provides NVIDIA GPU support.")
                 (setenv "TORCHVISION_LIBRARY"
                         (string-append jpegdir "/lib/"))))))))
     (inputs (list ffmpeg-cuda libpng libjpeg-turbo))
-    (propagated-inputs (list python-numpy
+    (propagated-inputs (list python-numpy-2
                              python-typing-extensions
                              python-requests
                              python-pillow
@@ -2793,3 +2796,78 @@ downloads disabled for reproducible, network-free builds.")
     (license license:asl2.0)
     (supported-systems (list "x86_64-linux"))))
 
+(define-public python-eval-type-backport
+  (package
+    (name "python-eval-type-backport")
+    (version "0.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "eval_type_backport" version))
+       (sha256
+        (base32 "1ha9v3kz12kr5ip4i1w3cw3mxbs6339i88yhb39mpfqyy166nmzh"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list go
+                         rust
+                         python-pytest
+                         python-setuptools
+                         python-setuptools-scm
+                         python-wheel))
+    (home-page "https://github.com/alexmojaki/eval_type_backport")
+    (synopsis
+     "Like `typing._eval_type`, but lets older Python versions use newer typing features.")
+    (description
+     "Like `typing._eval_type`, but lets older Python versions use newer typing
+features.")
+    (license license:expat)))
+
+(define-public python-wandb
+  (package
+    (name "python-wandb")
+    (version "0.18.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "wandb" version))
+       (sha256
+        (base32 "1a9alrlcflbvy6gm9m63q0886whxl7pi78kb69hz16hy6575f7qz"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;upstream tests hit the network
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'skip-gpu-stats
+            (lambda _
+              ;; For 0.18.x the flag is WANDB_BUILD_SKIP_NVIDIA
+              (setenv "WANDB_BUILD_SKIP_NVIDIA" "true")))
+          (add-before 'build 'prepare-go
+            (lambda _
+              (setenv "HOME"
+                      (getcwd))
+              (setenv "GOTOOLCHAIN" "local")
+              (setenv "GOFLAGS" "-buildvcs=false"))))))
+    ;; build-time tools only
+    (native-inputs (list go-1.23 python-hatchling python-typing-extensions))
+    ;; runtime Python deps
+    (propagated-inputs (list python-click
+                             python-docker-pycreds
+                             python-eval-type-backport
+                             python-gitpython
+                             python-platformdirs
+                             python-protobuf
+                             python-psutil
+                             python-pydantic
+                             python-pyyaml
+                             python-requests
+                             python-sentry-sdk
+                             python-setproctitle
+                             python-setuptools
+                             python-typing-extensions))
+    (home-page "https://github.com/wandb/wandb")
+    (synopsis
+     "CLI and Python library for interacting with the Weights & Biases API")
+    (description
+     "Weights & Biases lets you track machine-learning experiments, version
+datasets and models, and collaborate with your team.")
+    (license license:expat)))
