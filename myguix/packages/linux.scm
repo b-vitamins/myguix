@@ -135,34 +135,43 @@ some freedo package or an output of package-version procedure."
          (inputs (map gexp-input-thing
                       (extract-gexp-inputs pristine-source)))
          (sources (filter origin? inputs))
-         (hash (find-source-hash sources url))
-         (base (customize-linux #:name name
-                                #:linux freedo
+         (hash (find-source-hash sources url)))
+    (package
+      (inherit (customize-linux #:name name
+                                #:linux (package
+                                          (inherit freedo)
+                                          (version version)
+                                          (arguments
+                                           (substitute-keyword-arguments (package-arguments
+                                                                          freedo)
+                                             ((#:phases phases
+                                               '%standard-phases)
+                                              #~(modify-phases #$phases
+                                                  ;; Make sure the resulted package is compatible with
+                                                  ;; ‘customize-linux’.
+                                                  (add-before 'configure 'myguix-configure
+                                                    (lambda args
+                                                      (let ((defconfig (format
+                                                                        #f
+                                                                        "arch/~a/configs/myguix_defconfig"
+                                                                        #$(linux-srcarch))))
+                                                        (apply (assoc-ref #$phases
+                                                                          'configure)
+                                                               args)
+                                                        (modify-defconfig
+                                                         ".config"
+                                                         '#$(get-extra-configs
+                                                             this-package))
+                                                        (invoke "make"
+                                                         "savedefconfig")
+                                                        (rename-file
+                                                         "defconfig" defconfig)))))))))
                                 #:source (origin
                                            (method url-fetch)
                                            (uri url)
                                            (hash hash))
                                 #:configs configs
-                                #:defconfig defconfig)))
-    (package
-      (inherit base)
-      (version version)
-      (arguments
-       (substitute-keyword-arguments (package-arguments base)
-         ((#:phases phases)
-          #~(modify-phases #$phases
-              ;; Make sure the resulted package is compatible with
-              ;; ‘customize-linux’.
-              (add-before 'configure 'myguix-configure
-                (lambda _
-                  (let ((defconfig (format #f
-                                           "arch/~a/configs/myguix_defconfig"
-                                           #$(linux-srcarch))))
-                    (invoke "make" "defconfig")
-                    (modify-defconfig ".config"
-                                      '#$(get-extra-configs this-package))
-                    (invoke "make" "savedefconfig")
-                    (rename-file "defconfig" defconfig))))))))
+                                #:defconfig defconfig))
       (home-page "https://www.kernel.org/")
       (synopsis "Linux kernel with nonfree binary blobs included")
       (description
