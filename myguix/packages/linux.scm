@@ -95,7 +95,7 @@ some freedo package or an output of package-version procedure."
                  ;; hardware requiring non-free firmware.  If a configuration
                  ;; option does work under linux-libre, it should go into Guix
                  ;; actual.
-                 '(;; Driver for MT7612U-based wireless USB 3.0 dongles.
+                 '( ;Driver for MT7612U-based wireless USB 3.0 dongles.
                     ("3.10" . "CONFIG_MT76x2U=m")
                    ;; Driver for MediaTek mt7921e wireless chipset
                    ("5.15" . "CONFIG_MT7921E=m")
@@ -1313,7 +1313,7 @@ driver:
 (define-public intel-microcode
   (package
     (name "intel-microcode")
-    (version "20241029")
+    (version "20250512")
     (source
      (origin
        (method git-fetch)
@@ -1323,7 +1323,7 @@ driver:
              (commit (string-append "microcode-" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "05qb123zqby1x7bxbsj0wz3gc19kwbh0pxdm7x3i8q60d14wwbl9"))))
+        (base32 "0da4aj0hpj6xn9vfb0k7mznndv53ihbv3mhjz71skwmy1vbibay5"))))
     (build-system copy-build-system)
     (arguments
      (list
