@@ -174,7 +174,7 @@
 (define-public gmmlib
   (package
     (name "gmmlib")
-    (version "22.7.0")
+    (version "22.7.2")
     (source
      (origin
        (method git-fetch)
@@ -183,7 +183,7 @@
              (commit (string-append "intel-gmmlib-" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0p7zalcydk00csnklhabv6sd6iv42b8gfnnpw2rq2h8gm98vl7j9"))))
+        (base32 "0ijvcmg33mmhc4sr76qgwbiacpnzbja7lh9fnm0scf8vysydlnjd"))))
     (build-system cmake-build-system)
     (arguments
      ;; Tests are run as part of the normal build step
