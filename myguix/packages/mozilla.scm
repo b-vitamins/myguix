@@ -20,7 +20,7 @@
 ;;; Copyright © 2021, 2024 Brice Waegeneire <brice@waegenei.re>
 ;;; Copyright © 2021, 2022, 2023 John Kehayias <john.kehayias@protonmail.com>
 ;;; Copyright © 2022 Pierre Langlois <pierre.langlois@gmx.com>
-;;; Copyright © 2023 Tomas Volf <wolf@wolfsden.cz>
+;;; Copyright © 2023-2025 Tomas Volf <wolf@wolfsden.cz>
 ;;; Copyright © 2025 Nicolas Graves <ngraves@ngraves.fr>
 
 (define-module (myguix packages mozilla)
@@ -83,7 +83,6 @@
 ;;; but since in Guix only the latest packaged Rust is officially supported,
 ;;; it is a tradeoff worth making.
 ;;; 0: https://firefox-source-docs.mozilla.org/writing-rust-code/update-policy.html
-;; The `rust' package is too old.
 (define-public rust-firefox-esr
   rust)
 (define-public rust-firefox
@@ -568,7 +567,7 @@ Release (ESR) version.")
                                               "/myguix/patches") %load-path)
                                     patch))
                      '("firefox-restore-desktop-files.patch"
-                       "firefox-esr-compare-paths.patch"
+                       "firefox-ge-138-compare-paths.patch"
                        "firefox-use-system-wide-dir.patch")))
        (sha256
         (base32 "0mjh2if31ibx68a66cvxh5sa20xb78gdn9wdw0wv745dinq0vlrz"))))
@@ -598,6 +597,7 @@ Release (ESR) version.")
               (replace "icu4c" icu4c-76)))
     (native-inputs (modify-inputs (package-native-inputs firefox-esr)
                      (replace "rust" rust-firefox)
+                     (replace "rust-cbindgen" rust-cbindgen-0.28)
                      (replace "rust:cargo"
                               `(,rust-firefox "cargo"))))
     (description
@@ -606,5 +606,7 @@ the official icon and the name \"firefox\".")))
 
 ;; As of Firefox 121.0, Firefox uses Wayland by default. This means we no
 ;; longer need a seperate package for Firefox on Wayland.
+(define-public firefox-esr/wayland
+  (deprecated-package "firefox-esr-wayland" firefox-esr))
 (define-public firefox-wayland
   (deprecated-package "firefox-wayland" firefox))
