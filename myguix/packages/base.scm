@@ -219,7 +219,7 @@
         libnatpmp))
 
 (define %desktop-packages
-  (list firefox google-chrome-stable icedove))
+  (list firefox google-chrome-stable icedove anytype zotero))
 
 (define %audio-packages
   (list pipewire wireplumber))
