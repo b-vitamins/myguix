@@ -107,7 +107,7 @@ some freedo package or an output of package-version procedure."
 (define* (corrupt-linux freedo
                         #:key (name "linux")
                         (configs "")
-                        (defconfig #f)
+                        (defconfig "myguix_defconfig")
                         (get-extra-configs myguix-extra-linux-options))
   
   ;; TODO: This very directly depends on guix internals.
@@ -153,19 +153,16 @@ some freedo package or an output of package-version procedure."
           #~(modify-phases #$phases
               ;; Make sure the resulted package is compatible with
               ;; ‘customize-linux’.
-              (add-before 'configure 'nonguix-configure
+              (add-before 'configure 'myguix-configure
                 (lambda _
-                  (unless #$defconfig
-                    (let ((guix_defconfig (format #f
-                                           "arch/~a/configs/guix_defconfig"
+                  (let ((defconfig (format #f
+                                           "arch/~a/configs/myguix_defconfig"
                                            #$(linux-srcarch))))
-                      (invoke "make" "defconfig")
-                      (modify-defconfig ".config"
-                                        '#$(get-extra-configs (package-version
-                                                               this-package)))
-                      (invoke "make" "savedefconfig")
-                      (rename-file "defconfig" guix_defconfig)))))))))
-
+                    (invoke "make" "defconfig")
+                    (modify-defconfig ".config"
+                                      '#$(get-extra-configs this-package))
+                    (invoke "make" "savedefconfig")
+                    (rename-file "defconfig" defconfig))))))))
       (home-page "https://www.kernel.org/")
       (synopsis "Linux kernel with nonfree binary blobs included")
       (description
