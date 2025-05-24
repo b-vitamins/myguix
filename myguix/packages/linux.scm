@@ -1376,7 +1376,7 @@ documented in the respective processor revision guides.")
 (define-public sof-firmware
   (package
     (name "sof-firmware")
-    (version "2024.06")
+    (version "2025.01.1")
     (source
      (origin
        (method url-fetch)
@@ -1384,7 +1384,7 @@ documented in the respective processor revision guides.")
              "https://github.com/thesofproject/sof-bin/releases/download/v"
              version "/sof-bin-" version ".tar.gz"))
        (sha256
-        (base32 "1mnp0r1m1qgspgafqwxna90n9knxxclzcls9jnl3fs5mbcla672q"))))
+        "08w3z183cva8bg2yynljrxl2j4nl3xyv5mkljq6ips25qbci0qm3")))
     (build-system copy-build-system)
     (arguments
      `(#:install-plan (list (list "sof" "lib/firmware/intel/sof")
@@ -1393,7 +1393,8 @@ documented in the respective processor revision guides.")
                             (list "sof-ipc4" "lib/firmware/intel/sof-ipc4")
                             (list "sof-ipc4-tplg"
                                   "lib/firmware/intel/sof-ipc4-tplg")
-                            (list "sof-tplg" "lib/firmware/intel/sof-tplg"))))
+                            ("sof-tplg" "lib/firmware/intel/sof-tplg")
+                            ("sof-ipc4-lib" "lib/firmware/intel/sof-ipc4-lib"))))
     (home-page "https://www.sofproject.org")
     (synopsis "Sound Open Firmware")
     (description
