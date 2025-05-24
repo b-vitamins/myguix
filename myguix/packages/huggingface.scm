@@ -394,3 +394,25 @@ and interface with their specific functionality.")
     (synopsis "Parameter-Efficient Fine-Tuning (PEFT)")
     (description "Parameter-Efficient Fine-Tuning (PEFT).")
     (license license:asl2.0)))
+
+(define-public python-timm
+  (package
+    (name "python-timm")
+    (version "1.0.15")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "timm" version))
+       (sha256
+        (base32 "0m8hkf3p8s7r6vjnpnxagrhh9ndfkmarp2k0dq2mymln1k1knskm"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
+    (propagated-inputs (list python-huggingface-hub python-pyyaml
+                             python-safetensors python-pytorch-cuda
+                             python-torchvision-cuda))
+    (native-inputs (list python-pdm-backend))
+    (home-page "https://github.com/huggingface/pytorch-image-models")
+    (synopsis "PyTorch Image Models")
+    (description "@code{PyTorch} Image Models.")
+    (license license:asl2.0)))
