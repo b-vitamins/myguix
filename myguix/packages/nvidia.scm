@@ -1242,8 +1242,8 @@ NVIDIA Management Library")
                                      ((or "." "..")
                                       #f)
                                      (_ #t))))
-                (copy-recursively "cuda_nvcc/nvvm/libdevice"
-                                  (string-append #$output "/nvvm/libdevice")))
+                (copy-recursively "cuda_nvcc/nvvm"
+                                  (string-append #$output "/nvvm")))
               (symlink (string-append #$output "/lib/stubs")
                        (string-append #$output "/lib64/stubs"))))
           (add-after 'install 'symlink-libcuda
