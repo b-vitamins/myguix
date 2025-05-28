@@ -29,10 +29,18 @@ index 2f86380..336d33d 100644
  #define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 0
  #endif
 diff --git a/miniz_zip.h b/miniz_zip.h
-index 876d844..da0f816 100644
+index 876d844..c9aa987 100644
 --- a/miniz_zip.h
 +++ b/miniz_zip.h
-@@ -151,7 +151,7 @@ typedef enum {
+@@ -94,6 +94,7 @@ typedef enum {
+     MZ_ZIP_FLAG_IGNORE_PATH = 0x0200,
+     MZ_ZIP_FLAG_COMPRESSED_DATA = 0x0400,
+     MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY = 0x0800,
++    MZ_ZIP_FLAG_DO_NOT_COMPUTE_CRC32 = 0x80000,
+     MZ_ZIP_FLAG_VALIDATE_LOCATE_FILE_FLAG = 0x1000, /* if enabled, mz_zip_reader_locate_file() will be called on each file as its validated to ensure the func finds the file in the central dir (intended for testing) */
+     MZ_ZIP_FLAG_VALIDATE_HEADERS_ONLY = 0x2000,     /* validate the local headers, but don't decompress the entire file and check the crc32 */
+     MZ_ZIP_FLAG_WRITE_ZIP64 = 0x4000,               /* always use the zip64 file format, instead of the original zip file format with automatic switch to zip64. Use as flags parameter with mz_zip_writer_init*_v2 */
+@@ -151,7 +152,7 @@ typedef enum {
      MZ_ZIP_TOTAL_ERRORS
  } mz_zip_error;
  
