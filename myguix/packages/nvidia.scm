@@ -1449,7 +1449,7 @@ autotuning.")
 (define-public cutlass
   (package
     (name "cutlass")
-    (version "3.6.0")
+    (version "3.8.0")
     (home-page "https://github.com/NVIDIA/cutlass")
     (source
      (origin
@@ -1459,7 +1459,7 @@ autotuning.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1j7fpy160qx6m2zyjkdcmr5ww4w0i6d8y0qfwyk2nrqy3slibcqm"))))
+        (base32 "1s9cv58hd0jqxq6dh5k825waaaidkp5ngld9lyh1wfjxlinfb350"))))
     (build-system cmake-build-system)
     (arguments
      (list
