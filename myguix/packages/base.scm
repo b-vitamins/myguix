@@ -353,8 +353,7 @@
         tensorpipe-cuda
         magma-cuda
         ffmpeg-cuda
-        mpv-cuda
-        nvidia-container-toolkit))
+        mpv-cuda))
 
 (define %tree-sitter-packages
   (list tree-sitter
