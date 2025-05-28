@@ -1,5 +1,5 @@
 diff --git a/miniz.h b/miniz.h
-index 9fcfffc..258c597 100644
+index 9fcfffc..fa3fec8 100644
 --- a/miniz.h
 +++ b/miniz.h
 @@ -126,7 +126,7 @@
@@ -28,3 +28,22 @@ index 9fcfffc..258c597 100644
  #else
  #define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 0
  #endif
+@@ -1074,7 +1073,8 @@ typedef enum {
+     MZ_ZIP_FLAG_ASCII_FILENAME = 0x10000,
+     /*After adding a compressed file, seek back
+     to local file header and set the correct sizes*/
+-    MZ_ZIP_FLAG_WRITE_HEADER_SET_SIZE = 0x20000
++    MZ_ZIP_FLAG_WRITE_HEADER_SET_SIZE = 0x20000,
++    MZ_ZIP_FLAG_DO_NOT_COMPUTE_CRC32 = 0x80000
+ } mz_zip_flags;
+ 
+ typedef enum {
+@@ -1124,7 +1124,7 @@ typedef enum {
+     MZ_ZIP_TOTAL_ERRORS
+ } mz_zip_error;
+ 
+-typedef struct
++typedef struct mz_zip_archive
+ {
+     mz_uint64 m_archive_size;
+     mz_uint64 m_central_directory_file_ofs;
