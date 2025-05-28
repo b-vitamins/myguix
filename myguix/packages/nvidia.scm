@@ -1235,14 +1235,14 @@ NVIDIA Management Library")
 (define-public cuda-toolkit
   (package
     (name "cuda-toolkit")
-    (version "12.4.0")
+    (version "12.8.0")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run")
+        "https://developer.download.nvidia.com/compute/cuda/12.8.0/local_installers/cuda_12.8.0_570.86.10_linux.run")
        (sha256
-        (base32 "05vxwn91hhrc57p8vr3xi5dbjiwdnwdnp2xnrmshajd9xks45a76"))))
+        (base32 "1y4m0qh886zjck3zd2jf2q4fqa6vp40iskwjqhv4wk6rsvf6f231"))))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
     (outputs '("out"))
