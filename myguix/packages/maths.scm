@@ -37,7 +37,7 @@
 (define-public magma-cuda
   (package
     (name "magma-cuda")
-    (version "2.8.0")
+    (version "2.9.0")
     (source
      (origin
        (method git-fetch)
@@ -46,30 +46,26 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0ad657bhlmqynk17hqwwz9qmw41ydgc48s214l88zr1k8vmq35fi"))))
+        (base32 "00ypz9wg5cshqilzisizwncnvzdyidfz6fxgskf2m23avy4p8pk5"))))
     (supported-systems '("x86_64-linux"))
     (build-system cmake-build-system)
     (native-inputs (list patchelf-0.16 which python perl pkg-config))
     (inputs (list gcc cuda-toolkit openblas))
-    (propagated-inputs (list nvidia-driver))
     (arguments
      (list
       #:validate-runpath? #f
       #:phases
       #~(modify-phases %standard-phases
           (add-before 'configure 'fix-shebang
-            (lambda* (#:key inputs
-                      (source-directory ".") #:allow-other-keys)
-              (substitute* (string-append source-directory "/tools/codegen.py")
-                (("/usr/bin/env")
-                 (which "env"))
-                (("python")
-                 (which "python3"))
-                (("perl")
-                 (which "perl")))))
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; Fix the shebang in codegen.py
+              (let ((python (which "python3")))
+                (substitute* "tools/codegen.py"
+                  (("^#!.*python.*$")
+                   (string-append "#!" python "\n"))))))
           (add-before 'configure 'copy-source
-            (lambda* (#:key (source ".") outputs #:allow-other-keys)
-              (copy-recursively source
+            (lambda* (#:key outputs #:allow-other-keys)
+              (copy-recursively "."
                                 (string-append (assoc-ref outputs "out")
                                                "/source"))))
           (replace 'configure
@@ -167,7 +163,7 @@
                                                 (string-append "-I" out
                                                  "/source/testing\n")) " "))
                      (libs (string-join (list "Libs:"
-                                              "-L{libdir}"
+                                              "-L${libdir}"
                                               "-lmagma_sparse"
                                               "-lmagma"
                                               "-llapack"
