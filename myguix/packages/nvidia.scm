@@ -1066,13 +1066,13 @@ laptops.")
 (define-public nvidia-htop
   (package
     (name "nvidia-htop")
-    (version "1.0.5")
+    (version "1.2.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "nvidia-htop" version))
        (sha256
-        (base32 "0lv9cpccpkbg0d577irm1lp9rx6pacyk2pk9v41k9s9hyl4b7hvx"))))
+        (base32 "1a70gwapcmkpln279rmhb2y2f7j7y8z9ax3y1yx8bjaahh75svhh"))))
     (build-system python-build-system)
     (arguments
      (list
