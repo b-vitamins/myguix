@@ -1843,3 +1843,34 @@ See also
      "Load the NVIDIA kernel module and create NVIDIA character device files")
     (home-page "https://github.com/NVIDIA/nvidia-modprobe")
     (license license-gnu:gpl2)))
+
+(define-public nvtx
+  (package
+    (name "nvtx")
+    (version "3.2.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/NVTX")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0qg05pv3lnzv9myh0i64msxpwxp1hn5fp1b6qy8jdy9ryb5nwy9i"))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:install-plan
+      #~'(("c/include" "include")
+          ("LICENSE.txt" "share/doc/nvtx/LICENSE.txt"))))
+    (home-page "https://github.com/NVIDIA/NVTX")
+    (synopsis "NVIDIA Tools Extension Library")
+    (description
+     "NVTX (NVIDIA Tools Extension) is a C-based API for annotating events,
+code ranges, and resources in applications.  These annotations are used by
+developer tools from NVIDIA and third parties to visualize the execution of
+applications.  NVTX provides a platform-independent API that can be used to
+instrument CPU and GPU code.  It is particularly useful for profiling and
+debugging CUDA applications with tools like NVIDIA Nsight Systems and NVIDIA
+Nsight Compute.")
+    (license license-gnu:asl2.0)))
