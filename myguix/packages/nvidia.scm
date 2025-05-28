@@ -1052,7 +1052,7 @@ nvidia-smi.")
 (define-public nvidia-system-monitor
   (package
     (name "nvidia-system-monitor")
-    (version "1.5")
+    (version "1.6")
     (source
      (origin
        (method git-fetch)
@@ -1061,7 +1061,7 @@ nvidia-smi.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0aghdqljvjmc02g9jpc7sb3yhha738ywny51riska56hkxd3jg2l"))))
+        (base32 "0wgcrbpp30pi30pb0l2rvw3q16xzflj2bl30gj2gigda00r3py0s"))))
     (build-system cmake-build-system)
     (arguments
      (list
