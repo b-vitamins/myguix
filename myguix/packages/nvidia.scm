@@ -1736,7 +1736,7 @@ See also
 (define-public cusparselt
   (package
     (name "cusparselt")
-    (version "0.6.3.2")
+    (version "0.7.1.0")
     (home-page "https://docs.nvidia.com/cuda/cusparselt/")
     (source
      (origin
@@ -1745,7 +1745,7 @@ See also
              "https://developer.download.nvidia.com/compute/cusparselt/redist/libcusparse_lt/linux-x86_64/libcusparse_lt-linux-x86_64-"
              version "-archive.tar.xz"))
        (sha256
-        (base32 "0cfcfvkzz1662nvgrmdpifzk1vd5ckf9w77gplwcbxa3i7kmdy52"))))
+        (base32 "123apmfs3qnv444x9q2xkk6d1dz2m9mfid1id933xiw7g21qbn50"))))
     (build-system copy-build-system)
     (arguments
      (list
