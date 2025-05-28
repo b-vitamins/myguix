@@ -1793,7 +1793,7 @@ See also
 (define-public nvidia-modprobe
   (package
     (name "nvidia-modprobe")
-    (version "550.54.14")
+    (version "570.153.02")
     (source
      (origin
        (method git-fetch)
@@ -1802,7 +1802,7 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1a7q03pnwk3wa0p57whwv2mvz60bv77vvvaljqzwnscpyf94q548"))))
+        (base32 "1ydlxsff1s60niq8wgvq9bnz6xvwcj67267cmnqcly6ivkjfn2vy"))))
     (build-system gnu-build-system)
     (arguments
      (list
