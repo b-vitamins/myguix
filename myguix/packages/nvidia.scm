@@ -1020,49 +1020,6 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
 and usage.")
     (license license-gnu:expat)))
 
-(define-public nvidia-exec
-  (package
-    (name "nvidia-exec")
-    (version "0.1.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/pedro00dk/nvidia-exec")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "079alqgz3drv5mvx059fzhj3f20rnljl7r4yihfd5qq7djgmvv0v"))))
-    (build-system copy-build-system)
-    (arguments
-     (list
-      #:install-plan
-      #~`(("nvx" "bin/"))
-      #:modules
-      #~((guix build copy-build-system)
-         (guix build utils)
-         (srfi srfi-1))
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'install 'wrap-nvx
-            (lambda* (#:key inputs outputs #:allow-other-keys)
-              (wrap-program (string-append #$output "/bin/nvx")
-                `("PATH" ":" prefix
-                  ,(fold (lambda (input paths)
-                           (let* ((in (assoc-ref inputs input))
-                                  (bin (string-append in "/bin")))
-                             (append (filter file-exists?
-                                             (list bin)) paths)))
-                         '()
-                         '("jq" "lshw" "lsof")))))))))
-    (inputs (list bash-minimal jq lshw lsof))
-    (home-page "https://github.com/pedro00dk/nvidia-exec")
-    (synopsis "GPU switching without login out for Nvidia Optimus laptops")
-    (description
-     "This package provides GPU switching without login out for Nvidia Optimus
-laptops.")
-    (license license-gnu:gpl3+)))
-
 (define-public nvidia-htop
   (package
     (name "nvidia-htop")
