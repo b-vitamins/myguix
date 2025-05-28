@@ -1381,7 +1381,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 (define-public cudnn-frontend
   (package
     (name "cudnn-frontend")
-    (version "1.9.0")
+    (version "1.12.0")
     (source
      (origin
        (method git-fetch)
@@ -1390,7 +1390,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0qa8kcxkrcs4imq1bkfyy3cidv1dsqb9zd51fi2c47ap3nl67kjm"))
+        (base32 "0fkv2q4amp1382m6l7d11wk77nlzizpli1n835fpx4pav1sbk9zx"))
        (modules '((guix build utils)))
        (snippet #~(begin
                     (delete-file-recursively
@@ -1404,7 +1404,6 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                                                  %load-path)))
                   (search-patches
                    "nvidia-cudnn-frontend_find_built_dlpack.patch"
-                   "nvidia-cudnn-frontend_find_nlohmann_json.patch"
                    "nvidia-cudnn-frontend_use_store_so.patch")))))
     (build-system pyproject-build-system)
     (arguments
