@@ -1765,7 +1765,7 @@ See also
 (define-public cudss
   (package
     (name "cudss")
-    (version "0.4.0.2")
+    (version "0.5.0.16")
     (home-page "https://docs.nvidia.com/cuda/cudss/")
     (source
      (origin
@@ -1774,7 +1774,7 @@ See also
              "https://developer.download.nvidia.com/compute/cudss/redist/libcudss/linux-x86_64/libcudss-linux-x86_64-"
              version "_cuda12-archive.tar.xz"))
        (sha256
-        (base32 "0806zzri79sxfpawxfaqhdq6a0ljdml0w36s0jbwkbrg7md7zmv4"))))
+        (base32 "199pkkan0w2wnd2r5cn30715rvirgvw79l0x5yg874554sxd4iaj"))))
     (build-system copy-build-system)
     (arguments
      (list
