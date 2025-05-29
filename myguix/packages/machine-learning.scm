@@ -3073,6 +3073,12 @@ As the solvers are implemented in PyTorch, algorithms in this repository are
 fully supported to run on the GPU.")
     (license license:expat)))
 
+(define-public python-torch-diffeq-cuda
+  (package
+    (inherit python-torch-diffeq)
+    (name "python-torch-diffeq-cuda")
+    (propagated-inputs (list python-pytorch-cuda cuda-toolkit))))
+
 (define-public python-entmax
   (package
     (name "python-entmax")
