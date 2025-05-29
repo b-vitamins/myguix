@@ -3040,7 +3040,7 @@ and common image transformations for computer vision.")
   (package
     (inherit python-lion-pytorch)
     (name "python-lion-pytorch-cuda")
-    (propagated-inputs (list python-pytorch-cuda cuda-toolkit nvidia-driver))))
+    (propagated-inputs (list python-pytorch-cuda cuda-toolkit))))
 
 (define-public python-torch-diffeq
   (package
