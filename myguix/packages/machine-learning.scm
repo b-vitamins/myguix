@@ -3106,6 +3106,12 @@ and sparsemax activations together with the corresponding loss functions,
 implemented for PyTorch.")
     (license license:expat)))
 
+(define-public python-entmax-cuda
+  (package
+    (inherit python-entmax)
+    (name "python-entmax-cuda")
+    (propagated-inputs (list python-pytorch-cuda cuda-toolkit))))
+
 (define-public python-storchastic
   (package
     (name "python-storchastic")
