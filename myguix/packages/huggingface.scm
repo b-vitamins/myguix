@@ -36,7 +36,7 @@
 (define-public python-huggingface-hub
   (package
     (name "python-huggingface-hub")
-    (version "0.29.1")
+    (version "0.32.2")
     (source
      (origin
        (method git-fetch)
@@ -45,49 +45,55 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0067m4vgmcmfdcbfwcbhy4y5w91kx00yv303ci3wpz7rqnmnhvpl"))))
+        (base32 "0c1579gz5l9mvb6vib3p4dy4k6m616s528aka37pzszy6j8nj41r"))))
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:test-flags
-      ;; We don't have sentence_transformers...
-      '(list
-        "--ignore=contrib/sentence_transformers/test_sentence_transformers.py"
-        ;; ...nor do we have InquirerPy...
-        "--ignore=tests/test_command_delete_cache.py"
-        ;; ...or timm...
-        "--ignore=contrib/timm/test_timm.py"
-        ;; ...or spacy_huggingface_hub
-        "--ignore=contrib/spacy/test_spacy.py"
-        ;; These all require internet access
-        "--ignore=tests/test_cache_no_symlinks.py"
-        "--ignore=tests/test_cache_layout.py"
-        "--ignore=tests/test_commit_scheduler.py"
-        "--ignore=tests/test_file_download.py"
-        "--ignore=tests/test_hf_api.py"
-        "--ignore=tests/test_hf_file_system.py"
-        "--ignore=tests/test_inference_api.py"
-        "--ignore=tests/test_inference_async_client.py"
-        "--ignore=tests/test_inference_client.py"
-        "--ignore=tests/test_inference_text_generation.py"
-        "--ignore=tests/test_login_utils.py"
-        "--ignore=tests/test_offline_utils.py"
-        "--ignore=tests/test_repocard.py"
-        "--ignore=tests/test_repository.py"
-        "--ignore=tests/test_snapshot_download.py"
-        "--ignore=tests/test_utils_cache.py"
-        "--ignore=tests/test_utils_git_credentials.py"
-        "--ignore=tests/test_utils_http.py"
-        "--ignore=tests/test_utils_pagination.py"
-        "--ignore=tests/test_webhooks_server.py"
-        "--ignore=tests/test_utils_sha.py"
-        "--ignore=tests/test_auth.py"
-        "--ignore=tests/test_auth_cli.py"
-        "-k"
-        (string-append "not test_push_to_hub"
-                       " and not test_from_pretrained_model_id_only"
-                       " and not test_from_pretrained_model_id_and_revision"))
+      #:test-flags '(list
+                     "--ignore=contrib/sentence_transformers/test_sentence_transformers.py"
+                     "--ignore=tests/test_command_delete_cache.py"
+                     "--ignore=contrib/timm/test_timm.py"
+                     "--ignore=contrib/spacy/test_spacy.py"
+                     ;; These all require internet access
+                     "--ignore=tests/test_cache_no_symlinks.py"
+                     "--ignore=tests/test_cache_layout.py"
+                     "--ignore=tests/test_commit_scheduler.py"
+                     "--ignore=tests/test_file_download.py"
+                     "--ignore=tests/test_hf_api.py"
+                     "--ignore=tests/test_hf_file_system.py"
+                     "--ignore=tests/test_inference_api.py"
+                     "--ignore=tests/test_inference_async_client.py"
+                     "--ignore=tests/test_inference_client.py"
+                     "--ignore=tests/test_inference_text_generation.py"
+                     "--ignore=tests/test_login_utils.py"
+                     "--ignore=tests/test_offline_utils.py"
+                     "--ignore=tests/test_repocard.py"
+                     "--ignore=tests/test_repository.py"
+                     "--ignore=tests/test_snapshot_download.py"
+                     "--ignore=tests/test_utils_cache.py"
+                     "--ignore=tests/test_utils_git_credentials.py"
+                     "--ignore=tests/test_utils_http.py"
+                     "--ignore=tests/test_utils_pagination.py"
+                     "--ignore=tests/test_webhooks_server.py"
+                     "--ignore=tests/test_utils_sha.py"
+                     "--ignore=tests/test_auth.py"
+                     "--ignore=tests/test_auth_cli.py"
+                     ;; These fail due to TLS certificate issues
+                     "--ignore=tests/test_inference_providers.py"
+                     "--ignore=tests/test_oauth.py"
+                     "--ignore=tests/test_xet_download.py"
+                     "--ignore=tests/test_xet_upload.py"
+                     "-k"
+                     (string-append "not test_push_to_hub"
+                      " and not test_from_pretrained_model_id_only"
+                      " and not test_from_pretrained_model_id_and_revision"))
       #:phases '(modify-phases %standard-phases
+                  (add-after 'unpack 'remove-hf-xet-requirement
+                    (lambda _
+                      (substitute* "setup.py"
+                        ;; Remove hf-xet from requirements
+                        ((".*hf-xet.*")
+                         ""))))
                   (add-before 'check 'pre-check
                     ;; Some tests need to write to HOME.
                     (lambda _
