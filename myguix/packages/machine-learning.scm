@@ -3021,13 +3021,13 @@ and common image transformations for computer vision.")
 (define-public python-lion-pytorch
   (package
     (name "python-lion-pytorch")
-    (version "0.2.2")
+    (version "0.2.3")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "lion_pytorch" version))
        (sha256
-        (base32 "18pp6k02nfd6p2yfqqrz7v1cyi3k11mksl2sq2n87hsp3b53xba6"))))
+        (base32 "127xr3jpwpmh6zqhm421wirgswanawpf49y7cxndvsapx1y13fj2"))))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-pytorch))
     (native-inputs (list python-setuptools))
