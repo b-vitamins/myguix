@@ -2457,8 +2457,7 @@ TensorFlow.js, PyTorch, and MediaPipe.")
   (origin
     (method git-fetch)
     (uri (git-reference (url "https://github.com/pytorch/pytorch")
-                        (commit (string-append "v" %python-pytorch-version))
-                        (recursive? #t)))
+                        (commit (string-append "v" %python-pytorch-version))))
     (file-name (git-file-name "python-pytorch" %python-pytorch-version))
     (sha256 (base32 "19prdpzx34n8y2q6wx9dn9vyms6zidjvfgh58d28rfcf5z7z5ra5"))
     (patches (map (lambda (patch)
@@ -3388,3 +3387,5 @@ features.")
      "Weights & Biases lets you track machine-learning experiments, version
 datasets and models, and collaborate with your team.")
     (license license:expat)))
+
+python-pytorch-cuda
