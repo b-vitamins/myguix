@@ -388,9 +388,7 @@
         python-black
         python-ruff
         python-pytest
-        python-lsp-server
-        python-pylsp-mypy
-        python-pylsp-ruff))
+        node-pyright-1.1.401))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
