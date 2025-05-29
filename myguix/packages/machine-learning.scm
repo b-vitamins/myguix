@@ -312,7 +312,7 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
     (inputs (modify-inputs (package-inputs python-bitsandbytes)
               (replace "python-lion-pytorch" python-lion-pytorch-cuda)
               (append python-bitsandbytes)))
-    (propagated-inputs (list nvidia-driver cuda-toolkit))))
+    (propagated-inputs (list cuda-toolkit))))
 
 (define-public python-tensorstore
   (let ((tensorstore-python-packages (list "absl_py"
