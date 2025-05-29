@@ -1,7 +1,18 @@
 diff --git a/Cargo.toml b/Cargo.toml
-index f2a934387..22acddc93 100644
+index f2a934387..22212ee43 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
+@@ -4,8 +4,8 @@ resolver = "2"
+ 
+ [workspace.package]
+ # Please update rustfmt.toml when bumping the Rust edition
+-edition = "2024"
+-rust-version = "1.85"
++edition = "2021"
++rust-version = "1.82"
+ homepage = "https://docs.astral.sh/ruff"
+ documentation = "https://docs.astral.sh/ruff"
+ repository = "https://github.com/astral-sh/ruff"
 @@ -105,9 +105,7 @@ libc = { version = "0.2.153" }
  libcst = { version = "1.1.0", default-features = false }
  log = { version = "0.4.17" }
