@@ -2943,7 +2943,7 @@ Note: This package provides NVIDIA GPU support.")
 (define-public python-torchvision-cuda
   (package
     (name "python-torchvision-cuda")
-    (version "0.21.0")
+    (version "0.22.0")
     (source
      (origin
        (method git-fetch)
@@ -2953,7 +2953,7 @@ Note: This package provides NVIDIA GPU support.")
              (recursive? #t)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1m9j9a171glkjpwl4d5yr6d9z8y577isi76ybqv4gcbzpgab0dbq"))
+        (base32 "0hz6v8796vq8kinafzyq2v2wir5s3hykfn0rnlwx7qcsz62i3ggv"))
        (modules '((guix build utils)))
        (snippet '(begin
                    (delete-file-recursively "android")
