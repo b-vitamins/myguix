@@ -3133,6 +3133,12 @@ implemented for PyTorch.")
     (description "Stochastic Deep Learning for @code{PyTorch}.")
     (license license:gpl3+)))
 
+(define-public python-storchastic-cuda
+  (package
+    (inherit python-storchastic)
+    (name "python-storchastic-cuda")
+    (propagated-inputs (list python-pytorch-cuda cuda-toolkit))))
+
 (define-public python-triton
   (package
     (name "python-triton")
