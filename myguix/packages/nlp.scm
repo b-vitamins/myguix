@@ -208,13 +208,13 @@
 (define-public python-tiktoken
   (package
     (name "python-tiktoken")
-    (version "0.8.0")
+    (version "0.9.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "tiktoken" version))
        (sha256
-        (base32 "1cpfjjgzi68xhg48m9sl0x4w5cxjv77kamlw6qs2am141xsb5jww"))))
+        (base32 "0p9cg6n8mzdi4lbbwxrrp26chy5hr14bqmzr3w74kq1qm6k5qanh"))))
     (build-system cargo-build-system)
     (arguments
      (list
