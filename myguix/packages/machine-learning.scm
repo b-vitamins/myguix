@@ -3045,15 +3045,15 @@ and common image transformations for computer vision.")
 (define-public python-torch-diffeq
   (package
     (name "python-torch-diffeq")
-    (version "0.2.2")
+    (version "0.2.5")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/rtqichen/torchdiffeq")
-             (commit "97e93deddcb18f67330f0b9caa75808f38b94c89")))
+             (commit "a88aac53cae738addee44251288ce5be9a018af3")))
        (sha256
-        (base32 "04gmc13jf0wnbdvslgvzzbnnmzl1f7q44b73xbpaa7s7s4ijprxd"))))
+        (base32 "0c2zqbdxqvd5abfpk0im6rcy1ij39xvrmixc6l9znb6bhcxk2jra"))))
     (build-system python-build-system)
     (arguments
      ;; Looks like the tests require network connection.
