@@ -3093,7 +3093,7 @@ fully supported to run on the GPU.")
        (sha256
         (base32 "10dijylrpkfl66dkihqlhwgw9x05qrz3di7ybzdf1a4xqly875v8"))))
     (build-system python-build-system)
-    (propagated-inputs (list python-pytorch-cuda))
+    (propagated-inputs (list python-pytorch))
     (arguments
      `(#:tests? #f))
     (home-page "https://github.com/deep-spin/entmax")
