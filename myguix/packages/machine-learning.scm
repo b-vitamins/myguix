@@ -2229,7 +2229,7 @@ the tensors contained therein.")
 (define-public dlpack
   (package
     (name "dlpack")
-    (version "0.8")
+    (version "1.1")
     (source
      (origin
        (method git-fetch)
@@ -2238,7 +2238,7 @@ the tensors contained therein.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1jmfvdrx8dn9b0ksm04ixha0jnrk35ip796qg98kfz6g7niw5ir1"))))
+        (base32 "0vlp8gcf7s3snalj6xmvgqxxn96fki6gw9hzph30gmgdbaz730j6"))))
     (build-system cmake-build-system)
     (arguments
      (list
