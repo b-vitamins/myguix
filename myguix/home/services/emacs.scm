@@ -10,7 +10,7 @@
   #:export (my-home-emacs-service-type))
 
 (define (my-home-emacs-profile-service-type config)
-  (list emacs-next
+  (list emacs-next-pgtk
         emacs-ace-window
         emacs-adaptive-wrap
         emacs-all-the-icons
