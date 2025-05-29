@@ -3126,7 +3126,7 @@ implemented for PyTorch.")
     (arguments
      `(#:tests? #f))
     (propagated-inputs (list python-entmax python-packaging python-pyro-ppl
-                             python-pytorch-cuda))
+                             python-pytorch))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/HEmile/storchastic")
     (synopsis "Stochastic Deep Learning for PyTorch")
