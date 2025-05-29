@@ -36,7 +36,7 @@
 (define-public whisper-cpp
   (package
     (name "whisper-cpp")
-    (version "1.7.2")
+    (version "1.7.5")
     (source
      (origin
        (method git-fetch)
@@ -45,7 +45,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0fbxf43dfz0wgc2qx57gm7a56nqpbmvkzgk68jfj1pa5r9qijzfb"))))
+        (base32 "0fs15rizz4psd3flfjpdivzvc9w19i3706flisn136ax0k8r7w5n"))))
     (build-system cmake-build-system)
     (arguments
      `(#:tests? #f ;No tests.
@@ -61,6 +61,12 @@
                       (let ((bin (string-append (assoc-ref outputs "out")
                                                 "/bin"))
                             (build-dir (string-append (getcwd) "/bin/")))
+                        ;; Install files that already have correct names
+                        (for-each (lambda (file)
+                                    (install-file (string-append build-dir
+                                                                 file) bin))
+                                  '("whisper-cli" "whisper-server"
+                                    "whisper-bench"))
                         (for-each (lambda (file)
                                     (let ((orig-file (string-append build-dir
                                                                     file))
@@ -72,7 +78,7 @@
                                                          file))))
                                       (invoke "mv" orig-file new-file)
                                       (install-file new-file bin)))
-                                  '("main" "bench" "server" "quantize")))))
+                                  '("main" "quantize")))))
                   (add-after 'install-binaries 'fix-rpath
                     (lambda* (#:key outputs #:allow-other-keys)
                       (let ((libdir (string-append (assoc-ref outputs "out")
