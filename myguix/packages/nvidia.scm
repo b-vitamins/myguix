@@ -997,29 +997,6 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
     (home-page "https://github.com/NVIDIA/egl-x11")
     (license license-gnu:expat)))
 
-(define-public gpustat
-  (package
-    (name "gpustat")
-    (version "1.0.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "gpustat" version))
-       (sha256
-        (base32 "1wg3yikkqdrcxp5xscyb9rxifgfwv7qh73xv4airab63b3w8y7jq"))))
-    (build-system python-build-system)
-    (arguments
-     '(#:tests? #f))
-    (propagated-inputs (list python-blessed python-nvidia-ml-py python-psutil
-                             python-six))
-    (native-inputs (list python-mock python-pytest python-pytest-runner))
-    (home-page "https://github.com/wookayin/gpustat")
-    (synopsis "Utility to monitor NVIDIA GPU status and usage")
-    (description
-     "This package provides an utility to monitor NVIDIA GPU status
-and usage.")
-    (license license-gnu:expat)))
-
 (define-public nvidia-htop
   (package
     (name "nvidia-htop")
@@ -1874,3 +1851,4 @@ instrument CPU and GPU code.  It is particularly useful for profiling and
 debugging CUDA applications with tools like NVIDIA Nsight Systems and NVIDIA
 Nsight Compute.")
     (license license-gnu:asl2.0)))
+
