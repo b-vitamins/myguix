@@ -2457,7 +2457,8 @@ TensorFlow.js, PyTorch, and MediaPipe.")
   (origin
     (method git-fetch)
     (uri (git-reference (url "https://github.com/pytorch/pytorch")
-                        (commit (string-append "v" %python-pytorch-version))))
+                        (commit (string-append "v" %python-pytorch-version))
+                        (recursive? #t)))
     (file-name (git-file-name "python-pytorch" %python-pytorch-version))
     (sha256 (base32 "19prdpzx34n8y2q6wx9dn9vyms6zidjvfgh58d28rfcf5z7z5ra5"))
     (patches (map (lambda (patch)
@@ -2494,7 +2495,6 @@ TensorFlow.js, PyTorch, and MediaPipe.")
                             "torch/csrc/jit/tensorexpr/external_functions_codegen.cpp"
                             "torch/csrc/jit/serialization/mobile_bytecode_generated.h"))
                 (delete-file-recursively ".github")
-                ;; Remove for upstream pytorch
                 (for-each (lambda (dir)
                             (for-each delete-file
                                       (find-files dir "\\.cu$")))
@@ -2842,7 +2842,7 @@ Note: currently this package does not provide GPU support.")
             (add-after 'use-system-libraries 'use-cuda-libraries
               (lambda _
                 (setenv "BUILD_TEST" "0")
-                (setenv "PYTORCH_BUILD_VERSION" "2.5.1")
+                (setenv "PYTORCH_BUILD_VERSION" "2.7.0")
                 (setenv "PYTORCH_BUILD_NUMBER" "1")
                 (setenv "TORCH_NVCC_FLAGS" "-Xfatbin -compress-all")
                 (setenv "USE_CUDA" "1")
@@ -2856,8 +2856,8 @@ Note: currently this package does not provide GPU support.")
                 (setenv "USE_GLOO" "1")
                 (setenv "USE_SYSTEM_NCCL" "1")
                 (setenv "USE_OPENMP" "1")
-                (setenv "USE_FLASH_ATTENTION" "1")
-                (setenv "USE_MEM_EFF_ATTENTION" "1")
+                (setenv "USE_FLASH_ATTENTION" "0")
+                (setenv "USE_MEM_EFF_ATTENTION" "0")
                 (setenv "TORCH_CUDA_ARCH_LIST" "8.6")
                 (setenv "USE_ROCM" "0")
                 (setenv "USE_NUMA" "0")
@@ -2915,12 +2915,13 @@ Note: currently this package does not provide GPU support.")
                       cudnn
                       cudss
                       cusparselt
-                      cutlass-headers-3.4
-                      cutlass-tools-3.4
+                      cutlass-headers
+                      cutlass-tools
                       cudnn-frontend
                       magma-cuda
                       nlohmann-json
-                      nccl)))
+                      nccl
+                      nvtx)))
     (native-inputs (package-native-inputs python-pytorch))
     (propagated-inputs (package-propagated-inputs python-pytorch))
     (home-page "https://pytorch.org/")
