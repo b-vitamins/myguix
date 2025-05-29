@@ -181,7 +181,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
     (synopsis "Safely store tensors")
     (description
      "This repository implements a new simple format for storing tensors safely (as opposed to pickle) and that is still fast (zero-copy).")
-    (license license:expat)))
+    (license license:asl2.0)))
 
 (define-public python-accelerate
   (package
