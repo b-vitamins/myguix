@@ -2991,7 +2991,7 @@ and common image transformations for computer vision.")
 (define-public python-torchdata-cuda
   (package
     (name "python-torchdata-cuda")
-    (version "0.10.1")
+    (version "0.11.0")
     (source
      (origin
        (method git-fetch)
@@ -3001,7 +3001,7 @@ and common image transformations for computer vision.")
              (recursive? #t)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0swbsc8njlh79s5gksanmqzkvvk27pmzz4as7zz16z0l81pdclv4"))
+        (base32 "02dyakcvbwsdr504hb1p284qk93cnm7rfbbyp6f2c38npqn1jaad"))
        (modules '((guix build utils)))))
     (build-system pyproject-build-system)
     (arguments
