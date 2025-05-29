@@ -11768,18 +11768,18 @@ index 000000000..5ef4ca981
 +- Update `hashbrown` (0.15) and `hashlink` (0.10)
 diff --git a/crates/salsa/Cargo.toml b/crates/salsa/Cargo.toml
 new file mode 100644
-index 000000000..0369a3948
+index 000000000..d30865613
 --- /dev/null
 +++ b/crates/salsa/Cargo.toml
-@@ -0,0 +1,87 @@
+@@ -0,0 +1,97 @@
 +[package]
 +name = "salsa"
 +version = "0.21.1"
-+authors = ["Salsa developers"]
-+edition = "2021"
-+license = "Apache-2.0 OR MIT"
-+repository = "https://github.com/salsa-rs/salsa"
-+rust-version = "1.80"
++authors.workspace = true
++edition.workspace = true
++license.workspace = true
++repository.workspace = true
++rust-version.workspace = true
 +description = "A generic framework for on-demand, incrementalized computation (experimental)"
 +
 +[dependencies]
@@ -11859,6 +11859,16 @@ index 000000000..0369a3948
 +[[bench]]
 +name = "dataflow"
 +harness = false
++
++[workspace]
++members = ["components/salsa-macro-rules", "components/salsa-macros"]
++
++[workspace.package]
++authors = ["Salsa developers"]
++edition = "2021"
++license = "Apache-2.0 OR MIT"
++repository = "https://github.com/salsa-rs/salsa"
++rust-version = "1.80"
 diff --git a/crates/salsa/FAQ.md b/crates/salsa/FAQ.md
 new file mode 100644
 index 000000000..9c9f6f92d
@@ -16204,13 +16214,18 @@ index 000000000..56f430ae2
 +- Store view downcaster in function ingredients directly ([#720](https://github.com/salsa-rs/salsa/pull/720))
 diff --git a/crates/salsa/components/salsa-macro-rules/Cargo.toml b/crates/salsa/components/salsa-macro-rules/Cargo.toml
 new file mode 100644
-index 000000000..c97f38519
+index 000000000..4997495b0
 --- /dev/null
 +++ b/crates/salsa/components/salsa-macro-rules/Cargo.toml
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,11 @@
 +[package]
 +name = "salsa-macro-rules"
 +version = "0.21.1"
++authors.workspace = true
++edition.workspace = true
++license.workspace = true
++repository.workspace = true
++rust-version.workspace = true
 +description = "Declarative macros for the salsa crate"
 +
 +[dependencies]
@@ -17980,13 +17995,18 @@ index 000000000..ba2d12be3
 +- Track revisions for tracked fields only
 diff --git a/crates/salsa/components/salsa-macros/Cargo.toml b/crates/salsa/components/salsa-macros/Cargo.toml
 new file mode 100644
-index 000000000..817f7fd4d
+index 000000000..e9757c724
 --- /dev/null
 +++ b/crates/salsa/components/salsa-macros/Cargo.toml
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,19 @@
 +[package]
 +name = "salsa-macros"
 +version = "0.21.1"
++authors.workspace = true
++edition.workspace = true
++license.workspace = true
++repository.workspace = true
++rust-version.workspace = true
 +description = "Procedural macros for the salsa crate"
 +
 +[lib]
