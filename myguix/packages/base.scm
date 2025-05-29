@@ -194,8 +194,7 @@
         nvidia-settings
         nvidia-htop
         python-nvidia-ml-py
-        python-py3nvml
-        gpustat))
+        python-py3nvml))
 
 (define %versioning-packages
   (list git git-lfs git-crypt pre-commit))
