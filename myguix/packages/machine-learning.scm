@@ -70,6 +70,7 @@
   #:use-module (guix modules)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (myguix packages)
   #:use-module (myguix build-system bazel)
   #:use-module (myguix packages compression)
   #:use-module (myguix packages llvm-pqrs)
@@ -2460,13 +2461,11 @@ TensorFlow.js, PyTorch, and MediaPipe.")
                         (commit (string-append "v" %python-pytorch-version))))
     (file-name (git-file-name "python-pytorch" %python-pytorch-version))
     (sha256 (base32 "19prdpzx34n8y2q6wx9dn9vyms6zidjvfgh58d28rfcf5z7z5ra5"))
-    (patches (map (lambda (patch)
-                    (search-path (map (cut string-append <> "/myguix/patches")
-                                      %load-path) patch))
-                  '("python-pytorch-system-libraries-2.7.0.patch"
-                    "python-pytorch-runpath-2.7.0.patch"
-                    "python-pytorch-without-kineto-2.7.0.patch"
-                    "python-pytorch-fix-codegen-2.7.0.patch")))
+    (patches (search-myguix-patches
+              "python-pytorch-system-libraries-2.7.0.patch"
+              "python-pytorch-runpath-2.7.0.patch"
+              "python-pytorch-without-kineto-2.7.0.patch"
+              "python-pytorch-fix-codegen-2.7.0.patch"))
     (modules '((guix build utils)))
     (snippet '(begin
                 ;; Bundled or unused code
@@ -3151,11 +3150,8 @@ implemented for PyTorch.")
              (commit "819e9c8c29ad2ae96cbd93a1d3b8a3a0f4c8f09c")
              (recursive? #t)))
        (file-name (git-file-name name version))
-       (patches (parameterize ((%patch-path (map (lambda (directory)
-                                                   (string-append directory
-                                                    "/myguix/patches"))
-                                                 %load-path)))
-                  (search-patches "python-trition-disable-amd-backend.patch")))
+       (patches (search-myguix-patches
+                 "python-trition-disable-amd-backend.patch"))
        (sha256
         (base32 "0vvl8qlfqad7z11ir3mxhgb8m953a1520iwkpdrmd14n9k0lyx5h"))))
     (build-system cmake-build-system)
@@ -3228,8 +3224,6 @@ endif()
               (setenv "TRITON_OFFLINE_BUILD" "1")
               ;; 10. Disable Proton build
               (setenv "TRITON_BUILD_PROTON" "OFF")
-              ;; 11. Limit parallel build jobs
-              (setenv "MAX_JOBS" "4")
               ;; 12. use local CUDA / tool-chain
               (let* ((llvm (assoc-ref inputs "llvm"))
                      (cuda (assoc-ref inputs "cuda-toolkit")))
@@ -3293,8 +3287,8 @@ endif()
                          ninja
                          pkg-config
                          llvm-for-triton
-                         python-pypa-build ;python -m build
-                         python-installer ;python -m installer
+                         python-pypa-build
+                         python-installer
                          python-wrapper
                          pybind11))
     (propagated-inputs (list cuda-toolkit))

@@ -72,6 +72,7 @@
                 #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (myguix packages)
   #:use-module (myguix utils)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages python-pqrs)
@@ -1375,13 +1376,9 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
                     (substitute* (find-files "include" "\\.(cpp|h|hpp)")
                       (("\"cudnn_frontend/thirdparty/nlohmann/json\\.hpp\"")
                        "<nlohmann/json.hpp>"))))
-       (patches (parameterize ((%patch-path (map (lambda (directory)
-                                                   (string-append directory
-                                                    "/myguix/patches"))
-                                                 %load-path)))
-                  (search-patches
-                   "nvidia-cudnn-frontend_find_built_dlpack.patch"
-                   "nvidia-cudnn-frontend_use_store_so.patch")))))
+       (patches (search-myguix-patches
+                 "nvidia-cudnn-frontend_find_built_dlpack.patch"
+                 "nvidia-cudnn-frontend_use_store_so.patch"))))
     (build-system pyproject-build-system)
     (arguments
      (list

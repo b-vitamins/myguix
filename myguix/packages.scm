@@ -1,61 +1,42 @@
-;;; SPDX-License-Identifier: GPL-3.0-or-later
-;;; Copyright © 2015, 2018 Ludovic Courtès <ludo@gnu.org>
-;;; Copyright © 2025 Maxim Cournoyer <maxim.cournoyer@gmail.com>
+;;; myguix --- Personal Guix channel
+;;; Copyright © 2025 Ayan Das <bvits@riseup.net>
 
 (define-module (myguix packages)
   #:use-module (gnu packages)
+  #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (guix diagnostics)
   #:use-module (guix i18n)
-  #:use-module (ice-9 match)
+  #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-34)
-  #:replace (%patch-path search-patch)
-  #:export (myguix-patches))
+  #:export (search-myguix-patch search-myguix-patches %myguix-patch-path))
 
 ;;; Commentary:
 ;;;
-;;; This module refines the default value of some parameters from (gnu
-;;; packages) and the syntax/procedures using those.  This allows
-;;; 'search-paths' and friends to work without any user intervention.
+;;; Utilities for packages in the myguix channel.
 ;;;
 ;;; Code:
 
 (define %myguix-root-directory
-  ;; This is like %distro-root-directory from (gnu packages), with adjusted
-  ;; paths.
-  (letrec-syntax ((dirname* (syntax-rules ()
-                                          ((_ file)
-                                           (dirname file))
-                                          ((_ file head tail ...)
-                                           (dirname (dirname* file tail ...)))))
-                  (try (syntax-rules ()
-                                     ((_ (file things ...) rest ...)
-                                      (match (search-path %load-path file)
-                                        (#f (try rest ...))
-                                        (absolute (dirname* absolute things
-                                                            ...))))
-                                     ((_)
-                                      #f))))
-                 (try ("myguix/packages/firmware.scm" myguix/ packages/)
-                      ("myguix/ci.scm" myguix/))))
+  ;; Root directory of the myguix channel.
+  (dirname (dirname (search-path %load-path "myguix/packages.scm"))))
 
-(define %patch-path
-  ;; Define it after '%package-module-path' so that '%load-path' contains user
-  ;; directories, allowing patches in $GUIX_PACKAGE_PATH to be found.
-  (make-parameter (map (lambda (directory)
-                         (if (string=? directory %myguix-root-directory)
-                             (string-append directory "/myguix/patches")
-                             directory)) %load-path)))
+(define %myguix-patch-path
+  ;; Path for myguix-specific patches.
+  (make-parameter (list (string-append %myguix-root-directory
+                                       "/myguix/packages/patches"))))
 
-;;; XXX: The following must be redefined to make use of the overridden
-;;; %patch-path parameter above.
-(define (search-patch file-name)
-  "Search the patch FILE-NAME.  Raise an error if not found."
-  (or (search-path (%patch-path) file-name)
-      (raise (formatted-message (G_ "~a: patch not found") file-name))))
+(define (search-myguix-patch file-name)
+  "Search for patch FILE-NAME in myguix's patch directories.
+Raise an error if not found."
+  (or (search-path (%myguix-patch-path) file-name)
+      (raise (formatted-message (G_ "~a: myguix patch not found") file-name))))
 
-;;; XXX: `search-patches' being syntax, it can't be overridden by the module
-;;; system, or so it seems, so we simply rename it.
-(define-syntax-rule (myguix-patches file-name ...)
+(define-syntax-rule (search-myguix-patches file-name ...)
   "Return the list of absolute file names corresponding to each
-FILE-NAME found in %PATCH-PATH."
-  (list (search-patch file-name) ...))
+FILE-NAME found in %MYGUIX-PATCH-PATH."
+  (list (search-myguix-patch file-name) ...))
+
+;;; Re-export commonly used bindings from (gnu packages) for convenience.
+(re-export search-patches ;For GNU Guix patches
+           specification->package specification->package+output)

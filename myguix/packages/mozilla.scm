@@ -73,6 +73,7 @@
   #:use-module (gnu packages speech)
   #:use-module (gnu packages sqlite)
   #:use-module (gnu packages video)
+  #:use-module (myguix packages)
   #:use-module (myguix packages wasm)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xorg))
@@ -104,12 +105,8 @@
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
         (base32 "1v7zl6krm2vk3j30fd8zbnazvbqiwg93dgymrznfa3v798vr1vgj"))
-       (patches (map (lambda (patch)
-                       (search-path (map (cut string-append <>
-                                              "/myguix/patches") %load-path)
-                                    patch))
-                     '("firefox-esr-compare-paths.patch"
-                       "firefox-esr-use-system-wide-dir.patch")))))
+       (patches (search-myguix-patches "firefox-esr-compare-paths.patch"
+                 "firefox-esr-use-system-wide-dir.patch"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -562,13 +559,9 @@ Release (ESR) version.")
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
-       (patches (map (lambda (patch)
-                       (search-path (map (cut string-append <>
-                                              "/myguix/patches") %load-path)
-                                    patch))
-                     '("firefox-restore-desktop-files.patch"
-                       "firefox-ge-138-compare-paths.patch"
-                       "firefox-use-system-wide-dir.patch")))
+       (patches (search-myguix-patches "firefox-restore-desktop-files.patch"
+                                       "firefox-ge-138-compare-paths.patch"
+                                       "firefox-use-system-wide-dir.patch"))
        (sha256
         (base32 "12si1538mdgmvkpsqkc42x7rdll7mmapkczx8vipp53qbwafgp4c"))))
     (arguments
