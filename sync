@@ -1,0 +1,65 @@
+#!/bin/sh
+# Run this from the development branch after making changes
+
+set -e
+
+echo "=== Syncing channel files to master ==="
+
+# Save current branch
+CURRENT_BRANCH=$(git branch --show-current)
+
+if [ "$CURRENT_BRANCH" != "development" ]; then
+    echo "Error: This script should be run from the development branch"
+    exit 1
+fi
+
+# Make sure development is clean
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Error: You have uncommitted changes. Please commit or stash them first."
+    exit 1
+fi
+
+# Files and directories that should be synced to master
+CHANNEL_FILES=(
+    ".guix-channel"
+    ".guix-authorizations"
+    ".gitignore"
+    ".gitattributes"
+    "myguix"
+    "README"
+    "LICENSE"
+    "AUTHORS"
+    "NEWS"
+    "THANKS"
+    "TODO"
+    "COPYING"
+    "HACKING"
+)
+
+# Switch to master
+git checkout master
+
+# Sync each file/directory from development
+for item in "${CHANNEL_FILES[@]}"; do
+    if git ls-tree development --name-only | grep -q "^${item}$"; then
+        echo "Syncing ${item}..."
+        git checkout development -- "${item}"
+    fi
+done
+
+# Commit if there are changes
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    git add -A
+    git commit -m "Sync channel files from development
+
+Synced from development branch commit: $(git rev-parse development)"
+    echo "Changes committed to master"
+    echo "Don't forget to: git push origin master"
+else
+    echo "No changes to sync"
+fi
+
+# Return to development branch
+git checkout development
+
+echo "=== Sync complete ==="
