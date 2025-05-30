@@ -150,7 +150,7 @@ AM_TESTS_ENVIRONMENT = abs_top_srcdir="$(abs_top_srcdir)" GUILE_AUTO_COMPILE=0
 SCM_LOG_DRIVER =				\
   $(top_builddir)/test-env --quiet-stderr	\
   $(GUILE) --no-auto-compile -e main		\
-      $(top_srcdir)/build-aux/test-driver.scm
+      $(top_srcdir)/build-aux/test-driver.gscm
 
 AM_SCM_LOG_DRIVER_FLAGS = --brief=yes
 
@@ -222,7 +222,7 @@ EXTRA_DIST =					\
   TODO						\
   bootstrap					\
   build-aux/pre-inst-env.in			\
-  build-aux/test-driver.scm			\
+  build-aux/test-driver.gscm			\
   build-aux/test-env.in				\
   build-aux/config.rpath			\
   m4/.gitkeep					\
