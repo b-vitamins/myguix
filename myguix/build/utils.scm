@@ -97,14 +97,21 @@ contents:
   (mkdir-p (dirname wrapper))
   (call-with-output-file wrapper
     (lambda (port)
-      (format port
-              (if skip-argument-0? "#!~a~%~a~%cd \"~a\"~%exec \"~a\" \"$@\"~%"
-                  "#!~a~%~a~%cd \"~a\"~%exec -a \"$0\" \"~a\" \"$@\"~%")
-              (which "bash")
-              (string-join (map export-variable
-                                (remove-keyword-arguments vars)) "\n")
-              (dirname real-file)
-              (canonicalize-path real-file))))
+      (if skip-argument-0?
+          (format port
+                  "#!~a~%~a~%cd \"~a\"~%exec \"~a\" \"$@\"~%"
+                  (which "bash")
+                  (string-join (map export-variable
+                                    (remove-keyword-arguments vars)) "\n")
+                  (dirname real-file)
+                  (canonicalize-path real-file))
+          (format port
+                  "#!~a~%~a~%cd \"~a\"~%exec -a \"$0\" \"~a\" \"$@\"~%"
+                  (which "bash")
+                  (string-join (map export-variable
+                                    (remove-keyword-arguments vars)) "\n")
+                  (dirname real-file)
+                  (canonicalize-path real-file)))))
   (chmod wrapper #o755))
 
 (define (concatenate-files files result)

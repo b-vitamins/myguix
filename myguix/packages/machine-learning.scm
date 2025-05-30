@@ -3381,5 +3381,3 @@ features.")
      "Weights & Biases lets you track machine-learning experiments, version
 datasets and models, and collaborate with your team.")
     (license license:expat)))
-
-python-pytorch-cuda
