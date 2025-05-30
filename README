@@ -1,5 +1,3 @@
--*- mode: org -*-
-
 myguix is my personal software repository—a [[https://www.gnu.org/software/guix/manual/en/html_node/Channels.html][Guix channel]]—for the [[https://guix.gnu.org/][GNU Guix package manager]]. It includes a mix of packages—some are free software that aren't available in the official Guix channel, while others may already be included in the official channels but have been repackaged by me to accommodate specific needs, such as using a different version or customizing the build. There are also some nonfree packages included for specific cases where no free alternatives are sufficient. None of the files in this repository are part of GNU Guix.
 
 * Important Note
