@@ -28,12 +28,7 @@ CHANNEL_FILES=(
     "myguix"
     "README"
     "LICENSE"
-    "AUTHORS"
     "NEWS"
-    "THANKS"
-    "TODO"
-    "COPYING"
-    "HACKING"
 )
 
 # Switch to master
