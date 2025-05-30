@@ -1,0 +1,309 @@
+-*- mode: org; coding: utf-8; -*-
+#+STARTUP: content hidestars
+
+* Feature system
+** Overview
+
+This document outlines the development roadmap for a declarative feature system for Guix configurations. The system provides a framework for packaging related configuration, services, and values into reusable units with proper dependency management and type safety.
+
+/Note: This architecture is inspired by RDE's approach to composable system and home environment management./
+
+** Phase 1: Foundation Utilities (No dependencies)
+*** Basic Infrastructure
+
+- [ ] *myguix/utils/predicates.scm* - Basic predicates used everywhere
+  - Standard type predicates (string?, number?, etc.)
+  - ~contract-satisfied?~ - Contract checking
+  - ~valid-version?~ - Version validation
+  - ~compatible-types?~ - Type compatibility
+
+- [ ] *myguix/utils/graph.scm* - Graph algorithms for dependency resolution
+  - ~make-graph~ - Graph constructor
+  - ~add-edge~ - Add edge to graph
+  - ~topological-sort~ - Topological sorting
+  - ~find-cycles~ - Cycle detection
+  - ~strongly-connected-components~ - SCC algorithm
+  - ~graph->dot~ - Graphviz export
+
+- [ ] *myguix/utils/monads.scm* - Monadic utilities for error handling
+  - ~maybe-monad~ - Maybe monad implementation
+  - ~result-monad~ - Result monad for error handling
+  - ~>>~ - Monadic sequence
+  - ~>>=~ - Monadic bind
+  - ~return~ - Monadic return
+  - ~mlet~ - Monadic let syntax
+
+- [ ] *myguix/errors/conditions.scm* - Error condition type definitions
+  - ~&myguix-error~ - Base error condition
+  - ~&myguix-value-error~ - Value-related errors
+  - ~&myguix-missing-feature~ - Missing feature errors
+  - ~&myguix-circular-dependency~ - Circular dependency errors
+  - ~&myguix-version-conflict~ - Version conflicts
+  - ~&myguix-validation-error~ - Validation failures
+  - ~&myguix-contract-violation~ - Contract violations
+
+- [ ] *myguix/serializers/utils.scm* - Basic serialization utilities
+  - Common serialization helpers
+  - Format conversion utilities
+
+** Phase 2: Core Infrastructure
+*** Error Handling and Evaluation
+
+- [ ] *myguix/errors/diagnostics.scm* - Error formatting
+  - ~format-myguix-error~ - Format error messages
+  - ~explain-error~ - Detailed error explanations
+  - ~suggest-fix~ - Suggest fixes for common errors
+  - ~error-location~ - Get error source location
+  - ~with-error-context~ - Add context to errors
+  - ~collect-diagnostics~ - Batch diagnostic collection
+  - ~print-diagnostic-report~ - Pretty print diagnostics
+
+- [ ] *myguix/features/lazy.scm* - Lazy evaluation
+  - ~<lazy-value>~ - Lazy value record type
+  - ~lazy-value~ - Constructor
+  - ~force-lazy-value~ - Force evaluation with caching
+  - ~make-lazy~ - Create lazy value from thunk
+  - ~lazy-map~ - Map over lazy values
+  - ~lazy-bind~ - Monadic bind for lazy values
+
+- [ ] *myguix/config/values.scm* - Value store implementation
+  - ~<value-store>~ - Value store record
+  - ~make-value-store~ - Constructor
+  - ~store-ref~ - Get value from store
+  - ~store-set!~ - Set value in store
+  - ~store-update!~ - Update existing value
+  - ~store-has?~ - Check value existence
+  - ~store-fold~ - Fold over store values
+  - ~store->alist~ - Export store as alist
+  - ~merge-stores~ - Merge multiple stores
+
+** Phase 3: Contract System
+*** Type-Safe Value Contracts
+
+- [ ] *myguix/features/contracts.scm* - Type contracts and specifications
+  - ~<value-spec>~ - Value specification record
+  - ~<feature-contract>~ - Feature contract record
+  - ~validate-contract~ - Validate contract consistency
+  - ~check-value-against-spec~ - Runtime type checking
+
+** Phase 4: Feature Core
+*** Core Feature Types
+
+- [ ] *myguix/features/core.scm* - Core feature abstractions
+  - ~<feature>~ - Base feature record type
+  - ~feature~ - High-level feature constructor
+  - ~feature?~ - Feature predicate
+  - Accessor functions for feature properties
+  - ~make-feature~ - Low-level feature constructor
+  - ~feature->spec~ - Convert to specification
+
+** Phase 5: Feature Extensions
+*** Version Management
+
+- [ ] *myguix/features/versioning.scm* - Feature version management
+  - ~<versioned-feature>~ - Versioned feature wrapper
+  - ~check-version-compatibility~ - Compatibility checking
+  - ~version->string~ / ~string->version~ - Version serialization
+  - ~version<?~ - Version comparison operators
+  - ~resolve-feature-versions~ - Resolve version conflicts
+
+*** Feature Composition
+
+- [ ] *myguix/features/composition.scm* - Composition combinators
+  - ~feature-sequence~ - Sequential composition
+  - ~feature-parallel~ - Parallel composition  
+  - ~feature-when~ / ~feature-unless~ - Conditional features
+  - ~feature-with-defaults~ - Add default values
+  - ~feature-override~ - Override feature values
+  - ~feature-extend~ - Extend feature services
+  - ~feature-filter-services~ - Filter services
+  - ~feature-map-services~ - Transform services
+  - ~merge-features~ - Merge multiple features
+
+** Phase 6: Configuration Management
+*** Dependency Resolution
+
+- [ ] *myguix/config/resolver.scm* - Dependency resolution algorithms
+  - ~build-dependency-graph~ - Create dependency graph
+  - ~topologically-sort-features~ - Sort by dependencies
+  - ~detect-circular-dependencies~ - Find dependency cycles
+  - ~resolve-dependencies~ - Full dependency resolution
+  - Helper functions for dependency queries
+
+*** Validation Framework
+
+- [ ] *myguix/config/validator.scm* - Configuration validation
+  - ~<validator>~ - Validator record type
+  - ~compose-validators~ - Validator composition
+  - Built-in validators:
+    - ~validate-unique-values~
+    - ~validate-required-values~
+    - ~validate-type-contracts~
+    - ~validate-no-circular-deps~
+  - ~validation-report~ - Generate validation report
+
+** Phase 7: Plugin System
+*** Core Plugin Infrastructure
+
+- [ ] *myguix/plugins/core.scm* - Plugin system foundation
+  - ~<feature-plugin>~ - Plugin record type
+  - ~register-plugin~ - Global plugin registration
+  - ~apply-plugin~ / ~apply-plugins~ - Plugin application
+  - ~plugin-compose~ - Plugin composition
+  - ~with-plugins~ - Plugin context macro
+  - ~default-plugins~ - Built-in plugin list
+
+*** Built-in Plugins
+
+- [ ] *myguix/plugins/validators.scm* - Additional validators
+  - ~security-validator~ - Security policy checks
+  - ~performance-validator~ - Performance analysis
+  - ~compatibility-validator~ - Compatibility checks
+  - ~style-validator~ - Style convention enforcement
+
+- [ ] *myguix/plugins/transformers.scm* - Feature transformers
+  - ~logging-transformer~ - Add logging to features
+  - ~profiling-transformer~ - Add performance profiling
+  - ~caching-transformer~ - Add caching layer
+  - ~debugging-transformer~ - Debug mode transformation
+  - ~optimization-transformer~ - Apply optimizations
+
+** Phase 8: Builder System
+*** Configuration Builder
+
+- [ ] *myguix/config/builder.scm* - High-level configuration building
+  - ~<myguix-config-builder>~ - Builder record type
+  - ~add-feature~ - Add feature to builder
+  - ~add-validator~ - Add custom validator
+  - ~add-plugin~ - Add plugin to pipeline
+  - ~build-myguix-config~ - Build final configuration
+  - ~validate-builder~ - Pre-build validation
+  - ~builder-merge~ - Merge multiple builders
+  - ~with-builder-context~ - Builder context macro
+
+** Phase 9: Serialization
+*** Generic Serialization System
+
+- [ ] *myguix/serializers/core.scm* - Serialization protocol
+  - ~<serializer>~ - Serializer protocol definition
+  - ~serialize~ / ~deserialize~ - Generic functions
+  - ~register-serializer~ - Register new formats
+  - ~find-serializer~ - Lookup serializer
+  - ~with-serialization-context~ - Context management
+
+*** Format Implementations
+
+- [ ] *myguix/serializers/sexp.scm* - S-expression format
+  - S-expression serialization methods
+
+- [ ] *myguix/serializers/json.scm* - JSON format
+  - JSON serialization methods
+
+- [ ] *myguix/serializers/elisp.scm* - Emacs Lisp format
+  - Elisp serialization methods
+
+** Phase 10: Testing Framework
+*** Testing Infrastructure
+
+- [ ] *myguix/testing/mocks.scm* - Mock objects
+  - ~mock-service~ - Create mock service
+  - ~mock-feature~ - Create mock feature
+  - ~mock-value-store~ - Mock value store
+  - ~stub-service-type~ - Service type stubs
+  - ~verify-mock-calls~ - Call verification
+
+- [ ] *myguix/testing/fixtures.scm* - Test fixtures
+  - ~base-feature-fixture~ - Basic feature examples
+  - ~complex-config-fixture~ - Complex configurations
+  - ~circular-dep-fixture~ - Circular dependency cases
+  - ~invalid-contract-fixture~ - Invalid contract examples
+
+- [ ] *myguix/testing/framework.scm* - Testing utilities
+  - ~test-feature~ - Feature testing macro
+  - ~test-config~ - Config testing macro
+  - ~make-test-config~ - Test configuration builder
+  - Assertion functions:
+    - ~assert-values~
+    - ~assert-services~
+    - ~assert-error~
+  - ~with-test-environment~ - Test isolation
+
+** Phase 11: Service Modules
+*** System Services
+
+- [ ] *myguix/system/bare-bone.scm* - Base OS definition
+  - Minimal operating system configuration
+
+- [ ] *myguix/system/services/accounts.scm* - Account management
+  - User account service types
+
+- [ ] *myguix/system/services/admin.scm* - Administrative services
+  - System administration services
+
+*** Home Services
+
+- [ ] *myguix/home/services/shells.scm* - Shell configuration
+  - Shell service definitions
+
+- [ ] *myguix/home/services/emacs.scm* - Emacs services
+  - Emacs configuration services
+
+- [ ] *myguix/home/services/wm.scm* - Window manager services
+  - Window manager configurations
+
+** Phase 12: Public API
+*** API Definition
+
+- [ ] *myguix/api.scm* - Public API exports
+  - Re-export all public symbols
+  - ~define-feature~ - Main feature definition macro
+  - ~build-config~ - High-level configuration builder
+  - Convenience functions and macros
+
+** Development Guidelines
+
+- Write tests alongside each module implementation
+- Document all public APIs with docstrings
+- Follow Guile coding conventions
+- Ensure backward compatibility where applicable
+- Add examples for complex features
+
+** Example Usage
+
+#+BEGIN_SRC scheme
+(use-modules (myguix api))
+
+(define my-config
+  (build-config
+    (myguix-config-builder
+      (features
+        (list
+          (versioned-feature
+            (feature 'base
+              (contract
+                (feature-contract
+                  (provides 
+                    (list (value-spec 
+                            (name 'user-name)
+                            (type string?)
+                            (description "System username"))))
+                  (requires '())))
+              (home-services
+                (lambda (config)
+                  ;; Generate home services
+                  '()))
+              (system-services
+                (lambda (config)
+                  ;; Generate system services
+                  '())))
+            (version "1.0"))
+          
+          (feature-when 
+            (lambda (cfg) (get-value 'enable-emacs cfg))
+            emacs-feature)))
+      
+      (validators
+        (list validate-unique-values
+              validate-no-circular-deps
+              validate-required-values)))))
+#+END_SRC
