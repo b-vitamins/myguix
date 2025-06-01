@@ -1,13 +1,10 @@
 #!/bin/sh
 # Run this from the development branch after making changes
-
 set -e
-
 echo "=== Syncing channel files to master ==="
 
 # Save current branch
 CURRENT_BRANCH=$(git branch --show-current)
-
 if [ "$CURRENT_BRANCH" != "development" ]; then
     echo "Error: This script should be run from the development branch"
     exit 1
@@ -31,15 +28,31 @@ CHANNEL_FILES=(
     "NEWS"
 )
 
+# Check which files have differences between development and master
+FILES_TO_SYNC=()
+for item in "${CHANNEL_FILES[@]}"; do
+    # Check if the item exists in development
+    if git ls-tree development --name-only | grep -q "^${item}$"; then
+        # Check if there are differences between master and development
+        if ! git diff --quiet master..development -- "${item}" 2>/dev/null; then
+            FILES_TO_SYNC+=("${item}")
+            echo "Found changes in: ${item}"
+        fi
+    fi
+done
+
+if [ ${#FILES_TO_SYNC[@]} -eq 0 ]; then
+    echo "No changes to sync between development and master"
+    exit 0
+fi
+
 # Switch to master
 git checkout master
 
-# Sync each file/directory from development
-for item in "${CHANNEL_FILES[@]}"; do
-    if git ls-tree development --name-only | grep -q "^${item}$"; then
-        echo "Syncing ${item}..."
-        git checkout development -- "${item}"
-    fi
+# Sync only files that have changes
+for item in "${FILES_TO_SYNC[@]}"; do
+    echo "Syncing ${item}..."
+    git checkout development -- "${item}"
 done
 
 # Commit if there are changes
@@ -47,7 +60,8 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
     git add -A
     git commit -m "Sync channel files from development
 
-Synced from development branch commit: $(git rev-parse development)"
+Synced from development branch commit: $(git rev-parse development)
+Files synced: ${FILES_TO_SYNC[*]}"
     echo "Changes committed to master"
     echo "Don't forget to: git push origin master"
 else
@@ -56,5 +70,4 @@ fi
 
 # Return to development branch
 git checkout development
-
 echo "=== Sync complete ==="
