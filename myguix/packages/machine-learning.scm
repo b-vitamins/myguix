@@ -3140,27 +3140,29 @@ implemented for PyTorch.")
 (define-public python-triton
   (package
     (name "python-triton")
-    (version "3.3.0")
+    (version "3.3.1")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/triton-lang/triton")
              ;; commit behind the 3.3.0 PyPI tarball (2025-04-09)
-             (commit "819e9c8c29ad2ae96cbd93a1d3b8a3a0f4c8f09c")
+             (commit "d654e0f2d91f07496454e0fcbec2a9b97df37d47")
              (recursive? #t)))
        (file-name (git-file-name name version))
-       (patches (search-myguix-patches
-                 "python-trition-disable-amd-backend.patch"))
        (sha256
-        (base32 "0vvl8qlfqad7z11ir3mxhgb8m953a1520iwkpdrmd14n9k0lyx5h"))))
+        (base32 "0zd69f4ngcv6gir38jfm5jan8jli8xlvlk7k4agqk3xljarkpg2w"))))
     (build-system cmake-build-system)
     (arguments
      (list
       #:configure-flags
       #~(list (string-append "-DLLVM_DIR="
-                             (assoc-ref %build-inputs "llvm")
-                             "/lib/cmake/llvm") "-DBUILD_TESTING=OFF")
+                             (assoc-ref %build-inputs "llvm-for-triton")
+                             "/lib/cmake/llvm") "-DBUILD_TESTING=OFF"
+              (string-append "-DCMAKE_INSTALL_RPATH="
+                             (assoc-ref %build-inputs "llvm-for-triton")
+                             "/lib")
+              "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--exclude-libs,ALL")
       #:phases
       #~(modify-phases %standard-phases
           (add-before 'configure 'patch-source
@@ -3174,12 +3176,6 @@ implemented for PyTorch.")
                  "#")
                 (("add_subdirectory\\((test|unittest|bin)\\)")
                  "#"))
-              ;; 2. MLIR 20 namespace rename
-              (for-each (lambda (f)
-                          (substitute* f
-                            (("call_interface_impl::")
-                             "function_interface_impl::")))
-                        (find-files "lib" "\\.(cpp|h)$"))
               ;; 3. tiny shim for MLIRGPUOps
               (with-output-to-file "cmake/MLIRGPUCompat.cmake"
                 (lambda ()
@@ -3216,29 +3212,30 @@ endif()
               (substitute* "CMakeLists.txt"
                 (("add_subdirectory\\(third_party/proton\\)")
                  "# add_subdirectory(third_party/proton)  # Disabled - requires AMD roctracer"))
-              ;; 8. Fix MLIR 20 API changes for SCF to ControlFlow pass
-              (substitute* "python/src/passes.cc"
-                (("createSCFToControlFlowPass")
-                 "mlir::createConvertSCFToCFPass"))
               ;; 9. make setup.py entirely offline-safe
               (setenv "TRITON_OFFLINE_BUILD" "1")
               ;; 10. Disable Proton build
               (setenv "TRITON_BUILD_PROTON" "OFF")
               ;; 12. use local CUDA / tool-chain
-              (let* ((llvm (assoc-ref inputs "llvm"))
+              (let* ((llvm (assoc-ref inputs "llvm-for-triton"))
                      (cuda (assoc-ref inputs "cuda-toolkit")))
                 (setenv "TRITON_OFFLINE_BUILD" "1")
                 (setenv "TRITON_LLVM_INSTALL_DIR" llvm)
                 (setenv "LLVM_SYSPATH" llvm)
                 (setenv "CUDAToolkit_ROOT" cuda)
-                (setenv "CUDA_HOME" cuda))))
+                (setenv "CUDA_HOME" cuda))
+              ;; Add this new part to set LDFLAGS for proper RPATH
+              (let* ((llvm (assoc-ref inputs "llvm-for-triton")))
+                (setenv "LDFLAGS"
+                        (string-append "-Wl,-rpath=" llvm "/lib "
+                                       (or (getenv "LDFLAGS") ""))))))
           ;; ─────────────────────────────────────────────────────────
           ;; build & install the wheel after the C++ libs
           (replace 'install
             (lambda* (#:key inputs outputs #:allow-other-keys)
               (with-directory-excursion "../source/python"
                 (let* ((out (assoc-ref outputs "out"))
-                       (llvm (assoc-ref inputs "llvm"))
+                       (llvm (assoc-ref inputs "llvm-for-triton"))
                        (rapidjson (assoc-ref inputs "rapidjson"))
                        (tmp-home (string-append (getenv "TMPDIR")
                                                 "/triton-home")))
@@ -3257,7 +3254,10 @@ endif()
                                                          rapidjson)
                                           (string-append "HOME=" tmp-home)
                                           "TRITON_BUILD_PROTON=OFF"
-                                          "MAX_JOBS=4")))
+                                          "MAX_JOBS=4"
+                                          ;; Add LDFLAGS to the environment
+                                          (string-append "LDFLAGS="
+                                                         (getenv "LDFLAGS")))))
                     (apply invoke "env"
                            (append common-env
                                    (list "python"
@@ -3272,10 +3272,7 @@ endif()
                                          (string-append "--prefix=" out)
                                          (car (find-files "dist" "\\.whl$"))))))))))
           (delete 'check))))
-    (inputs (list clang-20
-                  llvm-for-triton
-                  cuda-toolkit
-                  libffi
+    (inputs (list libffi
                   rapidjson
                   python
                   python-numpy
@@ -3286,12 +3283,11 @@ endif()
     (native-inputs (list cmake
                          ninja
                          pkg-config
-                         llvm-for-triton
                          python-pypa-build
                          python-installer
                          python-wrapper
                          pybind11))
-    (propagated-inputs (list cuda-toolkit))
+    (propagated-inputs (list cuda-toolkit llvm-for-triton))
     (native-search-paths
      (list (search-path-specification
             (variable "CUDA_HOME")
