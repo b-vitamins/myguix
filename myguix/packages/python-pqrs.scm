@@ -1883,3 +1883,24 @@ parallelism.")))
     (synopsis "mutation testing for Python 3")
     (description "mutation testing for Python 3.")
     (license license:bsd-3)))
+
+(define-public python-pyclean
+  (package
+    (name "python-pyclean")
+    (version "3.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyclean" version))
+       (sha256
+        (base32 "1z56qxdir83mz0sx1k2qzlw7yvzy8br7j720g66f15l6al0ajgyj"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/bittner/pyclean")
+    (synopsis
+     "Pure Python cross-platform pyclean. Clean up your Python bytecode.")
+    (description
+     "Pure Python cross-platform pyclean.  Clean up your Python bytecode.")
+    (license license:gpl3+)))
