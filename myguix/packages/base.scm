@@ -387,7 +387,11 @@
         python-black
         python-ruff
         python-pytest
-        node-pyright-1.1.401))
+        node-pyright-1.1.401
+        python-pyclean
+        python-mutmut
+        python-tensorboard
+        python-wandb))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
