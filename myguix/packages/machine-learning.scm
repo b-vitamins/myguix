@@ -2972,7 +2972,7 @@ Note: This package provides NVIDIA GPU support.")
                 (setenv "TORCHVISION_LIBRARY"
                         (string-append jpegdir "/lib/"))))))))
     (inputs (list ffmpeg-cuda libpng libjpeg-turbo))
-    (propagated-inputs (list python-numpy-2
+    (propagated-inputs (list python-numpy
                              python-typing-extensions
                              python-requests
                              python-pillow
