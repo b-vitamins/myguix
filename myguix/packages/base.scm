@@ -352,7 +352,10 @@
         tensorpipe-cuda
         magma-cuda
         ffmpeg-cuda
-        mpv-cuda))
+        mpv-cuda
+        python-pytorch-cuda
+        python-torchvision-cuda
+        python-lion-pytorch-cuda))
 
 (define %tree-sitter-packages
   (list tree-sitter
