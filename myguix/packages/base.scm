@@ -47,6 +47,7 @@
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages maths)
+  #:use-module (gnu packages mail)
   #:use-module (gnu packages monitoring)
   #:use-module (gnu packages mp3)
   #:use-module (gnu packages music)
@@ -184,7 +185,8 @@
         sysstat
         procps
         atop
-        inxi))
+        inxi
+        mumi))
 
 (define %monitoring-packages
   (list smartmontools
