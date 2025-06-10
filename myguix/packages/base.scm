@@ -177,6 +177,8 @@
         shepherd-run
         parallel
         tmux
+        neovim
+        vim
         alacritty
         fontconfig
         gnupg
@@ -187,7 +189,8 @@
         procps
         atop
         inxi
-        mumi))
+        mumi
+        ripgrep))
 
 (define %monitoring-packages
   (list smartmontools
