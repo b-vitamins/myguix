@@ -29,10 +29,6 @@
           (string-trim-both (read-line p)))) ""))
 
 ;; Define all credentials in one place
-(define airflow-admin-password
-  (read-secret "/root/airflow-admin.credentials"))
-(define airflow-fernet-key
-  (read-secret "/root/airflow-fernet.key"))
 (define grafana-admin-password
   (read-secret "/root/grafana-admin.credentials"))
 (define meili-master-key
@@ -41,28 +37,10 @@
   (read-secret "/root/minio.credentials"))
 (define neo4j-password
   (read-secret "/root/neo4j.credentials"))
-(define pg-pass
-  (read-secret "/var/lib/postgresql/airflow.pwd"))
 (define qdrant-api-key
   (read-secret "/root/qdrant.credentials"))
 
 ;; Define common environment configurations
-(define airflow-pg-url
-  (string-append "postgresql+psycopg2://airflow:" pg-pass
-                 "@localhost:5432/airflow"))
-
-(define airflow-redis-url
-  "redis://localhost:6379/0")
-
-(define airflow-common-env
-  (list (cons "AIRFLOW__CORE__EXECUTOR" "CeleryExecutor")
-        (cons "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN" airflow-pg-url)
-        (cons "AIRFLOW__CELERY__BROKER_URL" "redis://localhost:6379/0")
-        (cons "AIRFLOW__CELERY__RESULT_BACKEND"
-              (string-append "db+" airflow-pg-url))
-        (cons "AIRFLOW__CORE__FERNET_KEY" airflow-fernet-key)
-        '("AIRFLOW__CORE__LOAD_EXAMPLES" . "false")))
-
 (define cassandra-env
   (list '("CASSANDRA_CLUSTER_NAME" . "NeurIPSCluster")
         '("CASSANDRA_SEEDS" . "127.0.0.1")
@@ -120,27 +98,6 @@
         '("PERSISTENCE_DATA_PATH" . "/var/lib/weaviate")
         '("DEFAULT_VECTORIZER_MODULE" . "none")
         `("ENABLE_MODULES" unquote weaviate-modules)))
-
-;; Apache Airflow 2.9 (CeleryExecutor, host network)
-(define oci-airflow-service-type
-  (oci-container-configuration (auto-start? #t)
-                               (image "apache/airflow:2.9.2-python3.11")
-                               (network "host")
-                               (volumes (list '("/var/lib/airflow/dags" . "/opt/airflow/dags")
-                                              '("/var/lib/airflow/logs" . "/opt/airflow/logs")))
-                               (environment (append airflow-common-env
-                                                    `(("AIRFLOW_USERNAME" . "admin")
-                                                      ("AIRFLOW_PASSWORD"
-                                                       unquote
-                                                       airflow-admin-password))))
-                               (command '("bash" "-ec"
-                                          "
-until pg_isready -h localhost -p 5432 -U airflow; do sleep 2; done
-airflow db migrate
-airflow users create --role Admin                      --username \"$AIRFLOW_USERNAME\"                      --password \"$AIRFLOW_PASSWORD\"                      --firstname Admin --lastname User                      --email admin@example.com || true
-airflow scheduler &
-exec airflow webserver
-"))))
 
 ;; Apache Cassandra - NoSQL distributed database
 (define oci-cassandra-service-type
