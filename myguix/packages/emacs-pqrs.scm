@@ -570,3 +570,23 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package provides Embark actions for Citar, enabling contextual actions on citations and bibliography entries through Embark's interface.")
     (license license:gpl3+)))
 
+(define-public emacs-chronos
+  (package
+    (name "emacs-chronos")
+    (version "20150602")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/dxknight/chronos")
+             (commit "b360d9dae57aa553cf2a14ffa0756a51ad71de09")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1mqdz3rvx0jm80fgzw3s3lqn448kqrlrifdwcg36cqq4qmkpalq4"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/dxknight/chronos")
+    (synopsis "Multiple simultaneous countdown/countup timers for Emacs")
+    (description
+     "Chronos provides multiple simultaneous countdown/countup timers, with an easy-to-use interface and notifications. It's useful for time management, pomodoro technique, or any timing needs.")
+    (license license:gpl3+)))
+
