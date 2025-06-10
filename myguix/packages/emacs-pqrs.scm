@@ -2,6 +2,7 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
+  #:use-module (guix download)
   #:use-module (gnu packages emacs)
   #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix gexp)
@@ -276,3 +277,227 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (description
      "LaTeX YASnippet collection (not only) following the 'Short Math Guide for LaTeX' by Michael Downes and Barbara Beeton.")
     (license license:gpl3+)))
+
+(define-public emacs-zotra
+  (package
+    (name "emacs-zotra")
+    (version "20231014")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/mpedramfar/zotra")
+             (commit "fe9093b226a1678fc6c2fadd31a09d5a22ecdcf1")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "04a7h183kbl8nfkhn2386yljmv7hgxg0cdyw1ir3x60i3nji179z"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/mpedramfar/zotra")
+    (synopsis "Zotero translation server interface for Emacs")
+    (description
+     "Zotra provides an Emacs interface to the Zotero translation server, allowing you to add bibliographic entries from URLs, DOIs, ISBNs, and other identifiers to your bibliography files.")
+    (license license:gpl3+)))
+
+(define-public emacs-sly-repl-ansi-color
+  (package
+    (name "emacs-sly-repl-ansi-color")
+    (version "20171020")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/PuercoPop/sly-repl-ansi-color")
+             (commit "b9cd52d1cf927bf7e08582d46ab0bcf1d4fb5048")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0fgcn6bwgz8yyjza07kfi86siargvpq4kp4j20hs6b67ckxjxx0x"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-sly))
+    (home-page "https://github.com/PuercoPop/sly-repl-ansi-color")
+    (synopsis "ANSI color support for SLY REPL")
+    (description
+     "This package adds ANSI color support to the SLY REPL, making output from Common Lisp programs that use ANSI escape sequences display with proper colors.")
+    (license license:gpl3+)))
+
+(define-public emacs-python-test
+  (package
+    (name "emacs-python-test")
+    (version "20181018")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/emacs-pe/python-test.el")
+             (commit "f899975b133539e19ba822e4b0bfd1a28572967e")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0ww0qf9hsd8j31dc0p3fmsiqsir3mqbd4pwv4i29qidmbgrk3cv0"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/emacs-pe/python-test.el")
+    (synopsis "Python testing integration for Emacs")
+    (description
+     "This package provides a unified interface for running Python tests using various testing frameworks including pytest, unittest, and nose from within Emacs.")
+    (license license:gpl3+)))
+
+(define-public emacs-pytest
+  (package
+    (name "emacs-pytest")
+    (version "20230810")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/ionrock/pytest-el")
+             (commit "8692f965bf4ddf3d755cf1fbf77a7a768e22460e")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "13s3zqxjlas4rq70gxgl8nrhasrx8j8ml9xls7lgghk12ppiqil9"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-s))
+    (home-page "https://github.com/ionrock/pytest-el")
+    (synopsis "Run pytest from Emacs")
+    (description
+     "This package provides a convenient interface for running pytest tests from within Emacs, with support for running specific tests, test modules, and viewing test output.")
+    (license license:gpl3+)))
+
+(define-public emacs-pyenv-mode
+  (package
+    (name "emacs-pyenv-mode")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pythonic-emacs/pyenv-mode")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1y3q1k195wp2kgp00a1y34i20zm80wdv2kxigh6gbn2r6qzkqrar"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-pythonic))
+    (home-page "https://github.com/pythonic-emacs/pyenv-mode")
+    (synopsis "Integrate pyenv with python-mode")
+    (description
+     "This package provides integration between pyenv and Emacs, allowing you to automatically activate pyenv python versions and virtualenvs within Emacs.")
+    (license license:gpl3+)))
+
+(define-public emacs-pomidor
+  (package
+    (name "emacs-pomidor")
+    (version "0.6.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/TatriX/pomidor")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1qsgx1vh0xsk1wwpyx8lpnpa4879bzf0gil28v94sncbri2c6f7w"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-alert emacs-dash))
+    (home-page "https://github.com/TatriX/pomidor")
+    (synopsis "Pomodoro technique timer for Emacs")
+    (description
+     "Pomidor is a simple and cool Pomodoro technique timer for Emacs. It provides a clean interface for managing work sessions and breaks using the Pomodoro technique.")
+    (license license:gpl3+)))
+
+(define-public emacs-poetry
+  (package
+    (name "emacs-poetry")
+    (version "0.2.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/cybniv/poetry.el")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1b473vpj5ac9pgkcgqgjqska5g6gr81djvixphb9r58334wyr9d2"))))
+    (build-system emacs-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'update-transient-api
+                    (lambda _
+                      ;; Update to new transient API
+                      (substitute* "poetry.el"
+                        (("define-transient-command")
+                         "transient-define-prefix")
+                        (("define-infix-argument")
+                         "transient-define-infix")) #t)))))
+    (propagated-inputs (list emacs-transient emacs-pyvenv emacs-xterm-color))
+    (home-page "https://github.com/cybniv/poetry.el")
+    (synopsis "Python Poetry integration for Emacs")
+    (description
+     "This package provides integration with Python Poetry, allowing you to manage Poetry projects, virtual environments, and dependencies from within Emacs.")
+    (license license:gpl3+)))
+
+(define-public emacs-markdown-toc
+  (package
+    (name "emacs-markdown-toc")
+    (version "0.1.5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/ardumont/markdown-toc")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1l49hi4nwralx5kg4aqjj2b592y71ba4i91vmlzk5rrcjmdnc6b0"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-markdown-mode emacs-dash emacs-s))
+    (home-page "https://github.com/ardumont/markdown-toc")
+    (synopsis "Generate and update table of contents for Markdown files")
+    (description
+     "This package provides functionality to generate and update a table of contents for Markdown files within Emacs, making it easy to navigate large documents.")
+    (license license:gpl3+)))
+
+(define-public emacs-justify-kp
+  (package
+    (name "emacs-justify-kp")
+    (version "2024.01")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/Fuco1/justify-kp")
+             (commit "33a186e297c0359547820088669486afd7b5fddb")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "14k75m10lxfknij5np5s4hhl9d7qbmkdcqkq145hkhgp81qgld73"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-dash emacs-s))
+    (home-page "https://github.com/Fuco1/justify-kp")
+    (synopsis "Text justification using Knuth & Plass algorithm")
+    (description
+     "This package provides text justification using the Knuth & Plass line breaking algorithm, which produces better-looking justified text than the standard Emacs fill commands.")
+    (license license:gpl3+)))
+
+(define-public emacs-info+
+  (package
+    (name "emacs-info+")
+    (version "5228")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://www.emacswiki.org/emacs/download/info+.el")
+       (file-name "info+.el") ;Changed to match the expected name
+       (sha256
+        (base32 "082gzqqr257yid0sfjfcqgn9z0n6c3ahd0mysdsff7a3c0rpvd93"))))
+    (build-system emacs-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'fix-self-require
+                    (lambda _
+                      ;; Remove self-require that causes circular dependency
+                      (substitute* "info+.el"
+                        (("\\(require 'info\\+\\)")
+                         "")) #t)))))
+    (home-page "https://www.emacswiki.org/emacs/InfoPlus")
+    (synopsis "Extensions to Emacs' Info mode")
+    (description
+     "Info+ extends the standard Emacs Info mode with many additional features including better navigation, enhanced display, and additional commands for working with Info documentation.")
+    (license license:gpl3+)))
+
