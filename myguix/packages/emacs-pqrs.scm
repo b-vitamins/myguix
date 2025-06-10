@@ -402,3 +402,34 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "Pomidor is a simple and cool Pomodoro technique timer for Emacs. It provides a clean interface for managing work sessions and breaks using the Pomodoro technique.")
     (license license:gpl3+)))
 
+(define-public emacs-poetry
+  (package
+    (name "emacs-poetry")
+    (version "0.2.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/cybniv/poetry.el")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1b473vpj5ac9pgkcgqgjqska5g6gr81djvixphb9r58334wyr9d2"))))
+    (build-system emacs-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'update-transient-api
+                    (lambda _
+                      ;; Update to new transient API
+                      (substitute* "poetry.el"
+                        (("define-transient-command")
+                         "transient-define-prefix")
+                        (("define-infix-argument")
+                         "transient-define-infix")) #t)))))
+    (propagated-inputs (list emacs-transient emacs-pyvenv emacs-xterm-color))
+    (home-page "https://github.com/cybniv/poetry.el")
+    (synopsis "Python Poetry integration for Emacs")
+    (description
+     "This package provides integration with Python Poetry, allowing you to manage Poetry projects, virtual environments, and dependencies from within Emacs.")
+    (license license:gpl3+)))
+
