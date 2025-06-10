@@ -454,3 +454,24 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package provides functionality to generate and update a table of contents for Markdown files within Emacs, making it easy to navigate large documents.")
     (license license:gpl3+)))
 
+(define-public emacs-justify-kp
+  (package
+    (name "emacs-justify-kp")
+    (version "2024.01")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/Fuco1/justify-kp")
+             (commit "33a186e297c0359547820088669486afd7b5fddb")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "14k75m10lxfknij5np5s4hhl9d7qbmkdcqkq145hkhgp81qgld73"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-dash emacs-s))
+    (home-page "https://github.com/Fuco1/justify-kp")
+    (synopsis "Text justification using Knuth & Plass algorithm")
+    (description
+     "This package provides text justification using the Knuth & Plass line breaking algorithm, which produces better-looking justified text than the standard Emacs fill commands.")
+    (license license:gpl3+)))
+
