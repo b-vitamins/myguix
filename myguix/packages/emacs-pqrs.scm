@@ -524,3 +524,25 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package provides an Ivy interface for flyspell-correct, allowing you to correct spelling errors using Ivy's completion interface.")
     (license license:gpl3+)))
 
+(define-public emacs-embark-consult
+  (package
+    (name "emacs-embark-consult")
+    (version "1.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/oantolin/embark")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1361jvwr3wjbpmq6dfkrhhhv9vrmqpkp1j18syp311g6h8hzi3hg"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:include '("embark-consult.el")))
+    (propagated-inputs (list emacs-embark emacs-consult))
+    (home-page "https://github.com/oantolin/embark")
+    (synopsis "Consult integration for Embark")
+    (description
+     "This package provides integration between Embark and Consult, including exporters for Consult async search commands and support for Consult preview with Embark collect buffers.")
+    (license license:gpl3+)))
