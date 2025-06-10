@@ -319,3 +319,23 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package adds ANSI color support to the SLY REPL, making output from Common Lisp programs that use ANSI escape sequences display with proper colors.")
     (license license:gpl3+)))
 
+(define-public emacs-python-test
+  (package
+    (name "emacs-python-test")
+    (version "20181018")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/emacs-pe/python-test.el")
+             (commit "f899975b133539e19ba822e4b0bfd1a28572967e")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0ww0qf9hsd8j31dc0p3fmsiqsir3mqbd4pwv4i29qidmbgrk3cv0"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/emacs-pe/python-test.el")
+    (synopsis "Python testing integration for Emacs")
+    (description
+     "This package provides a unified interface for running Python tests using various testing frameworks including pytest, unittest, and nose from within Emacs.")
+    (license license:gpl3+)))
+
