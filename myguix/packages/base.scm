@@ -105,6 +105,7 @@
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages messaging)
   #:use-module (myguix packages mozilla)
+  #:use-module (myguix packages node-pqrs)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
@@ -176,6 +177,8 @@
         shepherd-run
         parallel
         tmux
+        neovim
+        vim
         alacritty
         fontconfig
         gnupg
@@ -186,7 +189,8 @@
         procps
         atop
         inxi
-        mumi))
+        mumi
+        ripgrep))
 
 (define %monitoring-packages
   (list smartmontools
@@ -199,7 +203,7 @@
         python-py3nvml))
 
 (define %versioning-packages
-  (list git git-lfs git-crypt pre-commit))
+  (list git git-lfs git-crypt pre-commit patch))
 
 (define %compression-packages
   (list tar
@@ -338,7 +342,7 @@
   (list blender kdenlive obs))
 
 (define %development-packages
-  (list gcc-toolchain direnv))
+  (list gcc-toolchain direnv make cmake cmakelang automake autoconf valgrind perf))
 
 (define %cuda-packages
   (list cuda-toolkit
@@ -391,7 +395,7 @@
         python-black
         python-ruff
         python-pytest
-        node-pyright-1.1.401
+        node-pyright
         python-pyclean
         python-mutmut
         python-tensorboard
