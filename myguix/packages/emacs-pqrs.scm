@@ -380,3 +380,25 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (description
      "This package provides integration between pyenv and Emacs, allowing you to automatically activate pyenv python versions and virtualenvs within Emacs.")
     (license license:gpl3+)))
+
+(define-public emacs-pomidor
+  (package
+    (name "emacs-pomidor")
+    (version "0.6.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/TatriX/pomidor")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1qsgx1vh0xsk1wwpyx8lpnpa4879bzf0gil28v94sncbri2c6f7w"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-alert emacs-dash))
+    (home-page "https://github.com/TatriX/pomidor")
+    (synopsis "Pomodoro technique timer for Emacs")
+    (description
+     "Pomidor is a simple and cool Pomodoro technique timer for Emacs. It provides a clean interface for managing work sessions and breaks using the Pomodoro technique.")
+    (license license:gpl3+)))
+
