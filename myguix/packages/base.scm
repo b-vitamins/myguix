@@ -105,6 +105,7 @@
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages messaging)
   #:use-module (myguix packages mozilla)
+  #:use-module (myguix packages node-pqrs)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
@@ -391,7 +392,7 @@
         python-black
         python-ruff
         python-pytest
-        node-pyright-1.1.401
+        node-pyright
         python-pyclean
         python-mutmut
         python-tensorboard
