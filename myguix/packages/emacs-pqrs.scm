@@ -281,7 +281,7 @@ All available commands are listed in a hydra help menu accessible by pressing `?
 (define-public emacs-zotra
   (package
     (name "emacs-zotra")
-    (version "20231014") ;Use date of commit as version
+    (version "20231014")
     (source
      (origin
        (method git-fetch)
@@ -296,5 +296,26 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (synopsis "Zotero translation server interface for Emacs")
     (description
      "Zotra provides an Emacs interface to the Zotero translation server, allowing you to add bibliographic entries from URLs, DOIs, ISBNs, and other identifiers to your bibliography files.")
+    (license license:gpl3+)))
+
+(define-public emacs-sly-repl-ansi-color
+  (package
+    (name "emacs-sly-repl-ansi-color")
+    (version "20171020")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/PuercoPop/sly-repl-ansi-color")
+             (commit "b9cd52d1cf927bf7e08582d46ab0bcf1d4fb5048")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0fgcn6bwgz8yyjza07kfi86siargvpq4kp4j20hs6b67ckxjxx0x"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-sly))
+    (home-page "https://github.com/PuercoPop/sly-repl-ansi-color")
+    (synopsis "ANSI color support for SLY REPL")
+    (description
+     "This package adds ANSI color support to the SLY REPL, making output from Common Lisp programs that use ANSI escape sequences display with proper colors.")
     (license license:gpl3+)))
 
