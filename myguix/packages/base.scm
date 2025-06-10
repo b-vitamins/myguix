@@ -87,8 +87,9 @@
   #:use-module (gnu packages tmux)
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages upnp)
+  #:use-module (gnu packages valgrind)
   #:use-module (gnu packages version-control)
-    #:use-module (gnu packages vim)
+  #:use-module (gnu packages vim)
   #:use-module (gnu packages virtualization)
   #:use-module (gnu packages video)
   #:use-module (gnu packages vpn)
@@ -343,7 +344,7 @@
   (list blender kdenlive obs))
 
 (define %development-packages
-  (list gcc-toolchain direnv make cmake cmakelang automake autoconf valgrind perf))
+  (list gcc-toolchain direnv gnu-make cmake cmakelang automake autoconf valgrind perf))
 
 (define %cuda-packages
   (list cuda-toolkit
