@@ -546,3 +546,27 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (description
      "This package provides integration between Embark and Consult, including exporters for Consult async search commands and support for Consult preview with Embark collect buffers.")
     (license license:gpl3+)))
+
+(define-public emacs-citar-embark
+  (package
+    (name "emacs-citar-embark")
+    (version "1.4.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/emacs-citar/citar")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "07q94iplkx29lggrs5xfzj42rxfcn2cnbr90jgifk29jshcz30pv"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:include '("citar-embark.el")))
+    (propagated-inputs (list emacs-citar emacs-embark))
+    (home-page "https://github.com/emacs-citar/citar")
+    (synopsis "Embark integration for Citar")
+    (description
+     "This package provides Embark actions for Citar, enabling contextual actions on citations and bibliography entries through Embark's interface.")
+    (license license:gpl3+)))
+
