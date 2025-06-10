@@ -1815,38 +1815,6 @@ parallelism.")))
                        (delete "python-cython-0.29.35")
                        (prepend python-cython-3))))))
 
-(define-public node-pyright-1.1.401
-  (package
-    (name "node-pyright")
-    (version "1.1.401")
-    (source
-     (origin
-       (method url-fetch)
-       (uri "https://registry.npmjs.org/pyright/-/pyright-1.1.401.tgz")
-       (sha256
-        (base32 "03rxk89ql404ks5sd4r12ihy2px15cshhk3gv8hc3yb32xsfwjii"))))
-    (build-system node-build-system)
-    (arguments
-     (list
-      #:tests? #f
-      #:phases
-      #~(modify-phases %standard-phases
-          (delete 'build)
-          (add-after 'patch-dependencies 'delete-dev-dependencies
-            (lambda _
-              (modify-json (delete-dependencies '("@types/node"
-                                                  "copy-webpack-plugin"
-                                                  "esbuild-loader"
-                                                  "shx"
-                                                  "ts-loader"
-                                                  "typescript"
-                                                  "webpack"
-                                                  "webpack-cli"))))))))
-    (home-page "https://github.com/Microsoft/pyright#readme")
-    (synopsis "Type checker for the Python language")
-    (description "Type checker for the Python language")
-    (license license:expat)))
-
 (define-public python-mutmut
   (package
     (name "python-mutmut")
