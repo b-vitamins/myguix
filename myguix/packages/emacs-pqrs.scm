@@ -433,3 +433,24 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package provides integration with Python Poetry, allowing you to manage Poetry projects, virtual environments, and dependencies from within Emacs.")
     (license license:gpl3+)))
 
+(define-public emacs-markdown-toc
+  (package
+    (name "emacs-markdown-toc")
+    (version "0.1.5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/ardumont/markdown-toc")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1l49hi4nwralx5kg4aqjj2b592y71ba4i91vmlzk5rrcjmdnc6b0"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-markdown-mode emacs-dash emacs-s))
+    (home-page "https://github.com/ardumont/markdown-toc")
+    (synopsis "Generate and update table of contents for Markdown files")
+    (description
+     "This package provides functionality to generate and update a table of contents for Markdown files within Emacs, making it easy to navigate large documents.")
+    (license license:gpl3+)))
+
