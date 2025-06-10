@@ -590,3 +590,37 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "Chronos provides multiple simultaneous countdown/countup timers, with an easy-to-use interface and notifications. It's useful for time management, pomodoro technique, or any timing needs.")
     (license license:gpl3+)))
 
+(define-public emacs-auctex-latexmk
+  (package
+    (name "emacs-auctex-latexmk")
+    (version "1.0.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/tom-tan/auctex-latexmk")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0slihygr74vyijnyzssckapscxmdd7zlgrs0wvmpw9hnjzwwzzql"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'patch-tex-buf-require
+                    (lambda _
+                      ;; In newer AUCTeX versions, tex-buf was merged into tex
+                      (substitute* "auctex-latexmk.el"
+                        (("\\(require 'tex-buf\\)")
+                         "(require 'tex)")) #t))
+                  (add-before 'build 'set-home
+                    (lambda _
+                      ;; Set HOME to a writable directory for the build phase
+                      (setenv "HOME"
+                              (getcwd)) #t)))))
+    (propagated-inputs (list emacs-auctex))
+    (home-page "https://github.com/tom-tan/auctex-latexmk")
+    (synopsis "Add LatexMk support to AUCTeX")
+    (description
+     "This package adds LatexMk support to AUCTeX. LatexMk is a perl script that runs LaTeX the correct number of times to resolve cross references, etc. It can also run bibtex, makeindex, and other tools automatically.")
+    (license license:gpl3+)))
+
