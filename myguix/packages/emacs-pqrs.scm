@@ -359,3 +359,24 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (description
      "This package provides a convenient interface for running pytest tests from within Emacs, with support for running specific tests, test modules, and viewing test output.")
     (license license:gpl3+)))
+
+(define-public emacs-pyenv-mode
+  (package
+    (name "emacs-pyenv-mode")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pythonic-emacs/pyenv-mode")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1y3q1k195wp2kgp00a1y34i20zm80wdv2kxigh6gbn2r6qzkqrar"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-pythonic))
+    (home-page "https://github.com/pythonic-emacs/pyenv-mode")
+    (synopsis "Integrate pyenv with python-mode")
+    (description
+     "This package provides integration between pyenv and Emacs, allowing you to automatically activate pyenv python versions and virtualenvs within Emacs.")
+    (license license:gpl3+)))
