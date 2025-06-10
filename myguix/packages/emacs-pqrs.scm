@@ -339,3 +339,23 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package provides a unified interface for running Python tests using various testing frameworks including pytest, unittest, and nose from within Emacs.")
     (license license:gpl3+)))
 
+(define-public emacs-pytest
+  (package
+    (name "emacs-pytest")
+    (version "20230810")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/ionrock/pytest-el")
+             (commit "8692f965bf4ddf3d755cf1fbf77a7a768e22460e")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "13s3zqxjlas4rq70gxgl8nrhasrx8j8ml9xls7lgghk12ppiqil9"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-s))
+    (home-page "https://github.com/ionrock/pytest-el")
+    (synopsis "Run pytest from Emacs")
+    (description
+     "This package provides a convenient interface for running pytest tests from within Emacs, with support for running specific tests, test modules, and viewing test output.")
+    (license license:gpl3+)))
