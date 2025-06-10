@@ -2,6 +2,7 @@
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-xyz)
+  #:use-module (gnu packages llvm)
   #:use-module (myguix packages emacs-pqrs)
   #:use-module (gnu home services)
   #:use-module (gnu services)
