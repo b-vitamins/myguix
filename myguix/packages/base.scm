@@ -88,6 +88,7 @@
   #:use-module (gnu packages tree-sitter)
   #:use-module (gnu packages upnp)
   #:use-module (gnu packages version-control)
+    #:use-module (gnu packages vim)
   #:use-module (gnu packages virtualization)
   #:use-module (gnu packages video)
   #:use-module (gnu packages vpn)
