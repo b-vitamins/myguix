@@ -501,3 +501,26 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "Info+ extends the standard Emacs Info mode with many additional features including better navigation, enhanced display, and additional commands for working with Info documentation.")
     (license license:gpl3+)))
 
+(define-public emacs-flyspell-correct-ivy
+  (package
+    (name "emacs-flyspell-correct-ivy")
+    (version "0.6.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/d12frosted/flyspell-correct")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1m5da6r82hk0c2x3lw03qnkk79sx67875afw0ybblj3cmfk6szd1"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:include '("flyspell-correct-ivy.el" "flyspell-correct.el")))
+    (propagated-inputs (list emacs-flyspell-correct emacs-ivy))
+    (home-page "https://github.com/d12frosted/flyspell-correct")
+    (synopsis "Ivy interface for flyspell-correct")
+    (description
+     "This package provides an Ivy interface for flyspell-correct, allowing you to correct spelling errors using Ivy's completion interface.")
+    (license license:gpl3+)))
+
