@@ -475,3 +475,29 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package provides text justification using the Knuth & Plass line breaking algorithm, which produces better-looking justified text than the standard Emacs fill commands.")
     (license license:gpl3+)))
 
+(define-public emacs-info+
+  (package
+    (name "emacs-info+")
+    (version "5228")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://www.emacswiki.org/emacs/download/info+.el")
+       (file-name "info+.el") ;Changed to match the expected name
+       (sha256
+        (base32 "082gzqqr257yid0sfjfcqgn9z0n6c3ahd0mysdsff7a3c0rpvd93"))))
+    (build-system emacs-build-system)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'fix-self-require
+                    (lambda _
+                      ;; Remove self-require that causes circular dependency
+                      (substitute* "info+.el"
+                        (("\\(require 'info\\+\\)")
+                         "")) #t)))))
+    (home-page "https://www.emacswiki.org/emacs/InfoPlus")
+    (synopsis "Extensions to Emacs' Info mode")
+    (description
+     "Info+ extends the standard Emacs Info mode with many additional features including better navigation, enhanced display, and additional commands for working with Info documentation.")
+    (license license:gpl3+)))
+
