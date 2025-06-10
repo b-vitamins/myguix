@@ -11,78 +11,112 @@
 
 (define (my-home-emacs-profile-service-type config)
   (list emacs-next
+        emacs-academic-phrases
         emacs-ace-window
-        emacs-adaptive-wrap
         emacs-all-the-icons
-        emacs-arxiv-mode
+        emacs-all-the-icons-completion
+        emacs-all-the-icons-dired
         emacs-auctex
-        emacs-auth-source-pass
+        emacs-auctex-latexmk
         emacs-cape
+        emacs-cargo
+        emacs-cdlatex
+        emacs-chronos
         emacs-citar
+        emacs-citar-embark
+        emacs-citar-org-roam
+        emacs-clang-format
         emacs-cmake-mode
+        emacs-company-auctex
         emacs-consult
-        emacs-consult-org-roam
+        emacs-consult-eglot
         emacs-corfu
-        emacs-dap-mode
-        emacs-dired-hacks
-        emacs-direnv
-        emacs-dockerfile-mode
-        emacs-doom-modeline
-        emacs-doom-themes
+        emacs-dired-rsync
+        emacs-eat
+        emacs-ednc
+        emacs-elfeed
+        emacs-elfeed-org
         emacs-embark
-        emacs-engrave-faces
-        emacs-exec-path-from-shell
-        emacs-f
+        emacs-embark-consult
+        emacs-emms
+        emacs-eshell-prompt-extras
+        emacs-eshell-syntax-highlighting
+        emacs-expand-region
+        emacs-flyspell-correct
+        emacs-flyspell-correct-ivy
         emacs-geiser
+        emacs-geiser-eros
         emacs-geiser-guile
-        emacs-gnuplot
-        emacs-god-mode
+        emacs-git-gutter
+        emacs-git-gutter-fringe
+        emacs-git-link
+        emacs-git-timemachine
         emacs-gptel
-        emacs-guix
-        emacs-haskell-mode
+        emacs-gptel-quick
         emacs-helpful
-        emacs-jit-spell
-        emacs-json-mode
-        emacs-julia-mode
+        emacs-hide-mode-line
+        emacs-highlight-indent-guides
+        emacs-hl-todo
+        emacs-htmlize
+        emacs-hydra
+        emacs-info+
+        emacs-jupyter
+        emacs-justify-kp
         emacs-kind-icon
-        emacs-lua-mode
+        emacs-langtool
+        emacs-lispy
         emacs-magit
+        emacs-magit-todos
         emacs-marginalia
         emacs-markdown-mode
+        emacs-markdown-toc
+        emacs-minions
         emacs-mjolnir-mode
         emacs-modus-themes
-        emacs-nerd-icons
-        emacs-nerd-icons-completion
-        emacs-nerd-icons-corfu
-        emacs-nerd-icons-dired
-        emacs-nerd-icons-ibuffer
-        emacs-no-littering
-        emacs-oauth2
+        emacs-nov-el
         emacs-olivetti
         emacs-orderless
-        emacs-org-fragtog
+        emacs-org-appear
+        emacs-org-contrib
+        emacs-org-make-toc
+        emacs-org-modern
+        emacs-org-noter
+        emacs-org-pomodoro
+        emacs-org-ref
         emacs-org-roam
-        emacs-org-roam-ui
-        emacs-password-store
+        emacs-org-super-agenda
+        emacs-org-wild-notifier
+        emacs-ox-html-stable-ids
+        emacs-ox-pandoc
+        emacs-pandoc-mode
         emacs-pdf-tools
-        emacs-pinentry
+        emacs-perspective
+        emacs-poetry
+        emacs-pomidor
+        emacs-pyenv-mode
+        emacs-pytest
+        emacs-python-black
+        emacs-python-pytest
+        emacs-python-test
+        emacs-pyvenv
         emacs-rainbow-delimiters
-        emacs-rainbow-mode
-        emacs-reformatter
-        emacs-rustic
-        emacs-setup
-        emacs-simple-httpd
+        emacs-rust-mode
+        emacs-saveplace-pdf-view
+        emacs-sly
+        emacs-sly-asdf
+        emacs-sly-quicklisp
+        emacs-sly-repl-ansi-color
         emacs-smartparens
         emacs-toml-mode
-        emacs-treemacs
+        emacs-use-package
         emacs-vertico
-        emacs-vterm
-        emacs-websocket
+        emacs-visual-fill-column
+        emacs-wc-mode
+        emacs-webpaste
         emacs-which-key
-        emacs-windsize
-        emacs-xref
-        emacs-yaml-mode
-        emacs-yasnippet))
+        emacs-writegood-mode
+        emacs-ws-butler
+        emacs-zotra))
 
 (define my-home-emacs-service-type
   (service-type (name 'home-emacs)
