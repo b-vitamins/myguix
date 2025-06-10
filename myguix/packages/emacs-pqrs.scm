@@ -2,6 +2,7 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
+  #:use-module (guix download)
   #:use-module (gnu packages emacs)
   #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix gexp)
@@ -276,3 +277,24 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (description
      "LaTeX YASnippet collection (not only) following the 'Short Math Guide for LaTeX' by Michael Downes and Barbara Beeton.")
     (license license:gpl3+)))
+
+(define-public emacs-zotra
+  (package
+    (name "emacs-zotra")
+    (version "20231014") ;Use date of commit as version
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/mpedramfar/zotra")
+             (commit "fe9093b226a1678fc6c2fadd31a09d5a22ecdcf1")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "04a7h183kbl8nfkhn2386yljmv7hgxg0cdyw1ir3x60i3nji179z"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/mpedramfar/zotra")
+    (synopsis "Zotero translation server interface for Emacs")
+    (description
+     "Zotra provides an Emacs interface to the Zotero translation server, allowing you to add bibliographic entries from URLs, DOIs, ISBNs, and other identifiers to your bibliography files.")
+    (license license:gpl3+)))
+
