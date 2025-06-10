@@ -645,3 +645,33 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "Cargo mode provides keybindings for common Cargo commands within Rust projects. It integrates with rust-mode to provide a convenient interface to cargo build, test, run, and other cargo commands.")
     (license license:gpl3+)))
 
+(define-public emacs-python-pytest
+  (package
+    (name "emacs-python-pytest")
+    (version "3.4.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/wbolster/emacs-python-pytest")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ahpzay6gbxrcin4ldcp1sm17fcvg94n729haj3zgcalsmhjlx90"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-dash emacs-transient emacs-s))
+    (home-page "https://github.com/wbolster/emacs-python-pytest")
+    (synopsis "Run pytest inside Emacs")
+    (description
+     "This package provides a simple interface for running pytest tests from 
+within Emacs.  It offers:
+@itemize
+@item Run pytest on the entire test suite, a single test file, or a single test
+@item Jump to the first error
+@item Integrated with Emacs' compilation mode for error navigation  
+@item Customizable pytest flags and options
+@item Support for running tests at point
+@item Integration with project.el and projectile for finding project roots
+@end itemize")
+    (license license:bsd-3)))
+
