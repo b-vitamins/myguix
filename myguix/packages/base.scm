@@ -342,7 +342,7 @@
   (list blender kdenlive obs))
 
 (define %development-packages
-  (list gcc-toolchain direnv))
+  (list gcc-toolchain direnv make cmake cmakelang automake autoconf valgrind perf))
 
 (define %cuda-packages
   (list cuda-toolkit
