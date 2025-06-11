@@ -3,4 +3,7 @@
 
 set -e -x
 
+# Ensure config.rpath is available for Guile's lib linking macros.
+cp -n /usr/share/gettext/config.rpath build-aux/
+
 autoreconf -vfi
