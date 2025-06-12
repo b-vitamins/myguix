@@ -318,6 +318,7 @@
                       (build-targets ''())
                       (bazel-arguments ''())
                       (bazel-configuration ''())
+                      bazelrc
                       (run-command ''())
                       vendored-inputs-hash
                       (parallel-build? #t)
@@ -354,8 +355,9 @@
                                                            fetch-targets
                                                            #:bazel-arguments
                                                            bazel-arguments
-                                                           #:bazel-configuration
-                                                           bazel-configuration)
+                                                          #:bazel-configuration
+                                                          bazel-configuration)
+                                                          #:bazelrc #$bazelrc
                                                           #:bazel-arguments #$bazel-arguments
                                                           #:system #$system
                                                           #:tests? #$tests?
