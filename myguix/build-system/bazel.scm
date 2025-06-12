@@ -128,7 +128,7 @@
                                             #$bazel-configuration
                                             (apply invoke
                                              "bazel"
-                                             "--batch"
+                                             "--max_idle_secs=1"
                                              (string-append "--output_base="
                                                             %bazel-out)
                                              (string-append

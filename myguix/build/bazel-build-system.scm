@@ -75,7 +75,7 @@
   (setenv "HOME" %build-directory)
   (apply invoke
          "bazel"
-         "--batch"
+         "--max_idle_secs=1"
          (string-append "--output_base=" %bazel-out)
          (string-append "--output_user_root=" %bazel-user-root)
          (if (null? run-command) "build" "run")
