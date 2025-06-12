@@ -39,6 +39,31 @@
         #:build-targets '("//:foo"))
        (let ((content (call-with-input-file args-file get-string-all)))
          (and (not (string-contains content "--batch"))
-              (string-contains content "--max_idle_secs=1")))))))
+             (string-contains content "--max_idle_secs=1")))))))
+
+(test-assert "custom bazelrc is honored"
+  (call-with-temporary-directory
+   (lambda (tmp)
+     (let* ((bin (string-append tmp "/bin"))
+            (args-file (string-append tmp "/args"))
+            (rc-file (string-append tmp "/my.bazelrc"))
+            (bazel (string-append bin "/bazel")))
+       (mkdir-p bin)
+       (call-with-output-file bazel
+         (lambda (port)
+           (format port "#!~a\n" (which "sh"))
+           (format port "echo \"$@\" > $ARGS_FILE\n")))
+       (call-with-output-file rc-file (const #t))
+       (chmod bazel #o755)
+       (setenv "PATH" (string-append bin ":" (getenv "PATH")))
+       (setenv "ARGS_FILE" args-file)
+       (setenv "NIX_BUILD_TOP" tmp)
+       ((module-ref (resolve-module '(myguix build bazel-build-system)) 'build)
+        #:parallel-build? #f
+        #:bazel-arguments '()
+        #:bazelrc rc-file
+        #:build-targets '("//:foo"))
+       (string-contains (call-with-input-file args-file get-string-all)
+                       rc-file)))))
 
 (test-end)

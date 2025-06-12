@@ -62,6 +62,7 @@
 (define* (build #:key parallel-build?
                 build-targets
                 bazel-arguments
+                bazelrc
                 (run-command '())
                 #:allow-other-keys)
   (define %build-directory
@@ -73,37 +74,43 @@
   (setenv "USER" "homeless-shelter")
   ;; Ensure HOME is set for tools that rely on it.
   (setenv "HOME" %build-directory)
-  (apply invoke
-         "bazel"
-         "--max_idle_secs=1"
-         (string-append "--output_base=" %bazel-out)
-         (string-append "--output_user_root=" %bazel-user-root)
-         (if (null? run-command) "build" "run")
-         "--curses=no"
-         "--verbose_failures"
-         "--subcommands"
-         "--action_env=PATH"
-         "--action_env=LIBRARY_PATH"
-         "--action_env=C_INCLUDE_PATH"
-         "--action_env=CPLUS_INCLUDE_PATH"
-         "--action_env=GUIX_LOCPATH"
-         "--action_env=TF_SYSTEM_LIBS"
-         "--host_action_env=TF_SYSTEM_LIBS"
-         "--host_action_env=PATH"
-         "--host_action_env=LIBRARY_PATH"
-         "--host_action_env=C_INCLUDE_PATH"
-         "--host_action_env=CPLUS_INCLUDE_PATH"
-         "--host_action_env=GUIX_LOCPATH"
-         "-c"
-         "opt"
-         (append bazel-arguments
-                 (list "--jobs"
-                       (if parallel-build?
-                           (number->string (parallel-job-count)) "1"))
-                 (match run-command
-                   (() build-targets)
-                   (_ `(,@build-targets "--"
-                        ,@run-command))))))
+  (let* ((common-args
+          (append
+           (list "bazel"
+                 "--max_idle_secs=1"
+                 (string-append "--output_base=" %bazel-out)
+                 (string-append "--output_user_root=" %bazel-user-root))
+           (if bazelrc
+               (list (string-append "--bazelrc=" bazelrc))
+               '())
+           (list (if (null? run-command) "build" "run")
+                 "--curses=no"
+                 "--verbose_failures"
+                 "--subcommands"
+                 "--action_env=PATH"
+                 "--action_env=LIBRARY_PATH"
+                 "--action_env=C_INCLUDE_PATH"
+                 "--action_env=CPLUS_INCLUDE_PATH"
+                 "--action_env=GUIX_LOCPATH"
+                 "--action_env=TF_SYSTEM_LIBS"
+                 "--host_action_env=TF_SYSTEM_LIBS"
+                 "--host_action_env=PATH"
+                 "--host_action_env=LIBRARY_PATH"
+                 "--host_action_env=C_INCLUDE_PATH"
+                 "--host_action_env=CPLUS_INCLUDE_PATH"
+                 "--host_action_env=GUIX_LOCPATH"
+                 "-c" "opt")))
+         (extra-args
+          (append bazel-arguments
+                  (list "--jobs"
+                        (if parallel-build?
+                            (number->string (parallel-job-count))
+                            "1"))
+                  (match run-command
+                    (() build-targets)
+                    (_ `(,@build-targets "--" ,@run-command)))))
+         (args (append common-args extra-args)))
+    (apply invoke args)))
 
 (define %standard-phases
   (modify-phases gnu:%standard-phases
