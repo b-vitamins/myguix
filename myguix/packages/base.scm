@@ -297,6 +297,8 @@
 
 (define %document-production-packages
   (list texlive
+        texlive-latexindent
+        texlive-tools
         scribus
         hunspell
         hunspell-dict-en-us
