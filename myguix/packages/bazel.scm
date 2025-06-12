@@ -422,9 +422,8 @@ repositories, and large numbers of users.")
                            version
                            "-dist.zip"))
        (sha256
-        (base32 "wevzltaczrpodh7xu2t7oh4uszrr7e34ryj2r5j64d7xw5yaxqla"))
+        (base32 "05mw01vppzz07vssh4wfgj9iyqwnjhgzg9x6yygy2pnc0b69aaxi"))
        (patches (search-myguix-patches "bazel-mock-repos.patch"
-                                       "bazel-workspace.patch"
                                        "bazel-recreate-markers.patch"))
        ;; This is just a start.  There are so many more jars.
        (snippet '(for-each delete-file

@@ -3,43 +3,60 @@ repository marker's hash instead of aborting.  This allows us to
 bundle all inputs in advance and modify them as needed without having
 to worry about Bazel rejecting the bundled repositories.
 
-diff --git a/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java b/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java
-index 25fbdcac9d..49616d37df 100644
---- a/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java
-+++ b/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java
-@@ -568,22 +568,7 @@ public final class RepositoryDelegatorFunction implements SkyFunction {
-       String content;
+--- a/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java	2025-06-12 21:01:31.382197854 +0000
++++ b/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java	2025-06-12 21:01:34.778198617 +0000
+@@ -685,30 +685,20 @@
+     @Nullable
+     RepoDirectoryState areRepositoryAndMarkerFileConsistent(
+         RepositoryFunction handler, Environment env, Path markerPath)
+         throws RepositoryFunctionException, InterruptedException {
+       if (!markerPath.exists()) {
+         return new RepoDirectoryState.OutOfDate("repo hasn't been fetched yet");
+       }
+ 
        try {
-         content = FileSystemUtils.readContent(markerPath, StandardCharsets.UTF_8);
--        String markerRuleKey = readMarkerFile(content, markerData);
--        boolean verified = false;
--        if (Preconditions.checkNotNull(ruleKey).equals(markerRuleKey)) {
--          verified = handler.verifyMarkerData(rule, markerData, env);
--          if (env.valuesMissing()) {
--            return null;
--          }
--        }
--
--        if (verified) {
--          return new Fingerprint().addString(content).digestAndReset();
--        } else {
--          // So that we are in a consistent state if something happens while fetching the repository
--          markerPath.delete();
+         String content = FileSystemUtils.readContent(markerPath, UTF_8);
+-        Map<RepoRecordedInput, String> recordedInputValues =
+-            readMarkerFile(content, Preconditions.checkNotNull(ruleKey));
+-        Optional<String> outdatedReason =
+-            handler.isAnyRecordedInputOutdated(directories, recordedInputValues, env);
+-        if (env.valuesMissing()) {
 -          return null;
 -        }
-+        return new Fingerprint().addString(content).digestAndReset();
+-        if (outdatedReason.isPresent()) {
+-          return new RepoDirectoryState.OutOfDate(outdatedReason.get());
+-        }
+         return new RepoDirectoryState.UpToDate(
+             new Fingerprint().addString(content).digestAndReset());
        } catch (IOException e) {
          throw new RepositoryFunctionException(e, Transience.TRANSIENT);
        }
-diff --git a/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java b/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java
-index 1a45b8a3a2..a6b73213f6 100644
---- a/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java
-+++ b/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java
-@@ -152,7 +152,6 @@ public class JavaSubprocessFactory implements SubprocessFactory {
-     ProcessBuilder builder = new ProcessBuilder();
-     builder.command(params.getArgv());
-     if (params.getEnv() != null) {
--      builder.environment().clear();
-       builder.environment().putAll(params.getEnv());
      }
  
+     private static Map<RepoRecordedInput, String> readMarkerFile(
+         String content, String expectedRuleKey) {
+       Iterable<String> lines = Splitter.on('\n').split(content);
+--- a/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java	2025-06-12 21:01:31.386197852 +0000
++++ b/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java	2025-06-12 21:01:37.550200543 +0000
+@@ -151,21 +151,20 @@
+       }
+       throw e;
+     }
+   }
+ 
+   @Override
+   public Subprocess create(SubprocessBuilder params) throws IOException {
+     ProcessBuilder builder = new ProcessBuilder();
+     builder.command(Lists.transform(params.getArgv(), StringEncoding::internalToPlatform));
+     if (params.getEnv() != null) {
+-      builder.environment().clear();
+       params
+           .getEnv()
+           .forEach(
+               (key, value) ->
+                   builder
+                       .environment()
+                       .put(
+                           StringEncoding.internalToPlatform(key),
+                           StringEncoding.internalToPlatform(value)));
+     }
