@@ -411,7 +411,7 @@ repositories, and large numbers of users.")
   (package
     (inherit bazel-6.4)
     (name "bazel")
-    (version "6.5.0")
+    (version "8.2.1")
     (source
      (origin
        (method url-fetch/zipbomb)
@@ -422,7 +422,7 @@ repositories, and large numbers of users.")
                            version
                            "-dist.zip"))
        (sha256
-        (base32 "1liypfiw9fhqfab61jw3zskfkv3h2bhaa67zwhlrya0mjj8xm2gw"))
+        (base32 "wevzltaczrpodh7xu2t7oh4uszrr7e34ryj2r5j64d7xw5yaxqla"))
        (patches (search-myguix-patches "bazel-mock-repos.patch"
                                        "bazel-workspace.patch"
                                        "bazel-recreate-markers.patch"))
