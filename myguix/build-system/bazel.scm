@@ -54,7 +54,7 @@
   ;; Lazily resolve the binding to avoid a circular dependency.
   (let ((bazel-mod (resolve-interface '(myguix packages bazel))))
     (module-ref bazel-mod
-                'bazel-6)))
+                'bazel)))
 
 (define (default-jdk)
   "Return the default JDK package."
