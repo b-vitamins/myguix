@@ -24,7 +24,7 @@
   #:use-module (ice-9 match)
   #:use-module (ice-9 string-fun)
   #:use-module (srfi srfi-1)
-  #:export (%standard-phases bazel-build))
+  #:export (%standard-phases bazel-build unpack-vendored-inputs))
 
 ;; Commentary:
 ;;
@@ -71,6 +71,8 @@
   (define %bazel-user-root
     (string-append %build-directory "/tmp"))
   (setenv "USER" "homeless-shelter")
+  ;; Ensure HOME is set for tools that rely on it.
+  (setenv "HOME" %build-directory)
   (apply invoke
          "bazel"
          "--batch"
