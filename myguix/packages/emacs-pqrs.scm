@@ -501,3 +501,177 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "Info+ extends the standard Emacs Info mode with many additional features including better navigation, enhanced display, and additional commands for working with Info documentation.")
     (license license:gpl3+)))
 
+(define-public emacs-flyspell-correct-ivy
+  (package
+    (name "emacs-flyspell-correct-ivy")
+    (version "0.6.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/d12frosted/flyspell-correct")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1m5da6r82hk0c2x3lw03qnkk79sx67875afw0ybblj3cmfk6szd1"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:include '("flyspell-correct-ivy.el" "flyspell-correct.el")))
+    (propagated-inputs (list emacs-flyspell-correct emacs-ivy))
+    (home-page "https://github.com/d12frosted/flyspell-correct")
+    (synopsis "Ivy interface for flyspell-correct")
+    (description
+     "This package provides an Ivy interface for flyspell-correct, allowing you to correct spelling errors using Ivy's completion interface.")
+    (license license:gpl3+)))
+
+(define-public emacs-embark-consult
+  (package
+    (name "emacs-embark-consult")
+    (version "1.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/oantolin/embark")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1361jvwr3wjbpmq6dfkrhhhv9vrmqpkp1j18syp311g6h8hzi3hg"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:include '("embark-consult.el")))
+    (propagated-inputs (list emacs-embark emacs-consult))
+    (home-page "https://github.com/oantolin/embark")
+    (synopsis "Consult integration for Embark")
+    (description
+     "This package provides integration between Embark and Consult, including exporters for Consult async search commands and support for Consult preview with Embark collect buffers.")
+    (license license:gpl3+)))
+
+(define-public emacs-citar-embark
+  (package
+    (name "emacs-citar-embark")
+    (version "1.4.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/emacs-citar/citar")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "07q94iplkx29lggrs5xfzj42rxfcn2cnbr90jgifk29jshcz30pv"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:include '("citar-embark.el")))
+    (propagated-inputs (list emacs-citar emacs-embark))
+    (home-page "https://github.com/emacs-citar/citar")
+    (synopsis "Embark integration for Citar")
+    (description
+     "This package provides Embark actions for Citar, enabling contextual actions on citations and bibliography entries through Embark's interface.")
+    (license license:gpl3+)))
+
+(define-public emacs-chronos
+  (package
+    (name "emacs-chronos")
+    (version "20150602")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/dxknight/chronos")
+             (commit "b360d9dae57aa553cf2a14ffa0756a51ad71de09")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1mqdz3rvx0jm80fgzw3s3lqn448kqrlrifdwcg36cqq4qmkpalq4"))))
+    (build-system emacs-build-system)
+    (home-page "https://github.com/dxknight/chronos")
+    (synopsis "Multiple simultaneous countdown/countup timers for Emacs")
+    (description
+     "Chronos provides multiple simultaneous countdown/countup timers, with an easy-to-use interface and notifications. It's useful for time management, pomodoro technique, or any timing needs.")
+    (license license:gpl3+)))
+
+(define-public emacs-auctex-latexmk
+  (package
+    (name "emacs-auctex-latexmk")
+    (version "1.0.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/tom-tan/auctex-latexmk")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0slihygr74vyijnyzssckapscxmdd7zlgrs0wvmpw9hnjzwwzzql"))))
+    (build-system emacs-build-system)
+    (arguments
+     '(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'patch-tex-buf-require
+                    (lambda _
+                      ;; In newer AUCTeX versions, tex-buf was merged into tex
+                      (substitute* "auctex-latexmk.el"
+                        (("\\(require 'tex-buf\\)")
+                         "(require 'tex)")) #t))
+                  (add-before 'build 'set-home
+                    (lambda _
+                      ;; Set HOME to a writable directory for the build phase
+                      (setenv "HOME"
+                              (getcwd)) #t)))))
+    (propagated-inputs (list emacs-auctex))
+    (home-page "https://github.com/tom-tan/auctex-latexmk")
+    (synopsis "Add LatexMk support to AUCTeX")
+    (description
+     "This package adds LatexMk support to AUCTeX. LatexMk is a perl script that runs LaTeX the correct number of times to resolve cross references, etc. It can also run bibtex, makeindex, and other tools automatically.")
+    (license license:gpl3+)))
+
+(define-public emacs-cargo
+  (package
+    (name "emacs-cargo")
+    (version "0.4.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/kwrooijen/cargo.el")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0r9v7q7hkdw2q3iifyrb6n9jrssz2rcv2xcc7n1nmg1v40av3ijd"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-rust-mode emacs-markdown-mode))
+    (home-page "https://github.com/kwrooijen/cargo.el")
+    (synopsis "Emacs Minor Mode for Cargo, Rust's Package Manager")
+    (description
+     "Cargo mode provides keybindings for common Cargo commands within Rust projects. It integrates with rust-mode to provide a convenient interface to cargo build, test, run, and other cargo commands.")
+    (license license:gpl3+)))
+
+(define-public emacs-python-pytest
+  (package
+    (name "emacs-python-pytest")
+    (version "3.4.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/wbolster/emacs-python-pytest")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ahpzay6gbxrcin4ldcp1sm17fcvg94n729haj3zgcalsmhjlx90"))))
+    (build-system emacs-build-system)
+    (propagated-inputs (list emacs-dash emacs-transient emacs-s))
+    (home-page "https://github.com/wbolster/emacs-python-pytest")
+    (synopsis "Run pytest inside Emacs")
+    (description
+     "This package provides a simple interface for running pytest tests from 
+within Emacs.  It offers:
+@itemize
+@item Run pytest on the entire test suite, a single test file, or a single test
+@item Jump to the first error
+@item Integrated with Emacs' compilation mode for error navigation  
+@item Customizable pytest flags and options
+@item Support for running tests at point
+@item Integration with project.el and projectile for finding project roots
+@end itemize")
+    (license license:bsd-3)))
+
