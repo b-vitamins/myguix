@@ -87,7 +87,7 @@
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
-                #:hide (python-pillow-simd python-textual))
+                #:hide (python-pillow-simd))
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)

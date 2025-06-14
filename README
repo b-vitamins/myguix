@@ -34,6 +34,10 @@ To use myguix add the following snippet to your =~/.config/guix/channels.scm= an
        %default-channels)
 #+END_SRC
 
+For a ready-to-use development environment run `./setup-dev.sh` with
+internet access.  It installs GNU Guix and all required dependencies,
+allowing subsequent offline work.
+
 * Using Firmware, Drivers, and Other Packages
 
 ** Nonfree Firmware and Drivers
