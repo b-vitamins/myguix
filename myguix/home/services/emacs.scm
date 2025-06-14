@@ -33,6 +33,7 @@
         emacs-consult-eglot
         emacs-corfu
         emacs-dired-rsync
+        emacs-dired-hacks
         emacs-eat
         emacs-ednc
         emacs-elfeed
@@ -65,6 +66,7 @@
         emacs-justify-kp
         emacs-kind-icon
         emacs-langtool
+        emacs-latex-snippets
         emacs-lispy
         emacs-magit
         emacs-magit-todos
@@ -74,6 +76,10 @@
         emacs-minions
         emacs-mjolnir-mode
         emacs-modus-themes
+        emacs-nerd-icons
+        emacs-nerd-icons-completion
+        emacs-nerd-icons-dired
+        emacs-nerd-icons-ibuffer
         emacs-nov-el
         emacs-olivetti
         emacs-orderless
