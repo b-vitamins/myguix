@@ -6,6 +6,7 @@
   #:use-module (gnu home services)
   #:use-module (gnu home services shells)
   #:use-module (gnu home services gnupg)
+  #:use-module (gnu home services ssh)
   #:use-module (gnu home services xdg)
   #:use-module (gnu system shadow)
   #:use-module (guix gexp)
@@ -67,11 +68,14 @@ XTerm*metaSendsEscape: false
                  (home-gpg-agent-configuration (pinentry-program (file-append (specification->package
                                                                                "pinentry")
                                                                   "/bin/pinentry"))
-                                               (ssh-support? #t)
+                                               (ssh-support? #f) ;Disabled - using standard SSH agent instead
                                                (default-cache-ttl 28800)
-                                               (max-cache-ttl 28800)
-                                               (default-cache-ttl-ssh 28800)
-                                               (max-cache-ttl-ssh 28800)))
+                                               (max-cache-ttl 28800)))
+
+        (service home-ssh-agent-service-type
+                 (home-ssh-agent-configuration
+                  ;; 8 hours timeout to match your previous GPG agent setting
+                  (extra-options '("-t" "8h"))))
 
         (service home-xdg-user-directories-service-type
                  (home-xdg-user-directories-configuration (desktop
