@@ -298,6 +298,8 @@
 
 (define %document-production-packages
   (list texlive
+        texlive-latexindent
+        texlive-tools
         scribus
         hunspell
         hunspell-dict-en-us
@@ -345,7 +347,15 @@
   (list blender kdenlive obs))
 
 (define %development-packages
-  (list gcc-toolchain direnv gnu-make cmake cmakelang automake autoconf valgrind perf))
+  (list gcc-toolchain
+        direnv
+        gnu-make
+        cmake
+        cmakelang
+        automake
+        autoconf
+        valgrind
+        perf))
 
 (define %cuda-packages
   (list cuda-toolkit
