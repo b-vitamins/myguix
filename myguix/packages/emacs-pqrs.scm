@@ -663,15 +663,14 @@ All available commands are listed in a hydra help menu accessible by pressing `?
     (home-page "https://github.com/wbolster/emacs-python-pytest")
     (synopsis "Run pytest inside Emacs")
     (description
-     "This package provides a simple interface for running pytest tests from 
+     "This package provides a simple interface for running pytest tests from
 within Emacs.  It offers:
 @itemize
 @item Run pytest on the entire test suite, a single test file, or a single test
 @item Jump to the first error
-@item Integrated with Emacs' compilation mode for error navigation  
+@item Integrated with Emacs' compilation mode for error navigation
 @item Customizable pytest flags and options
 @item Support for running tests at point
 @item Integration with project.el and projectile for finding project roots
 @end itemize")
     (license license:bsd-3)))
-
