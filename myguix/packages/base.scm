@@ -82,7 +82,7 @@
   #:use-module (gnu packages sync)
   #:use-module (gnu packages syndication)
   #:use-module (gnu packages terminals)
-  #:use-module (gnu packages texlive)
+  #:use-module (gnu packages tex)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages tmux)
   #:use-module (gnu packages tree-sitter)
