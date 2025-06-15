@@ -85,6 +85,7 @@
         emacs-orderless
         emacs-org-appear
         emacs-org-contrib
+        emacs-org-fragtog
         emacs-org-make-toc
         emacs-org-modern
         emacs-org-noter
