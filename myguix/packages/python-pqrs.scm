@@ -1847,8 +1847,12 @@ parallelism.")))
                         (("^def test_config_result_snapshot(.*)" _ rest)
                          (string-append "def test_config_result_snapshot" rest
                                         "\n" "    return\n"))))))))
-    (propagated-inputs (list python-click python-libcst python-pytest
-                             python-setproctitle python-textual))
+    (propagated-inputs (list python-click
+                             python-libcst
+                             python-pytest
+                             python-setproctitle
+                             python-textual
+                             python-mdit-py-plugins))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/boxed/mutmut")
     (synopsis "mutation testing for Python 3")
