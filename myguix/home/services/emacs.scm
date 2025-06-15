@@ -30,13 +30,16 @@
         emacs-cmake-mode
         emacs-company-auctex
         emacs-consult
+        emacs-consult-bibtex
         emacs-consult-eglot
+        emacs-consult-org-roam
         emacs-corfu
         emacs-dired-rsync
         emacs-dired-hacks
         emacs-eat
         emacs-ednc
         emacs-elfeed
+        emacs-elfeed-score
         emacs-elfeed-org
         emacs-embark
         emacs-embark-consult
@@ -55,6 +58,7 @@
         emacs-git-timemachine
         emacs-gptel
         emacs-gptel-quick
+        emacs-helm-bibtex
         emacs-helpful
         emacs-hide-mode-line
         emacs-highlight-indent-guides
@@ -88,10 +92,13 @@
         emacs-org-fragtog
         emacs-org-make-toc
         emacs-org-modern
+        emacs-org-node
         emacs-org-noter
+        emacs-org-pdftools
         emacs-org-pomodoro
         emacs-org-ref
         emacs-org-roam
+        emacs-org-roam-bibtex
         emacs-org-super-agenda
         emacs-org-wild-notifier
         emacs-ox-html-stable-ids
