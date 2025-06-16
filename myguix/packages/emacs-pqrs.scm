@@ -4,33 +4,15 @@
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (gnu packages emacs)
+  #:use-module (gnu packages emacs-build)
+  #:use-module (gnu packages emacs-xyz)
   #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module (guix build-system emacs)
   #:use-module (gnu packages llvm-meta)
-  #:use-module (gnu packages llvm)
-  #:use-module (gnu packages emacs-xyz))
-
-(define-public emacs-dash
-  (package
-    (name "emacs-dash")
-    (version "2.20.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (string-append "https://elpa.gnu.org/packages/dash-" version
-                           ".tar"))
-       (sha256
-        (base32 "1ckcsfksvwcknbp39v5p4yyl5h6a8xz0iljx7wb20igq0l4lpy18"))))
-    (build-system emacs-build-system)
-    (home-page "https://github.com/magnars/dash.el")
-    (synopsis "A modern list library for Emacs")
-    (description
-     "This package provides a modern list API for Emacs.  See its overview at
-https://github.com/magnars/dash.el#functions.")
-    (license license:gpl3+)))
+  #:use-module (gnu packages llvm))
 
 (define-public emacs-mjolnir-mode
   (package
