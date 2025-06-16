@@ -194,7 +194,8 @@
         inxi
         mumi
         ripgrep
-        node-openai-codex))
+        node-openai-codex
+        node-anthropic-ai-claude-code))
 
 (define %monitoring-packages
   (list smartmontools
