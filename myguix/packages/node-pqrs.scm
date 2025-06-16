@@ -5,7 +5,9 @@
   #:use-module (gnu packages node-xyz)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
+  #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages tls)
+  #:use-module (gnu packages node)
   #:use-module (guix build-system node)
   #:use-module (guix download)
   #:use-module (guix gexp)
@@ -291,7 +293,7 @@
     (home-page "https://github.com/sindresorhus/bundle-name")
     (synopsis "Get bundle name from a bundle identifier on macOS")
     (description
-     "This package extracts the human-readable application name from a macOS 
+     "This package extracts the human-readable application name from a macOS
 bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
     (license license:expat)))
 
@@ -7284,7 +7286,7 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
     (home-page "https://github.com/sindresorhus/skin-tone")
     (synopsis "Change the skin tone of emoji characters")
     (description
-     "This package provides functionality to modify the skin tone of emoji 
+     "This package provides functionality to modify the skin tone of emoji
 characters using Unicode emoji modifier bases.")
     (license license:expat)))
 
@@ -7780,7 +7782,40 @@ characters using Unicode emoji modifier bases.")
                                                   "typescript"
                                                   "webpack"
                                                   "webpack-cli"))))))))
-    (home-page "https://github.com/Microsoft/pyright#readme")
+    (home-page "https://github.com/Microsoft/pyright")
     (synopsis "Type checker for the Python language")
     (description "Type checker for the Python language")
     (license license:expat)))
+
+(define-public node-anthropic-ai-claude-code
+  (package
+    (name "node-anthropic-ai-claude-code")
+    (version "1.0.24")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.0.24.tgz")
+       (sha256
+        (base32 "1ci3l4l3xjr9xalmldi42d6zkwjc5p1nw04ccxlvnczj1syfnwsm"))))
+    (build-system node-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'build)
+          (add-after 'unpack 'remove-precompiled-binaries
+            (lambda _
+              ;; Remove all precompiled binaries
+              (delete-file-recursively "vendor/ripgrep")
+              ;; Also remove other vendor binaries if not needed
+              (delete-file-recursively "vendor/claude-code-jetbrains-plugin")
+              #t)))))
+    (propagated-inputs (list node)) ;Add node as a propagated input
+    (home-page "https://github.com/anthropics/claude-code")
+    (synopsis
+     "Use Claude, Anthropic's AI assistant, right from your terminal. Claude can understand your codebase, edit files, run terminal commands, and handle entire workflows for you.")
+    (description
+     "Use Claude, Anthropic's AI assistant, right from your terminal. Claude can understand your codebase, edit files, run terminal commands, and handle entire workflows for you.")
+    (license #f)))
