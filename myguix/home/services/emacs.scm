@@ -11,7 +11,7 @@
   #:export (my-home-emacs-service-type))
 
 (define (my-home-emacs-profile-service-type config)
-  (list emacs-next
+  (list emacs
         emacs-academic-phrases
         emacs-ace-window
         emacs-all-the-icons
