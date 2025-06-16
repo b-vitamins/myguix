@@ -450,6 +450,8 @@ All available commands are listed in a hydra help menu accessible by pressing `?
        (sha256
         (base32 "1l49hi4nwralx5kg4aqjj2b592y71ba4i91vmlzk5rrcjmdnc6b0"))))
     (build-system emacs-build-system)
+    (arguments
+     '(#:tests? #f)) ;No 'check' target in Makefile
     (propagated-inputs (list emacs-markdown-mode emacs-dash emacs-s))
     (home-page "https://github.com/ardumont/markdown-toc")
     (synopsis "Generate and update table of contents for Markdown files")
@@ -565,7 +567,8 @@ All available commands are listed in a hydra help menu accessible by pressing `?
         (base32 "07q94iplkx29lggrs5xfzj42rxfcn2cnbr90jgifk29jshcz30pv"))))
     (build-system emacs-build-system)
     (arguments
-     '(#:include '("citar-embark.el")))
+     '(#:tests? #f ;No 'check' target in Makefile
+       #:include '("citar-embark.el")))
     (propagated-inputs (list emacs-citar emacs-embark))
     (home-page "https://github.com/emacs-citar/citar")
     (synopsis "Embark integration for Citar")
