@@ -334,6 +334,8 @@ All available commands are listed in a hydra help menu accessible by pressing `?
        (sha256
         (base32 "0ww0qf9hsd8j31dc0p3fmsiqsir3mqbd4pwv4i29qidmbgrk3cv0"))))
     (build-system emacs-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require 'cask' which isn't packaged
     (home-page "https://github.com/emacs-pe/python-test.el")
     (synopsis "Python testing integration for Emacs")
     (description
