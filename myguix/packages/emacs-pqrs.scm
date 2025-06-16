@@ -101,7 +101,7 @@
 (define-public emacs-nerd-icons-corfu
   (package
     (name "emacs-nerd-icons-corfu")
-    (version "0.3.0")
+    (version "0.4.2")
     (source
      (origin
        (method git-fetch)
@@ -110,7 +110,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "05hnq6yv0xcisk5vkdzjz2sdzn4cayirf3zyz40xj1pzf33lra4r"))))
+        (base32 "0mls7hz1c2f68lzj4g38plgxyndr3km8lpzyi91ssg4j61zmrbgm"))))
     (inputs (list emacs-nerd-icons))
     (build-system emacs-build-system)
     (home-page "https://github.com/LuigiPiucco/nerd-icons-corfu")
