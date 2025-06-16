@@ -193,7 +193,8 @@
         atop
         inxi
         mumi
-        ripgrep))
+        ripgrep
+        node-openai-codex))
 
 (define %monitoring-packages
   (list smartmontools
