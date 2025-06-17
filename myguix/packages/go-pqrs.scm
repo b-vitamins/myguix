@@ -549,3 +549,28 @@ types.")
     (description
      "Package vecf32 provides common functions and methods for slices of float32.")
     (license license:expat)))
+
+(define-public go-gorgonia-org-vecf64
+  (package
+    (name "go-gorgonia-org-vecf64")
+    (version "0.9.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/gorgonia/vecf64")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0a8v65cy6gyh7ww2g8q4p6dmjhcd6k7lm7z8ly4vmi4k0vq1w187"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "gorgonia.org/vecf64"
+      #:tests? #f))
+    (propagated-inputs (list go-github-com-stretchr-testify))
+    (home-page "https://gorgonia.org/vecf64")
+    (synopsis "vecf64")
+    (description
+     "Package vecf64 provides common functions and methods for slices of float64.")
+    (license license:expat)))
