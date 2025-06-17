@@ -524,3 +524,28 @@ commonly in arithmetic, comparison and linear algebra operations.")
      "Package math32 provides basic constants and mathematical functions for float32
 types.")
     (license license:bsd-2)))
+
+(define-public go-gorgonia-org-vecf32
+  (package
+    (name "go-gorgonia-org-vecf32")
+    (version "0.9.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/gorgonia/vecf32")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0jggbf98fbbip7znx5m4n2lqqsnw5kqycj3gcbs62ypirr1pp0m9"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "gorgonia.org/vecf32"))
+    (propagated-inputs (list go-github-com-stretchr-testify
+                             go-github-com-chewxy-math32))
+    (home-page "https://gorgonia.org/vecf32")
+    (synopsis "vecf32")
+    (description
+     "Package vecf32 provides common functions and methods for slices of float32.")
+    (license license:expat)))
