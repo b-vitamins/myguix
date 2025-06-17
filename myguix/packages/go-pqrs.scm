@@ -456,3 +456,47 @@ format as binary16.")
      "@code{GoPickle} is a Go library for loading Python's data serialized with
 @code{pickle} and @code{PyTorch} module files.")
     (license license:bsd-2)))
+
+(define-public go-github-com-pdevine-tensor
+  (package
+    (name "go-github-com-pdevine-tensor")
+    (version "0.0.0-20240510204454-f88f4562727c")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pdevine/tensor")
+             (commit (go-version->git-ref version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ibc3x2c3dybhqdfnq2rrw6zxqng3b2zkl7nldsmllljfvp39c7s"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "gorgonia.org/tensor"
+      #:unpack-path "github.com/pdevine/tensor"
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'fix-import-paths
+            (lambda _
+              ;; Copy the entire source tree to the expected import path
+              (copy-recursively "src/github.com/pdevine/tensor"
+                                "src/gorgonia.org/tensor"))))))
+    (propagated-inputs 
+     (list go-gonum-org-v1-gonum
+           go-gorgonia-org-vecf32
+           go-gorgonia-org-vecf64
+           go-go4-org-unsafe-assume-no-moving-gc
+           go-github-com-gogo-protobuf
+           go-github-com-golang-protobuf
+           go-github-com-apache-arrow-go-arrow
+           go-github-com-google-flatbuffers
+           go-github-com-chewxy-hm
+           go-github-com-pkg-errors))
+    (home-page "https://github.com/pdevine/tensor")
+    (synopsis "Package")
+    (description
+     "Package tensor is a package that provides efficient, generic n-dimensional
+arrays in Go.  Also in this package are functions and methods that are used
+commonly in arithmetic, comparison and linear algebra operations.")
+    (license license:asl2.0)))
