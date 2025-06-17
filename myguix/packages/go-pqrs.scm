@@ -574,3 +574,31 @@ types.")
     (description
      "Package vecf64 provides common functions and methods for slices of float64.")
     (license license:expat)))
+
+(define-public go-go4-org-unsafe-assume-no-moving-gc
+  (package
+    (name "go-go4-org-unsafe-assume-no-moving-gc")
+    (version "0.0.0-20231121144256-b99613f794b6")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/go4org/unsafe-assume-no-moving-gc")
+             (commit (go-version->git-ref version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "00ny3qha8k9nnx37ryvls2n5r7lw3bnldz6kwdmjxk8s19mxqim7"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "go4.org/unsafe/assume-no-moving-gc"))
+    (home-page "https://go4.org/unsafe/assume-no-moving-gc")
+    (synopsis "go4.org/unsafe/assume-no-moving-gc")
+    (description
+     "Package go4.org/unsafe/assume-no-moving-gc exists so you can depend on it from
+unsafe code that wants to declare that it assumes that the Go runtime does not
+use a moving garbage collector.  Specifically, it asserts that the caller is
+playing stupid games with the addresses of heap-allocated values.  It says
+nothing about values that Go's escape analysis keeps on the stack.  Ensuring
+things aren't stack-allocated is the caller's responsibility.")
+    (license license:bsd-3)))

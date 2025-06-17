@@ -22,6 +22,7 @@
   #:use-module ((guix build utils)
                 #:hide (delete))
   #:use-module (guix build-system cmake)
+  #:use-module (guix build-system copy)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system python)
@@ -351,4 +352,86 @@ OpenCL, Metal, and CPU-based inference.")
     (description
      "Official Python client library for Ollama.  Provides a simple interface
 to interact with Ollama's API for running large language models locally.")
+    (license license:expat)))
+
+(define-public ollama-binary
+  (package
+    (name "ollama-binary")
+    (version "0.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://ollama.com/download/ollama-linux-amd64.tgz")
+       (sha256
+        (base32 "1g0dqwv37abq6kxxcg3k0jaw5ynhrgm2f0p3qnvgd53szj4vlapg"))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      ;; Skip RUNPATH validation as this is a pre-built binary
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'move-to-source-root
+            (lambda _
+              ;; The unpack phase puts us in the bin directory, move up
+              (chdir "..")))
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out")))
+                ;; The tarball extracts bin/ and lib/ directories
+                (copy-recursively "bin"
+                                  (string-append out "/bin"))
+                (copy-recursively "lib"
+                                  (string-append out "/lib")))))
+          (add-after 'install 'patch-binary
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (bin (string-append out "/bin"))
+                     (lib (string-append out "/lib")))
+                ;; Make binary executable
+                (chmod (string-append bin "/ollama") #o755)
+                ;; Create wrapper script
+                (call-with-output-file (string-append bin "/ollama-wrapper")
+                  (lambda (port)
+                    (format port
+                     "#!/bin/sh
+# Ollama wrapper script - sets up model discovery paths and library paths
+
+# Set library path for Ollama libraries
+export LD_LIBRARY_PATH=\"~a/ollama:${LD_LIBRARY_PATH}\"
+
+# Default model paths
+if [ -z \"$OLLAMA_MODELS\" ]; then
+    OLLAMA_MODELS=\"$HOME/.ollama/models\"
+
+    # Add Guix store model paths from propagated inputs
+    for dir in ~a/share/ollama/models/*; do
+        if [ -d \"$dir\" ]; then
+            OLLAMA_MODELS=\"$OLLAMA_MODELS:$dir\"
+        fi
+    done
+
+    export OLLAMA_MODELS
+fi
+
+# Default host if not set
+if [ -z \"$OLLAMA_HOST\" ]; then
+    export OLLAMA_HOST=\"127.0.0.1:11434\"
+fi
+
+exec ~a/bin/.ollama-real \"$@\"
+"
+                     lib out out)))
+                (chmod (string-append bin "/ollama-wrapper") #o755)
+                ;; Rename original and make wrapper the default
+                (rename-file (string-append bin "/ollama")
+                             (string-append bin "/.ollama-real"))
+                (symlink "ollama-wrapper"
+                         (string-append bin "/ollama"))))))))
+    (home-page "https://github.com/ollama/ollama")
+    (synopsis "Run large language models locally (binary distribution)")
+    (description
+     "Ollama is a tool for running large language models locally.  It provides
+a simple interface for downloading, managing, and running various LLM models
+on your own hardware.  This package uses the pre-built binary distribution.")
     (license license:expat)))
