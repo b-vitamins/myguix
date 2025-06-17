@@ -479,3 +479,45 @@ on your own hardware.  This package uses the pre-built binary distribution.")
 ranging in scale from 7 billion to 70 billion parameters.  This package provides
 the 7B parameter model in GGUF format for use with Ollama.")
     (license license:expat)))
+
+(define-public ollama-model-mistral-7b
+  (package
+    (name "ollama-model-mistral-7b")
+    (version "0.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://huggingface.co/TheBloke/Mistral-7B-v0.1-GGUF/resolve/main/mistral-7b-v0.1.Q4_K_M.gguf")
+       (sha256
+        (base32 "0374pfy7s638rs02kichrf7s2ks3n08q9cr4b71s1phsx7956qnf"))))
+    (build-system trivial-build-system)
+    (arguments
+     (list
+      #:modules '((guix build utils))
+      #:builder
+      #~(begin
+          (use-modules (guix build utils))
+          (let* ((out #$output)
+                 (model-dir (string-append out "/share/ollama/models/mistral"))
+                 (source #$(package-source this-package)))
+            (mkdir-p model-dir)
+            (copy-file source
+                       (string-append model-dir "/model.gguf"))
+            ;; Create manifest for model discovery
+            (call-with-output-file (string-append model-dir "/manifest.json")
+              (lambda (port)
+                (display "{
+  \"name\": \"mistral:7b\",
+  \"model\": \"model.gguf\",
+  \"parameters\": {
+    \"num_ctx\": 8192,
+    \"num_gpu\": 1
+  }
+}" port)))))))
+    (home-page "https://ollama.com/library/mistral")
+    (synopsis "Mistral 7B model for Ollama")
+    (description
+     "Mistral 7B is a 7.3B parameter model that outperforms Llama 2 13B on all
+benchmarks and matches Llama 1 34B on many benchmarks.")
+    (license license:asl2.0)))
