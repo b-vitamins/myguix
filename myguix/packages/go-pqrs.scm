@@ -500,3 +500,27 @@ format as binary16.")
 arrays in Go.  Also in this package are functions and methods that are used
 commonly in arithmetic, comparison and linear algebra operations.")
     (license license:asl2.0)))
+
+(define-public go-github-com-chewxy-math32
+  (package
+    (name "go-github-com-chewxy-math32")
+    (version "1.11.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/chewxy/math32")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0i7jssi872mv7h4rc4y0xa88a0hsr03mydqyrd6mrm8n7q8rfml9"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/chewxy/math32"))
+    (home-page "https://github.com/chewxy/math32")
+    (synopsis "math32")
+    (description
+     "Package math32 provides basic constants and mathematical functions for float32
+types.")
+    (license license:bsd-2)))
