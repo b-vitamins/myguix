@@ -1,0 +1,152 @@
+myguix is my personal software repository—a [[https://www.gnu.org/software/guix/manual/en/html_node/Channels.html][Guix channel]]—for the [[https://guix.gnu.org/][GNU Guix package manager]]. It includes a mix of packages—some are free software that aren't available in the official Guix channel, while others may already be included in the official channels but have been repackaged by me to accommodate specific needs, such as using a different version or customizing the build. There are also some nonfree packages included for specific cases where no free alternatives are sufficient. None of the files in this repository are part of GNU Guix.
+
+* Important Note
+
+Free software is defined by the following four essential freedoms:
+
++ Freedom 0 :: The freedom to run the program as you wish, for any purpose.
++ Freedom 1 :: The freedom to study how the program works, and change it so it does your computing as you wish.
++ Freedom 2 :: The freedom to redistribute copies so you can help others.
++ Freedom 3 :: The freedom to distribute copies of your modified versions to others.
+
+I strongly advise against using this channel, first and foremost because it fails to meet the four essential freedoms that define free software. Furthermore, at any given time, it is unlikely that all of the code in this channel meets the [[https://www.gnu.org/prep/standards/html_node/index.html#Top][GNU Coding Standards]], the [[https://guix.gnu.org/en/manual/devel/en/html_node/Coding-Style.html][Coding Style]] adopted by the Guix project, or that all of the packages contained herein adhere strictly to the [[https://guix.gnu.org/en/manual/devel/en/html_node/Packaging-Guidelines.html][Packaging Guidelines]] detailed in the [[https://guix.gnu.org/en/manual/devel][Guix GNU Guix Reference Manual]]. Finally, many of the commits will introduce breaking changes—the command =guix pull= will fail—only to be subsequently corrected. This means that "pinning" a channel specification (see [[https://guix.gnu.org/manual/en/html_node/Replicating-Guix.html][Replicating Guix]]) will only work for a subset of the commits.
+
+If you choose to use it, despite this recommendation, please keep the following in mind, not just to ensure compliance with the Guix project's [[http://www.gnu.org/distros/free-system-distribution-guidelines.html][strict policy]] against recommending nonfree software, but also to not hinder, in any way, your own freedom and the freedom of others:
+
+1) Please check if free alternatives that meet your needs are available. Always prefer their use over nonfree options.
+2) Please make sure you understand the implications of using nonfree software. Nonfree software restricts user freedoms, and its use can have serious ethical and security implications.
+3) Please DO NOT promote this repository in any official Guix communication channels (mailing lists, IRC, etc.), even if responding to support requests.
+
+* Installation
+
+To use myguix add the following snippet to your =~/.config/guix/channels.scm= and run =guix pull=.
+
+#+BEGIN_SRC scheme
+(cons* (channel
+        (name 'myguix)
+        (url "https://github.com/b-vitamins/myguix.git")
+        (branch "master")
+        (introduction
+         (make-channel-introduction
+          "85d58b09dc71e9dc9834b666b658f79d2e212d65"
+          (openpgp-fingerprint
+           "883B CA6B D275 A5F2 673C  C5DD 2AD3 2FC0 2A50 01F7"))))
+       %default-channels)
+#+END_SRC
+
+* Using Firmware, Drivers, and Other Packages
+
+** Nonfree Firmware and Drivers
+
+To configure Guix System with the standard Linux kernel and nonfree firmware, modify the ~kernel~ and ~firmware~ fields in your =config.scm=:
+
+#+BEGIN_SRC scheme
+;; Import nonfree Linux module.
+(use-modules (myguix packages linux)
+             (myguix system linux-initrd))
+
+(operating-system
+  (kernel linux)
+  (initrd microcode-initrd)
+  (firmware (list linux-firmware))
+  ...)
+#+END_SRC
+
+If you only need firmware for specific hardware, you can save disk space by using a smaller package:
+
+#+BEGIN_SRC scheme
+(firmware (cons* iwlwifi-firmware
+                 %base-firmware))
+#+END_SRC
+
+After editing your configuration, apply it with =sudo guix system reconfigure /etc/config.scm=.
+
+** CPU Microcode
+
+CPU microcode updates are nonfree blobs that patch processor behavior. While these updates are not included in upstream GNU Guix, they are essential to mitigate CPU bugs and security vulnerabilities.
+
+To enable early loading of CPU microcode, use the ~microcode-initrd~ function:
+
+#+BEGIN_SRC scheme
+(initrd microcode-initrd)
+#+END_SRC
+
+For customized ~initrd~, refer to the [[https://guix.gnu.org/manual/en/html_node/Initial-RAM-Disk.html][Initial RAM Disk]] documentation.
+
+** NVIDIA Graphics Cards
+
+NVIDIA support in myguix includes the =nvidia-service-type= system service and the =nvda= package for application setup.
+
+To configure your system:
+
+#+BEGIN_SRC scheme
+(use-modules (gnu services gnome)
+             (gnu services xorg)
+             (myguix packages nvidia)
+             (myguix services nvidia))
+
+(operating-system
+  (kernel-arguments '("modprobe.blacklist=nouveau"
+                      "nvidia_drm.modeset=1"))
+  (services
+   (cons* (service nvidia-service-type)
+          (service gnome-desktop-service-type
+                   (gnome-desktop-configuration
+                    (gnome (replace-mesa gnome))))
+          (set-xorg-configuration
+           (xorg-configuration
+            (modules (cons nvda %default-xorg-modules))
+            (drivers '("nvidia"))))
+          ...))
+  ...)
+#+END_SRC
+
+For application setup, replace =mesa= with =nvda= using package transformations:
+
+#+BEGIN_SRC shell
+guix build mesa-utils --with-graft=mesa=nvda
+guix build mesa-utils --with-input=mesa=nvda
+#+END_SRC
+
+To do this programmatically, use =replace-mesa= from =(myguix packages nvidia)=:
+
+#+BEGIN_SRC scheme
+(use-modules (myguix packages nvidia))
+
+;; Replace mesa with nvda for a single package.
+(replace-mesa <some-package>)
+
+;; Replace mesa with nvda for a package list.
+(map replace-mesa (list <some-package> ...))
+#+END_SRC
+
+If the NVIDIA card is not used for display, set the following environment variables:
+
+- =__GLX_VENDOR_LIBRARY_NAME=nvidia=
+- =__NV_PRIME_RENDER_OFFLOAD=1=
+
+* Free as in speech
+
+The four essential freedoms that define [[https://www.gnu.org/philosophy/free-sw.html][Free Software]] are foundational principles, not just abstract ideals. These freedoms—freedom to run, study, distribute, and modify software—ensure that users retain control over the software they use, rather than ceding power to developers or corporations. When you opt for nonfree software, you compromise these freedoms, trading them for convenience or compatibility, and in doing so, you reinforce a system that perpetuates user dependency and centralized control.
+
+Grasping the full implications of nonfree software use is crucial for understanding the stakes. Nonfree software does more than limit your options; it fundamentally undermines your autonomy by placing control in the hands of others. The risks are not just theoretical—nonfree software often operates as a black box, shielded from scrutiny, which can lead to significant privacy and security vulnerabilities. By using such software, you allow its developers to exert influence over your computing environment. To explore these issues in greater depth, consider the extensive resources available at [[https://www.gnu.org/philosophy/philosophy.html][Philosophy of the GNU Project]].
+
+The decision to use nonfree software carries broader implications that extend beyond individual use. Each instance of nonfree software adoption strengthens the legitimacy of proprietary models, making it more difficult to achieve a software ecosystem that universally respects user freedoms. This is not merely a personal compromise; it affects the entire community by reinforcing the acceptability of restricted, closed systems.
+
+Active resistance to nonfree software is essential for maintaining software freedom. This resistance can manifest in various forms, from advocating for the creation of free alternatives to consciously rejecting nonfree options. As Richard Stallman emphasizes in [[https://www.gnu.org/philosophy/install-fest-devil.html][Install Fests: What to Do about the Deal with the Devil]], the choice to use nonfree software is not just a technical decision but a moral one. It is a trade-off that involves sacrificing your autonomy for temporary convenience, and it should be undertaken with the understanding that the ultimate goal is to transition to free alternatives as swiftly as possible.
+
+In some scenarios, the temporary use of nonfree software may seem unavoidable, but it should be approached with caution and clear intent. The justification for using nonfree software, as discussed in [[https://www.gnu.org/philosophy/is-ever-good-use-nonfree-program.html][Is It Ever a Good Thing to Use a Nonfree Program?]], must be narrowly defined and should always include a plan for eventual replacement with free software. These situations are exceptions and should not be normalized.
+
+Resisting the social inertia that favors nonfree software is a vital part of the struggle for software freedom. Every choice in favor of free software, no matter how small, helps to undermine the dominance of proprietary models. As outlined in [[https://www.gnu.org/philosophy/social-inertia.html][Overcoming Social Inertia]], these individual decisions contribute to a broader movement aimed at creating a future where all software respects the rights and freedoms of its users.
+
+Within the Guix framework, free software is not merely a preference but a core tenet. The use of nonfree software, when free alternatives exist, stands in direct opposition to the ethos of Guix. This channel—and nonfree software more broadly—should only be employed as a last resort, applicable only when:
+
+1) The nonfree software addresses a critical, irreplaceable need,
+2) No free alternatives are available, and
+3) Developing a free alternative is impractical.
+
+Determining what constitutes an "essential" need requires careful consideration. The threshold for resorting to nonfree software must be high, reserved for situations where no other options exist. Using nonfree software for non-essential tasks erodes the foundational values of the free software movement and supports a paradigm that prioritizes control over user freedom.
+
+* Acknowledgment
+
+Part of this =README.org= is borrowed from the [[https://gitlab.com/nonguix/nonguix][Nonguix]] =README.org=, available at [[https://gitlab.com/nonguix/nonguix/-/blob/master/README.org][this link]].

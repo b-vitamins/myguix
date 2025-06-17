@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# myguix --- Personal Guix channel
+# Copyright © 2025 Ayan Das <bvits@riseup.net>
+#
+# This file is part of myguix.
+#
+# myguix is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+#
+# myguix is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with myguix.  If not, see <http://www.gnu.org/licenses/>.
+
+# Usage: ./test-env COMMAND ARG...
+#
+# Run tests within the pre-inst-env.
+
+# Make sure 'cd' behaves deterministically and doesn't write anything to
+# stdout.
+unset CDPATH
+
+case "$1" in
+    --quiet-stderr)
+	# Silence stderr output
+	exec 2> /dev/null
+	shift
+	;;
+esac
+
+# Avoid issues that could stem from l10n, such as language/encoding
+# mismatches.
+unset LANGUAGE
+LC_MESSAGES=C
+export LC_MESSAGES
+
+# Ignore user settings that might interfere with tests.
+unset GUIX_PACKAGE_PATH
+
+"@abs_top_builddir@/pre-inst-env" "$@"
+exit $?

@@ -1,0 +1,12 @@
+-*- mode: org; coding: utf-8; -*-
+Copyright © 2025 Ayan Das <bvits@riseup.net>
+#+TITLE: News for myguix
+  Copying and distribution of this file, with or without modification,
+  are permitted in any medium without royalty provided the copyright
+  notice and this notice are preserved.
+
+* Initial release
+
+Personal Guix channel established. No formal releases yet.
+
+For package updates and changes, see the git commit history.
