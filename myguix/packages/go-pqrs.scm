@@ -9,7 +9,8 @@
   #:use-module (guix build-system go)
   #:use-module (guix git-download)
   #:use-module (guix download)
-  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module ((guix licenses)
+                #:prefix license:)
   #:use-module (guix packages)
   #:use-module (guix gexp))
 
@@ -312,8 +313,7 @@ ordered sets.")
      (list
       #:import-path "github.com/chewxy/hm"
       #:tests? #f))
-    (propagated-inputs (list go-github-com-pkg-errors
-                            go-github-com-xtgo-set))
+    (propagated-inputs (list go-github-com-pkg-errors go-github-com-xtgo-set))
     (home-page "https://github.com/chewxy/hm")
     (synopsis "HM")
     (description
@@ -329,7 +329,8 @@ ordered sets.")
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/google/flatbuffers")
-             (commit (string-append "v" (string-drop-right version 13)))))
+             (commit (string-append "v"
+                                    (string-drop-right version 13)))))
        (file-name (git-file-name name version))
        (sha256
         (base32 "0q066x1h0x9225aj25jv40gxgz46yvwmiqc2g6q06mkkg1144kxq"))))
@@ -482,17 +483,16 @@ format as binary16.")
               ;; Copy the entire source tree to the expected import path
               (copy-recursively "src/github.com/pdevine/tensor"
                                 "src/gorgonia.org/tensor"))))))
-    (propagated-inputs 
-     (list go-gonum-org-v1-gonum
-           go-gorgonia-org-vecf32
-           go-gorgonia-org-vecf64
-           go-go4-org-unsafe-assume-no-moving-gc
-           go-github-com-gogo-protobuf
-           go-github-com-golang-protobuf
-           go-github-com-apache-arrow-go-arrow
-           go-github-com-google-flatbuffers
-           go-github-com-chewxy-hm
-           go-github-com-pkg-errors))
+    (propagated-inputs (list go-gonum-org-v1-gonum
+                             go-gorgonia-org-vecf32
+                             go-gorgonia-org-vecf64
+                             go-go4-org-unsafe-assume-no-moving-gc
+                             go-github-com-gogo-protobuf
+                             go-github-com-golang-protobuf
+                             go-github-com-apache-arrow-go-arrow
+                             go-github-com-google-flatbuffers
+                             go-github-com-chewxy-hm
+                             go-github-com-pkg-errors))
     (home-page "https://github.com/pdevine/tensor")
     (synopsis "Package")
     (description

@@ -264,17 +264,16 @@
      (list
       ;; Tests require network access and API keys
       #:tests? #f))
-    (propagated-inputs
-     (list python-tiktoken
-           python-click
-           python-jinja2
-           python-certifi
-           python-pyyaml
-           python-pydantic))
-    (native-inputs
-     (list python-poetry-core))
+    (propagated-inputs (list python-tiktoken
+                             python-click
+                             python-jinja2
+                             python-certifi
+                             python-pyyaml
+                             python-pydantic))
+    (native-inputs (list python-poetry-core))
     (home-page "https://github.com/BerriAI/litellm")
-    (synopsis "Library to simplify calling 100+ LLM APIs using the OpenAI format")
+    (synopsis
+     "Library to simplify calling 100+ LLM APIs using the OpenAI format")
     (description
      "LiteLLM is a library to simplify calling Anthropic, Azure, Huggingface,
 Replicate, Cohere, OpenAI, and more.  It provides a unified interface following
@@ -303,23 +302,16 @@ OpenAI's API format to interact with various large language model providers.")
               ;; Build CPU-only version
               (setenv "CMAKE_ARGS" "-DGGML_CUDA=OFF -DGGML_METAL=OFF")
               ;; Use system BLAS
-              (setenv "CMAKE_ARGS" 
+              (setenv "CMAKE_ARGS"
                       (string-append (getenv "CMAKE_ARGS")
-                                     " -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS"))))
+                       " -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS"))))
           (delete 'sanity-check)
           (delete 'validate-runpath))))
-    (propagated-inputs
-     (list python-numpy
-           python-typing-extensions
-           python-jinja2))
-    (native-inputs
-     (list cmake
-           pkg-config
-           python-scikit-build-core
-           python-setuptools
-           python-wheel))
-    (inputs
-     (list openblas))
+    (propagated-inputs (list python-numpy python-typing-extensions
+                             python-jinja2))
+    (native-inputs (list cmake pkg-config python-scikit-build-core
+                         python-setuptools python-wheel))
+    (inputs (list openblas))
     (home-page "https://github.com/abetlen/llama-cpp-python")
     (synopsis "Python bindings for llama.cpp")
     (description
@@ -343,11 +335,8 @@ OpenCL, Metal, and CPU-based inference.")
      (list
       ;; Tests require running Ollama server
       #:tests? #f))
-    (propagated-inputs
-     (list python-httpx
-           python-pydantic))
-    (native-inputs
-     (list python-poetry-core))
+    (propagated-inputs (list python-httpx python-pydantic))
+    (native-inputs (list python-poetry-core))
     (home-page "https://github.com/ollama/ollama-python")
     (synopsis "Python client for Ollama")
     (description

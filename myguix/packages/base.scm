@@ -1,5 +1,6 @@
 (define-module (myguix packages base)
   #:use-module (gnu packages admin)
+  #:use-module (gnu packages algebra)
   #:use-module (gnu packages antivirus)
   #:use-module (gnu packages autotools)
   #:use-module (gnu packages audio)
