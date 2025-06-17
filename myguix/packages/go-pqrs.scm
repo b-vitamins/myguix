@@ -749,3 +749,30 @@ not permute arguments.  It is intended as a replacement for Go's flag package.")
 import paths re-written for the assembler to be functional as a standalone
 library.")
     (license license:bsd-3)))
+
+(define-public go-github-com-cloudwego-base64x
+  (package
+    (name "go-github-com-cloudwego-base64x")
+    (version "0.1.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/cloudwego/base64x")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1lgs28mj5w350vp6pazz2265hx2kab3kbjw7vnk0w1skslxbj8kx"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/cloudwego/base64x"))
+    (propagated-inputs (list go-github-com-stretchr-testify
+                             go-github-com-klauspost-cpuid-v2
+                             go-github-com-davecgh-go-spew
+                             go-github-com-bytedance-sonic-loader))
+    (home-page "https://github.com/cloudwego/base64x")
+    (synopsis "base64x")
+    (description
+     "High performance drop-in replacement of the @@code{encoding/base64} library.")
+    (license (list license:asl2.0 license:asl2.0))))
