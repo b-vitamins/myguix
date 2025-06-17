@@ -182,10 +182,13 @@
         tmux
         neovim
         vim
+        fzf
+        fd
+        bc
         alacritty
         fontconfig
         gnupg
-        pinentry
+        pinentry-gnome3
         password-store
         htop
         sysstat
