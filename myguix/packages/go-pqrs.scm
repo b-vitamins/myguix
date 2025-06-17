@@ -803,3 +803,33 @@ library.")
     (synopsis "Interactive Assembler for Go")
     (description "Dual-purpose assembly engine written in pure Golang.")
     (license license:asl2.0)))
+
+(define-public go-github-com-bytedance-sonic
+  (package
+    (name "go-github-com-bytedance-sonic")
+    (version "1.11.6")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/bytedance/sonic")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1kalb4m3cqm22b4m9jkww42rh73icrik7i2b2771lwbn1r3bsick"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/bytedance/sonic"))
+    (propagated-inputs (list go-golang-org-x-arch
+                             go-github-com-twitchyliquid64-golang-asm
+                             go-github-com-stretchr-testify
+                             go-github-com-klauspost-cpuid-v2
+                             go-github-com-davecgh-go-spew
+                             go-github-com-cloudwego-base64x
+                             go-github-com-bytedance-sonic-loader))
+    (home-page "https://github.com/bytedance/sonic")
+    (synopsis "High-performance JSON library for Go")
+    (description
+     "Sonic is a blazingly fast JSON serialization and deserialization library.")
+    (license license:asl2.0)))
