@@ -264,25 +264,26 @@
 ;;; IMPLEMENTED PACKAGES (Add actual package definitions here)
 ;;; ============================================================================
 
-;; Example package template:
-;;
-;; (define-public go-github-com-example-package
-;;   (package
-;;     (name "go-github-com-example-package")
-;;     (version "1.0.0")
-;;     (source
-;;      (origin
-;;        (method git-fetch)
-;;        (uri (git-reference
-;;              (url "https://github.com/example/package")
-;;              (commit (string-append "v" version))))
-;;        (file-name (git-file-name name version))
-;;        (sha256
-;;         (base32 "..."))))
-;;     (build-system go-build-system)
-;;     (arguments
-;;      (list #:import-path "github.com/example/package"))
-;;     (home-page "https://github.com/example/package")
-;;     (synopsis "Brief description")
-;;     (description "Detailed description")
-;;     (license license:mit)))
+(define-public go-github-com-xtgo-set
+  (package
+    (name "go-github-com-xtgo-set")
+    (version "1.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/xtgo/set")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "148jb5f87lf7090jg8340f24r29818krydajkm75vpzylaw6yd8w"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/xtgo/set"))
+    (home-page "https://github.com/xtgo/set")
+    (synopsis "set")
+    (description
+     "Package set implements type-safe, non-allocating algorithms that operate on
+ordered sets.")
+    (license license:bsd-2)))
