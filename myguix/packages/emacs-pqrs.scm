@@ -630,26 +630,6 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package adds LatexMk support to AUCTeX. LatexMk is a perl script that runs LaTeX the correct number of times to resolve cross references, etc. It can also run bibtex, makeindex, and other tools automatically.")
     (license license:gpl3+)))
 
-(define-public emacs-cargo
-  (package
-    (name "emacs-cargo")
-    (version "0.4.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/kwrooijen/cargo.el")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0r9v7q7hkdw2q3iifyrb6n9jrssz2rcv2xcc7n1nmg1v40av3ijd"))))
-    (build-system emacs-build-system)
-    (propagated-inputs (list emacs-rust-mode emacs-markdown-mode))
-    (home-page "https://github.com/kwrooijen/cargo.el")
-    (synopsis "Emacs Minor Mode for Cargo, Rust's Package Manager")
-    (description
-     "Cargo mode provides keybindings for common Cargo commands within Rust projects. It integrates with rust-mode to provide a convenient interface to cargo build, test, run, and other cargo commands.")
-    (license license:gpl3+)))
 
 (define-public emacs-python-pytest
   (package
