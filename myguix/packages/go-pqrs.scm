@@ -375,3 +375,30 @@ forwards/backwards compatibility.")
     (synopsis "Apache Arrow Go implementation")
     (description "Package arrow provides an implementation of Apache Arrow.")
     (license license:asl2.0)))
+
+(define-public go-github-com-x448-float16
+  (package
+    (name "go-github-com-x448-float16")
+    (version "0.8.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/x448/float16")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0qg6ya30fra20hpa2qzqqzs8l95lvw9yzd87fdzq195xqi6crb2l"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/x448/float16"))
+    (home-page "https://github.com/x448/float16")
+    (synopsis "Float16 (Binary16) in Go/Golang")
+    (description
+     "@@code{float16} package provides
+@@url{https://en.wikipedia.org/wiki/Half-precision_floating-point_format,IEEE
+754 half-precision floating-point format (binary16)} with IEEE 754 default
+rounding for conversions.  IEEE 754-2008 refers to this 16-bit floating-point
+format as binary16.")
+    (license license:expat)))
