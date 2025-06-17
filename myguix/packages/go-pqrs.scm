@@ -313,3 +313,30 @@ ordered sets.")
     (description
      "Package hm provides a Hindley-Milner type inferencer and typer.")
     (license license:expat)))
+
+(define-public go-github-com-google-flatbuffers
+  (package
+    (name "go-github-com-google-flatbuffers")
+    (version "24.3.25+incompatible")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/google/flatbuffers")
+             (commit (string-append "v" (string-drop-right version 13)))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0q066x1h0x9225aj25jv40gxgz46yvwmiqc2g6q06mkkg1144kxq"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/google/flatbuffers/go"
+      #:unpack-path "github.com/google/flatbuffers"))
+    (home-page "https://github.com/google/flatbuffers")
+    (synopsis "FlatBuffers")
+    (description
+     "@@strong{@code{FlatBuffers}} is a cross platform serialization library
+architected for maximum memory efficiency.  It allows you to directly access
+serialized data without parsing/unpacking it first, while still having great
+forwards/backwards compatibility.")
+    (license license:asl2.0)))
