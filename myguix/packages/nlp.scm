@@ -2,6 +2,7 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages cmake)
   #:use-module (gnu packages crates-io)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
@@ -276,4 +277,51 @@
      "LiteLLM is a library to simplify calling Anthropic, Azure, Huggingface,
 Replicate, Cohere, OpenAI, and more.  It provides a unified interface following
 OpenAI's API format to interact with various large language model providers.")
+    (license license:expat)))
+
+(define-public python-llama-cpp-python
+  (package
+    (name "python-llama-cpp-python")
+    (version "0.3.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "llama_cpp_python" version))
+       (sha256
+        (base32 "0md8vfbsjvkx6s2aacy9idjlfi2k5qrbb359vaqd95pjifyv932h"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; Tests require model files
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'set-environment
+            (lambda _
+              ;; Build CPU-only version
+              (setenv "CMAKE_ARGS" "-DGGML_CUDA=OFF -DGGML_METAL=OFF")
+              ;; Use system BLAS
+              (setenv "CMAKE_ARGS" 
+                      (string-append (getenv "CMAKE_ARGS")
+                                     " -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS"))))
+          (delete 'sanity-check)
+          (delete 'validate-runpath))))
+    (propagated-inputs
+     (list python-numpy
+           python-typing-extensions
+           python-jinja2))
+    (native-inputs
+     (list cmake
+           pkg-config
+           python-scikit-build-core
+           python-setuptools
+           python-wheel))
+    (inputs
+     (list openblas))
+    (home-page "https://github.com/abetlen/llama-cpp-python")
+    (synopsis "Python bindings for llama.cpp")
+    (description
+     "Python bindings for llama.cpp, enabling use of Llama and other large
+language models with GPU acceleration via various backends including CUDA,
+OpenCL, Metal, and CPU-based inference.")
     (license license:expat)))
