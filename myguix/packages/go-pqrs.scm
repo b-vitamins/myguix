@@ -287,3 +287,29 @@
      "Package set implements type-safe, non-allocating algorithms that operate on
 ordered sets.")
     (license license:bsd-2)))
+
+(define-public go-github-com-chewxy-hm
+  (package
+    (name "go-github-com-chewxy-hm")
+    (version "1.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/chewxy/hm")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0f4qwg1q2lc9y64wrl9qxyimqnnandlqg78gn3yv4vsmyci025r7"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/chewxy/hm"
+      #:tests? #f))
+    (propagated-inputs (list go-github-com-pkg-errors
+                            go-github-com-xtgo-set))
+    (home-page "https://github.com/chewxy/hm")
+    (synopsis "HM")
+    (description
+     "Package hm provides a Hindley-Milner type inferencer and typer.")
+    (license license:expat)))
