@@ -13,11 +13,9 @@
   #:export (%my-base-home-services %my-shell-base-services
                                    %my-development-base-services
                                    xdg-directory-service
-                                   legacy-migration-service
                                    cleanup-cache-service
                                    make-zsh-plugin-file
                                    %default-xdg-directories
-                                   %default-legacy-migrations
                                    %default-dotguile
                                    %default-gdbinit
                                    %default-nanorc))
@@ -40,37 +38,6 @@
                                       (system* "mkdir" "-p" expanded-dir))))
                                 '#$directories))))
 
-(define-public (legacy-migration-service migrations
-                                         #:key (marker-file ".legacy-migrated"))
-  "Migrate files according to MIGRATIONS alist of (OLD . NEW) pairs."
-  (simple-service 'legacy-migration home-activation-service-type
-                  #~(begin
-                      (use-modules (ice-9 format))
-                      (let ((home (getenv "HOME"))
-                            (marker (string-append (or (getenv
-                                                        "XDG_STATE_HOME")
-                                                       (string-append (getenv
-                                                                       "HOME")
-                                                        "/.local/state")) "/"
-                                                   #$marker-file)))
-                        (unless (file-exists? marker)
-                          (for-each (lambda (pair)
-                                      (let* ((old (string-append home "/"
-                                                                 (car pair)))
-                                             (new (string-append home "/"
-                                                                 (cdr pair))))
-                                        (when (and (file-exists? old)
-                                                   (not (file-exists? new)))
-                                          (format #t "Migrating ~a -> ~a~%"
-                                                  old new)
-                                          (system* "mkdir" "-p"
-                                                   (dirname new))
-                                          (rename-file old new))))
-                                    '#$migrations)
-                          (system* "mkdir" "-p"
-                                   (dirname marker))
-                          (call-with-output-file marker
-                            (const #t)))))))
 
 (define-public (cleanup-cache-service cleanup-specs)
   "Clean up cache files per CLEANUP-SPECS: (DIRECTORY PATTERN AGE-DAYS) tuples."
@@ -106,9 +73,6 @@
   '("~/.local/state" "~/.local/state/zsh" "~/.local/state/less" "~/.cache/zsh"
     "~/.config"))
 
-(define-public %default-legacy-migrations
-  '((".zsh_history" . ".local/state/zsh/history")
-    (".lesshst" . ".local/state/less/history")))
 
 (define-public %default-dotguile
   (plain-file "guile" "(use-modules (ice-9 readline)
@@ -164,7 +128,6 @@ set suspendable"))
                            ("nano/nanorc" ,%default-nanorc)))
 
                 (xdg-directory-service %default-xdg-directories)
-                (legacy-migration-service %default-legacy-migrations)
 
                 (service home-xdg-user-directories-service-type
                          (home-xdg-user-directories-configuration (desktop
