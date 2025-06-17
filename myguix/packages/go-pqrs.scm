@@ -724,3 +724,28 @@ not permute arguments.  It is intended as a replacement for Go's flag package.")
     (synopsis "Runtime loader for Sonic")
     (description "Runtime loader module for the Sonic JSON library.")
     (license license:asl2.0)))
+
+(define-public go-github-com-twitchyliquid64-golang-asm
+  (package
+    (name "go-github-com-twitchyliquid64-golang-asm")
+    (version "0.15.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/twitchyliquid64/golang-asm")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1akw41i0snxqw9lqzmnn4gx6hd5js5dr1vmfkm49wxans4k14vw4"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/twitchyliquid64/golang-asm"))
+    (home-page "https://github.com/twitchyliquid64/golang-asm")
+    (synopsis "golang-asm")
+    (description
+     "This package provides a mirror of the assembler from the Go compiler, with
+import paths re-written for the assembler to be functional as a standalone
+library.")
+    (license license:bsd-3)))
