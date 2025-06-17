@@ -673,3 +673,28 @@ things aren't stack-allocated is the caller's responsibility.")
     (description
      "Package levenshtein is a Go implementation to calculate Levenshtein Distance.")
     (license license:expat)))
+
+(define-public go-nullprogram-com-x-optparse
+  (package
+    (name "go-nullprogram-com-x-optparse")
+    (version "1.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/skeeto/optparse-go")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1yzpzlhmxdm8gd8ikh9c91qmshjp1jg49l0qsslmm432wk19zym9"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "nullprogram.com/x/optparse"))
+    (home-page "https://nullprogram.com/x/optparse")
+    (synopsis "Traditional long option parser for Go")
+    (description
+     "Package optparse parses command line arguments very similarly to GNU
+@code{getopt_long()}.  It supports long options and optional arguments, but does
+not permute arguments.  It is intended as a replacement for Go's flag package.")
+    (license license:unlicense)))
