@@ -402,3 +402,25 @@ forwards/backwards compatibility.")
 rounding for conversions.  IEEE 754-2008 refers to this 16-bit floating-point
 format as binary16.")
     (license license:expat)))
+
+(define-public go-github-com-d4l3k-go-bfloat16
+  (package
+    (name "go-github-com-d4l3k-go-bfloat16")
+    (version "0.0.0-20211005043715-690c3bdd05f1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/d4l3k/go-bfloat16")
+             (commit (go-version->git-ref version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1bshygdr5lcagznrh349r53whqhlg870j484zpsi3f7ilqv08rvy"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/d4l3k/go-bfloat16"))
+    (home-page "https://github.com/d4l3k/go-bfloat16")
+    (synopsis "go-bfloat16")
+    (description "BFloat16 conversion utilities for Go/Golang.")
+    (license license:expat)))
