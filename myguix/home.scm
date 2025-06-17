@@ -13,7 +13,6 @@
   #:export (%my-base-home-services %my-shell-base-services
                                    %my-development-base-services
                                    xdg-directory-service
-                                   make-zsh-plugin-file
                                    %default-xdg-directories
                                    %default-dotguile
                                    %default-gdbinit
@@ -39,9 +38,6 @@
 
 
 
-(define-public (make-zsh-plugin-file name package path)
-  "Source zsh plugin from PACKAGE at PATH."
-  (mixed-text-file name "source " package path))
 
 ;;; Defaults
 
