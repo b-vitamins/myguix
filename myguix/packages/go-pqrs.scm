@@ -1,0 +1,288 @@
+(define-module (myguix packages go-pqrs)
+  #:use-module (gnu packages)
+  #:use-module (gnu packages golang)
+  #:use-module (guix build-system go)
+  #:use-module (guix git-download)
+  #:use-module (guix download)
+  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module (guix packages))
+
+;;;
+;;; Go packages needed for Ollama v0.9.1 packaging
+;;;
+;;; This file contains stubs and documentation for all Go dependencies
+;;; required to build Ollama from source in Guix. Based on analysis of
+;;; Ollama v0.9.1's go.mod and go.sum files.
+;;;
+;;; Total estimated packages needed: 25-40
+;;; Packaging priority: High → Medium → Low
+;;; Some packages may already exist in Guix - check before implementing.
+;;;
+
+;;; ============================================================================
+;;; HIGH PRIORITY - Core AI/ML Libraries (Phase 1: 5-8 packages)
+;;; ============================================================================
+;;; These are specialized AI/ML libraries that are definitely not in Guix
+;;; and are essential for Ollama's core functionality.
+
+;; TODO: Package github.com/x448/float16@v0.8.4
+;; Float16 (half precision) floating point arithmetic
+;; Critical for AI model inference performance
+;; License: MIT
+;; (define-public go-github-com-x448-float16 ...)
+
+;; TODO: Package github.com/d4l3k/go-bfloat16@v0.0.0-20211005043715-690c3bdd05f1
+;; Brain float16 format support for Google's ML frameworks
+;; Uses commit hash - version: 690c3bdd05f1
+;; License: MIT
+;; (define-public go-github-com-d4l3k-go-bfloat16 ...)
+
+;; TODO: Package github.com/nlpodyssey/gopickle@v0.3.0
+;; Python pickle format reader/writer for Go
+;; Essential for loading PyTorch/Python ML models
+;; License: BSD-2-Clause
+;; (define-public go-github-com-nlpodyssey-gopickle ...)
+
+;; TODO: Package github.com/pdevine/tensor@v0.0.0-20240510204454-f88f4562727c
+;; Tensor operations library for Go
+;; Uses commit hash - version: f88f4562727c
+;; License: Apache-2.0
+;; (define-public go-github-com-pdevine-tensor ...)
+
+;; TODO: Package gonum.org/v1/gonum@v0.15.1
+;; Comprehensive numerical library for Go
+;; May already exist in Guix - CHECK FIRST
+;; License: BSD-3-Clause
+;; (define-public go-gonum-org-v1-gonum ...)
+
+;; TODO: Package gorgonia.org/vecf32@v0.9.0
+;; 32-bit float vector operations
+;; License: Apache-2.0
+;; (define-public go-gorgonia-org-vecf32 ...)
+
+;; TODO: Package gorgonia.org/vecf64@v0.9.0
+;; 64-bit float vector operations
+;; License: Apache-2.0
+;; (define-public go-gorgonia-org-vecf64 ...)
+
+;;; ============================================================================
+;;; MEDIUM PRIORITY - Data Processing & Performance (Phase 2: 8-12 packages)
+;;; ============================================================================
+
+;; TODO: Package github.com/google/flatbuffers@v24.3.25+incompatible
+;; FlatBuffers serialization library
+;; Note: Incompatible version tag - may need special handling
+;; License: Apache-2.0
+;; (define-public go-github-com-google-flatbuffers ...)
+
+;; TODO: Package github.com/apache/arrow/go/arrow@v0.0.0-20211112161151-bc219186db40
+;; Apache Arrow columnar memory format
+;; Uses commit hash - version: bc219186db40
+;; License: Apache-2.0
+;; (define-public go-github-com-apache-arrow-go-arrow ...)
+
+;; TODO: Package github.com/bytedance/sonic@v1.11.6
+;; High-performance JSON serialization library
+;; License: Apache-2.0
+;; (define-public go-github-com-bytedance-sonic ...)
+
+;; TODO: Package github.com/cloudwego/base64x@v0.1.4
+;; High-performance base64 encoding/decoding
+;; License: Apache-2.0
+;; (define-public go-github-com-cloudwego-base64x ...)
+
+;; TODO: Package github.com/cloudwego/iasm@v0.2.0
+;; Assembly code generation library
+;; License: Apache-2.0
+;; (define-public go-github-com-cloudwego-iasm ...)
+
+;; TODO: Package github.com/klauspost/cpuid/v2@v2.2.7
+;; CPU feature detection library
+;; May already exist in Guix - CHECK FIRST
+;; License: MIT
+;; (define-public go-github-com-klauspost-cpuid-v2 ...)
+
+;; TODO: Package github.com/twitchyliquid64/golang-asm@v0.15.1
+;; Runtime assembly code generation
+;; License: MIT
+;; (define-public go-github-com-twitchyliquid64-golang-asm ...)
+
+;;; ============================================================================
+;;; MEDIUM PRIORITY - Web Framework & CLI (Phase 2 continued)
+;;; ============================================================================
+
+;; TODO: Check if github.com/gin-gonic/gin@v1.10.0 exists in Guix
+;; HTTP web framework (very popular - likely already packaged)
+;; License: MIT
+;; (define-public go-github-com-gin-gonic-gin ...)
+
+;; TODO: Package github.com/gin-contrib/cors@v1.7.2
+;; CORS middleware for Gin framework
+;; License: MIT
+;; (define-public go-github-com-gin-contrib-cors ...)
+
+;; TODO: Package github.com/gabriel-vasile/mimetype@v1.4.3
+;; MIME type detection library
+;; License: MIT
+;; (define-public go-github-com-gabriel-vasile-mimetype ...)
+
+;; TODO: Package github.com/go-playground/validator/v10@v10.20.0
+;; Struct and field validation library
+;; May already exist in Guix - CHECK FIRST
+;; License: MIT
+;; (define-public go-github-com-go-playground-validator-v10 ...)
+
+;; TODO: Check if github.com/spf13/cobra@v1.7.0 exists in Guix
+;; CLI application framework (very popular - likely already packaged)
+;; License: Apache-2.0
+;; (define-public go-github-com-spf13-cobra ...)
+
+;; TODO: Package github.com/containerd/console@v1.0.4
+;; Console utility functions
+;; May already exist as part of containerd packages
+;; License: Apache-2.0
+;; (define-public go-github-com-containerd-console ...)
+
+;; TODO: Package github.com/agnivade/levenshtein@v1.1.1
+;; Levenshtein distance calculation
+;; License: MIT
+;; (define-public go-github-com-agnivade-levenshtein ...)
+
+;;; ============================================================================
+;;; MEDIUM PRIORITY - JSON & Data Processing
+;;; ============================================================================
+
+;; TODO: Package github.com/goccy/go-json@v0.10.2
+;; High-performance JSON library
+;; License: MIT
+;; (define-public go-github-com-goccy-go-json ...)
+
+;; TODO: Check if github.com/pelletier/go-toml/v2@v2.2.2 exists in Guix
+;; TOML parser (common library - may already exist)
+;; License: Apache-2.0
+;; (define-public go-github-com-pelletier-go-toml-v2 ...)
+
+;; TODO: Package github.com/ugorji/go/codec@v1.2.12
+;; High-performance serialization codecs
+;; License: MIT
+;; (define-public go-github-com-ugorji-go-codec ...)
+
+;;; ============================================================================
+;;; LOW PRIORITY - Standard Extensions (Phase 3: Check Guix first)
+;;; ============================================================================
+;;; These are likely already available in Guix golang packages
+
+;; TODO: Verify golang.org/x/crypto@v0.29.0 exists and is recent enough
+;; Extended cryptography library (standard - should exist)
+
+;; TODO: Verify golang.org/x/image@v0.22.0 exists and is recent enough
+;; Extended image processing library (standard - should exist)
+
+;; TODO: Verify golang.org/x/sys@v0.27.0 exists and is recent enough
+;; Extended system call library (standard - should exist)
+
+;; TODO: Verify golang.org/x/net@v0.31.0 exists and is recent enough
+;; Extended networking library (standard - should exist)
+
+;; TODO: Verify golang.org/x/text@v0.20.0 exists and is recent enough
+;; Extended text processing library (standard - should exist)
+
+;; TODO: Verify golang.org/x/exp@v0.0.0-20250218142911-aa4b98e5adaa exists
+;; Experimental Go features
+;; Uses commit hash - version: aa4b98e5adaa
+
+;;; ============================================================================
+;;; LOW PRIORITY - Common Utilities (Phase 3: Likely available)
+;;; ============================================================================
+
+;; TODO: Check if google.golang.org/protobuf@v1.34.1 exists in Guix
+;; Protocol Buffers library (very common - likely exists)
+
+;; TODO: Check if github.com/google/uuid@v1.6.0 exists in Guix
+;; UUID generation (very common - likely exists)
+
+;; TODO: Check if github.com/mattn/go-isatty@v0.0.20 exists in Guix
+;; TTY detection utility (common - likely exists)
+
+;; TODO: Check if github.com/stretchr/testify@v1.9.0 exists in Guix
+;; Testing framework (very popular - likely exists)
+
+;; TODO: Check if gopkg.in/yaml.v3@v3.0.1 exists in Guix
+;; YAML parser (very common - likely exists)
+
+;;; ============================================================================
+;;; ADDITIONAL DEPENDENCIES (Lower priority, specialized)
+;;; ============================================================================
+
+;; TODO: Package github.com/chewxy/hm@v1.0.0 (if needed)
+;; Hindley-Milner type system for Go
+
+;; TODO: Package github.com/chewxy/math32@v1.10.1 (if needed)
+;; 32-bit math functions
+
+;; TODO: Package github.com/pkg/errors@v0.9.1 (if needed)
+;; Error handling utilities (may already exist)
+
+;; TODO: Package gorgonia.org/tensor@v0.9.24 (if needed)
+;; Tensor library for Gorgonia
+
+;;; ============================================================================
+;;; PACKAGING NOTES & STRATEGY
+;;; ============================================================================
+
+;;; PHASE 1 IMPLEMENTATION ORDER:
+;;; 1. go-github-com-x448-float16 (simplest, pure Go)
+;;; 2. go-github-com-d4l3k-go-bfloat16 (simple, commit version)
+;;; 3. go-gonum-org-v1-gonum (check if exists first, large but standard)
+;;; 4. go-github-com-nlpodyssey-gopickle (medium complexity)
+;;; 5. go-github-com-pdevine-tensor (complex, may depend on others)
+
+;;; SPECIAL CONSIDERATIONS:
+;;; - Many packages use commit hashes instead of semantic versions
+;;; - Performance libraries may require specific Go build tags
+;;; - ML libraries may have native dependencies (check carefully)
+;;; - Some packages marked as "incompatible" may need special handling
+;;; - Test with Go 1.24.3+ as Ollama requires this minimum version
+
+;;; TESTING STRATEGY:
+;;; - Build each package individually first
+;;; - Test with simple import verification
+;;; - Build intermediate test programs before full Ollama build
+;;; - Use guix environment for development and testing
+
+;;; VERSION HANDLING:
+;;; - Use git-reference for commit-based versions
+;;; - Document exact commit hashes from go.sum verification
+;;; - Handle +incompatible versions according to Go modules spec
+;;; - Verify version constraints match Ollama's requirements
+
+;; This file serves as a roadmap for the Go packaging effort.
+;; Update package definitions here as they are implemented.
+;; Mark completed packages with actual definitions below.
+
+;;; ============================================================================
+;;; IMPLEMENTED PACKAGES (Add actual package definitions here)
+;;; ============================================================================
+
+;; Example package template:
+;;
+;; (define-public go-github-com-example-package
+;;   (package
+;;     (name "go-github-com-example-package")
+;;     (version "1.0.0")
+;;     (source
+;;      (origin
+;;        (method git-fetch)
+;;        (uri (git-reference
+;;              (url "https://github.com/example/package")
+;;              (commit (string-append "v" version))))
+;;        (file-name (git-file-name name version))
+;;        (sha256
+;;         (base32 "..."))))
+;;     (build-system go-build-system)
+;;     (arguments
+;;      (list #:import-path "github.com/example/package"))
+;;     (home-page "https://github.com/example/package")
+;;     (synopsis "Brief description")
+;;     (description "Detailed description")
+;;     (license license:mit)))
