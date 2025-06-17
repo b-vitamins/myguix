@@ -340,3 +340,38 @@ architected for maximum memory efficiency.  It allows you to directly access
 serialized data without parsing/unpacking it first, while still having great
 forwards/backwards compatibility.")
     (license license:asl2.0)))
+
+(define-public go-github-com-apache-arrow-go-arrow
+  (package
+    (name "go-github-com-apache-arrow-go-arrow")
+    (version "0.0.0-20211112161151-bc219186db40")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/apache/arrow")
+             (commit (go-version->git-ref version
+                                          #:subdir "go/arrow"))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "03nh7c0i3y9rkkzw428knalkrlpb8syr459i00mwp072ijn8v4hx"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/apache/arrow/go/arrow"
+      #:unpack-path "github.com/apache/arrow"
+      #:tests? #f))
+    (propagated-inputs (list go-google-golang-org-protobuf
+                             go-google-golang-org-grpc
+                             go-gonum-org-v1-gonum
+                             go-golang-org-x-xerrors
+                             go-golang-org-x-exp
+                             go-github-com-stretchr-testify
+                             go-github-com-pierrec-lz4-v4
+                             go-github-com-klauspost-compress
+                             go-github-com-google-flatbuffers
+                             go-github-com-golang-protobuf))
+    (home-page "https://github.com/apache/arrow")
+    (synopsis "Apache Arrow Go implementation")
+    (description "Package arrow provides an implementation of Apache Arrow.")
+    (license license:asl2.0)))
