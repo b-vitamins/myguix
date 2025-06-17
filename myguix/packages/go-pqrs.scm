@@ -7,6 +7,7 @@
   #:use-module (gnu packages golang-web)
   #:use-module (gnu packages golang-compression)
   #:use-module (gnu packages golang-crypto)
+  #:use-module (gnu packages golang-xyz)
   #:use-module (guix build-system go)
   #:use-module (guix git-download)
   #:use-module (guix download)
