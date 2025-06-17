@@ -698,3 +698,29 @@ things aren't stack-allocated is the caller's responsibility.")
 @code{getopt_long()}.  It supports long options and optional arguments, but does
 not permute arguments.  It is intended as a replacement for Go's flag package.")
     (license license:unlicense)))
+
+(define-public go-github-com-bytedance-sonic-loader
+  (package
+    (name "go-github-com-bytedance-sonic-loader")
+    (version "0.2.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/bytedance/sonic")
+             (commit (go-version->git-ref version
+                                          #:subdir "loader"))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "09a7jka6a74802i6a6lgxlc3vp0jnb69hy1l5s772260q1zgnkds"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/bytedance/sonic/loader"
+      #:unpack-path "github.com/bytedance/sonic"))
+    (propagated-inputs (list go-github-com-stretchr-testify
+                             go-github-com-davecgh-go-spew))
+    (home-page "https://github.com/bytedance/sonic")
+    (synopsis "Runtime loader for Sonic")
+    (description "Runtime loader module for the Sonic JSON library.")
+    (license license:asl2.0)))
