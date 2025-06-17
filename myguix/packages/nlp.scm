@@ -325,3 +325,30 @@ OpenAI's API format to interact with various large language model providers.")
 language models with GPU acceleration via various backends including CUDA,
 OpenCL, Metal, and CPU-based inference.")
     (license license:expat)))
+
+(define-public python-ollama
+  (package
+    (name "python-ollama")
+    (version "0.4.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ollama" version))
+       (sha256
+        (base32 "1yvz1zfx7p9r172vcha76lak9964550ai7ny5nyblff7fd10dnz1"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; Tests require running Ollama server
+      #:tests? #f))
+    (propagated-inputs
+     (list python-httpx
+           python-pydantic))
+    (native-inputs
+     (list python-poetry-core))
+    (home-page "https://github.com/ollama/ollama-python")
+    (synopsis "Python client for Ollama")
+    (description
+     "Official Python client library for Ollama.  Provides a simple interface
+to interact with Ollama's API for running large language models locally.")
+    (license license:expat)))
