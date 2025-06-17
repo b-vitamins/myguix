@@ -424,3 +424,29 @@ format as binary16.")
     (synopsis "go-bfloat16")
     (description "BFloat16 conversion utilities for Go/Golang.")
     (license license:expat)))
+
+(define-public go-github-com-nlpodyssey-gopickle
+  (package
+    (name "go-github-com-nlpodyssey-gopickle")
+    (version "0.3.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/nlpodyssey/gopickle")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1fadbyq63i55g3k91knm7m1pl3j0krxdgpajrl78h27sl3mhnhal"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/nlpodyssey/gopickle/..."
+      #:unpack-path "github.com/nlpodyssey/gopickle"))
+    (propagated-inputs (list go-golang-org-x-text))
+    (home-page "https://github.com/nlpodyssey/gopickle")
+    (synopsis "GoPickle")
+    (description
+     "@code{GoPickle} is a Go library for loading Python's data serialized with
+@code{pickle} and @code{PyTorch} module files.")
+    (license license:bsd-2)))
