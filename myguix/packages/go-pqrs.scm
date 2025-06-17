@@ -776,3 +776,30 @@ library.")
     (description
      "High performance drop-in replacement of the @@code{encoding/base64} library.")
     (license (list license:asl2.0 license:asl2.0))))
+
+(define-public go-github-com-cloudwego-iasm
+  (package
+    (name "go-github-com-cloudwego-iasm")
+    (version "0.2.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/cloudwego/iasm")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0j9jvx6ijlr2xz3am4qrz5py68xpl8np7m7yfq9m2ilkli3ksq9x"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/cloudwego/iasm"))
+    (propagated-inputs (list go-nullprogram-com-x-optparse
+                             go-github-com-stretchr-testify
+                             go-github-com-knz-go-libedit
+                             go-github-com-klauspost-cpuid-v2
+                             go-github-com-davecgh-go-spew))
+    (home-page "https://github.com/cloudwego/iasm")
+    (synopsis "Interactive Assembler for Go")
+    (description "Dual-purpose assembly engine written in pure Golang.")
+    (license license:asl2.0)))
