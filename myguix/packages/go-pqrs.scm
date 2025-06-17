@@ -1,11 +1,17 @@
 (define-module (myguix packages go-pqrs)
   #:use-module (gnu packages)
   #:use-module (gnu packages golang)
+  #:use-module (gnu packages golang-build)
+  #:use-module (gnu packages golang-check)
+  #:use-module (gnu packages golang-maths)
+  #:use-module (gnu packages golang-web)
+  #:use-module (gnu packages golang-compression)
   #:use-module (guix build-system go)
   #:use-module (guix git-download)
   #:use-module (guix download)
   #:use-module ((guix licenses) #:prefix license:)
-  #:use-module (guix packages))
+  #:use-module (guix packages)
+  #:use-module (guix gexp))
 
 ;;;
 ;;; Go packages needed for Ollama v0.9.1 packaging
