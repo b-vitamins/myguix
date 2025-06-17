@@ -26,6 +26,7 @@
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system python)
+  #:use-module (guix build-system trivial)
   #:use-module (guix download)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
@@ -434,4 +435,47 @@ exec ~a/bin/.ollama-real \"$@\"
      "Ollama is a tool for running large language models locally.  It provides
 a simple interface for downloading, managing, and running various LLM models
 on your own hardware.  This package uses the pre-built binary distribution.")
+    (license license:expat)))
+
+(define-public ollama-model-llama2-7b
+  (package
+    (name "ollama-model-llama2-7b")
+    (version "1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf")
+       (sha256
+        (base32 "02qvwm611vd3libkyb4h2027vm4dwmnc4v7d5ngmmni14a620rs5"))))
+    (build-system trivial-build-system)
+    (arguments
+     (list
+      #:modules '((guix build utils))
+      #:builder
+      #~(begin
+          (use-modules (guix build utils))
+          (let* ((out #$output)
+                 (model-dir (string-append out "/share/ollama/models/llama2"))
+                 (source #$(package-source this-package)))
+            (mkdir-p model-dir)
+            (copy-file source
+                       (string-append model-dir "/7b.gguf"))
+            ;; Create manifest for model discovery
+            (call-with-output-file (string-append model-dir "/manifest.json")
+              (lambda (port)
+                (display "{
+  \"name\": \"llama2:7b\",
+  \"model\": \"7b.gguf\",
+  \"parameters\": {
+    \"num_ctx\": 2048,
+    \"num_gpu\": 1
+  }
+}" port)))))))
+    (home-page "https://ollama.com/library/llama2")
+    (synopsis "Llama 2 7B model for Ollama")
+    (description
+     "Llama 2 is a collection of pretrained and fine-tuned generative text models
+ranging in scale from 7 billion to 70 billion parameters.  This package provides
+the 7B parameter model in GGUF format for use with Ollama.")
     (license license:expat)))
