@@ -626,3 +626,25 @@ things aren't stack-allocated is the caller's responsibility.")
      "@@url{http://golang.org,Go} package to calculate the
 @@url{http://en.wikipedia.org/wiki/Levenshtein_distance,Levenshtein Distance}.")
     (license license:bsd-3)))
+
+(define-public go-github-com-dgryski-trifles
+  (package
+    (name "go-github-com-dgryski-trifles")
+    (version "0.0.0-20240922021506-5ecb8eeff266")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/dgryski/trifles")
+             (commit (go-version->git-ref version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "071pnsyax99ikc58b110hdvqk1v46mqk6zdd0sshrf9lmwixwpnj"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/dgryski/trifles"))
+    (home-page "https://github.com/dgryski/trifles")
+    (synopsis "Collection of small Go programs")
+    (description "Trifles is a collection of small Go programs.")
+    (license license:expat)))
