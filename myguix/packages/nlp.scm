@@ -13,6 +13,7 @@
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-build)
+  #:use-module (gnu packages python-crypto)
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rust-apps)
@@ -243,4 +244,36 @@
     (synopsis "tiktoken is a fast BPE tokeniser for use with OpenAI's models")
     (description
      "tiktoken is a fast BPE tokeniser for use with @code{OpenAI's} models.")
+    (license license:expat)))
+
+(define-public python-litellm
+  (package
+    (name "python-litellm")
+    (version "1.55.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "litellm" version))
+       (sha256
+        (base32 "05gs6pawd7gbk8ljlf15i94aibgkzzjvdd2aa9wxvjfl8j9ghip3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; Tests require network access and API keys
+      #:tests? #f))
+    (propagated-inputs
+     (list python-tiktoken
+           python-click
+           python-jinja2
+           python-certifi
+           python-pyyaml
+           python-pydantic))
+    (native-inputs
+     (list python-poetry-core))
+    (home-page "https://github.com/BerriAI/litellm")
+    (synopsis "Library to simplify calling 100+ LLM APIs using the OpenAI format")
+    (description
+     "LiteLLM is a library to simplify calling Anthropic, Azure, Huggingface,
+Replicate, Cohere, OpenAI, and more.  It provides a unified interface following
+OpenAI's API format to interact with various large language model providers.")
     (license license:expat)))
