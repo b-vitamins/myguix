@@ -13,7 +13,6 @@
   #:export (%my-base-home-services %my-shell-base-services
                                    %my-development-base-services
                                    xdg-directory-service
-                                   cleanup-cache-service
                                    make-zsh-plugin-file
                                    %default-xdg-directories
                                    %default-dotguile
@@ -39,29 +38,6 @@
                                 '#$directories))))
 
 
-(define-public (cleanup-cache-service cleanup-specs)
-  "Clean up cache files per CLEANUP-SPECS: (DIRECTORY PATTERN AGE-DAYS) tuples."
-  (simple-service 'cleanup-cache home-activation-service-type
-                  #~(begin
-                      (for-each (lambda (spec)
-                                  (let ((directory (car spec))
-                                        (pattern (cadr spec))
-                                        (age-days (caddr spec)))
-                                    (let ((dir (string-append (getenv "HOME")
-                                                              "/" directory)))
-                                      (when (file-exists? dir)
-                                        (system* "find"
-                                                 dir
-                                                 "-type"
-                                                 "f"
-                                                 "-name"
-                                                 pattern
-                                                 "-mtime"
-                                                 (string-append "+"
-                                                                (number->string
-                                                                 age-days))
-                                                 "-delete")))))
-                                '#$cleanup-specs))))
 
 (define-public (make-zsh-plugin-file name package path)
   "Source zsh plugin from PACKAGE at PATH."
