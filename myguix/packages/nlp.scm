@@ -521,3 +521,12 @@ the 7B parameter model in GGUF format for use with Ollama.")
      "Mistral 7B is a 7.3B parameter model that outperforms Llama 2 13B on all
 benchmarks and matches Llama 1 34B on many benchmarks.")
     (license license:asl2.0)))
+
+(define-public ollama-with-llama2
+  (package
+    (inherit ollama-binary)
+    (name "ollama-with-llama2")
+    (propagated-inputs (list ollama-model-llama2-7b))
+    (synopsis "Ollama with Llama 2 7B model")
+    (description (string-append (package-description ollama-binary)
+                  "  This variant includes the Llama 2 7B model."))))
