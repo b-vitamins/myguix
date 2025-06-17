@@ -530,3 +530,12 @@ benchmarks and matches Llama 1 34B on many benchmarks.")
     (synopsis "Ollama with Llama 2 7B model")
     (description (string-append (package-description ollama-binary)
                   "  This variant includes the Llama 2 7B model."))))
+
+(define-public ollama-with-mistral
+  (package
+    (inherit ollama-binary)
+    (name "ollama-with-mistral")
+    (propagated-inputs (list ollama-model-mistral-7b))
+    (synopsis "Ollama with Mistral 7B model")
+    (description (string-append (package-description ollama-binary)
+                  "  This variant includes the Mistral 7B model."))))
