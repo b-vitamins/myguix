@@ -58,6 +58,7 @@
         emacs-git-timemachine
         emacs-gptel
         emacs-gptel-quick
+        emacs-guix
         emacs-helm-bibtex
         emacs-helpful
         emacs-hide-mode-line
