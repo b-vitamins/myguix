@@ -158,13 +158,13 @@
 (define-public python-pyalex
   (package
     (name "python-pyalex")
-    (version "0.13")
+    (version "0.18")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "pyalex" version))
        (sha256
-        (base32 "0n29hl0m137jyx65lry7mh50lwcnba1j8zpap252rckli0gbfffh"))))
+        (base32 "1rz5prl42icrcjbaafjnwjg0axacn90jpjsfls1if404w7hgc7dp"))))
     (arguments
      '(#:tests? #f)) ;Requires network access
     (build-system pyproject-build-system)
