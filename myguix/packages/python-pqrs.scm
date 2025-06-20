@@ -1565,7 +1565,7 @@ parallelism.")))
 (define-public python-alexify
   (package
     (name "python-alexify")
-    (version "0.2.0")
+    (version "0.3.0")
     (source
      (origin
        (method git-fetch)
@@ -1574,10 +1574,10 @@ parallelism.")))
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1v8cd5vjw6zk3q0wa02aigi3mzjr2pb3s52y5w69r8rp3kvldch4"))))
+        (base32 "0wjl3606ywig1h6g5a7vgnib15pxfq502xk4zs3q0w1lbs8dmbg2"))))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-bibtexparser-1 python-fuzzywuzzy
-                             python-pyalex python-requests))
+                             python-httpx))
     (native-inputs (list python-poetry-core python-pytest))
     (home-page "https://github.com/b-vitamins/alexify")
     (synopsis
