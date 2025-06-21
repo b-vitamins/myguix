@@ -147,9 +147,10 @@
 
 ;; GROBID - machine learning for scholarly document extraction
 (define oci-grobid-service-type
-  (oci-container-configuration (image "grobid/grobid:0.8.1")
+  (oci-container-configuration (image "grobid/grobid:0.8.2")
                                (network "host")
-                               (ports '(("8070" . "8070")))))
+                               (ports '(("8070" . "8070")))
+                               (volumes '(("/var/lib/grobid/grobid.yaml" . "/opt/grobid/grobid-home/config/grobid.yaml")))))
 
 ;; JanusGraph - scalable graph database
 (define oci-janusgraph-service-type
