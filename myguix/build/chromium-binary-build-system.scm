@@ -20,7 +20,7 @@
 (define* (install-wrapper #:key inputs outputs #:allow-other-keys)
   (let* ((output (assoc-ref outputs "out"))
          (bin (string-append output "/bin"))
-         (fontconfig-minimal (assoc-ref inputs "fontconfig"))
+         (fontconfig-minimal (assoc-ref inputs "fontconfig-minimal"))
          (nss (assoc-ref inputs "nss"))
          (wrap-inputs (map cdr inputs))
          (lib-directories (search-path-as-list '("lib") wrap-inputs))
@@ -40,6 +40,9 @@
                     (,(string-join (append lib-directories
                                            (list (string-append nss "/lib/nss")
                                                  output)) ":")))
+                  ;; Give a hint to Electron-based apps to detect if Wayland or X11 should
+                  ;; be used.
+                  ;; NOTE: The env-var version of this CLI arg was added in Electron >=28
                   `("ELECTRON_OZONE_PLATFORM_HINT" ":" =
                     ("auto"))))
               (map (lambda (exe)
