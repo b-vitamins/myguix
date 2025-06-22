@@ -350,7 +350,7 @@ stable, responsive and smooth desktop experience.")))
                                            "00la3fqwjzb35k6rig59apzxw905f1sh6zwx0sxg7k3dhp1gys9d")))
 
 (define-public linux-xanmod-lts-version
-  "6.12.23")
+  "6.12.33")
 (define-public linux-xanmod-lts-revision
   "xanmod1")
 (define-public linux-xanmod-lts-source
@@ -360,7 +360,7 @@ stable, responsive and smooth desktop experience.")))
                             #:kernel-hash (base32
                                            "1sr58vsh39hdwk0z27lg14isqwn4g8m4r7a8z2rsyhkfwlmmd8mi")
                             #:xanmod-hash (base32
-                                           "1g7s9d2c6iycf1fpkrmcnz9n6kwpvx7k8nsgbmq8hgn8p537b6cd")))
+                                           "02zrsayxjahmnr4wjh5xnp76pgrydr3010kla2nbw2fbmibcljrx")))
 
 ;; Linux-XanMod packages
 (define-public linux-xanmod
