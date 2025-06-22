@@ -7,6 +7,7 @@
   #:use-module (gnu packages cups)
   #:use-module (gnu packages databases)
   #:use-module (gnu packages fontutils)
+  #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages glib)
@@ -129,6 +130,7 @@
                               xcb-util-keysyms
                               xcb-util-renderutil
                               xcb-util-wm
+                              xdg-utils
                               zlib)
             ;; Keep the standard inputs of 'gnu-build-system'.
             (standard-packages)))
