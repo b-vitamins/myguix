@@ -233,7 +233,7 @@
         libnatpmp))
 
 (define %desktop-packages
-  (list firefox google-chrome-stable icedove anytype zotero))
+  (list firefox google-chrome-stable))
 
 (define %audio-packages
   (list pipewire wireplumber))
@@ -284,7 +284,6 @@
 (define %file-transfer-packages
   (list wget
         curl
-        megacmd
         s3cmd
         rsync
         borg
@@ -306,30 +305,15 @@
   (list texlive
         texlive-latexindent
         texlive-tools
-        scribus
         hunspell
         hunspell-dict-en-us
-        hunspell-dict-en-gb-ize
-        qpdf
-        mupdf
-        pdfarranger
-        stapler
-        diffpdf
-        perl-image-exiftool
-        pdfposter
-        poppler
-        calibre))
+        hunspell-dict-en-gb-ize))
 
 (define %media-packages
-  (list vlc audacious ephoto))
+  (list vlc audacious))
 
 (define %graphics-packages
-  (list gimp
-        inkscape
-        imagemagick
-        graphicsmagick
-        python-imageio
-        python-matplotlib))
+  (list gimp inkscape imagemagick))
 
 (define %audio-conversion-packages
   (list abcde
