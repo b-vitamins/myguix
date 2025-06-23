@@ -102,6 +102,8 @@
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages version-control)
+  #:use-module (gnu packages gcc)
+  #:use-module (gnu packages elf)
   #:use-module (guix build-system trivial)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system node)
@@ -2305,31 +2307,37 @@ and YAML-based configuration files with dot-accessible dictionaries.")
                         (string-append pdfium-headers "/fpdf_ppo.h")))
 
               ;; Add _libs_info variable that pypdfium2 expects
-              (let ((libs-info (string-append "
-# Guix: Add _libs_info variable
-_libs_info = [('libpdfium', '"
-                                #$(this-package-input "pdfium-binary")
-                                "/lib/libpdfium.so')]\n")))
+              (let ((lib-path (string-append #$(this-package-input
+                                                "pdfium-binary")
+                                             "/lib/libpdfium.so")))
                 (invoke "sh" "-c"
-                        (string-append "echo '" libs-info
-                                       "' >> data/bindings/bindings.py"))))
+                        (string-append
+                         "echo \"\" >> data/bindings/bindings.py && "
+                         "echo \"# Guix: Add _libs_info variable\" >> data/bindings/bindings.py && "
+                         "echo \"_libs_info = {'pdfium': {'path': '" lib-path
+                         "'}}\" >> data/bindings/bindings.py")))))
 
-            ;; Create version.json with proper structure
-            (let ((version-data
-                   "{\"major\": 6721, \"minor\": 0, \"build\": 0, \"patch\": 0, \"n_commits\": 0, \"hash\": null, \"origin\": \"system/guix/pdfium-binaries\", \"flags\": []}
+          (add-after 'generate-bindings 'create-version-files
+            (lambda _
+              ;; Create version.json with proper structure
+              (let ((version-data
+                     "{\"major\": 6721, \"minor\": 0, \"build\": 0, \"patch\": 0, \"n_commits\": 0, \"hash\": null, \"origin\": \"system/guix/pdfium-binaries\", \"flags\": []}
 "))
-              (call-with-output-file "data/bindings/version.json"
-                (lambda (port)
-                  (display version-data port)))
+                (call-with-output-file "data/bindings/version.json"
+                  (lambda (port)
+                    (display version-data port)))
 
-              ;; Also create version.json in linux_x64 directory (expected by setup)
-              (call-with-output-file "data/linux_x64/version.json"
-                (lambda (port)
-                  (display version-data port)))))))))
-  (inputs (list pdfium-binary-for-pypdfium2))
-  (native-inputs (list git-minimal python-ctypesgen python-packaging
-                       python-setuptools python-wheel))
-  (home-page "https://github.com/pypdfium2-team/pypdfium2")
-  (synopsis "Python bindings to PDFium")
-  (description "Python bindings to PDFium, a PDF rendering library.")
-  (license license:bsd-3))
+                ;; Also create version.json in linux_x64 directory (expected by setup)
+                (call-with-output-file "data/linux_x64/version.json"
+                  (lambda (port)
+                    (display version-data port))))))
+          ;; The pre-compiled binary has dependencies that will be found at runtime
+          ;; via the system's library search path, so we skip RUNPATH validation
+          (delete 'validate-runpath))))
+    (inputs (list pdfium-binary-for-pypdfium2))
+    (native-inputs (list git-minimal python-ctypesgen python-packaging
+                         python-setuptools python-wheel))
+    (home-page "https://github.com/pypdfium2-team/pypdfium2")
+    (synopsis "Python bindings to PDFium")
+    (description "Python bindings to PDFium, a PDF rendering library.")
+    (license license:bsd-3)))
