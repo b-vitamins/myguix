@@ -40,7 +40,8 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust-pqrs)
-  #:use-module (myguix packages huggingface))
+  #:use-module ((myguix packages huggingface)
+                #:hide (python-safetensors)))
 
 (define-public whisper-cpp
   (package
