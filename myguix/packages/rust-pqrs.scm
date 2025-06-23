@@ -13182,3 +13182,54 @@ multiple character encodings and regex syntaxes.")
 library.  Oniguruma is a modern regex library with support for multiple
 character encodings and regex syntaxes.")
     (license license:expat)))
+
+(define-public rust-tokenizers-0.15
+  (package
+    (name "rust-tokenizers")
+    (version "0.15.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "tokenizers" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0kb5sfrgrdd8yaxn4080fhagsdniahbvz3si6gyyfdmsn1i7km1x"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-aho-corasick" ,rust-aho-corasick-1)
+                       ("rust-clap" ,rust-clap-4)
+                       ("rust-derive-builder" ,rust-derive-builder-0.12)
+                       ("rust-esaxx-rs" ,rust-esaxx-rs-0.1)
+                       ("rust-fancy-regex" ,rust-fancy-regex-0.13)
+                       ("rust-getrandom" ,rust-getrandom-0.2)
+                       ("rust-hf-hub" ,rust-hf-hub-0.3)
+                       ("rust-indicatif" ,rust-indicatif-0.17)
+                       ("rust-itertools" ,rust-itertools-0.12)
+                       ("rust-lazy-static" ,rust-lazy-static-1)
+                       ("rust-log" ,rust-log-0.4)
+                       ("rust-macro-rules-attribute" ,rust-macro-rules-attribute-0.2)
+                       ("rust-monostate" ,rust-monostate-0.1)
+                       ("rust-onig" ,rust-onig-6)
+                       ("rust-paste" ,rust-paste-1)
+                       ("rust-rand" ,rust-rand-0.8)
+                       ("rust-rayon" ,rust-rayon-1)
+                       ("rust-rayon-cond" ,rust-rayon-cond-0.3)
+                       ("rust-regex" ,rust-regex-1)
+                       ("rust-regex-syntax" ,rust-regex-syntax-0.8)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-spm-precompiled" ,rust-spm-precompiled-0.1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-unicode-normalization-alignments" ,rust-unicode-normalization-alignments-0.1)
+                       ("rust-unicode-segmentation" ,rust-unicode-segmentation-1)
+                       ("rust-unicode-categories" ,rust-unicode-categories-0.1))
+       #:cargo-development-inputs (("rust-assert-approx-eq" ,rust-assert-approx-eq-1)
+                                   ("rust-criterion" ,rust-criterion-0.5)
+                                   ("rust-tempfile" ,rust-tempfile-3))))
+    (home-page "https://github.com/huggingface/tokenizers")
+    (synopsis "Provides an implementation of today's most used tokenizers,
+with a focus on performances and versatility.")
+    (description
+     "This package provides an implementation of today's most used tokenizers, with a
+focus on performances and versatility.")
+    (license license:asl2.0)))
