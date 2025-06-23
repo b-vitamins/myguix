@@ -13122,3 +13122,34 @@ implementation.")
      "This package provides Rust wrappers for the @code{PyTorch} C++ api (libtorch).")
     (license (list license:expat license:asl2.0))))
 
+(define-public rust-onig-sys-69
+  (package
+    (name "rust-onig-sys")
+    (version "69.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "onig_sys" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1p17cxzqnpqzpzamh7aqwpagxlnbhzs6myxw4dgz2v9xxxp6ry67"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-bindgen" ,rust-bindgen-0.71)
+                       ("rust-cc" ,rust-cc-1)
+                       ("rust-pkg-config" ,rust-pkg-config-0.3))))
+    (home-page "https://github.com/iwillspeak/rust-onig")
+    (synopsis "The `onig_sys` crate contains raw rust bindings to the
+oniguruma library. This crate exposes a set of unsafe
+functions which can then be used by other crates to
+create safe wrappers around Oniguruma.
+
+You probably don't want to link to this crate directly;
+instead check out the `onig` crate.")
+    (description
+     "This package provides The `onig_sys` crate contains raw rust bindings to the oniguruma library.  This
+crate exposes a set of unsafe functions which can then be used by other crates
+to create safe wrappers around Oniguruma.  You probably don't want to link to
+this crate directly; instead check out the `onig` crate.")
+    (license license:expat)))
