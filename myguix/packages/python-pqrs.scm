@@ -1999,3 +1999,32 @@ Key features include:
     (description
      "Portable mixed-precision BLAS-like vector math library for x86 and ARM.")
     (license license:asl2.0)))
+
+(define-public python-opencv-python-headless
+  (package
+    (name "python-opencv-python-headless")
+    (version "4.11.0.86")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "opencv-python-headless" version))
+       (sha256
+        (base32 "161phkxik73k94d0jh9bvaf5s7rkwbh4shbj75mfqhsbra1b4vlr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests fail in build environment due to read-only filesystem
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'sanity-check)))) ;Skip sanity check due to binary dependencies
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-numpy
+                         python-packaging
+                         python-pip
+                         python-scikit-build
+                         python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/opencv/opencv-python")
+    (synopsis "Wrapper package for OpenCV python bindings.")
+    (description "Wrapper package for @code{OpenCV} python bindings.")
+    (license license:asl2.0)))
