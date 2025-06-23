@@ -299,8 +299,7 @@
         pdfgrep
         pdf2svg
         pdf2djvu
-        djvu2pdf
-        nougat-ocr))
+        djvu2pdf))
 
 (define %document-production-packages
   (list texlive
@@ -402,8 +401,7 @@
         node-pyright
         python-pyclean
         python-mutmut
-        python-tensorboard
-        python-wandb))
+        python-tensorboard))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
