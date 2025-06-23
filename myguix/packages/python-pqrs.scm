@@ -2105,3 +2105,26 @@ integration into ML workflows.")
     (synopsis "Python wrapper generator for ctypes")
     (description "Python wrapper generator for ctypes.")
     (license license:bsd-2)))
+
+(define-public python-sconf
+  (package
+    (name "python-sconf")
+    (version "0.2.5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/khanrc/sconf")
+             (commit "7db1a247c5264b174068a5d3c639db6cd34f65c0"))) ;HEAD commit on master
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1vrzkw4iq1c30araw23ilz59qdgxc1d1y294jp6kgscwn5vy5nkp"))))
+    (build-system python-build-system) ;Use python-build-system as it has setup.py
+    (propagated-inputs (list python-ruamel.yaml python-munch))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/khanrc/sconf")
+    (synopsis "Simple config supporting CLI modification")
+    (description
+     "Simple configuration management library that supports CLI modification
+and YAML-based configuration files with dot-accessible dictionaries.")
+    (license license:expat)))
