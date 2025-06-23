@@ -13153,3 +13153,32 @@ crate exposes a set of unsafe functions which can then be used by other crates
 to create safe wrappers around Oniguruma.  You probably don't want to link to
 this crate directly; instead check out the `onig` crate.")
     (license license:expat)))
+
+(define-public rust-onig-6
+  (package
+    (name "rust-onig")
+    (version "6.5.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "onig" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "1w63vbzamn2v9jpnlj3wkglapqss0fcvhhd8pqafzkis8iirqsrk"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:skip-build? #t
+       #:cargo-inputs (("rust-bitflags" ,rust-bitflags-2)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-once-cell" ,rust-once-cell-1)
+                       ("rust-onig-sys" ,rust-onig-sys-69))))
+    (home-page "https://github.com/iwillspeak/rust-onig")
+    (synopsis "Rust-Onig is a set of Rust bindings for the
+Oniguruma regular expression library. Oniguruma
+is a modern regex library with support for
+multiple character encodings and regex syntaxes.")
+    (description
+     "This package provides Rust-Onig is a set of Rust bindings for the Oniguruma regular expression
+library.  Oniguruma is a modern regex library with support for multiple
+character encodings and regex syntaxes.")
+    (license license:expat)))
