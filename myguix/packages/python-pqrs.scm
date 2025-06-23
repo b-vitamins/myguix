@@ -2085,3 +2085,23 @@ transformations for both 2D (images, masks, bboxes, keypoints) and 3D (volumes,
 volumetric masks, keypoints) data, with optimized performance and seamless
 integration into ML workflows.")
     (license license:expat)))
+
+(define-public python-ctypesgen
+  (package
+    (name "python-ctypesgen")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ctypesgen" version))
+       (sha256
+        (base32 "1xljmkdzjjrm8m9867pqcqrnzgjjp7wrqs4a5rm1k42xm5j2vany"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests require specific setup
+    (native-inputs (list python-setuptools python-setuptools-scm python-wheel))
+    (home-page "https://github.com/ctypesgen/ctypesgen")
+    (synopsis "Python wrapper generator for ctypes")
+    (description "Python wrapper generator for ctypes.")
+    (license license:bsd-2)))
