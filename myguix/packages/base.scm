@@ -299,7 +299,8 @@
         pdfgrep
         pdf2svg
         pdf2djvu
-        djvu2pdf))
+        djvu2pdf
+        nougat-ocr))
 
 (define %document-production-packages
   (list texlive
