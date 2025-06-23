@@ -771,43 +771,49 @@ from _pytest.doctest import (\\1")
                                   python-multiprocess-for-nougat)
                          (replace "python-dill" python-dill-for-nougat)))))
 
-(define-public nougat-ocr
-  (package
-    (name "nougat-ocr")
-    (version "0.1.17")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "nougat_ocr" version "whl"))
-       (sha256
-        (base32 "067ixvp157zi4yj4aw6nf7i4iylldsrlf6p1gln9fl32f4n76xpp"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f)) ;Tests require model downloads
-    (propagated-inputs (list python-transformers
-                             python-timm
-                             python-orjson
-                             python-opencv-python-headless
-                             python-datasets
-                             ;; python-pytorch-lightning
-                             python-nltk
-                             python-rapidfuzz
-                             python-sentencepiece
-                             python-sconf
-                             python-albumentations
-                             python-pypdf
-                             python-pypdfium2
-                             ;; For [api] extra
-                             python-fastapi
-                             python-uvicorn
-                             python-multipart))
-    (native-inputs (list python-setuptools python-wheel))
-    (home-page "https://github.com/facebookresearch/nougat")
-    (synopsis "Neural Optical Understanding for Academic Documents")
-    (description
-     "Nougat is a Visual Transformer model that performs Optical Character
+(define-public python-nougat-ocr
+  (let ((version "0.0")
+        (commit "5a92920d342fb6acf05fc9b594ccb4053dbe8e7a")
+        (revision "1"))
+    (package
+      (name "python-nougat-ocr")
+      (version (git-version version revision commit))
+      (home-page "https://github.com/facebookresearch/nougat")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "0hra1jbryps6gx000aq12d5idj16z38k3ps0wfk5hsqv6ai07dq0"))))
+      (build-system python-build-system)
+      (arguments
+       (list
+        #:tests? #f)) ;Tests require model downloads
+      (propagated-inputs (list python-transformers-for-nougat
+                               python-timm-for-nougat
+                               python-orjson
+                               python-opencv-python-headless
+                               python-datasets-for-nougat
+                               python-pytorch-lightning
+                               python-nltk
+                               python-rapidfuzz
+                               python-sentencepiece
+                               python-sconf
+                               python-albumentations
+                               python-pypdf
+                               python-pypdfium2
+                               ;; For [api] extra
+                               python-fastapi
+                               python-uvicorn
+                               python-multipart))
+      (native-inputs (list python-setuptools python-wheel))
+      (synopsis "Neural Optical Understanding for Academic Documents")
+      (description
+       "Nougat is a Visual Transformer model that performs Optical Character
 Recognition (OCR) on academic documents and outputs structured markup.  It can
 convert PDF documents to text with mathematical equations, tables, and other
 academic content preserved in markup format.")
-    (license license:expat)))
+      (license license:expat))))
