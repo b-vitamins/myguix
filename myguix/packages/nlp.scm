@@ -686,6 +686,59 @@ tokenizers, @code{rust-tokenizers}.")
     (native-inputs (modify-inputs (package-native-inputs python-requests)
                      (prepend nss-certs-for-test)))))
 
+(define python-transformers-for-nougat
+  (package
+    (inherit python-transformers)
+    (name "python-transformers")
+    (version "4.38.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "transformers" version))
+       (sha256
+        (base32 "1mbxhmh5kglxc59h1l5xn6nnfmfyl975vh54n940m9dqhbb7mz65"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Disable tests to avoid SSL certificate issues
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-pytest-compatibility
+            (lambda _
+              ;; Fix pytest 8.x compatibility issue
+              (substitute* "src/transformers/testing_utils.py"
+                ;; Remove import_path from the _pytest.doctest import
+                (("from _pytest\\.doctest import \\(
+.*import_path,")
+                 "from _pytest.pathlib import import_path
+from _pytest.doctest import (")
+                ;; Alternative: if the import is on one line
+                (("from _pytest\\.doctest import \\(([^)]*), import_path")
+                 "from _pytest.pathlib import import_path
+from _pytest.doctest import (\\1")
+                ;; Remove trailing comma if import_path was last
+                (("import_path,\\s*\\)")
+                 ")")
+                ;; Handle case where import_path might be in the middle
+                (("import_path,\\s*")
+                 "")))))))
+    ;; The imported package contains ~60 more inputs, but they don't seem
+    ;; necessary to build a minimal version of the package.
+    (propagated-inputs (list python-filelock
+                             python-huggingface-hub
+                             python-numpy
+                             python-packaging
+                             python-pytorch
+                             python-pyyaml
+                             python-regex
+                             nss-certs-for-test
+                             python-requests-next
+                             python-safetensors
+                             python-tokenizers-for-nougat
+                             python-tqdm))
+    (native-inputs (list python-parameterized python-pytest python-setuptools
+                         python-wheel))))
+
 (define-public nougat-ocr
   (package
     (name "nougat-ocr")
