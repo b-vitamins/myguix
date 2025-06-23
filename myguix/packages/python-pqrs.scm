@@ -96,6 +96,7 @@
   #:use-module (gnu packages python-compression)
   #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust-apps)
+  #:use-module (gnu packages serialization)
   #:use-module (gnu packages web)
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
