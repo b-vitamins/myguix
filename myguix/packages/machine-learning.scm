@@ -3366,7 +3366,7 @@ features.")
                              python-platformdirs
                              python-protobuf
                              python-psutil
-                             python-pydantic
+                             python-pydantic-2
                              python-pyyaml
                              python-requests
                              python-sentry-sdk
@@ -3380,5 +3380,3 @@ features.")
      "Weights & Biases lets you track machine-learning experiments, version
 datasets and models, and collaborate with your team.")
     (license license:expat)))
-
-python-pytorch-cuda
