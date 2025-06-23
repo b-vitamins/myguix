@@ -739,6 +739,17 @@ from _pytest.doctest import (\\1")
     (native-inputs (list python-parameterized python-pytest python-setuptools
                          python-wheel))))
 
+(define python-multiprocess-for-nougat
+  (package
+    (inherit python-multiprocess)
+    (version "0.70.16")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "multiprocess" version))
+       (sha256
+        (base32 "1h8s2zmlmf8if05bwhcks7zxv9z4rp7bqsmy20a0wak5sh1zf6hn"))))))
+
 (define-public nougat-ocr
   (package
     (name "nougat-ocr")
