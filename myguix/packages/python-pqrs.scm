@@ -2028,3 +2028,28 @@ Key features include:
     (synopsis "Wrapper package for OpenCV python bindings.")
     (description "Wrapper package for @code{OpenCV} python bindings.")
     (license license:asl2.0)))
+
+(define-public python-albucore
+  (package
+    (name "python-albucore")
+    (version "0.0.24")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "albucore" version))
+       (sha256
+        (base32 "0iip4n887g49izmayd6ywngy8ilhypcqj37xhyzlmydd3x1vbjpj"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests require specific setup
+    (propagated-inputs (list python-numpy python-opencv-python-headless
+                             python-simsimd python-stringzilla))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/albumentations-team/albucore")
+    (synopsis
+     "High-performance image processing functions for deep learning and computer vision.")
+    (description
+     "High-performance image processing functions for deep learning and computer
+vision.")
+    (license license:expat)))
