@@ -30,8 +30,7 @@
   #:use-module (guix utils)
   #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages python-pqrs)
-  #:use-module (myguix packages machine-learning)
-  #:use-module (myguix packages nlp))
+  #:use-module (myguix packages machine-learning))
 
 (define-public python-huggingface-hub
   (package
