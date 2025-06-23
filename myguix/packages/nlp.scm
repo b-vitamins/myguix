@@ -16,7 +16,8 @@
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-crypto)
-  #:use-module (gnu packages python-web)
+  #:use-module ((gnu packages python-web)
+                #:hide (python-huggingface-hub))
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages version-control)
@@ -37,7 +38,8 @@
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
-  #:use-module (myguix packages huggingface))
+  #:use-module ((myguix packages huggingface)
+                #:hide (python-safetensors)))
 
 (define-public whisper-cpp
   (package
@@ -529,7 +531,20 @@ benchmarks and matches Llama 1 34B on many benchmarks.")
     (propagated-inputs (list ollama-model-mistral-7b))
     (synopsis "Ollama with Mistral 7B model")
     (description (string-append (package-description ollama-binary)
-                  "  This variant includes the Mistral 7B model."))))
+                                "This variant includes the Mistral 7B model."))))
+
+(define python-timm-for-nougat
+  (package
+    (inherit python-timm)
+    (name "python-timm")
+    (version "0.5.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "timm" version))
+       (sha256
+        (base32 "07qwj3gifdly4v2sf59layp2m23sx8axb45sk8035i3ndbk94ysx"))))
+    (native-inputs (list python-setuptools python-wheel))))
 
 (define-public nougat-ocr
   (package
