@@ -1977,3 +1977,25 @@ Key features include:
     (description
      "SIMD-accelerated string search, sort, hashes, fingerprints, & edit distances.")
     (license license:asl2.0)))
+
+(define-public python-simsimd
+  (package
+    (name "python-simsimd")
+    (version "6.4.9")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "simsimd" version))
+       (sha256
+        (base32 "1lhwpqd3hqk3bnyfag7agcz5178qfmbiliwkswicvljspks99hc0"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests require specific setup
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/ashvardanian/simsimd")
+    (synopsis
+     "Portable mixed-precision BLAS-like vector math library for x86 and ARM")
+    (description
+     "Portable mixed-precision BLAS-like vector math library for x86 and ARM.")
+    (license license:asl2.0)))
