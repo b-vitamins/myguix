@@ -2053,3 +2053,35 @@ Key features include:
      "High-performance image processing functions for deep learning and computer
 vision.")
     (license license:expat)))
+
+(define-public python-albumentations
+  (package
+    (name "python-albumentations")
+    (version "2.0.8")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "albumentations" version))
+       (sha256
+        (base32 "0mk8n6qa0gkyksgwl1nx9s5aldlys3zdzz7q9b1y63a9irjmxaad"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests require specific setup and data
+    (propagated-inputs (list python-albucore
+                             python-numpy
+                             python-opencv-python-headless
+                             python-pydantic-2
+                             python-pyyaml
+                             python-scipy))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/albumentations-team/albumentations")
+    (synopsis
+     "Fast image augmentation library for deep learning and computer vision")
+    (description
+     "Fast, flexible, and advanced augmentation library for deep learning, computer
+vision, and medical imaging.  Albumentations offers a wide range of
+transformations for both 2D (images, masks, bboxes, keypoints) and 3D (volumes,
+volumetric masks, keypoints) data, with optimized performance and seamless
+integration into ML workflows.")
+    (license license:expat)))
