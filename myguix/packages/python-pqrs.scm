@@ -1566,7 +1566,7 @@ parallelism.")))
 (define-public python-alexify
   (package
     (name "python-alexify")
-    (version "0.5.0")
+    (version "0.5.1")
     (source
      (origin
        (method git-fetch)
@@ -1575,16 +1575,19 @@ parallelism.")))
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0l6m861qqiy84bdwp200smwilqr6iv441q3w6q8gz2fm71i0n0gi"))))
+        (base32 "0fdrsw5scpy5jm7n0nq5ky0dhb4qlraaiha3ibmdggcdjgmqsmlk"))))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-bibtexparser-1 python-fuzzywuzzy
                              python-httpx python-levenshtein))
-    (native-inputs (list python-poetry-core python-pytest))
+    (native-inputs (list python-poetry-core python-pytest
+                         python-pytest-asyncio python-time-machine))
     (home-page "https://github.com/b-vitamins/alexify")
     (synopsis
      "CLI tool and Python library for adding OpenAlex metadata to BibTeX files.")
     (description
-     "@code{alexify} is a command-line tool and Python library that helps you enrich your BibTeX files with metadata from @url{https://openalex.org/,OpenAlex}. It automates the process of matching entries by Title and/or DOI, retrieving corresponding OpenAlex IDs, and optionally fetching detailed JSON metadata about those works.")
+     "@code{alexify} is a command-line tool and Python library that helps you enrich your BibTeX files with metadata from @url{https://openalex.org/,OpenAlex}. It
+  automates the process of matching entries by Title and/or DOI, retrieving corresponding OpenAlex IDs, and optionally fetching detailed JSON metadata about those
+  works.")
     (license license:asl2.0)))
 
 (define-public python-isosurfaces
