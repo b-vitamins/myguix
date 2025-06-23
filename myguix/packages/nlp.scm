@@ -750,6 +750,18 @@ from _pytest.doctest import (\\1")
        (sha256
         (base32 "1h8s2zmlmf8if05bwhcks7zxv9z4rp7bqsmy20a0wak5sh1zf6hn"))))))
 
+(define-public python-dill-for-nougat
+  (package
+    (inherit python-dill)
+    (name "python-dill")
+    (version "0.3.8")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "dill" version))
+       (sha256
+        (base32 "1jlpyw6gqjk4xp6ylblqhhfnnj4vv12785ya79aw89fnk93krgiy"))))))
+
 (define-public nougat-ocr
   (package
     (name "nougat-ocr")
