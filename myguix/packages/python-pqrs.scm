@@ -2,6 +2,7 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (gnu packages)
+  #:use-module (gnu packages base)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
@@ -101,6 +102,7 @@
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages version-control)
+  #:use-module (guix build-system trivial)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system node)
   #:use-module (guix build-system python)
@@ -115,7 +117,8 @@
   #:use-module (myguix packages java-pqrs)
   #:use-module ((myguix packages rust-pqrs)
                 #:hide (rust-lexical-parse-float-0.8))
-  #:use-module (myguix packages nvidia))
+  #:use-module (myguix packages nvidia)
+  #:use-module (myguix build-system binary))
 
 (define-public python-grobid-client-python
   (package
@@ -2133,6 +2136,46 @@ integration into ML workflows.")
 and YAML-based configuration files with dot-accessible dictionaries.")
     (license license:expat)))
 
+(define pdfium-binary-for-pypdfium2
+  (package
+    (name "pdfium-binary")
+    (version "6721")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://github.com/bblanchon/pdfium-binaries/releases/download/"
+             "chromium%2F" version "/pdfium-linux-x64.tgz"))
+       (sha256
+        (base32 "08dr49v4akc3l9hbzh0mydgs4i18biidadbpgci2aqc4dpjf10w7"))))
+    (build-system trivial-build-system)
+    (arguments
+     `(#:modules ((guix build utils))
+       #:builder (begin
+                   (use-modules (guix build utils))
+                   (let ((out (assoc-ref %outputs "out"))
+                         (source (assoc-ref %build-inputs "source"))
+                         (tar (assoc-ref %build-inputs "tar"))
+                         (gzip (assoc-ref %build-inputs "gzip")))
+                     (setenv "PATH"
+                             (string-append tar "/bin:" gzip "/bin"))
+                     ;; Extract the tarball
+                     (invoke "tar" "-xzf" source)
+                     ;; Create output directories
+                     (mkdir-p (string-append out "/lib"))
+                     (mkdir-p (string-append out "/include/pdfium"))
+                     ;; Copy files
+                     (copy-file "lib/libpdfium.so"
+                                (string-append out "/lib/libpdfium.so"))
+                     (copy-recursively "include"
+                                       (string-append out "/include/pdfium"))
+                     #t))))
+    (native-inputs (list tar gzip))
+    (home-page "https://github.com/bblanchon/pdfium-binaries")
+    (synopsis "Prebuilt PDFium library")
+    (description "Prebuilt PDFium library for PDF rendering.")
+    (license license:bsd-3)))
+
 (define-public python-pypdfium2
   (package
     (name "python-pypdfium2")
@@ -2146,41 +2189,147 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f ;Tests require network access
       #:phases
       #~(modify-phases %standard-phases
-          (delete 'sanity-check) ;Skip sanity check since we use fake binary
-          (add-before 'build 'patch-setup
-            (lambda _
-              ;; Use reference bindings to bypass ctypesgen requirement
-              (setenv "PDFIUM_BINDINGS" "reference")
-              ;; Patch the setup to avoid git calls by providing a static version
-              (substitute* "setupsrc/pypdfium2_setup/packaging_base.py"
-                (("req_ver = PdfiumVer\\.get_latest\\(\\)")
-                 "req_ver = '6721'")
-                (("git_ls = run_cmd.*" all)
-                 "# " all))
-              ;; Disable binary download by forcing update_binary = False
+          (add-after 'unpack 'patch-build-system
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; Completely disable pdfium downloading by patching the emplace module
               (substitute* "setupsrc/pypdfium2_setup/emplace.py"
-                (("update_binary = True")
-                 "update_binary = False")
-                (("update_binary = prev_info\\[\"build\"\\] != req_ver or set\\(prev_info\\[\"flags\"\\]\\) != set\\(req_flags\\)")
-                 "update_binary = False"))
-              ;; Create fake data directory structure to satisfy file checks
+                (("def _get_pdfium_with_cache.*" all)
+                 (string-append all
+                                "    # Guix patch: skip all pdfium setup\n"
+                                "    return\n"
+                                "    # Original code follows (unreachable):
+")))
+
+              ;; Patch the packaging_base to return correct platform info
+              (substitute* "setupsrc/pypdfium2_setup/packaging_base.py"
+                (("def parse_pl_spec\\(pl_spec, version=None\\):" all)
+                 (string-append all
+                  "\n"
+                  "    # Guix patch: return fixed platform info
+"
+                  "    ver = PdfiumVer('chromium/6721')\n"
+                  "    return ['linux_x64'], ver\n"
+                  "    # Original code follows (unreachable):
+")))
+
+              ;; Disable git operations
+              (substitute* "setupsrc/pypdfium2_setup/packaging_base.py"
+                (("git_ls = run_cmd.*" all)
+                 (string-append "# Guix: disabled git command\n"
+                                "        git_ls = 'ref\\tchromium/6721\\n'\n"
+                                "        # " all)))
+
+              ;; Patch update_pdfium to prevent downloads
+              (substitute* "setupsrc/pypdfium2_setup/update_pdfium.py"
+                (("def main\\(platforms.*" all)
+                 (string-append all "    # Guix patch: skip all downloads\n"
+                                "    return\n"
+                                "    # Original code follows (unreachable):
+")))))
+          (add-after 'patch-build-system 'prepare-pdfium
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; Create the expected directory structure for pdfium
+              (mkdir-p "data/binaries")
               (mkdir-p "data/linux_x64")
-              ;; Create fake libpdfium.so
-              (call-with-output-file "data/linux_x64/libpdfium.so"
+              (let ((pdfium-dir "data/binaries/pdfium-linux-x64")
+                    (pdfium-lib (string-append #$(this-package-input
+                                                  "pdfium-binary")
+                                               "/lib/libpdfium.so")))
+                (mkdir-p (string-append pdfium-dir "/lib"))
+                (mkdir-p (string-append pdfium-dir "/include"))
+                ;; Copy PDFium files from input
+                (copy-file pdfium-lib
+                           (string-append pdfium-dir "/lib/libpdfium.so"))
+                (copy-recursively (string-append #$(this-package-input
+                                                    "pdfium-binary")
+                                                 "/include/pdfium")
+                                  (string-append pdfium-dir "/include"))
+                ;; Also copy library to the linux_x64 directory (expected by setup)
+                (copy-file pdfium-lib "data/linux_x64/libpdfium.so"))
+
+              ;; Create version file
+              (call-with-output-file "data/binaries/pdfium-linux-x64/VERSION"
                 (lambda (port)
-                  (display "# Fake libpdfium.so for build purposes" port)))
-              ;; Create fake version.json
+                  (display "6721\n" port)))
+
+              ;; Create the .emplaced marker to indicate pdfium is ready
+              (mkdir-p "src/pypdfium2_raw/")
+              (call-with-output-file "src/pypdfium2_raw/.emplaced"
+                (lambda (port)
+                  (display "marker\n" port)))
+
+              ;; Create symlink for expected data structure
+              (symlink "../binaries/pdfium-linux-x64"
+                       "data/linux_x64/pdfium-linux-x64")))
+
+          (add-after 'prepare-pdfium 'generate-bindings
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; Generate bindings using ctypesgen
+              (mkdir-p "data/bindings")
+              (let ((pdfium-headers (string-append #$(this-package-input
+                                                      "pdfium-binary")
+                                                   "/include/pdfium")))
+                ;; Generate bindings.py using ctypesgen with all available headers
+                (invoke "ctypesgen"
+                        "--no-stddef-types"
+                        "--no-gnu-types"
+                        "--no-python-types"
+                        (string-append "--library="
+                                       #$(this-package-input "pdfium-binary")
+                                       "/lib/libpdfium.so")
+                        "-o"
+                        "data/bindings/bindings.py"
+                        ;; Include all available PDFium headers
+                        (string-append pdfium-headers "/fpdfview.h")
+                        (string-append pdfium-headers "/fpdf_doc.h")
+                        (string-append pdfium-headers "/fpdf_edit.h")
+                        (string-append pdfium-headers "/fpdf_save.h")
+                        (string-append pdfium-headers "/fpdf_formfill.h")
+                        (string-append pdfium-headers "/fpdf_annot.h")
+                        (string-append pdfium-headers "/fpdf_text.h")
+                        (string-append pdfium-headers "/fpdf_transformpage.h")
+                        (string-append pdfium-headers "/fpdf_flatten.h")
+                        (string-append pdfium-headers "/fpdf_structtree.h")
+                        (string-append pdfium-headers "/fpdf_thumbnail.h")
+                        (string-append pdfium-headers "/fpdf_attachment.h")
+                        (string-append pdfium-headers "/fpdf_dataavail.h")
+                        (string-append pdfium-headers "/fpdf_progressive.h")
+                        (string-append pdfium-headers "/fpdf_searchex.h")
+                        (string-append pdfium-headers "/fpdf_sysfontinfo.h")
+                        (string-append pdfium-headers "/fpdf_ext.h")
+                        (string-append pdfium-headers "/fpdf_javascript.h")
+                        (string-append pdfium-headers "/fpdf_signature.h")
+                        (string-append pdfium-headers "/fpdf_catalog.h")
+                        (string-append pdfium-headers "/fpdf_ppo.h")))
+
+              ;; Add _libs_info variable that pypdfium2 expects
+              (let ((libs-info (string-append "
+# Guix: Add _libs_info variable
+_libs_info = [('libpdfium', '"
+                                #$(this-package-input "pdfium-binary")
+                                "/lib/libpdfium.so')]\n")))
+                (invoke "sh" "-c"
+                        (string-append "echo '" libs-info
+                                       "' >> data/bindings/bindings.py"))))
+
+            ;; Create version.json with proper structure
+            (let ((version-data
+                   "{\"major\": 6721, \"minor\": 0, \"build\": 0, \"patch\": 0, \"n_commits\": 0, \"hash\": null, \"origin\": \"system/guix/pdfium-binaries\", \"flags\": []}
+"))
+              (call-with-output-file "data/bindings/version.json"
+                (lambda (port)
+                  (display version-data port)))
+
+              ;; Also create version.json in linux_x64 directory (expected by setup)
               (call-with-output-file "data/linux_x64/version.json"
                 (lambda (port)
-                  (display "{\"build\": \"6721\", \"flags\": []}" port))))))))
-    (inputs (list git-minimal)) ;Required for build process
-    (native-inputs (list python-packaging python-setuptools python-wheel))
-    (home-page "https://github.com/pypdfium2-team/pypdfium2")
-    (synopsis "Python bindings to PDFium")
-    (description
-     "Python bindings to PDFium, Google's PDF library used in Chrome/Chromium.
-Provides a simple interface to work with PDF documents.")
-    (license license:asl2.0)))
+                  (display version-data port)))))))))
+  (inputs (list pdfium-binary-for-pypdfium2))
+  (native-inputs (list git-minimal python-ctypesgen python-packaging
+                       python-setuptools python-wheel))
+  (home-page "https://github.com/pypdfium2-team/pypdfium2")
+  (synopsis "Python bindings to PDFium")
+  (description "Python bindings to PDFium, a PDF rendering library.")
+  (license license:bsd-3))
