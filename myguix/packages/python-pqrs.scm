@@ -1955,3 +1955,25 @@ Key features include:
 @item Cross-platform compatibility (Windows, macOS, Linux)
 @end itemize")
     (license license:expat)))
+
+(define-public python-stringzilla
+  (package
+    (name "python-stringzilla")
+    (version "3.12.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "stringzilla" version))
+       (sha256
+        (base32 "03811kjs9q1sk3sxnj1sf4c4rxjpscsnm9s0hyazsnwf1i18m5ap"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests require specific setup
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/ashvardanian/stringzilla")
+    (synopsis
+     "SIMD-accelerated string search, sort, hashes, fingerprints, & edit distances")
+    (description
+     "SIMD-accelerated string search, sort, hashes, fingerprints, & edit distances.")
+    (license license:asl2.0)))
