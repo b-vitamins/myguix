@@ -9,6 +9,7 @@
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages maths)
+  #:use-module (gnu packages pdf)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-check)
@@ -35,7 +36,8 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
-  #:use-module (myguix packages python-pqrs))
+  #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages huggingface))
 
 (define-public whisper-cpp
   (package
@@ -528,3 +530,44 @@ benchmarks and matches Llama 1 34B on many benchmarks.")
     (synopsis "Ollama with Mistral 7B model")
     (description (string-append (package-description ollama-binary)
                   "  This variant includes the Mistral 7B model."))))
+
+(define-public nougat-ocr
+  (package
+    (name "nougat-ocr")
+    (version "0.1.17")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "nougat_ocr" version "whl"))
+       (sha256
+        (base32 "067ixvp157zi4yj4aw6nf7i4iylldsrlf6p1gln9fl32f4n76xpp"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests require model downloads
+    (propagated-inputs (list python-transformers
+                             python-timm
+                             python-orjson
+                             python-opencv-python-headless
+                             python-datasets
+                             ;; python-pytorch-lightning
+                             python-nltk
+                             python-rapidfuzz
+                             python-sentencepiece
+                             python-sconf
+                             python-albumentations
+                             python-pypdf
+                             python-pypdfium2
+                             ;; For [api] extra
+                             python-fastapi
+                             python-uvicorn
+                             python-multipart))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/facebookresearch/nougat")
+    (synopsis "Neural Optical Understanding for Academic Documents")
+    (description
+     "Nougat is a Visual Transformer model that performs Optical Character
+Recognition (OCR) on academic documents and outputs structured markup.  It can
+convert PDF documents to text with mathematical equations, tables, and other
+academic content preserved in markup format.")
+    (license license:expat)))
