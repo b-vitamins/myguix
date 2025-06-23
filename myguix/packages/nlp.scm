@@ -38,6 +38,7 @@
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages rust-pqrs)
   #:use-module ((myguix packages huggingface)
                 #:hide (python-safetensors)))
 
@@ -545,6 +546,130 @@ benchmarks and matches Llama 1 34B on many benchmarks.")
        (sha256
         (base32 "07qwj3gifdly4v2sf59layp2m23sx8axb45sk8035i3ndbk94ysx"))))
     (native-inputs (list python-setuptools python-wheel))))
+
+(define python-tokenizers-for-nougat
+  (package
+    (name "python-tokenizers")
+    (version "0.15.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "tokenizers" version))
+       (sha256
+        (base32 "14fby8yy2icvs07091rlkb3g89f9wrd7gz7abfz88m6x37hcdsg6"))
+       (modules '((guix build utils)
+                  (ice-9 ftw)))
+       (snippet #~(begin
+                    ;; Only keeping bindings.
+                    (for-each (lambda (file)
+                                (unless (member file
+                                                '("." ".." "bindings"
+                                                  "PKG-INFO"))
+                                  (delete-file-recursively file)))
+                              (scandir "."))
+                    (for-each (lambda (file)
+                                (unless (member file
+                                                '("." ".."))
+                                  (rename-file (string-append
+                                                "bindings/python/" file) file)))
+                              (scandir "bindings/python"))
+                    (delete-file-recursively ".cargo")))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:cargo-test-flags ''("--no-default-features" "--"
+                            "--skip"
+                            "models::test::get_subtype"
+                            "--skip"
+                            "decoders::test::get_subtype"
+                            "--skip"
+                            "normalizers::test::get_subtype"
+                            "--skip"
+                            "pre_tokenizers::test::get_subtype"
+                            "--skip"
+                            "decoders::test::serialize"
+                            "--skip"
+                            "pre_tokenizers::test::serialize"
+                            "--skip"
+                            "processors::test::get_subtype"
+                            "--skip"
+                            "trainers::tests::get_subtype")
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils)
+                  (ice-9 regex)
+                  (ice-9 textual-ports))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack-rust-crates 'inject-tokenizers
+            (lambda _
+              (substitute* "Cargo.toml"
+                (("\\[dependencies\\]")
+                 (format #f "
+[dev-dependencies]
+tempfile = ~s
+
+[dependencies]
+tokenizers = ~s"
+                         #$(package-version rust-tempfile-3)
+                         #$(package-version rust-tokenizers-0.15))))
+              (let ((file-path "Cargo.toml"))
+                (call-with-input-file file-path
+                  (lambda (port)
+                    (let* ((content (get-string-all port))
+                           (top-match (string-match
+                                       "\\[dependencies.tokenizers" content)))
+                      (call-with-output-file file-path
+                        (lambda (out)
+                          (format out "~a"
+                                  (match:prefix top-match))))))))))
+          (add-after 'check 'python-check
+            (lambda _
+              (copy-file "target/release/libtokenizers.so"
+                         "py_src/tokenizers/tokenizers.so")
+              (invoke "python3"
+                      "-c"
+                      (format #f "import sys; sys.path.append(\"~a/py_src\")"
+                              (getcwd))
+                      "-m"
+                      "pytest"
+                      "-s"
+                      "-v"
+                      "./tests/")))
+          (add-after 'install 'install-python
+            (lambda _
+              (let* ((pversion #$(version-major+minor (package-version python)))
+                     (lib (string-append #$output "/lib/python" pversion
+                                         "/site-packages/"))
+                     (info (string-append lib "tokenizers-"
+                                          #$(package-version this-package)
+                                          ".dist-info")))
+                (mkdir-p info)
+                (copy-file "PKG-INFO"
+                           (string-append info "/METADATA"))
+                (copy-recursively "py_src/tokenizers"
+                                  (string-append lib "tokenizers"))))))
+      #:cargo-inputs `(("rust-rayon" ,rust-rayon-1)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-serde-json" ,rust-serde-json-1)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-env-logger" ,rust-env-logger-0.11)
+                       ("rust-pyo3" ,rust-pyo3-0.21)
+                       ("rust-numpy" ,rust-numpy-0.20)
+                       ("rust-ndarray" ,rust-ndarray-0.15)
+                       ("rust-onig" ,rust-onig-6)
+                       ("rust-itertools" ,rust-itertools-0.12)
+                       ("rust-tokenizers" ,rust-tokenizers-0.15))
+      #:cargo-development-inputs `(("rust-tempfile" ,rust-tempfile-3))))
+    (native-inputs (list python-minimal python-pytest))
+    (home-page "https://huggingface.co/docs/tokenizers")
+    (synopsis "Implementation of various popular tokenizers")
+    (description
+     "This package provides bindings to a Rust implementation of the most used
+tokenizers, @code{rust-tokenizers}.")
+    (license license:asl2.0)))
 
 (define-public nougat-ocr
   (package
