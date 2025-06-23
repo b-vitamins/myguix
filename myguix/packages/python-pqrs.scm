@@ -2036,13 +2036,13 @@ Key features include:
 (define-public python-albucore
   (package
     (name "python-albucore")
-    (version "0.0.24")
+    (version "0.0.23")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "albucore" version))
        (sha256
-        (base32 "0iip4n887g49izmayd6ywngy8ilhypcqj37xhyzlmydd3x1vbjpj"))))
+        (base32 "1ax8xyav5ng2bf442b56jwiv0xs5ih2p3kz2m623p4alp613k0jp"))))
     (build-system pyproject-build-system)
     (arguments
      (list
