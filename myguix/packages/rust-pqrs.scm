@@ -13233,3 +13233,33 @@ with a focus on performances and versatility.")
      "This package provides an implementation of today's most used tokenizers, with a
 focus on performances and versatility.")
     (license license:asl2.0)))
+
+(define-public rust-numpy-0.20
+  (package
+    (name "rust-numpy")
+    (version "0.20.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "numpy" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0cfkj99lqjc9i1bxl2r43jrkkbznrq6f6naja8q3pa3y86xirx5y"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-half" ,rust-half-2)
+                       ("rust-libc" ,rust-libc-0.2)
+                       ("rust-nalgebra" ,rust-nalgebra-0.32)
+                       ("rust-ndarray" ,rust-ndarray-0.15)
+                       ("rust-num-complex" ,rust-num-complex-0.4)
+                       ("rust-num-integer" ,rust-num-integer-0.1)
+                       ("rust-num-traits" ,rust-num-traits-0.2)
+                       ("rust-pyo3" ,rust-pyo3-0.20)
+                       ("rust-rustc-hash" ,rust-rustc-hash-1))
+       #:cargo-development-inputs (("rust-nalgebra" ,rust-nalgebra-0.32)
+                                   ("rust-pyo3" ,rust-pyo3-0.20))))
+    (home-page "https://github.com/PyO3/rust-numpy")
+    (synopsis "PyO3-based Rust bindings of the NumPy C-API")
+    (description
+     "This package provides @code{PyO3-based} Rust bindings of the @code{NumPy} C-API.")
+    (license license:bsd-2)))
