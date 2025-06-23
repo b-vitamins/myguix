@@ -762,6 +762,15 @@ from _pytest.doctest import (\\1")
        (sha256
         (base32 "1jlpyw6gqjk4xp6ylblqhhfnnj4vv12785ya79aw89fnk93krgiy"))))))
 
+(define python-datasets-for-nougat
+  (package
+    (inherit python-datasets)
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-datasets)
+                         (replace "python-multiprocess"
+                                  python-multiprocess-for-nougat)
+                         (replace "python-dill" python-dill-for-nougat)))))
+
 (define-public nougat-ocr
   (package
     (name "nougat-ocr")
