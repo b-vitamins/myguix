@@ -558,7 +558,7 @@ Release (ESR) version.")
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "139.0")
+    (version "139.0.4")
     (source
      (origin
        (method url-fetch)
