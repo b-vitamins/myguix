@@ -2061,13 +2061,13 @@ vision.")
 (define-public python-albumentations
   (package
     (name "python-albumentations")
-    (version "2.0.8")
+    (version "1.4.24")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "albumentations" version))
        (sha256
-        (base32 "0mk8n6qa0gkyksgwl1nx9s5aldlys3zdzz7q9b1y63a9irjmxaad"))))
+        (base32 "0vcabzn5rmln11n6mx22l57q5b2lqf2y7jzsmqbr3k5w1b5p926c"))))
     (build-system pyproject-build-system)
     (arguments
      (list
