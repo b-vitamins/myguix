@@ -2076,7 +2076,25 @@ vision.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;Tests require specific setup and data
+      #:tests? #f ;Tests require specific setup and data
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'disable-update-checks
+            (lambda* (#:key outputs #:allow-other-keys)
+              ;; Set environment variable to disable update checks
+              (let* ((out (assoc-ref outputs "out"))
+                     (site-packages (string-append out "/lib/python"
+                                                   #$(version-major+minor (package-version
+                                                                           python))
+                                                   "/site-packages"))
+                     (init-file (string-append site-packages
+                                               "/albumentations/__init__.py")))
+                (substitute* init-file
+                  ;; Add environment variable setting at the top
+                  (("^import")
+                   "import os
+os.environ.setdefault('NO_ALBUMENTATIONS_UPDATE', '1')
+import"))))))))
     (propagated-inputs (list python-albucore
                              python-numpy
                              python-opencv-python-headless
