@@ -5,7 +5,7 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module ((gnu packages crates-io)
-                #:hide (rust-onig-6))
+                #:hide (rust-onig-6 rust-regex-1))
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
@@ -134,7 +134,7 @@
     (inherit llama-cpp)
     (name "llama-cpp-cuda")
     (inputs (list python))
-    (propagated-inputs (list cuda-toolkit python-numpy python-pytorch
+    (propagated-inputs (list cuda-toolkit python-numpy python-pytorch-cuda
                              python-sentencepiece openblas))
     (native-inputs (list git-minimal pkg-config))
     (arguments
