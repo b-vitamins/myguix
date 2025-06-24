@@ -818,7 +818,7 @@ from _pytest.doctest import (\\1")
                                python-orjson
                                python-opencv-python-headless
                                python-datasets-for-nougat
-                               python-pytorch-lightning
+                               python-pytorch-lightning-cuda
                                python-nltk
                                python-rapidfuzz
                                python-sentencepiece
