@@ -25,7 +25,7 @@
   #:use-module (gnu packages libevent)
   #:use-module (gnu packages llvm)
   #:use-module ((gnu packages machine-learning)
-                #:hide (python-torchvision tensorflow))
+                #:hide (tensorflow))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages ninja)
