@@ -4,7 +4,8 @@
   #:use-module (gnu packages certs)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
-  #:use-module (gnu packages crates-io)
+  #:use-module ((gnu packages crates-io)
+                #:hide (rust-onig-6))
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
@@ -40,6 +41,7 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust-pqrs)
+  #:use-module (myguix packages machine-learning)
   #:use-module ((myguix packages huggingface)
                 #:hide (python-safetensors)))
 
@@ -728,7 +730,7 @@ from _pytest.doctest import (\\1")
                              python-huggingface-hub
                              python-numpy
                              python-packaging
-                             python-pytorch
+                             python-pytorch-cuda
                              python-pyyaml
                              python-regex
                              nss-certs-for-test
@@ -791,7 +793,26 @@ from _pytest.doctest import (\\1")
       (build-system python-build-system)
       (arguments
        (list
-        #:tests? #f)) ;Tests require model downloads
+        #:tests? #f ;Tests require model downloads
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'unpack 'fix-deprecated-parameter
+              (lambda _
+                ;; Remove deprecated alpha_affine parameter
+                (substitute* "nougat/transforms.py"
+                  (("alpha_affine=120 \\* 0\\.01,")
+                   "# alpha_affine removed - deprecated parameter"))))
+            (add-before 'sanity-check 'set-cache-dirs
+              (lambda _
+                ;; Set environment variables to prevent cache directory creation
+                (setenv "HOME" "/tmp")
+                (setenv "TRANSFORMERS_CACHE" "/tmp/.cache/huggingface")
+                (setenv "HF_HOME" "/tmp/.cache/huggingface")
+                (setenv "TORCH_HOME" "/tmp/.cache/torch")
+                ;; Create the directories
+                (mkdir-p "/tmp/.cache/huggingface/hub")
+                (mkdir-p "/tmp/.cache/torch/hub")))
+            (delete 'sanity-check))))
       (propagated-inputs (list python-transformers-for-nougat
                                python-timm-for-nougat
                                python-orjson
