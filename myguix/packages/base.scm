@@ -401,8 +401,7 @@
         node-pyright
         python-pyclean
         python-mutmut
-        python-tensorboard
-        python-nougat-ocr))
+        python-tensorboard))
 
 (define %perl-packages
   (list perl perl-critic perltidy))
