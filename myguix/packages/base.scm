@@ -212,7 +212,12 @@
         python-py3nvml))
 
 (define %versioning-packages
-  (list git git-lfs git-crypt pre-commit patch))
+  (list git
+        (list git "send-email")
+        git-lfs
+        git-crypt
+        pre-commit
+        patch))
 
 (define %compression-packages
   (list tar
