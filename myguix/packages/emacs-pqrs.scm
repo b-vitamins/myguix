@@ -630,7 +630,6 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "This package adds LatexMk support to AUCTeX. LatexMk is a perl script that runs LaTeX the correct number of times to resolve cross references, etc. It can also run bibtex, makeindex, and other tools automatically.")
     (license license:gpl3+)))
 
-
 (define-public emacs-python-pytest
   (package
     (name "emacs-python-pytest")
