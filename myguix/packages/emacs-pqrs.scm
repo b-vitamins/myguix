@@ -725,3 +725,28 @@ builtin json parser")
        "Really simple but standalone json flymake utilizing the builtin json
 parser.")
       (license license:gpl3+))))
+
+(define-public emacs-hide-header-line
+  (package
+    (inherit emacs-hide-mode-line)
+    (arguments
+     `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'make-it-update-header-line
+                    (lambda* (#:key outputs #:allow-other-keys)
+                      (substitute* "hide-mode-line.el"
+                        ((" mode-line-format")
+                         " header-line-format")) #t)))))))
+
+(define-public emacs-header-minions
+  (package
+    (inherit emacs-minions)
+    (arguments
+     (substitute-keyword-arguments (package-arguments emacs-minions)
+       ((#:phases phases
+         #~%standard-phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'make-it-update-header-line
+              (lambda* (#:key outputs #:allow-other-keys)
+                (substitute* "minions.el"
+                  (("mode-line-format")
+                   "header-line-format"))))))))))
