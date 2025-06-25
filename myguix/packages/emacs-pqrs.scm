@@ -750,3 +750,25 @@ parser.")
                 (substitute* "minions.el"
                   (("mode-line-format")
                    "header-line-format"))))))))))
+
+(define-public emacs-clojure-ts-mode
+  (package
+    (name "emacs-clojure-ts-mode")
+    (version "0.2.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/clojure-emacs/clojure-ts-mode.git")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "101c1xwrmkb9rq713jij105117y2d0ffiplxsnb3z1h2pgcil0p8"))))
+    (build-system emacs-build-system)
+    (license license:gpl3+)
+    (home-page "https://github.com/clojure-emacs/clojure-ts-mode.git")
+    (synopsis "Major mode for Clojure code backed up by Tree-sitter")
+    (description
+     "clojure-ts-mode is an Emacs major mode that provides font-lock (syntax
+highlighting), indentation, and navigation support for the Clojure(Script)
+programming language, powered by the tree-sitter-clojure tree-sitter grammar.")))
