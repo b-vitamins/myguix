@@ -198,7 +198,12 @@ Each option should be a string. For example:
                                                                        "PYTHONPATH="
                                                                        #$(file-append
                                                                           package
-                                                                          "/lib/python3.11/site-packages")))))
+                                                                          "/lib/python3.11/site-packages"))
+                                                                      (string-append
+                                                                       "LD_LIBRARY_PATH="
+                                                                       (or (getenv
+                                                                            "LIBRARY_PATH")
+                                                                           "")))))
                             (stop #~(make-kill-destructor))
                             (actions (list (shepherd-action (name 'status-api)
                                                             (documentation
