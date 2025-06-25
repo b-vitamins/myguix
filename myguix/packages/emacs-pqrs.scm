@@ -659,3 +659,24 @@ within Emacs.  It offers:
 @item Integration with project.el and projectile for finding project roots
 @end itemize")
     (license license:bsd-3)))
+
+(define-public emacs-eslint-fix
+  (let ((commit "636bf8d8797bdd58f1b543c9d3f4910e3ce879ab"))
+    (package
+      (name "emacs-eslint-fix")
+      (version "1.0")
+      (home-page "https://github.com/codesuki/eslint-fix")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "02hjm685fl4f33s5fi8nc088wwfzhyy6abx5g4i93b2dx3hr2lyi"))))
+      (build-system emacs-build-system)
+      (synopsis "Fix current file using ESLint --fix")
+      (description
+       "This packages provides `eslint-fix', which fixes the current file using ESLint.")
+      (license license:gpl3+))))
