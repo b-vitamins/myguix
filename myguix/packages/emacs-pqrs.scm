@@ -702,3 +702,26 @@ within Emacs.  It offers:
        "A backend for Flymake which uses eslint.  Enable it with M-x
 flymake-eslint-enable RET.")
       (license license:gpl3+))))
+
+(define-public emacs-json-simple-flymake
+  (let ((commit "f3dacf070d1e04d5805323b0a95d58c5b9b7f607"))
+    (package
+      (name "emacs-json-simple-flymake")
+      (version "20230802")
+      (home-page "https://github.com/mokrates/json-simple-flymake")
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url home-page)
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "052c7xivwd2grxwpspjnfj3hzla2lgc3r8yq24i5jbyasdnpghbc"))))
+      (build-system emacs-build-system)
+      (synopsis "Really simple but standalone json flymake utilizing the
+builtin json parser")
+      (description
+       "Really simple but standalone json flymake utilizing the builtin json
+parser.")
+      (license license:gpl3+))))
