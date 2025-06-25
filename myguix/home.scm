@@ -36,15 +36,11 @@
                                       (system* "mkdir" "-p" expanded-dir))))
                                 '#$directories))))
 
-
-
-
 ;;; Defaults
 
 (define-public %default-xdg-directories
   '("~/.local/state" "~/.local/state/zsh" "~/.local/state/less" "~/.cache/zsh"
     "~/.config"))
-
 
 (define-public %default-dotguile
   (plain-file "guile" "(use-modules (ice-9 readline)
