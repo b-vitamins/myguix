@@ -6,10 +6,12 @@
   #:use-module (gnu packages backup)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bittorrent)
+  #:use-module (gnu packages check)
   #:use-module (gnu packages clojure)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages cpp)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages disk)
   #:use-module (gnu packages djvu)
@@ -19,12 +21,16 @@
   #:use-module (gnu packages gdb)
   #:use-module (gnu packages gimp)
   #:use-module (gnu packages gnome)
+  #:use-module (gnu packages gnome-xyz)
   #:use-module (gnu packages gnupg)
+  #:use-module (gnu packages golang-apps)
+  #:use-module (gnu packages graphics)
   #:use-module (gnu packages graphviz)
   #:use-module (gnu packages guile)
   #:use-module (gnu packages guile-xyz)
   #:use-module (gnu packages haskell)
   #:use-module (gnu packages haskell-apps)
+  #:use-module (gnu packages haskell-xyz)
   #:use-module (gnu packages hunspell)
   #:use-module (gnu packages image)
   #:use-module (gnu packages imagemagick)
@@ -35,6 +41,7 @@
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages mail)
   #:use-module (gnu packages maths)
+  #:use-module (gnu packages mold)
   #:use-module (gnu packages monitoring)
   #:use-module (gnu packages mp3)
   #:use-module (gnu packages music)
@@ -73,11 +80,15 @@
   #:use-module (gnu packages vim)
   #:use-module (gnu packages web)
   #:use-module (gnu packages wget)
+  #:use-module (gnu packages xiph)
   #:use-module (myguix packages chrome)
+  #:use-module (myguix packages linux)
   #:use-module (myguix packages machine-learning)
+  #:use-module (myguix packages maths)
   #:use-module (myguix packages mozilla)
   #:use-module (myguix packages node-pqrs)
   #:use-module (myguix packages nvidia)
+  #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages video)
   #:export ( ;Core System Bundles
              %core-minimal
@@ -382,8 +393,6 @@
         tree-sitter-go
         tree-sitter-java
         tree-sitter-json
-        tree-sitter-yaml
-        tree-sitter-toml
         tree-sitter-html
         tree-sitter-css
         tree-sitter-markdown
