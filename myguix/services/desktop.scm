@@ -83,9 +83,6 @@
                                              (privacy 'device) ;Better privacy
                                              (experimental #f))) ;Stable features only
            
-           ;; Seat Management (better for Wayland)
-           (service seatd-service-type)
-
            ;; Sound Services
            (service alsa-service-type)
            (service pulseaudio-service-type)
