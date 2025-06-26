@@ -124,7 +124,6 @@
         emacs-markdown-mode
         emacs-markdown-toc
         emacs-meson-mode
-        emacs-minions
         emacs-mjolnir-mode
         emacs-moody
         emacs-modus-themes
