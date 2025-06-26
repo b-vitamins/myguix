@@ -18,6 +18,7 @@
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages gdb)
   #:use-module (gnu packages gimp)
+  #:use-module (gnu packages gnome)
   #:use-module (gnu packages gnupg)
   #:use-module (gnu packages graphviz)
   #:use-module (gnu packages guile)
