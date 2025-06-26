@@ -96,7 +96,6 @@
         emacs-haskell-mode
         emacs-helm-bibtex
         emacs-helpful
-        emacs-hide-mode-line
         emacs-hide-header-line
         emacs-header-minions
         emacs-highlight-indent-guides
