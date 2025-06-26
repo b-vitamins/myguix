@@ -69,6 +69,7 @@
   #:use-module (gnu packages valgrind)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
+  #:use-module (gnu packages web)
   #:use-module (gnu packages wget)
   #:use-module (myguix packages chrome)
   #:use-module (myguix packages machine-learning)
