@@ -77,7 +77,14 @@
            (service sane-service-type)
            (service geoclue-service-type)
            (service bluetooth-service-type
-                    (bluetooth-configuration (auto-enable? #t)))
+                    (bluetooth-configuration (auto-enable? #t)
+                                             (fast-connectable? #t) ;Better connection speed
+                                             (just-works-repairing 'confirm) ;More secure pairing
+                                             (privacy 'device) ;Better privacy
+                                             (experimental #f))) ;Stable features only
+           
+           ;; Seat Management (better for Wayland)
+           (service seatd-service-type)
 
            ;; Sound Services
            (service alsa-service-type)
