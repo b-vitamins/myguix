@@ -1,6 +1,7 @@
 (define-module (myguix home services emacs)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages emacs)
+  #:use-module (gnu packages emacs-build)
   #:use-module (gnu packages emacs-xyz)
   #:use-module (gnu packages erlang)
   #:use-module (gnu packages llvm)
