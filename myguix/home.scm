@@ -9,7 +9,9 @@
   #:use-module (gnu home services gnupg)
   #:use-module (gnu home services xdg)
   #:use-module (gnu home services guix)
+  #:use-module (gnu home services fontutils)
   #:use-module (guix gexp)
+  #:use-module (myguix system install)
   #:export (%my-base-home-services %my-shell-base-services
                                    %my-development-base-services
                                    xdg-directory-service
@@ -96,6 +98,74 @@ set suspendable"))
                            ("nano/nanorc" ,%default-nanorc)))
 
                 (xdg-directory-service %default-xdg-directories)
+
+                (service home-channels-service-type %my-channels)
+
+                ;; Font configuration with rendering improvements
+                (simple-service 'custom-fontconfig
+                                home-fontconfig-service-type
+                                (list
+                                 ;; Include default Guix Home font path
+                                 "~/.guix-home/profile/share/fonts"
+                                 ;; Font preferences and aliases
+                                 '(alias (family "monospace")
+                                         (prefer (family "SF Mono")
+                                                 (family "JetBrains Mono")
+                                                 (family "Fira Code")
+                                                 (family "Iosevka")
+                                                 (family "Hack")
+                                                 (family "Liberation Mono")))
+                                 '(alias (family "sans-serif")
+                                         (prefer (family "SF Pro Display")
+                                                 (family "SF Pro Text")
+                                                 (family "Inter")
+                                                 (family "Liberation Sans")
+                                                 (family "Noto Sans")))
+                                 '(alias (family "serif")
+                                         (prefer (family "New York")
+                                                 (family "Charter")
+                                                 (family "Liberation Serif")
+                                                 (family "Noto Serif")))
+                                 ;; Better font rendering
+                                 '(match (target "font")
+                                    (edit (mode "assign")
+                                          (name "antialias")
+                                          (bool "true")))
+                                 '(match (target "font")
+                                    (edit (mode "assign")
+                                          (name "hinting")
+                                          (bool "true")))
+                                 '(match (target "font")
+                                    (edit (mode "assign")
+                                          (name "hintstyle")
+                                          (const "hintslight")))
+                                 '(match (target "font")
+                                    (edit (mode "assign")
+                                          (name "rgba")
+                                          (const "rgb")))
+                                 '(match (target "font")
+                                    (edit (mode "assign")
+                                          (name "lcdfilter")
+                                          (const "lcddefault")))
+                                 ;; Emoji font configuration
+                                 '(match (target "pattern")
+                                    (test (name "family")
+                                          (string "monospace"))
+                                    (edit (mode "append")
+                                          (name "family")
+                                          (string "Apple Color Emoji")))
+                                 '(match (target "pattern")
+                                    (test (name "family")
+                                          (string "sans-serif"))
+                                    (edit (mode "append")
+                                          (name "family")
+                                          (string "Apple Color Emoji")))
+                                 '(match (target "pattern")
+                                    (test (name "family")
+                                          (string "serif"))
+                                    (edit (mode "append")
+                                          (name "family")
+                                          (string "Apple Color Emoji")))))
 
                 (service home-xdg-user-directories-service-type
                          (home-xdg-user-directories-configuration (desktop
