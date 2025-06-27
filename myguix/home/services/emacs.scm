@@ -24,6 +24,7 @@
         emacs-async
         emacs-auctex
         emacs-auctex-latexmk
+        emacs-benchmark-init
         emacs-calc-currency
         emacs-cape
         emacs-cargo
