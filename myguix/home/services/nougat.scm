@@ -201,16 +201,9 @@ Each option should be a string. For example:
                                                                           "/lib/python3.11/site-packages"))
                                                                       (string-append
                                                                        "LD_LIBRARY_PATH="
-                                                                       (string-append
-                                                                        (or (getenv
-                                                                             "HOME")
-                                                                         "")
-                                                                        "/.guix-home/profile/lib:"
-                                                                        "/run/current-system/profile/lib:"
-                                                                        "/run/current-system/profile/lib64:"
-                                                                        (or (getenv
-                                                                             "LIBRARY_PATH")
-                                                                         ""))))))
+                                                                       (or (getenv
+                                                                            "LIBRARY_PATH")
+                                                                        "")))))
                             (stop #~(make-kill-destructor))
                             (actions (list (shepherd-action (name 'status-api)
                                                             (documentation
