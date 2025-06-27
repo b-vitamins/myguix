@@ -2906,6 +2906,14 @@ features.")
 datasets and models, and collaborate with your team.")
     (license license:expat)))
 
+(define-public python-torchmetrics-cuda
+  (package
+    (inherit python-torchmetrics)
+    (name "python-torchmetrics-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-torchmetrics)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-pytorch-lightning-cuda
   (let ((commit "1617f70428a791b2d81c392d6a0b8a078d8e7fb1")
         (revision "0"))
@@ -2927,4 +2935,6 @@ datasets and models, and collaborate with your team.")
                                          python-pytorch-lightning)
                            (replace "python-pytorch" python-pytorch-cuda)
                            (replace "python-torchvision"
-                                    python-torchvision-cuda))))))
+                                    python-torchvision-cuda)
+                           (replace "python-torchmetrics"
+                                    python-torchmetrics-cuda))))))
