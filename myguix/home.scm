@@ -56,9 +56,7 @@ set history filename ~/.local/state/gdb_history
 set history size 10000"))
 
 (define-public %default-nanorc
-  (plain-file "nanorc" "set positionlog
-set historylog
-set suspendable"))
+  (plain-file "nanorc" "set autoindent\nset tabsize 4"))
 
 (define-public %my-shell-base-services
   (list (service home-inputrc-service-type
