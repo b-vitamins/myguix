@@ -482,6 +482,9 @@
   (list font-iosevka
         font-iosevka-term
         font-fira-code
+        font-fira-go
+        font-fira-mono
+        font-fira-sans
         font-jetbrains-mono
         font-inconsolata
         font-hack
@@ -489,7 +492,7 @@
 
 (define %fonts-document
   (list font-libre-franklin font-latin-modern font-charter font-tex-gyre
-        font-linuxlibertine))
+        font-linuxlibertine font-google-roboto))
 
 (define %fonts-international
   (list font-google-noto
