@@ -9,6 +9,7 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages clojure)
   #:use-module (gnu packages cmake)
+  #:use-module (gnu packages code)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cpp)
