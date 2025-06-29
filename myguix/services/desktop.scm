@@ -131,17 +131,14 @@
            ;; Location services
            (service geoclue-service-type
                     (geoclue-configuration (applications (list (geoclue-application
-                                                                (desktop-id
-                                                                 "gnome-datetime-panel.desktop")
-                                                                (allowed? #t))
+                                                                "gnome-datetime-panel.desktop"
+                                                                #:allowed? #t)
                                                                (geoclue-application
-                                                                (desktop-id
-                                                                 "org.gnome.Weather")
-                                                                (allowed? #t))
+                                                                "org.gnome.Weather"
+                                                                #:allowed? #t)
                                                                (geoclue-application
-                                                                (desktop-id
-                                                                 "org.gnome.Maps")
-                                                                (allowed? #t))))))
+                                                                "org.gnome.Maps"
+                                                                #:allowed? #t)))))
 
            ;; Bluetooth
            (service bluetooth-service-type
@@ -154,11 +151,8 @@
            ;; Sound Services
            (service alsa-service-type)
 
-           ;; Using PipeWire instead of PulseAudio for better Wayland support
-           (service pipewire-service-type
-                    (pipewire-configuration (enable-pulseaudio? #t)))
-
-           (service wireplumber-service-type)
+           ;; Note: PipeWire would need to be configured at user/home level
+           ;; not as a system service
 
            ;; File indexing and search
            (service file-database-service-type
