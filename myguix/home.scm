@@ -12,13 +12,9 @@
   #:use-module (gnu home services fontutils)
   #:use-module (guix gexp)
   #:use-module (myguix system install)
-  #:export (%my-base-home-services %my-shell-base-services
-                                   %my-development-base-services
-                                   xdg-directory-service
-                                   %default-xdg-directories
-                                   %default-dotguile
-                                   %default-gdbinit
-                                   %default-nanorc))
+  #:export (%my-base-home-services xdg-directory-service
+                                   %default-xdg-directories %default-dotguile
+                                   %default-gdbinit %default-nanorc))
 
 ;;; Service constructors
 
@@ -26,7 +22,8 @@
   "Create XDG directories from DIRECTORIES list."
   (simple-service 'xdg-directories home-activation-service-type
                   #~(begin
-                      (use-modules (ice-9 format))
+                      (use-modules (ice-9 format)
+                                   (guix build utils))
                       (for-each (lambda (dir)
                                   (let ((expanded-dir (string-append (getenv
                                                                       "HOME")
@@ -35,14 +32,84 @@
                                     (unless (file-exists? expanded-dir)
                                       (format #t "Creating directory: ~a~%"
                                               expanded-dir)
-                                      (system* "mkdir" "-p" expanded-dir))))
+                                      (mkdir-p expanded-dir)
+                                      ;; Set appropriate permissions for sensitive directories
+                                      (when (or (string-contains expanded-dir
+                                                                 "gnupg")
+                                                (string-contains expanded-dir
+                                                                 "ssh")
+                                                (string-contains expanded-dir
+                                                 "password-store"))
+                                        (chmod expanded-dir #o700)))))
                                 '#$directories))))
 
 ;;; Defaults
 
 (define-public %default-xdg-directories
-  '("~/.local/state" "~/.local/state/zsh" "~/.local/state/less" "~/.cache/zsh"
-    "~/.config"))
+  '( ;XDG Base Directories
+     "~/.local/bin"
+    "~/.local/share"
+    "~/.local/state"
+    "~/.cache"
+    "~/.config"
+
+    ;; State directories for history files
+    "~/.local/state/zsh"
+    "~/.local/state/bash"
+    "~/.local/state/less"
+    "~/.local/state/python"
+    "~/.local/state/gdb"
+    "~/.local/state/node"
+    "~/.local/state/sqlite"
+    "~/.local/state/psql"
+
+    ;; Cache directories
+    "~/.cache/zsh"
+    "~/.cache/npm"
+    "~/.cache/pip"
+    "~/.cache/fontconfig"
+    "~/.cache/mesa_shader_cache"
+    "~/.cache/git"
+    "~/.cache/wget"
+    "~/.cache/less"
+    "~/.cache/mozilla"
+
+    ;; Config directories
+    "~/.config/python"
+    "~/.config/npm"
+    "~/.config/git"
+    "~/.config/fontconfig"
+    "~/.config/wget"
+    "~/.config/readline"
+    "~/.config/pg"
+    "~/.config/mysql"
+    "~/.config/aws"
+    "~/.config/docker"
+    "~/.config/ssl"
+    "~/.config/claude"
+
+    ;; Data directories
+    "~/.local/share/cargo"
+    "~/.local/share/rustup"
+    "~/.local/share/go"
+    "~/.local/share/gnupg"
+    "~/.local/share/npm"
+    "~/.local/share/fonts"
+    "~/.local/share/applications"
+    "~/.local/share/icons"
+    "~/.local/share/password-store"
+    "~/.local/share/authinfo"
+    "~/.local/share/certificates"
+    "~/.local/share/ca-certificates"
+    "~/.local/share/aws"
+    "~/.local/share/docker"
+    "~/.local/share/gradle"
+    "~/.local/share/android"
+    "~/.local/share/claude"
+    "~/.local/share/bash"
+    "~/.local/share/zsh"
+    "~/.local/share/mysql"
+    "~/.local/share/psql"))
 
 (define-public %default-dotguile
   (plain-file "guile" "(use-modules (ice-9 readline)
@@ -52,133 +119,275 @@
 
 (define-public %default-gdbinit
   (plain-file "gdbinit" "set history save on
-set history filename ~/.local/state/gdb_history
-set history size 10000"))
+set history filename ~/.local/state/gdb/history
+set history size 10000
+set history remove-duplicates unlimited"))
 
 (define-public %default-nanorc
-  (plain-file "nanorc" "set autoindent\nset tabsize 4"))
-
-(define-public %my-shell-base-services
-  (list (service home-inputrc-service-type
-                 (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")
-                                                             ("TAB" . "menu-complete")))
-                                             (variables `(("bell-style" . "visible")
-                                                          ("editing-mode" . "emacs")
-                                                          ("show-all-if-ambiguous" . #t)
-                                                          ("mark-symlinked-directories" . #t)
-                                                          ("visible-stats" . #t)
-                                                          ("colored-stats" . #t)
-                                                          ("colored-completion-prefix" . #t)
-                                                          ("menu-complete-display-prefix" . #t)))))
-
-        (simple-service 'shell-environment-variables
-                        home-environment-variables-service-type
-                        `(("HISTSIZE" . "50000") ("SAVEHIST" . "50000")
-                          ("LESSHISTFILE" . "$XDG_STATE_HOME/less/history")))))
-
-(define-public %my-development-base-services
-  (list (simple-service 'development-environment-variables
-                        home-environment-variables-service-type
-                        `(("PYTHONSTARTUP" . "$XDG_CONFIG_HOME/python/pythonrc")
-                          ("PYTHONHISTFILE" . "$XDG_STATE_HOME/python_history")
-                          ("CARGO_HOME" . "$XDG_DATA_HOME/cargo")
-                          ("RUSTUP_HOME" . "$XDG_DATA_HOME/rustup")
-                          ("GOPATH" . "$XDG_DATA_HOME/go")
-                          ("GNUPGHOME" . "$XDG_DATA_HOME/gnupg")))))
+  (plain-file "nanorc" "set positionlog
+set historylog
+set suspendable
+set autoindent
+set tabsize 4
+set linenumbers
+set mouse
+set smarthome
+set softwrap
+set zap
+set stateflags"))
 
 (define-public %my-base-home-services
-  (append %my-shell-base-services %my-development-base-services
-          (list (service home-files-service-type
-                         `((".guile" ,%default-dotguile)))
+  (list
+   ;; Shell configuration
+   (service home-inputrc-service-type
+            (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")
+                                                        ("TAB" . "menu-complete")
+                                                        ("\\e[Z" . "menu-complete-backward"))) ;Shift-Tab
+                                        (variables `(("bell-style" . "visible")
+                                                     ("editing-mode" . "emacs")
+                                                     ("show-all-if-ambiguous" . #t)
+                                                     ("show-all-if-unmodified" . #t)
+                                                     ("mark-symlinked-directories" . #t)
+                                                     ("visible-stats" . #t)
+                                                     ("colored-stats" . #t)
+                                                     ("colored-completion-prefix" . #t)
+                                                     ("menu-complete-display-prefix" . #t)
+                                                     ("completion-ignore-case" . #t)
+                                                     ("completion-map-case" . #t)
+                                                     ("expand-tilde" . #t)))))
 
-                (service home-xdg-configuration-files-service-type
-                         `(("gdb/gdbinit" ,%default-gdbinit)
-                           ("nano/nanorc" ,%default-nanorc)))
+   ;; Environment variables
+   (simple-service 'environment-variables
+                   home-environment-variables-service-type
+                   `( ;Shell environment
+                      ("HISTSIZE" . "50000")
+                     ("SAVEHIST" . "50000")
+                     ("HISTFILE" . "$XDG_STATE_HOME/zsh/history")
+                     ("LESSHISTFILE" . "$XDG_STATE_HOME/less/history")
+                     ("NODE_REPL_HISTORY" . "$XDG_STATE_HOME/node/repl_history")
+                     ("BASH_HISTORY" . "$XDG_STATE_HOME/bash/history")
+                     ("SQLITE_HISTORY" . "$XDG_STATE_HOME/sqlite/history")
+                     ("PSQL_HISTORY" . "$XDG_STATE_HOME/psql/history")
+                     ("MYSQL_HISTFILE" . "$XDG_STATE_HOME/mysql/history")
 
-                (xdg-directory-service %default-xdg-directories)
+                     ;; Python
+                     ("PYTHONSTARTUP" . "$XDG_CONFIG_HOME/python/pythonrc")
+                     ("PYTHONHISTFILE" . "$XDG_STATE_HOME/python/history")
+                     ("PYTHONUSERBASE" . "$XDG_DATA_HOME/python")
+                     ("PYTHON_EGG_CACHE" . "$XDG_CACHE_HOME/python-eggs")
+                     ("PIPENV_VENV_IN_PROJECT" . "1")
+                     ("WORKON_HOME" . "$XDG_DATA_HOME/virtualenvs")
+                     ("JUPYTER_CONFIG_DIR" . "$XDG_CONFIG_HOME/jupyter")
 
-                (service home-channels-service-type %my-channels)
+                     ;; Rust
+                     ("CARGO_HOME" . "$XDG_DATA_HOME/cargo")
+                     ("RUSTUP_HOME" . "$XDG_DATA_HOME/rustup")
 
-                ;; Font configuration with rendering improvements
-                (simple-service 'custom-fontconfig
-                                home-fontconfig-service-type
-                                (list
-                                 ;; Include default Guix Home font path
-                                 "~/.guix-home/profile/share/fonts"
-                                 ;; Font preferences and aliases
-                                 '(alias (family "monospace")
-                                         (prefer (family "SF Mono")
-                                                 (family "JetBrains Mono")
-                                                 (family "Fira Code")
-                                                 (family "Iosevka")
-                                                 (family "Hack")
-                                                 (family "Liberation Mono")))
-                                 '(alias (family "sans-serif")
-                                         (prefer (family "SF Pro Display")
-                                                 (family "SF Pro Text")
-                                                 (family "Inter")
-                                                 (family "Liberation Sans")
-                                                 (family "Noto Sans")))
-                                 '(alias (family "serif")
-                                         (prefer (family "New York")
-                                                 (family "Charter")
-                                                 (family "Liberation Serif")
-                                                 (family "Noto Serif")))
-                                 ;; Better font rendering
-                                 '(match (target "font")
-                                    (edit (mode "assign")
-                                          (name "antialias")
-                                          (bool "true")))
-                                 '(match (target "font")
-                                    (edit (mode "assign")
-                                          (name "hinting")
-                                          (bool "true")))
-                                 '(match (target "font")
-                                    (edit (mode "assign")
-                                          (name "hintstyle")
-                                          (const "hintslight")))
-                                 '(match (target "font")
-                                    (edit (mode "assign")
-                                          (name "rgba")
-                                          (const "rgb")))
-                                 '(match (target "font")
-                                    (edit (mode "assign")
-                                          (name "lcdfilter")
-                                          (const "lcddefault")))
-                                 ;; Emoji font configuration
-                                 '(match (target "pattern")
-                                    (test (name "family")
-                                          (string "monospace"))
-                                    (edit (mode "append")
-                                          (name "family")
-                                          (string "Apple Color Emoji")))
-                                 '(match (target "pattern")
-                                    (test (name "family")
-                                          (string "sans-serif"))
-                                    (edit (mode "append")
-                                          (name "family")
-                                          (string "Apple Color Emoji")))
-                                 '(match (target "pattern")
-                                    (test (name "family")
-                                          (string "serif"))
-                                    (edit (mode "append")
-                                          (name "family")
-                                          (string "Apple Color Emoji")))))
+                     ;; Go
+                     ("GOPATH" . "$XDG_DATA_HOME/go")
+                     ("GOMODCACHE" . "$XDG_CACHE_HOME/go/mod")
 
-                (service home-xdg-user-directories-service-type
-                         (home-xdg-user-directories-configuration (desktop
-                                                                   "$HOME/desktop")
-                                                                  (documents
-                                                                   "$HOME/documents")
-                                                                  (download
-                                                                   "$HOME/downloads")
-                                                                  (music
-                                                                   "$HOME/music")
-                                                                  (pictures
-                                                                   "$HOME/pictures")
-                                                                  (publicshare
-                                                                   "$HOME/public")
-                                                                  (templates
-                                                                   "$HOME/templates")
-                                                                  (videos
-                                                                   "$HOME/videos"))))))
+                     ;; Security tools
+                     ("GNUPGHOME" . "$XDG_DATA_HOME/gnupg")
+                     ("PASSWORD_STORE_DIR" . "$XDG_DATA_HOME/password-store")
+                     ("NETRC" . "$XDG_CONFIG_HOME/netrc")
+
+                     ;; Development tools
+                     ("GRADLE_USER_HOME" . "$XDG_DATA_HOME/gradle")
+                     ("ANDROID_HOME" . "$XDG_DATA_HOME/android")
+                     ("ANDROID_USER_HOME" . "$XDG_DATA_HOME/android")
+                     ("ANDROID_PREFS_ROOT" . "$XDG_CONFIG_HOME/android")
+                     ("ANDROID_EMULATOR_HOME" . "$XDG_DATA_HOME/android/emulator")
+
+                     ;; Network tools
+                     ("WGETRC" . "$XDG_CONFIG_HOME/wget/wgetrc")
+                     ("CURL_HOME" . "$XDG_CONFIG_HOME/curl")
+
+                     ;; Database tools
+                     ("PGPASSFILE" . "$XDG_CONFIG_HOME/pg/pgpass")
+                     ("PGSERVICEFILE" . "$XDG_CONFIG_HOME/pg/pg_service.conf")
+                     ("PGSYSCONFDIR" . "$XDG_CONFIG_HOME/pg")
+
+                     ;; Cloud tools
+                     ("AWS_SHARED_CREDENTIALS_FILE" . "$XDG_CONFIG_HOME/aws/credentials")
+                     ("AWS_CONFIG_FILE" . "$XDG_CONFIG_HOME/aws/config")
+                     ("DOCKER_CONFIG" . "$XDG_CONFIG_HOME/docker")
+
+                     ;; Other applications
+                     ("INPUTRC" . "$XDG_CONFIG_HOME/readline/inputrc")
+                     ("SCREENRC" . "$XDG_CONFIG_HOME/screen/screenrc")
+                     ("TMUX_TMPDIR" . "$XDG_RUNTIME_DIR")
+                     ("LESSKEY" . "$XDG_CONFIG_HOME/less/lesskey")
+                     ("PARALLEL_HOME" . "$XDG_CONFIG_HOME/parallel")
+
+                     ;; Disable less history if XDG not supported
+                     ("LESSHISTSIZE" . "0")))
+
+   ;; Shell aliases to help with XDG compliance
+   (simple-service 'xdg-aliases home-bash-service-type
+                   (home-bash-extension (aliases '(("wget" . "wget --hsts-file=\"$XDG_CACHE_HOME/wget-hsts\"")
+                                                   ("yarn" . "yarn --use-yarnrc \"$XDG_CONFIG_HOME/yarn/config\"")))))
+
+   ;; Dotfiles
+   (service home-files-service-type
+            `((".guile" ,%default-dotguile)
+              ;; Create .bashrc that sources from XDG location
+              (".bashrc" ,(plain-file "bashrc-redirect"
+                           "# Redirect to XDG location
+if [ -f \"$XDG_CONFIG_HOME/bash/bashrc\" ]; then
+    . \"$XDG_CONFIG_HOME/bash/bashrc\"
+fi"))
+              ;; Create authinfo symlink
+              (".authinfo.gpg" ,(plain-file "authinfo-link"
+                                 "# This file has moved to $XDG_DATA_HOME/authinfo/authinfo.gpg"))))
+
+   ;; XDG config files
+   (service home-xdg-configuration-files-service-type
+            `(("gdb/gdbinit" ,%default-gdbinit)
+              ("nano/nanorc" ,%default-nanorc)
+              ("readline/inputrc" ,(plain-file "inputrc" "# See ~/.inputrc"))
+              ("npm/npmrc" ,(plain-file "npmrc"
+                             "prefix=${XDG_DATA_HOME}/npm
+cache=${XDG_CACHE_HOME}/npm
+init-module=${XDG_CONFIG_HOME}/npm/config/npm-init.js
+logs-dir=${XDG_STATE_HOME}/npm/logs"))
+              ("wget/wgetrc" ,(plain-file "wgetrc"
+                                          "hsts-file = ~/.cache/wget/hsts"))
+              ("python/pythonrc" ,(plain-file "pythonrc"
+                                   "import os
+import atexit
+import readline
+
+histfile = os.path.join(os.environ.get('XDG_STATE_HOME', os.path.expanduser('~/.local/state')), 'python', 'history')
+try:
+    readline.read_history_file(histfile)
+except FileNotFoundError:
+    pass
+
+atexit.register(readline.write_history_file, histfile)"))))
+
+   ;; Create XDG directories
+   (xdg-directory-service %default-xdg-directories)
+
+   ;; Guix channels
+   (service home-channels-service-type %my-channels)
+
+   ;; Font configuration (keeping the same as before)
+   (simple-service 'custom-fontconfig home-fontconfig-service-type
+                   (list
+                    ;; Include font paths
+                    "~/.guix-home/profile/share/fonts"
+                    "~/.local/share/fonts"
+
+                    ;; Font preferences and aliases
+                    '(alias (family "monospace")
+                            (prefer (family "SF Mono")
+                                    (family "JetBrains Mono")
+                                    (family "Fira Code")
+                                    (family "Fira Mono")
+                                    (family "Roboto Mono")
+                                    (family "Iosevka")
+                                    (family "Hack")
+                                    (family "Source Code Pro")
+                                    (family "Liberation Mono")))
+
+                    '(alias (family "sans-serif")
+                            (prefer (family "SF Pro Display")
+                                    (family "SF Pro Text")
+                                    (family "Inter")
+                                    (family "Roboto")
+                                    (family "Fira Sans")
+                                    (family "Open Sans")
+                                    (family "Liberation Sans")
+                                    (family "Noto Sans")))
+
+                    '(alias (family "serif")
+                            (prefer (family "New York")
+                                    (family "Charter")
+                                    (family "Roboto Serif")
+                                    (family "Roboto Slab")
+                                    (family "Liberation Serif")
+                                    (family "Noto Serif")))
+
+                    ;; Better font rendering
+                    '(match (target "font")
+                       (edit (mode "assign")
+                             (name "antialias")
+                             (bool "true")))
+
+                    '(match (target "font")
+                       (edit (mode "assign")
+                             (name "hinting")
+                             (bool "true")))
+
+                    '(match (target "font")
+                       (edit (mode "assign")
+                             (name "hintstyle")
+                             (const "hintslight")))
+
+                    '(match (target "font")
+                       (edit (mode "assign")
+                             (name "rgba")
+                             (const "rgb")))
+
+                    '(match (target "font")
+                       (edit (mode "assign")
+                             (name "lcdfilter")
+                             (const "lcddefault")))
+
+                    ;; Enable ligatures for programming fonts
+                    '(match (target "font")
+                       (test (name "family")
+                             (string "Fira Code"))
+                       (edit (mode "assign")
+                             (name "fontfeatures")
+                             (string "liga on, calt on")))
+
+                    '(match (target "font")
+                       (test (name "family")
+                             (string "JetBrains Mono"))
+                       (edit (mode "assign")
+                             (name "fontfeatures")
+                             (string "liga on, calt on")))
+
+                    ;; Emoji font configuration
+                    '(match (target "pattern")
+                       (test (name "family")
+                             (string "monospace"))
+                       (edit (mode "append")
+                             (name "family")
+                             (string "Apple Color Emoji")))
+
+                    '(match (target "pattern")
+                       (test (name "family")
+                             (string "sans-serif"))
+                       (edit (mode "append")
+                             (name "family")
+                             (string "Noto Color Emoji")))
+
+                    '(match (target "pattern")
+                       (test (name "family")
+                             (string "serif"))
+                       (edit (mode "append")
+                             (name "family")
+                             (string "Apple Color Emoji")))
+
+                    ;; Disable bitmap fonts
+                    '(selectfont (rejectfont (pattern (patelt (name "scalable")
+                                                              (bool "false")))))))
+
+   ;; XDG user directories
+   (service home-xdg-user-directories-service-type
+            (home-xdg-user-directories-configuration (desktop "$HOME/desktop")
+                                                     (documents
+                                                      "$HOME/documents")
+                                                     (download
+                                                      "$HOME/downloads")
+                                                     (music "$HOME/music")
+                                                     (pictures
+                                                      "$HOME/pictures")
+                                                     (publicshare
+                                                      "$HOME/public")
+                                                     (templates
+                                                      "$HOME/templates")
+                                                     (videos "$HOME/videos")))))
