@@ -70,11 +70,7 @@
            (service usb-modeswitch-service-type)
 
            ;; Time synchronization
-           (service ntp-service-type
-                    (ntp-configuration (servers '("0.pool.ntp.org"
-                                                  "1.pool.ntp.org"
-                                                  "2.pool.ntp.org"
-                                                  "3.pool.ntp.org"))))
+           (service ntp-service-type)
 
            ;; Printing
            (service cups-pk-helper-service-type)
@@ -85,11 +81,7 @@
            (service elogind-service-type
                     (elogind-configuration (suspend-state '("mem"))
                                            (suspend-mode '("deep"))
-                                           (hibernate-state '("disk"))
                                            (hibernate-mode '("platform"))
-                                           (hybrid-sleep-state '("disk"))
-                                           (hybrid-sleep-mode '("suspend"
-                                                                "platform"))
                                            (handle-lid-switch 'suspend)
                                            (handle-lid-switch-docked 'ignore)
                                            (handle-lid-switch-external-power 'suspend)
