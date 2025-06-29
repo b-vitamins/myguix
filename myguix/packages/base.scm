@@ -230,7 +230,7 @@
 
 ;; Networking Bundles
 (define %network-core
-  (list curl wget openssl network-manager-applet))
+  (list curl wget network-manager-applet))
 
 (define %network-diagnostics
   (list nmap tcpdump traceroute mtr))
