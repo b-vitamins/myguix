@@ -134,8 +134,7 @@
                                         (port 8080)
                                         (compression '(("zstd" 19)))
                                         (cache "/var/cache/publish")
-                                        (workers 4)
-                                        (ttl "30d")))
+                                        (workers 4)))
 
    ;; System resource limits
    (service pam-limits-service-type
