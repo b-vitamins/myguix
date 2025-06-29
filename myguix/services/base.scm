@@ -24,23 +24,10 @@
 
 (define %my-base-services
   (list
-   ;; Base Services - Compatibility symlinks
-   (service special-files-service-type
-            `( ;Shell interpreters
-               ("/bin/sh" ,(file-append bash-minimal "/bin/sh"))
-              ("/bin/bash" ,(file-append bash "/bin/bash"))
-              ("/bin/zsh" ,(file-append zsh "/bin/zsh"))
-              ("/usr/bin/env" ,(file-append coreutils "/bin/env"))
+   ;; Core services matching upstream order
+   (service login-service-type)
 
-              ;; Scripting languages
-              ("/bin/perl" ,(file-append perl "/bin/perl"))
-              ("/usr/bin/perl" ,(file-append perl "/bin/perl"))
-              ("/bin/python" ,(file-append python "/bin/python3"))
-              ("/bin/python3" ,(file-append python "/bin/python3"))
-              ("/usr/bin/python" ,(file-append python "/bin/python3"))
-              ("/usr/bin/python3" ,(file-append python "/bin/python3"))))
-
-   ;; Console font service for better readability
+   (service virtual-terminal-service-type)
    (service console-font-service-type
             (map (lambda (tty)
                    (cons tty
@@ -48,37 +35,14 @@
                                       "/share/consolefonts/ter-v16n.psf.gz")))
                  '("tty1" "tty2" "tty3" "tty4" "tty5" "tty6")))
 
-   ;; Log Management
-   (service log-rotation-service-type
-            (log-rotation-configuration (external-log-files '("/var/log/messages"
-                                                              "/var/log/secure"
-                                                              "/var/log/debug"
-                                                              "/var/log/maillog"))
-                                        (calendar-event #~"weekly")
-                                        (compression 'gzip)
-                                        (expiry (* 4 7 24 3600))))
-
-   (service log-cleanup-service-type
-            (log-cleanup-configuration (directory "/var/log/guix/drvs")
-                                       (expiry (* 30 24 3600)))) ;30 days
-   
-   ;; Core Shepherd services
    (service shepherd-system-log-service-type)
-   (service shepherd-timer-service-type)
-   (service shepherd-transient-service-type)
-
-   ;; Login and terminal services
-   (service login-service-type)
-   (service virtual-terminal-service-type)
-
-   ;; Standard getty service
    (service agetty-service-type
             (agetty-configuration (extra-options '("-L")) ;no carrier detect
-                                  (term "linux")
-                                  (tty #f))) ;automatic
-   
-   ;; Skip kmscon for tty1-3 if using graphical desktop
-   ;; Only enable for emergency/recovery consoles
+                                  (term "vt100")
+                                  (tty #f) ;automatic
+                                  (shepherd-requirement '(syslogd))))
+
+   ;; Using kmscon instead of mingetty for enhanced console support
    (service kmscon-service-type
             (kmscon-configuration (virtual-terminal "tty7")
                                   (hardware-acceleration? #t)
@@ -87,7 +51,17 @@
                                                     "altgr-intl"
                                                     #:options '("ctrl:nocaps")))))
 
-   ;; Name Service Cache Daemon with custom configuration
+   ;; Extra Bash configuration including Bash completion and aliases.
+   (service etc-bashrc-d-service-type)
+
+   (service static-networking-service-type
+            (list %loopback-static-networking))
+   (service urandom-seed-service-type)
+   (service guix-service-type
+            (guix-configuration (build-accounts 16)
+                                (use-substitutes? #t)
+                                (tmpdir "/tmp")
+                                (extra-options '("--max-jobs=8" "--cores=4"))))
    (service nscd-service-type
             (nscd-configuration (caches (list (nscd-cache (database 'hosts)
                                                           (positive-time-to-live
@@ -102,32 +76,56 @@
                                                            3600)
                                                           (persistent? #t))))))
 
-   ;; Guix daemon configuration
-   (service guix-service-type
-            (guix-configuration (build-accounts 16)
-                                (use-substitutes? #t)
-                                (tmpdir "/tmp")
-                                (extra-options '("--max-jobs=8" "--cores=4"))))
+   (service log-rotation-service-type
+            (log-rotation-configuration (external-log-files '("/var/log/messages"
+                                                              "/var/log/secure"
+                                                              "/var/log/debug"
+                                                              "/var/log/maillog"))
+                                        (calendar-event #~"weekly")
+                                        (compression 'gzip)
+                                        (expiry (* 4 7 24 3600))))
 
-   ;; Enhanced udev configuration
+   ;; Convenient services brought by the Shepherd.
+   (service shepherd-timer-service-type)
+   (service shepherd-transient-service-type)
+
+   ;; Periodically delete old build logs.
+   (service log-cleanup-service-type
+            (log-cleanup-configuration (directory "/var/log/guix/drvs")
+                                       (expiry (* 30 24 3600)))) ;30 days
+   
+   ;; The LVM2 rules are needed as soon as LVM2 or the device-mapper is
+   ;; used, so enable them by default.  The FUSE and ALSA rules are
+   ;; less critical, but handy.
    (service udev-service-type
             (udev-configuration (rules (list lvm2
                                              fuse
                                              alsa-utils
                                              crda
+                                             ;; Extra rules for enhanced hardware support
                                              libmtp
                                              pipewire
                                              brightnessctl
                                              android-udev-rules))))
 
-   ;; Core system services
-   (service urandom-seed-service-type)
+   ;; sysctl is deliberately not included
+   
+   (service special-files-service-type
+            `(("/bin/sh" ,(file-append bash "/bin/sh"))
+              ("/usr/bin/env" ,(file-append coreutils "/bin/env"))
+              ;; Extra compatibility symlinks
+              ("/bin/bash" ,(file-append bash "/bin/bash"))
+              ("/bin/zsh" ,(file-append zsh "/bin/zsh"))
+              ("/bin/perl" ,(file-append perl "/bin/perl"))
+              ("/usr/bin/perl" ,(file-append perl "/bin/perl"))
+              ("/bin/python" ,(file-append python "/bin/python3"))
+              ("/bin/python3" ,(file-append python "/bin/python3"))
+              ("/usr/bin/python" ,(file-append python "/bin/python3"))
+              ("/usr/bin/python3" ,(file-append python "/bin/python3"))))
+
+   ;; Extra services not in upstream %base-services
    (service gpm-service-type) ;Console mouse support
    
-   ;; Networking
-   (service static-networking-service-type
-            (list %loopback-static-networking))
-
    ;; Guix publish for sharing substitutes
    (service guix-publish-service-type
             (guix-publish-configuration (host "localhost")
