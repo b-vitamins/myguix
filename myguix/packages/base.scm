@@ -49,6 +49,7 @@
   #:use-module (gnu packages nfs)
   #:use-module (gnu packages nicotine)
   #:use-module (gnu packages ocaml)
+  #:use-module (gnu packages parallel)
   #:use-module (gnu packages password-utils)
   #:use-module (gnu packages pciutils)
   #:use-module (gnu packages pdf)
@@ -173,7 +174,12 @@
         patch))
 
 (define %core-extended
-  (list tree pciutils ripgrep fd mumi))
+  (list tree
+        pciutils
+        ripgrep
+        fd
+        mumi
+        parallel))
 
 (define %shell-modern
   (list fzf
@@ -181,7 +187,8 @@
         eza
         btop
         zoxide
-        jq))
+        jq
+        du-dust))
 
 (define %terminal-essentials
   (list alacritty tmux))
@@ -197,12 +204,7 @@
 
 ;; System Management Bundles
 (define %system-monitoring
-  (list htop
-        atop
-        btop
-        inxi
-        sysstat
-        procps))
+  (list atop btop inxi sysstat procps))
 
 (define %hardware-monitoring
   (list smartmontools hdparm blktrace lsscsi nvme-cli))
@@ -240,7 +242,7 @@
   (list firefox google-chrome-stable))
 
 (define %desktop-core
-  (list fontconfig network-manager-applet))
+  (list fontconfig network-manager-applet gnome-boxes))
 
 (define %audio-system
   (list pipewire wireplumber))
@@ -262,7 +264,7 @@
   (list calc openblas lapack))
 
 (define %math-applications
-  (list octave maxima wxmaxima))
+  (list maxima wxmaxima))
 
 (define %scientific-computing
   (list gnuplot hdf5 nlopt ipopt nauty))
@@ -311,10 +313,10 @@
 
 ;; Media Bundles
 (define %media-players
-  (list vlc))
+  (list audacious))
 
 (define %media-editors
-  (list gimp inkscape audacity blender obs))
+  (list blender obs))
 
 (define %media-converters
   (list imagemagick
@@ -336,7 +338,9 @@
         cmakelang
         automake
         autoconf
-        direnv))
+        direnv
+        cloc
+        tokei))
 
 (define %compiler-toolchains
   (list clang mold))
@@ -491,8 +495,12 @@
         font-adobe-source-code-pro))
 
 (define %fonts-document
-  (list font-libre-franklin font-latin-modern font-charter font-tex-gyre
-        font-linuxlibertine font-google-roboto))
+  (list font-libre-franklin
+        font-latin-modern
+        font-charter
+        font-tex-gyre
+        font-linuxlibertine
+        font-google-roboto))
 
 (define %fonts-international
   (list font-google-noto
