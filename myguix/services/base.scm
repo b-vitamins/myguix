@@ -22,6 +22,10 @@
   #:use-module (myguix system install)
   #:export (%my-base-services))
 
+(define %my-keyboard-layout
+  (keyboard-layout "us" "altgr-intl"
+                   #:options '("ctrl:nocaps")))
+
 (define %my-base-services
   (list
    ;; Core services matching upstream order
@@ -44,12 +48,35 @@
 
    ;; Using kmscon instead of mingetty for enhanced console support
    (service kmscon-service-type
-            (kmscon-configuration (virtual-terminal "tty7")
+            (kmscon-configuration (virtual-terminal "tty1")
                                   (hardware-acceleration? #t)
                                   (font-size 14)
-                                  (keyboard-layout (keyboard-layout "us"
-                                                    "altgr-intl"
-                                                    #:options '("ctrl:nocaps")))))
+                                  (keyboard-layout %my-keyboard-layout)))
+   (service kmscon-service-type
+            (kmscon-configuration (virtual-terminal "tty2")
+                                  (hardware-acceleration? #t)
+                                  (font-size 14)
+                                  (keyboard-layout %my-keyboard-layout)))
+   (service kmscon-service-type
+            (kmscon-configuration (virtual-terminal "tty3")
+                                  (hardware-acceleration? #t)
+                                  (font-size 14)
+                                  (keyboard-layout %my-keyboard-layout)))
+   (service kmscon-service-type
+            (kmscon-configuration (virtual-terminal "tty4")
+                                  (hardware-acceleration? #t)
+                                  (font-size 14)
+                                  (keyboard-layout %my-keyboard-layout)))
+   (service kmscon-service-type
+            (kmscon-configuration (virtual-terminal "tty5")
+                                  (hardware-acceleration? #t)
+                                  (font-size 14)
+                                  (keyboard-layout %my-keyboard-layout)))
+   (service kmscon-service-type
+            (kmscon-configuration (virtual-terminal "tty6")
+                                  (hardware-acceleration? #t)
+                                  (font-size 14)
+                                  (keyboard-layout %my-keyboard-layout)))
 
    ;; Extra Bash configuration including Bash completion and aliases.
    (service etc-bashrc-d-service-type)
