@@ -17,6 +17,7 @@
                                    %default-dotguile
                                    %default-gdbinit
                                    %default-nanorc
+                                   %default-mimeapps
                                    %my-shell-environment-variables
                                    %my-shell-aliases))
 
@@ -241,6 +242,42 @@ atexit.register(readline.write_history_file, histfile)"))
   (plain-file "authinfo-readme"
               "Place your authinfo.gpg file in this directory:
 $XDG_DATA_HOME/authinfo/authinfo.gpg"))
+
+(define-public %default-mimeapps
+  (plain-file "mimeapps.list"
+              "[Default Applications]
+text/html=firefox.desktop
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop
+x-scheme-handler/about=firefox.desktop
+x-scheme-handler/unknown=firefox.desktop
+application/pdf=org.gnome.Evince.desktop
+image/png=org.gnome.eog.desktop
+image/jpeg=org.gnome.eog.desktop
+image/gif=org.gnome.eog.desktop
+image/webp=org.gnome.eog.desktop
+video/mp4=mpv.desktop
+video/x-matroska=mpv.desktop
+video/webm=mpv.desktop
+audio/mpeg=audacious.desktop
+audio/flac=audacious.desktop
+audio/ogg=audacious.desktop
+audio/x-vorbis+ogg=audacious.desktop
+audio/x-wav=audacious.desktop
+audio/x-m4a=audacious.desktop
+audio/mp4=audacious.desktop
+text/plain=org.gnome.TextEditor.desktop
+text/x-c=org.gnome.TextEditor.desktop
+text/x-python=org.gnome.TextEditor.desktop
+text/x-java=org.gnome.TextEditor.desktop
+text/x-makefile=org.gnome.TextEditor.desktop
+text/x-readme=org.gnome.TextEditor.desktop
+text/x-log=org.gnome.TextEditor.desktop
+application/x-shellscript=org.gnome.TextEditor.desktop
+application/xml=org.gnome.TextEditor.desktop
+application/json=org.gnome.TextEditor.desktop
+inode/directory=org.gnome.Nautilus.desktop
+"))
 
 (define-public %my-base-home-services
   (list
