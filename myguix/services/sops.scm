@@ -78,7 +78,7 @@
                (default #f)) ;string or #f - json, yaml, dotenv, binary
   (path sops-secret-path
         (default #f)))
- ; string or #f - optional symlink path
+; string or #f - optional symlink path
 
 (define-record-type* <sops-service-configuration> sops-service-configuration
                      make-sops-service-configuration
