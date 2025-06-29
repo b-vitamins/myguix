@@ -41,6 +41,7 @@
                                                                               (file-append
                                                                                package
                                                                                "/bin/emacs")
+
                                                                               
                                                                               (string-append
                                                                                "--daemon="
@@ -60,18 +61,23 @@
                                                                 #:environment-variables
                                                                 (append (list (string-append
                                                                                "HOME="
+
                                                                                
                                                                                (getenv
                                                                                 "HOME"))
+
                                                                               
                                                                               (string-append
                                                                                "USER="
+
                                                                                
                                                                                (getenv
                                                                                 "USER"))
+
                                                                               
                                                                               (string-append
                                                                                "PATH="
+
                                                                                
                                                                                (getenv
                                                                                 "PATH")))
@@ -81,6 +87,7 @@
                                                                             (list
                                                                              (string-append
                                                                               "DISPLAY="
+
                                                                               
                                                                               (getenv
                                                                                "DISPLAY")))
@@ -90,6 +97,7 @@
                                                                             (list
                                                                              (string-append
                                                                               "WAYLAND_DISPLAY="
+
                                                                               
                                                                               (getenv
                                                                                "WAYLAND_DISPLAY")))
@@ -99,6 +107,7 @@
                                                                             (list
                                                                              (string-append
                                                                               "XDG_RUNTIME_DIR="
+
                                                                               
                                                                               (getenv
                                                                                "XDG_RUNTIME_DIR")))

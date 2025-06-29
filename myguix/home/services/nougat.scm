@@ -203,7 +203,7 @@ Each option should be a string. For example:
                                                                        "LD_LIBRARY_PATH="
                                                                        (or (getenv
                                                                             "LIBRARY_PATH")
-                                                                        "")))))
+                                                                           "")))))
                             (stop #~(make-kill-destructor))
                             (actions (list (shepherd-action (name 'status-api)
                                                             (documentation

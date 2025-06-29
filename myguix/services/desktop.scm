@@ -36,7 +36,7 @@
    adwaita-icon-theme ;Stock GNOME icons
    font-abattis-cantarell ;GNOME default font
    bibata-cursor-theme))
- ; Modern cursor theme
+; Modern cursor theme
 
 (define %my-desktop-services
   (append (list
@@ -153,7 +153,7 @@
 
            ;; Note: PipeWire would need to be configured at user/home level
            ;; not as a system service
-
+           
            ;; File indexing and search
            (service file-database-service-type
                     (file-database-configuration (schedule "0 3 * * *"))) ;Run at 3 AM daily

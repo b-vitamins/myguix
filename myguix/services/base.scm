@@ -50,14 +50,13 @@
 
    ;; Log Management
    (service log-rotation-service-type
-            (log-rotation-configuration
-             (external-log-files '("/var/log/messages"
-                                   "/var/log/secure"
-                                   "/var/log/debug"
-                                   "/var/log/maillog"))
-             (calendar-event #~"weekly")
-             (compression 'gzip)
-             (expiry (* 4 7 24 3600))))
+            (log-rotation-configuration (external-log-files '("/var/log/messages"
+                                                              "/var/log/secure"
+                                                              "/var/log/debug"
+                                                              "/var/log/maillog"))
+                                        (calendar-event #~"weekly")
+                                        (compression 'gzip)
+                                        (expiry (* 4 7 24 3600))))
 
    (service log-cleanup-service-type
             (log-cleanup-configuration (directory "/var/log/guix/drvs")
