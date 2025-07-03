@@ -243,7 +243,7 @@
   (list firefox google-chrome-stable))
 
 (define %desktop-core
-  (list fontconfig network-manager-applet gnome-boxes))
+  (list fontconfig network-manager-applet))
 
 (define %audio-system
   (list pipewire wireplumber))

@@ -39,11 +39,7 @@
 (define %my-desktop-services
   (append (list
            ;; Display Manager and X11/Wayland
-           (service gdm-service-type
-                    (gdm-configuration (wayland? #t)
-                                       (debug? #f)
-                                       (gnome-shell-assets
-                                        %my-gnome-shell-assets)))
+           (service gdm-service-type)
 
            ;; Screen lockers (for X11 sessions)
            (service screen-locker-service-type
@@ -84,16 +80,7 @@
            (service accountsservice-service-type)
            (service cups-pk-helper-service-type)
            (service colord-service-type)
-           (service geoclue-service-type
-                    (geoclue-configuration (applications (list (geoclue-application
-                                                                "gnome-datetime-panel.desktop"
-                                                                #:allowed? #t)
-                                                               (geoclue-application
-                                                                "org.gnome.Weather"
-                                                                #:allowed? #t)
-                                                               (geoclue-application
-                                                                "org.gnome.Maps"
-                                                                #:allowed? #t)))))
+           (service geoclue-service-type)
            (service polkit-service-type)
            (service elogind-service-type)
            (service dbus-root-service-type)

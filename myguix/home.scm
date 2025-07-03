@@ -57,7 +57,6 @@
     ("HISTFILE" . "$XDG_STATE_HOME/zsh/history")
     ("LESSHISTFILE" . "$XDG_STATE_HOME/less/history")
     ("NODE_REPL_HISTORY" . "$XDG_STATE_HOME/node/repl_history")
-    ("BASH_HISTORY" . "$XDG_STATE_HOME/bash/history")
     ("SQLITE_HISTORY" . "$XDG_STATE_HOME/sqlite/history")
     ("PSQL_HISTORY" . "$XDG_STATE_HOME/psql/history")
     ("MYSQL_HISTFILE" . "$XDG_STATE_HOME/mysql/history")
@@ -131,7 +130,6 @@
 
     ;; State directories for history files
     "~/.local/state/zsh"
-    "~/.local/state/bash"
     "~/.local/state/less"
     "~/.local/state/python"
     "~/.local/state/gdb"
@@ -182,7 +180,6 @@
     "~/.local/share/gradle"
     "~/.local/share/android"
     "~/.local/share/claude"
-    "~/.local/share/bash"
     "~/.local/share/zsh"
     "~/.local/share/mysql"
     "~/.local/share/psql"))
@@ -298,12 +295,6 @@ inode/directory=org.gnome.Nautilus.desktop
                                                      ("completion-ignore-case" . #t)
                                                      ("completion-map-case" . #t)
                                                      ("expand-tilde" . #t)))))
-
-   ;; Bash configuration with all shell-related settings
-   (service home-bash-service-type
-            (home-bash-configuration
-             (environment-variables %my-shell-environment-variables)
-             (aliases %my-shell-aliases)))
 
    ;; Dotfiles
    (service home-files-service-type
