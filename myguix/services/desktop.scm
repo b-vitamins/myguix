@@ -23,12 +23,10 @@
   (list
    ;; Core GNOME tools
    gnome-tweaks
-   gnome-shell-extensions
    ;; Essential extensions
    gnome-shell-extension-dash-to-dock
    gnome-shell-extension-vitals
    gnome-shell-extension-appindicator
-   gnome-shell-extension-blur-my-shell
    gnome-shell-extension-gsconnect
    ;; Theme components
    adwaita-icon-theme
