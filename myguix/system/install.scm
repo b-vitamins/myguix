@@ -42,23 +42,33 @@
   (operating-system
     (inherit installation-os)
     (kernel linux)
-    (firmware (list linux-firmware sof-firmware))
+    (firmware (list linux-firmware))
     (initrd microcode-initrd)
     (keyboard-layout (keyboard-layout "us" "altgr-intl"
                                       #:options '("ctrl:nocaps")))
     (packages (append %core-minimal
-                      %core-extended
-                      %shell-modern
-                      %version-control
-                      %network-core
-                      %network-diagnostics
-                      %filesystem-core
-                      %filesystem-advanced
-                      %backup-tools
-                      %download-tools
-                      %compression-tools
-                      %fonts-essential
-                      %fonts-international
+            %core-extended
+            %shell-modern
+            %terminal-essentials
+            %text-editors
+            %security-essentials
+                        %version-control
+                                    %compression-tools
+                                          %network-core
+            %network-diagnostics
+            %network-performance
+            ;; File Management
+            %filesystem-core
+            %filesystem-advanced
+            %cloud-sync
+            %backup-tools
+            %file-sharing
+            %download-tools
+                    ;; Fonts
+            %fonts-essential
+            %fonts-programming
+            %fonts-document
+            %fonts-international
                       (operating-system-packages installation-os)))
     (services
      (modify-services (operating-system-user-services installation-os)

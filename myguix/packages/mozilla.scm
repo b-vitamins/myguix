@@ -92,24 +92,25 @@
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-esr-build-id
-  "20250526081800")
+  "20250623125548")
 
 (define-public firefox-esr
   (package
     (name "firefox-esr")
-    (version "128.11.0esr")
+    (version "140.0esr")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "1v7zl6krm2vk3j30fd8zbnazvbqiwg93dgymrznfa3v798vr1vgj"))
+        (base32 "0gz9z6lh2iz0mpfa0cqlz86dpxhn235lhvh4kg5ka9g7i8x2i9x1"))
        (patches (map (lambda (patch)
                        (search-path (map (cut string-append <>
                                               "/myguix/patches") %load-path)
                                     patch))
-                     '("firefox-esr-compare-paths.patch"
+                     '("firefox-restore-desktop-files.patch"
+                       "firefox-ge-138-compare-paths.patch"
                        "firefox-esr-use-system-wide-dir.patch"
                        "firefox-esr-add-store-to-rdd-allowlist.patch")))
        (modules '((guix build utils)))
@@ -487,7 +488,7 @@ StartupWMClass=Firefox"))
                   gtk+
                   gtk+-2
                   hunspell
-                  icu4c
+                  icu4c-76
                   jemalloc
                   libcanberra
                   libevent
@@ -533,7 +534,7 @@ StartupWMClass=Firefox"))
                          pkg-config
                          python
                          rust-firefox-esr
-                         rust-cbindgen-0.26
+                         rust-cbindgen-0.28
                          which
                          yasm))
     (native-search-paths
@@ -598,11 +599,8 @@ Release (ESR) version.")
                                       get-string-all)))
                       (error
                        "substitute did nothing, phase requires an update")))))))))
-    (inputs (modify-inputs (package-inputs firefox-esr)
-              (replace "icu4c" icu4c-76)))
     (native-inputs (modify-inputs (package-native-inputs firefox-esr)
                      (replace "rust" rust-firefox)
-                     (replace "rust-cbindgen" rust-cbindgen-0.28)
                      (replace "rust:cargo"
                               `(,rust-firefox "cargo"))))
     (description
