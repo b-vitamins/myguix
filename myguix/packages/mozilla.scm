@@ -64,6 +64,7 @@
   #:use-module (gnu packages m4)
   #:use-module (gnu packages node)
   #:use-module (gnu packages nss)
+  #:use-module (gnu packages pciutils)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages pulseaudio)
@@ -109,7 +110,8 @@
                                               "/myguix/patches") %load-path)
                                     patch))
                      '("firefox-esr-compare-paths.patch"
-                       "firefox-esr-use-system-wide-dir.patch")))
+                       "firefox-esr-use-system-wide-dir.patch"
+                       "firefox-esr-add-store-to-rdd-allowlist.patch")))
        (modules '((guix build utils)))
        (snippet #~(delete-file-recursively "testing/web-platform"))))
     (build-system gnu-build-system)
@@ -359,6 +361,20 @@
           (replace 'install
             (lambda _
               (invoke "./mach" "install")))
+          (add-after 'install 'wrap-glxtest
+            ;; glxtest uses dlopen() to load mesa and pci
+            ;; libs, wrap it to set LD_LIBRARY_PATH.
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib"))
+                     (libs (map
+                            (lambda (lib-name)
+                              (string-append (assoc-ref inputs
+                                                        lib-name)
+                                             "/lib"))
+                            '("mesa" "pciutils"))))
+                (wrap-program (car (find-files lib "^glxtest$"))
+                  `("LD_LIBRARY_PATH" prefix ,libs)))))
           (add-after 'install 'wrap-program
             (lambda* (#:key inputs outputs #:allow-other-keys)
               ;; The following two functions are from Guix's icecat package in
@@ -388,22 +404,6 @@
                      (pciaccess-lib (string-append (assoc-ref inputs
                                                               "libpciaccess")
                                                    "/lib"))
-                     ;; VA-API is run in the RDD (Remote Data Decoder) sandbox
-                     ;; and must be explicitly given access to files it needs.
-                     ;; Rather than adding the whole store (as Nix had
-                     ;; upstream do, see
-                     ;; <https://github.com/NixOS/nixpkgs/pull/165964> and
-                     ;; linked upstream patches), we can just follow the
-                     ;; runpaths of the needed libraries to add everything to
-                     ;; LD_LIBRARY_PATH.  These will then be accessible in the
-                     ;; RDD sandbox.
-                     ;; TODO: Properly handle the runpath of libraries needed
-                     ;; (for RDD) recursively, so the explicit libpciaccess
-                     ;; can be removed.
-                     (rdd-whitelist (map (cut string-append <> "/")
-                                         (delete-duplicates (append-map
-                                                             runpaths-of-input
-                                                             '("mesa" "ffmpeg")))))
                      (pulseaudio-lib (string-append (assoc-ref inputs
                                                                "pulseaudio")
                                                     "/lib"))
@@ -422,7 +422,6 @@
                      ,pciaccess-lib
                      ,pulseaudio-lib
                      ,eudev-lib
-                     ,@rdd-whitelist
                      ,pipewire-lib))
                   `("XDG_DATA_DIRS" prefix
                     (,gtk-share))
@@ -510,6 +509,7 @@ StartupWMClass=Firefox"))
                   nspr-4.32
                   ;; nss
                   pango
+                  pciutils
                   pipewire
                   pixman
                   pulseaudio
@@ -572,7 +572,8 @@ Release (ESR) version.")
                                     patch))
                      '("firefox-restore-desktop-files.patch"
                        "firefox-ge-138-compare-paths.patch"
-                       "firefox-use-system-wide-dir.patch")))
+                       "firefox-use-system-wide-dir.patch"
+                       "firefox-add-store-to-rdd-allowlist.patch")))
        (modules '((guix build utils)))
        (snippet #~(delete-file-recursively "testing/web-platform"))))
     (arguments
