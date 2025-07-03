@@ -585,20 +585,7 @@ Release (ESR) version.")
               (lambda _
                 (setenv "MOZ_BUILD_DATE"
                         #$%firefox-build-id)))
-            ;; https://bugzilla.mozilla.org/show_bug.cgi?id=1927380
-            (add-before 'configure 'patch-icu-lookup
-              (lambda _
-                (let* ((file "js/moz.configure")
-                       (old-content (call-with-input-file file
-                                      get-string-all)))
-                  (substitute* file
-                    (("icu-i18n >= 76.1" all)
-                     (string-append all ", icu-uc >= 76.1")))
-                  (if (string=? old-content
-                                (pk (call-with-input-file file
-                                      get-string-all)))
-                      (error
-                       "substitute did nothing, phase requires an update")))))))))
+))))
     (native-inputs (modify-inputs (package-native-inputs firefox-esr)
                      (replace "rust" rust-firefox)
                      (replace "rust:cargo"
