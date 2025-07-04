@@ -15,6 +15,8 @@
   #:export (%my-base-home-services xdg-directory-service
                                    %default-xdg-directories
                                    %default-dotguile
+                                   %default-gdbinit
+                                   %default-nanorc
                                    %default-mimeapps
                                    %my-shell-environment-variables
                                    %my-shell-aliases))
@@ -188,6 +190,25 @@
 (activate-readline)
 (activate-colorized)"))
 
+(define-public %default-gdbinit
+  (plain-file "gdbinit" "set history save on
+set history filename ~/.local/state/gdb/history
+set history size 10000
+set history remove-duplicates unlimited"))
+
+(define-public %default-nanorc
+  (plain-file "nanorc" "set positionlog
+set historylog
+set suspendable
+set autoindent
+set tabsize 4
+set linenumbers
+set mouse
+set smarthome
+set softwrap
+set zap
+set stateflags"))
+
 (define-public %default-inputrc
   (plain-file "inputrc" "# See ~/.inputrc"))
 
@@ -232,12 +253,9 @@ image/png=org.gnome.eog.desktop
 image/jpeg=org.gnome.eog.desktop
 image/gif=org.gnome.eog.desktop
 image/webp=org.gnome.eog.desktop
-image/svg+xml=org.gnome.eog.desktop
 video/mp4=mpv.desktop
 video/x-matroska=mpv.desktop
 video/webm=mpv.desktop
-video/avi=mpv.desktop
-video/quicktime=mpv.desktop
 audio/mpeg=audacious.desktop
 audio/flac=audacious.desktop
 audio/ogg=audacious.desktop
@@ -247,24 +265,15 @@ audio/x-m4a=audacious.desktop
 audio/mp4=audacious.desktop
 text/plain=org.gnome.TextEditor.desktop
 text/x-c=org.gnome.TextEditor.desktop
-text/x-c++=org.gnome.TextEditor.desktop
 text/x-python=org.gnome.TextEditor.desktop
 text/x-java=org.gnome.TextEditor.desktop
 text/x-makefile=org.gnome.TextEditor.desktop
 text/x-readme=org.gnome.TextEditor.desktop
 text/x-log=org.gnome.TextEditor.desktop
-text/markdown=org.gnome.TextEditor.desktop
 application/x-shellscript=org.gnome.TextEditor.desktop
 application/xml=org.gnome.TextEditor.desktop
 application/json=org.gnome.TextEditor.desktop
-application/javascript=org.gnome.TextEditor.desktop
-application/x-yaml=org.gnome.TextEditor.desktop
 inode/directory=org.gnome.Nautilus.desktop
-application/x-compressed-tar=org.gnome.FileRoller.desktop
-application/x-tar=org.gnome.FileRoller.desktop
-application/zip=org.gnome.FileRoller.desktop
-application/x-7z-compressed=org.gnome.FileRoller.desktop
-application/x-rar-compressed=org.gnome.FileRoller.desktop
 "))
 
 (define-public %my-base-home-services
@@ -272,15 +281,20 @@ application/x-rar-compressed=org.gnome.FileRoller.desktop
    ;; Shell configuration
    (service home-inputrc-service-type
             (home-inputrc-configuration (key-bindings `(("Control-l" . "clear-screen")
-                                                        ("TAB" . "menu-complete")))
+                                                        ("TAB" . "menu-complete")
+                                                        ("\\e[Z" . "menu-complete-backward"))) ;Shift-Tab
                                         (variables `(("bell-style" . "visible")
                                                      ("editing-mode" . "emacs")
                                                      ("show-all-if-ambiguous" . #t)
+                                                     ("show-all-if-unmodified" . #t)
                                                      ("mark-symlinked-directories" . #t)
                                                      ("visible-stats" . #t)
                                                      ("colored-stats" . #t)
                                                      ("colored-completion-prefix" . #t)
-                                                     ("menu-complete-display-prefix" . #t)))))
+                                                     ("menu-complete-display-prefix" . #t)
+                                                     ("completion-ignore-case" . #t)
+                                                     ("completion-map-case" . #t)
+                                                     ("expand-tilde" . #t)))))
 
    ;; Dotfiles
    (service home-files-service-type
@@ -288,12 +302,13 @@ application/x-rar-compressed=org.gnome.FileRoller.desktop
 
    ;; XDG config files
    (service home-xdg-configuration-files-service-type
-            `(("readline/inputrc" ,%default-inputrc)
+            `(("gdb/gdbinit" ,%default-gdbinit)
+              ("nano/nanorc" ,%default-nanorc)
+              ("readline/inputrc" ,%default-inputrc)
               ("npm/npmrc" ,%default-npmrc)
               ("wget/wgetrc" ,%default-wgetrc)
               ("python/pythonrc" ,%default-pythonrc)
-              ("authinfo/README" ,%default-authinfo-readme)
-              ("mimeapps.list" ,%default-mimeapps)))
+              ("authinfo/README" ,%default-authinfo-readme)))
 
    ;; Create XDG directories
    (xdg-directory-service %default-xdg-directories)
