@@ -5,6 +5,11 @@
   #:use-module (gnu packages gl)
   #:use-module (gnu packages video)
   #:use-module (gnu packages python)
+  #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages python-science)
+  #:use-module (gnu packages python-web)
+  #:use-module (gnu packages python-build)
+  #:use-module (gnu packages gtk)
   #:use-module (gnu packages pkg-config)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system cmake)
@@ -13,10 +18,13 @@
   #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module (guix packages)
+  #:use-module ((guix build-system python)
+                #:select (pypi-uri))
   #:use-module (guix gexp)
   #:use-module (guix modules)
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
+  #:use-module (myguix packages python-pqrs)
   #:use-module (ice-9 match))
 
 (define-public decord
@@ -289,4 +297,63 @@ video decode capabilities of supported Intel GPUs."))))
      "This is an VA-API implementation that uses NVDEC as a backend,
 specifically designed to be used by Firefox for accelerated decoding of web
 content.")
+    (license license:expat)))
+
+(define-public python-manim
+  (package
+    (name "python-manim")
+    (version "0.19.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "manim" version))
+       (sha256
+        (base32 "01a59ydddip5szsw3svl30zdrkhcmvf3wykdzm04k8nyq7zib0bl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f ;Tests require various resources and display
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'remove-skia-pathops-requirement
+                    (lambda _
+                      ;; Remove skia-pathops as it requires complex Skia library
+                      (substitute* "pyproject.toml"
+                        (("\"skia-pathops.*\",")
+                         ""))
+                      ;; Make boolean_ops optional by wrapping the whole module
+                      (substitute* "manim/__init__.py"
+                        (("from \\.mobject\\.geometry\\.boolean_ops import \\*")
+                         "try:
+    from .mobject.geometry.boolean_ops import *
+except ImportError:
+    pass  # boolean_ops requires skia-pathops")))))))
+    (propagated-inputs (list python-av
+                             python-beautifulsoup4
+                             python-click
+                             python-cloup
+                             python-decorator
+                             python-isosurfaces
+                             python-manimpango
+                             python-mapbox-earcut
+                             python-moderngl
+                             python-moderngl-window
+                             python-networkx
+                             python-numpy
+                             python-pillow
+                             python-pycairo
+                             python-pydub
+                             python-pygments
+                             python-rich
+                             python-scipy
+                             python-screeninfo
+                             python-srt
+                             python-svgelements
+                             python-tqdm
+                             python-typing-extensions
+                             python-watchdog))
+    (inputs (list ffmpeg))
+    (native-inputs (list python-poetry-core))
+    (home-page "https://www.manim.community/")
+    (synopsis "Mathematical animation engine")
+    (description
+     "Manim is an animation engine for explanatory math videos. It's used to create precise programmatic animations, designed for creating explanatory math videos.")
     (license license:expat)))
