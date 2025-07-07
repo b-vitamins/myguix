@@ -2469,3 +2469,30 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "Pyrr is a Python library for common 3D mathematical objects and functions.")
     (license license:bsd-2)))
+
+(define-public python-moderngl-window
+  (package
+    (name "python-moderngl-window")
+    (version "3.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "moderngl_window" version))
+       (sha256
+        (base32 "1g61lq9g4p1104rq1sj4pvpds3wig0khnj0x8vrrjwzq0msq5hi9"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require display
+    (propagated-inputs (list python-moderngl
+                             python-numpy
+                             python-pillow
+                             python-pyglet
+                             python-pygame
+                             python-pyglm
+                             python-pyrr))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/moderngl/moderngl-window")
+    (synopsis "A cross platform utility library for ModernGL")
+    (description
+     "moderngl-window is a cross platform utility library for ModernGL providing OS native window creation, resource loading, and other utility features.")
+    (license license:expat)))
