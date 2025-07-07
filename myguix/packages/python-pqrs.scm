@@ -2428,3 +2428,23 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "pyglet is a cross-platform windowing and multimedia library for Python, intended for developing games and other visually rich applications.")
     (license license:bsd-3)))
+
+(define-public python-pyglm
+  (package
+    (name "python-pyglm")
+    (version "2.7.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "PyGLM" version))
+       (sha256
+        (base32 "13rr7d9zvdykis7i166w2lqjk41nqb1xh72hpjp4if92fq16rjsc"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests not included in PyPI
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/Zuzu-Typ/PyGLM")
+    (synopsis "OpenGL Mathematics library for Python")
+    (description
+     "PyGLM is a Python extension written in C++. GLSL + GLM = PyGLM. A mathematics library for graphics programming.")
+    (license license:zlib)))
