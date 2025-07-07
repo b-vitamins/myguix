@@ -2385,3 +2385,25 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "glcontext is a library for creating portable OpenGL contexts.")
     (license license:expat)))
+
+(define-public python-moderngl
+  (package
+    (name "python-moderngl")
+    (version "5.12.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "moderngl" version))
+       (sha256
+        (base32 "16qjwpfblwsqidw4x4izgqg87xhr565m466bwgbf3wmjrjc6m4sj"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require OpenGL context
+    (inputs (list mesa))
+    (propagated-inputs (list python-glcontext))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/moderngl/moderngl")
+    (synopsis "Modern OpenGL binding for Python")
+    (description
+     "ModernGL is a Python wrapper over OpenGL 3.3+ core that simplifies the creation of simple graphics applications like scientific simulations, games or user interfaces.")
+    (license license:expat)))
