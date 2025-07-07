@@ -102,6 +102,11 @@
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages version-control)
+  #:use-module (gnu packages gtk)
+  #:use-module (gnu packages xorg)
+  #:use-module (gnu packages gl)
+  #:use-module (gnu packages video)
+  #:use-module (gnu packages game-development)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages elf)
   #:use-module (guix build-system trivial)
@@ -2359,3 +2364,24 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (synopsis "Python bindings to PDFium")
     (description "Python bindings to PDFium, a PDF rendering library.")
     (license license:bsd-3)))
+
+(define-public python-glcontext
+  (package
+    (name "python-glcontext")
+    (version "3.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "glcontext" version))
+       (sha256
+        (base32 "1vqij9251anhi6rasgfdl7xr3475yzvfs663f06zrwldsgf8w5jp"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests
+    (inputs (list mesa libx11))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/moderngl/glcontext")
+    (synopsis "Portable OpenGL Context")
+    (description
+     "glcontext is a library for creating portable OpenGL contexts.")
+    (license license:expat)))
