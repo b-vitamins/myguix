@@ -2496,3 +2496,24 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "moderngl-window is a cross platform utility library for ModernGL providing OS native window creation, resource loading, and other utility features.")
     (license license:expat)))
+
+(define-public python-mapbox-earcut
+  (package
+    (name "python-mapbox-earcut")
+    (version "1.0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mapbox_earcut" version))
+       (sha256
+        (base32 "0lkxxs898hwzchhnilxikb7alxqcqfyi35mz3h530gy2pil09yl3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests in PyPI
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-setuptools python-wheel python-pybind11))
+    (home-page "https://github.com/skogler/mapbox_earcut_python")
+    (synopsis "Python bindings for Mapbox Earcut library")
+    (description
+     "Python bindings for the Mapbox Earcut polygon triangulation library.")
+    (license license:isc)))
