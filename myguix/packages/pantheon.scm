@@ -49,6 +49,54 @@
   #:use-module (guix packages)
   #:use-module (guix utils))
 
+;; TODO: Missing Pantheon Desktop Shell Components (Critical)
+;; - gala (window manager/compositor)
+;; - wingpanel (top panel)
+;; - plank (dock)
+;; - pantheon-applications-menu (app launcher)
+;; - pantheon-settings-daemon (settings daemon)
+;; - pantheon-system-settings/switchboard (settings app)
+;; - pantheon-session (session manager)
+;; - pantheon-desktop (desktop files/settings)
+;;
+;; TODO: Missing Wingpanel Indicators (Essential for panel functionality)
+;; - wingpanel-indicator-datetime
+;; - wingpanel-indicator-session
+;; - wingpanel-indicator-power
+;; - wingpanel-indicator-sound
+;; - wingpanel-indicator-network
+;; - wingpanel-indicator-notifications
+;; - wingpanel-indicator-keyboard
+;;
+;; TODO: Missing Switchboard Plugs (Settings modules)
+;; - switchboard-plug-display
+;; - switchboard-plug-keyboard
+;; - switchboard-plug-mouse-touchpad
+;; - switchboard-plug-power
+;; - switchboard-plug-sound
+;; - switchboard-plug-network
+;; - switchboard-plug-desktop
+;; - switchboard-plug-user-accounts
+;; - switchboard-plug-datetime
+;; - switchboard-plug-about
+;; - switchboard-plug-pantheon-shell
+;;
+;; TODO: Missing Elementary OS Applications
+;; - pantheon-code (code editor)
+;; - pantheon-files (file manager)
+;; - pantheon-mail (email client)
+;; - pantheon-music (music player)
+;; - pantheon-videos (video player)
+;; - pantheon-camera (camera app)
+;; - pantheon-tasks (task manager)
+;; - elementary-appcenter (app store)
+;;
+;; TODO: Missing Pantheon Platform Components
+;; - contractor (service for context actions)
+;; - pantheon-agent-polkit (authentication dialogs)
+;; - capnet-assist (captive portal assistant)
+;; - pantheon-flatpak-platform (Flatpak runtime/SDK)
+
 (define-public granite
   (package
     (name "granite")
