@@ -2517,3 +2517,23 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "Python bindings for the Mapbox Earcut polygon triangulation library.")
     (license license:isc)))
+
+(define-public python-screeninfo
+  (package
+    (name "python-screeninfo")
+    (version "0.8.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "screeninfo" version))
+       (sha256
+        (base32 "1l9frlckb9zbwx5kngxv5byi353jyfmpskcy38m40d3yrimhg0wr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require display
+    (native-inputs (list python-poetry-core))
+    (home-page "https://github.com/rr-/screeninfo")
+    (synopsis "Fetch location and size of physical screens")
+    (description
+     "screeninfo is a Python library for programmatically obtaining information about the physical screens connected to the system.")
+    (license license:expat)))
