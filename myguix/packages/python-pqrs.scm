@@ -2448,3 +2448,24 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "PyGLM is a Python extension written in C++. GLSL + GLM = PyGLM. A mathematics library for graphics programming.")
     (license license:zlib)))
+
+(define-public python-pyrr
+  (package
+    (name "python-pyrr")
+    (version "0.10.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyrr" version))
+       (sha256
+        (base32 "07byxkq8dcc8n6fc2q7g3vq3mxzzj0hqzm8hlq3gfwbf68h7n3rw"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require multipledispatch
+    (propagated-inputs (list python-numpy python-multipledispatch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/adamlwgriffiths/Pyrr")
+    (synopsis "3D mathematical functions using NumPy")
+    (description
+     "Pyrr is a Python library for common 3D mathematical objects and functions.")
+    (license license:bsd-2)))
