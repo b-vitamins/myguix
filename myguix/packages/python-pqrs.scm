@@ -2407,3 +2407,24 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "ModernGL is a Python wrapper over OpenGL 3.3+ core that simplifies the creation of simple graphics applications like scientific simulations, games or user interfaces.")
     (license license:expat)))
+
+(define-public python-pyglet
+  (package
+    (name "python-pyglet")
+    (version "2.0.20")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyglet" version))
+       (sha256
+        (base32 "1dyc9837lr2pkg28l2ay8yrz2a9b45wxbvfj0iwl9dn13wmsabkh"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require display
+    (inputs (list mesa ffmpeg))
+    (native-inputs (list python-flit-core))
+    (home-page "https://pyglet.org/")
+    (synopsis "Cross-platform windowing and multimedia library")
+    (description
+     "pyglet is a cross-platform windowing and multimedia library for Python, intended for developing games and other visually rich applications.")
+    (license license:bsd-3)))
