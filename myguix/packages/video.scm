@@ -88,8 +88,16 @@
 
 (define-public ffmpeg-cuda
   (package
-    (inherit ffmpeg-7)
+    (inherit ffmpeg)
     (name "ffmpeg-cuda")
+    (version "6.1.2")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append "https://ffmpeg.org/releases/ffmpeg-"
+                                  version ".tar.xz"))
+              (sha256
+               (base32
+                "0f2fr8ywchhlkdff88lr4d4vscqzsi1ndjh3r5jwbkayf94lcqiv"))))
     (arguments
      (substitute-keyword-arguments (package-arguments ffmpeg)
        ((#:configure-flags flags)
