@@ -7790,7 +7790,7 @@ characters using Unicode emoji modifier bases.")
 (define-public node-anthropic-ai-claude-code
   (package
     (name "node-anthropic-ai-claude-code")
-    (version "1.0.44")
+    (version "1.0.48")
     (source
      (origin
        (method url-fetch)
@@ -7798,7 +7798,7 @@ characters using Unicode emoji modifier bases.")
              "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-"
              version ".tgz"))
        (sha256
-        (base32 "0wchfqag6niwr6nq324nljd7jzc7bpwi5jy983y4fxphz87aqxii"))))
+        (base32 "1wxmvv7mvylz26b8gh8an1dxdziav5r3gk3rvrjinlvgrgwx4r90"))))
     (build-system node-build-system)
     (arguments
      (list
