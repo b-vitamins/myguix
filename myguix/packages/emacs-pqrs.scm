@@ -772,3 +772,30 @@ parser.")
      "clojure-ts-mode is an Emacs major mode that provides font-lock (syntax
 highlighting), indentation, and navigation support for the Clojure(Script)
 programming language, powered by the tree-sitter-clojure tree-sitter grammar.")))
+
+(define-public emacs-latex-templates
+  (package
+    (name "emacs-latex-templates")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/latex-templates")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0j7ay4r0r150xfppkdlw66nigdw8cgrxa7n67r22lc8bbaz42p6r"))))
+    (build-system emacs-build-system)
+    (arguments
+     `(#:include '("\\.el$" "\\.eld$")))
+    (propagated-inputs (list emacs-tempel emacs-hydra))
+    (home-page "https://github.com/b-vitamins/latex-templates")
+    (synopsis "Fast LaTeX input using tempel")
+    (description
+     "Type LaTeX math fast. Really fast. This package provides a comprehensive
+set of templates for rapid LaTeX math input using the tempel template system.
+It includes templates for Greek letters, fractions, integrals, mathematical
+operators, relations, symbols, environments, and more. The templates work in
+both LaTeX and Org modes and support context-aware expansions.")
+    (license license:gpl3+)))
