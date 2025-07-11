@@ -2600,3 +2600,27 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "Hatchling plugin to read project dependencies from requirements.txt.")
     (license license:expat)))
+
+(define-public python-gradio-client
+  (package
+    (name "python-gradio-client")
+    (version "1.10.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gradio_client" version))
+       (sha256
+        (base32 "1c61pknk5q81daaynyggzyv8pm73g195b26fsfgqv6w5bxhzzl2x"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require network
+    (propagated-inputs (list python-httpx python-huggingface-hub
+                             python-packaging python-typing-extensions
+                             python-websockets))
+    (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
+                         python-hatch-requirements-txt))
+    (home-page "https://github.com/gradio-app/gradio")
+    (synopsis "Python client for Gradio")
+    (description
+     "Python library for interacting with Gradio apps as a client.")
+    (license license:asl2.0)))
