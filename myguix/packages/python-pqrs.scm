@@ -2537,3 +2537,23 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "screeninfo is a Python library for programmatically obtaining information about the physical screens connected to the system.")
     (license license:expat)))
+
+(define-public python-groovy
+  (package
+    (name "python-groovy")
+    (version "0.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "groovy" version))
+       (sha256
+        (base32 "0mh9ws7yihr59vf34p3wmg9jxwnd1d0ply3xcnw9g6zq4m0pslqz"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests included
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/Abrynos/Groovy.py")
+    (synopsis "Python implementation of Groovy")
+    (description
+     "A simple implementation of the Groovy programming language in Python.")
+    (license license:expat)))
