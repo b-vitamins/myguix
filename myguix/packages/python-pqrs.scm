@@ -2624,3 +2624,59 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "Python library for interacting with Gradio apps as a client.")
     (license license:asl2.0)))
+
+(define-public python-gradio
+  (package
+    (name "python-gradio")
+    (version "5.36.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gradio" version))
+       (sha256
+        (base32 "0y30mc9lva7m04cmsppv8cb3msv5w5axg57kf3rcnp83msyrs3i9"))
+       (modules '((guix build utils)))
+       (snippet '(begin
+                   ;; Remove examples with syntax errors
+                   (when (file-exists? "gradio/_frontend_code/lite/examples")
+                     (delete-file-recursively
+                      "gradio/_frontend_code/lite/examples"))
+                   (when (file-exists? "js/lite/examples")
+                     (delete-file-recursively "js/lite/examples")) #t))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require network access
+    (propagated-inputs (list python-aiofiles
+                             python-anyio
+                             python-brotli
+                             python-fastapi
+                             python-ffmpy
+                             python-groovy
+                             python-gradio-client
+                             python-httpx
+                             python-huggingface-hub
+                             python-jinja2
+                             python-markupsafe
+                             python-numpy
+                             python-orjson
+                             python-packaging
+                             python-pandas
+                             python-pillow
+                             python-pydantic
+                             python-multipart
+                             python-pydub
+                             python-pyyaml
+                             python-safehttpx
+                             python-semantic-version
+                             python-starlette
+                             python-tomlkit
+                             python-typer
+                             python-typing-extensions
+                             python-uvicorn))
+    (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
+                         python-hatch-requirements-txt))
+    (home-page "https://www.gradio.app")
+    (synopsis "Build machine learning web apps in Python")
+    (description
+     "Gradio is a Python library for creating customizable web interfaces for machine learning models.")
+    (license license:asl2.0)))
