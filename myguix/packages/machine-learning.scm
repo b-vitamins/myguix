@@ -3042,3 +3042,26 @@ setup(
 This is a minimal pure-Python build without C++ extensions.")
     (license license:bsd-2)))
 
+(define-public python-ema-pytorch
+  (package
+    (name "python-ema-pytorch")
+    (version "0.7.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ema_pytorch" version))
+       (sha256
+        (base32 "1mwsqrsx6j83ycavvh6216mzq5d4mlanyg95bbwh0g7074s0xkpc"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests included
+    (propagated-inputs (list python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/lucidrains/ema-pytorch")
+    (synopsis
+     "Easy way to keep track of exponential moving average version of your pytorch module")
+    (description
+     "Easy way to keep track of exponential moving average version of your pytorch
+module.")
+    (license license:expat)))
+
