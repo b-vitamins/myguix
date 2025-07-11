@@ -2557,3 +2557,24 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "A simple implementation of the Groovy programming language in Python.")
     (license license:expat)))
+
+(define-public python-safehttpx
+  (package
+    (name "python-safehttpx")
+    (version "0.1.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "safehttpx" version))
+       (sha256
+        (base32 "0hnfxdb28kvwx5gkpym53bzhmmmymfz2sjmrjp1j8fpf5k4bymmk"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests in PyPI
+    (propagated-inputs (list python-httpx))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/zyddnys/safehttpx")
+    (synopsis "Safe wrapper around httpx")
+    (description
+     "A wrapper around httpx that enforces timeouts and provides safe defaults.")
+    (license license:expat)))
