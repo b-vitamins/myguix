@@ -2984,3 +2984,61 @@ files for use in Python.  It supports reading and writing various Kaldi data
 types including matrices, vectors, and posterior probabilities.")
     (license license:asl2.0)))
 
+(define-public python-torchaudio
+  (package
+    (name "python-torchaudio")
+    (version "2.7.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pytorch/audio")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1z5gwwff76n3biwbawj80dvycz8lvc6w9naj0gz4wb137mbci5gz"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:tests? #f  ;Tests require additional dependencies
+       #:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'patch-for-pure-python
+           (lambda _
+             ;; Create minimal version file
+             (call-with-output-file "version.txt"
+               (lambda (port)
+                 (display "2.7.0\n" port)))
+             ;; Create a minimal setup.py that only installs Python code
+             (call-with-output-file "setup.py"
+               (lambda (port)
+                 (display "from setuptools import setup, find_packages
+import os
+
+version = '2.7.0'
+
+setup(
+    name='torchaudio',
+    version=version,
+    description='Audio library for PyTorch',
+    url='https://pytorch.org/audio',
+    author='PyTorch Core Team',
+    author_email='soumith@pytorch.org',
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
+    python_requires='>=3.8',
+    install_requires=['torch'],
+    license='BSD',
+)
+" port))))))))
+    (propagated-inputs
+     (list python-pytorch))
+    (native-inputs
+     (list python-setuptools
+           python-wheel))
+    (home-page "https://pytorch.org/audio")
+    (synopsis "Audio library for PyTorch")
+    (description
+     "TorchAudio is a library for audio and signal processing with PyTorch.
+This is a minimal pure-Python build without C++ extensions.")
+    (license license:bsd-2)))
+
