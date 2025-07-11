@@ -3065,3 +3065,24 @@ This is a minimal pure-Python build without C++ extensions.")
 module.")
     (license license:expat)))
 
+(define-public python-pycocotools
+  (package
+    (name "python-pycocotools")
+    (version "2.0.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pycocotools" version))
+       (sha256
+        (base32 "1qg2xkww0fqyc2dsjyrcshanxw0wls9psg1ia7hyb5gwvsf60ivs"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require COCO dataset
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-cython python-numpy python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/ppwwyyxx/cocoapi")
+    (synopsis "Official APIs for the MS-COCO dataset")
+    (description "Official APIs for the MS-COCO dataset.")
+    (license license:bsd-2)))
+
