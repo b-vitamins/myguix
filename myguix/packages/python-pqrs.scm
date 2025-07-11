@@ -2578,3 +2578,25 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "A wrapper around httpx that enforces timeouts and provides safe defaults.")
     (license license:expat)))
+
+(define-public python-hatch-requirements-txt
+  (package
+    (name "python-hatch-requirements-txt")
+    (version "0.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hatch_requirements_txt" version))
+       (sha256
+        (base32 "083xakilrmy0ymh34s9wm8x8s7s8vn7ij33xz9avn1gxb1bnws1c"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests in PyPI
+    (propagated-inputs (list python-hatchling python-packaging))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/repo-helper/hatch-requirements-txt")
+    (synopsis
+     "Hatchling plugin to read project dependencies from requirements.txt")
+    (description
+     "Hatchling plugin to read project dependencies from requirements.txt.")
+    (license license:expat)))
