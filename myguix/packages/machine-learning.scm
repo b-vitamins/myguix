@@ -2961,3 +2961,26 @@ datasets and models, and collaborate with your team.")
      "XFormers: A collection of composable Transformer building blocks.")
     (license license:bsd-3)))
 
+(define-public python-kaldi-io
+  (package
+    (name "python-kaldi-io")
+    (version "0.9.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "kaldi_io" version))
+       (sha256
+        (base32 "1kanbffd6clxf6dwx04lv8gkppps9sdssg9f8csvj8zxlwpjq0q5"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests included
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/vesis84/kaldi-io-for-python")
+    (synopsis "Glue code connecting Kaldi data and Python")
+    (description
+     "This package provides I/O functions for reading and writing Kaldi ark/scp
+files for use in Python.  It supports reading and writing various Kaldi data
+types including matrices, vectors, and posterior probabilities.")
+    (license license:asl2.0)))
+
