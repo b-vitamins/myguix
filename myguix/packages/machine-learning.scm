@@ -2938,3 +2938,26 @@ datasets and models, and collaborate with your team.")
                                     python-torchvision-cuda)
                            (replace "python-torchmetrics"
                                     python-torchmetrics-cuda))))))
+
+(define-public python-xformers
+  (package
+    (name "python-xformers")
+    (version "0.0.31.post1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "xformers" version))
+       (sha256
+        (base32 "018m62gccrry9kggbyw5vz64n1hqicjp6fjlprpxbb8al0qj1886"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require CUDA device
+    (propagated-inputs (list python-numpy python-pytorch-cuda))
+    (native-inputs (list python-setuptools python-pytorch-cuda python-wheel))
+    (home-page "https://facebookresearch.github.io/xformers/")
+    (synopsis
+     "XFormers: A collection of composable Transformer building blocks.")
+    (description
+     "XFormers: A collection of composable Transformer building blocks.")
+    (license license:bsd-3)))
+
