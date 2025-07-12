@@ -114,7 +114,8 @@ requests in parallel. Set this to the number of CPU cores for
 optimal performance, but be aware that each worker loads the model
 into memory.")
 
-                                       (cache-dir (string "~/.cache/nougat")
+                                       (cache-dir (string
+                                                   "${XDG_CACHE_HOME:-$HOME/.cache}/nougat")
                                         "Directory for caching downloaded models and temporary files.
 The models are large (1GB+) so ensure sufficient disk space.
 The directory will be created automatically if it doesn't exist.")
@@ -183,27 +184,53 @@ Each option should be a string. For example:
                                                                                "HOME")
                                                                               "/.local/var/log"))
                                                                             "/nougat-api.log")
-                                                                #:environment-variables
-                                                                (list (string-append
-                                                                       "NOUGAT_CACHE_DIR="
-                                                                       #$cache-dir)
-                                                                      (string-append
-                                                                       "NOUGAT_CHECKPOINT="
-                                                                       #$model)
-                                                                      (string-append
-                                                                       "NOUGAT_BATCHSIZE="
-                                                                       #$(number->string
-                                                                          batch-size))
-                                                                      (string-append
-                                                                       "PYTHONPATH="
-                                                                       #$(file-append
-                                                                          package
-                                                                          "/lib/python3.11/site-packages"))
-                                                                      (string-append
-                                                                       "LD_LIBRARY_PATH="
-                                                                       (or (getenv
-                                                                            "LIBRARY_PATH")
-                                                                           "")))))
+                                                                #:environment-variables (let 
+                                                                                             (
+                                                                                              (xdg-cache
+                                                                                               (or
+                                                                                                (getenv
+                                                                                                 "XDG_CACHE_HOME")
+                                                                                                
+                                                                                                (string-append
+                                                                                                 (getenv
+                                                                                                  "HOME")
+                                                                                                 "/.cache"))))
+                                                                                          
+                                                                                          (list
+                                                                                           (string-append
+                                                                                            "HOME="
+                                                                                            xdg-cache
+                                                                                            "/nougat/models")
+                                                                                           
+                                                                                           (string-append
+                                                                                            "NOUGAT_CACHE_DIR="
+                                                                                            xdg-cache
+                                                                                            "/nougat")
+                                                                                           
+                                                                                           (string-append
+                                                                                            "NOUGAT_CHECKPOINT="
+                                                                                            #$model)
+                                                                                           
+                                                                                           (string-append
+                                                                                            "NOUGAT_BATCHSIZE="
+                                                                                            #$
+                                                                                            (number->string
+                                                                                             batch-size))
+                                                                                           
+                                                                                           (string-append
+                                                                                            "PYTHONPATH="
+                                                                                            #$
+                                                                                            (file-append
+                                                                                             package
+                                                                                             "/lib/python3.11/site-packages"))
+                                                                                           
+                                                                                           (string-append
+                                                                                            "LD_LIBRARY_PATH="
+                                                                                            
+                                                                                            (or
+                                                                                             (getenv
+                                                                                              "LIBRARY_PATH")
+                                                                                             ""))))))
                             (stop #~(make-kill-destructor))
                             (actions (list (shepherd-action (name 'status-api)
                                                             (documentation
@@ -327,7 +354,8 @@ expressions and document structure.")
                              (batch-size 1)
                              (workers 1)
                              (log-level "INFO")
-                             (cache-dir "~/.cache/nougat")
+                             (cache-dir
+                              "${XDG_CACHE_HOME:-$HOME/.cache}/nougat")
                              (extra-options '()))
   "Return a nougat API service with the specified configuration.
 
