@@ -16993,7 +16993,13 @@ interface for string, file, and @code{TokenStream} input.")
        (uri (crate-uri "mime_guess2" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "1jphmmvrl93bj05wdmjvx20hp2fmlgchjwd0lz0dwh71l8adq1hp"))))
+        (base32 "1jphmmvrl93bj05wdmjvx20hp2fmlgchjwd0lz0dwh71l8adq1hp"))
+       (snippet #~(begin
+                    (use-modules (guix build utils))
+                    (substitute* "Cargo.toml"
+                      (("edition = \"2024\"")
+                       "edition = \"2021\"")) #t))
+       (modules '((guix build utils)))))
     (build-system cargo-build-system)
     (arguments
      `(#:skip-build? #t
@@ -19133,8 +19139,7 @@ finite automata and guarantees linear time matching on all inputs.")
         (base32 "0j1f17nlc7qh3wbr2az7qmki7kr55mgd9ivg7pk7yjdk2y1rclss"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:skip-build? #t ;Dependencies require Rust edition 2024
-       #:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
+     `(#:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
                        ("rust-arrow-buffer" ,rust-arrow-buffer-52)
                        ("rust-candle-core" ,rust-candle-core-0.3)
                        ("rust-fast-image-resize" ,rust-fast-image-resize-3)
