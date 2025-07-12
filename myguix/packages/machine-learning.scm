@@ -11,6 +11,9 @@
   #:use-module (gnu packages check)
   #:use-module ((gnu packages compression)
                 #:hide (miniz-for-pytorch))
+  #:use-module (gnu packages crates-io)
+  #:use-module (gnu packages crates-graphics)
+  #:use-module (gnu packages crates-check)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages docker)
   #:use-module (gnu packages documentation)
@@ -2999,19 +3002,19 @@ types including matrices, vectors, and posterior probabilities.")
         (base32 "1z5gwwff76n3biwbawj80dvycz8lvc6w9naj0gz4wb137mbci5gz"))))
     (build-system python-build-system)
     (arguments
-     '(#:tests? #f  ;Tests require additional dependencies
-       #:phases
-       (modify-phases %standard-phases
-         (add-after 'unpack 'patch-for-pure-python
-           (lambda _
-             ;; Create minimal version file
-             (call-with-output-file "version.txt"
-               (lambda (port)
-                 (display "2.7.0\n" port)))
-             ;; Create a minimal setup.py that only installs Python code
-             (call-with-output-file "setup.py"
-               (lambda (port)
-                 (display "from setuptools import setup, find_packages
+     '(#:tests? #f ;Tests require additional dependencies
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'patch-for-pure-python
+                    (lambda _
+                      ;; Create minimal version file
+                      (call-with-output-file "version.txt"
+                        (lambda (port)
+                          (display "2.7.0\n" port)))
+                      ;; Create a minimal setup.py that only installs Python code
+                      (call-with-output-file "setup.py"
+                        (lambda (port)
+                          (display
+                           "from setuptools import setup, find_packages
 import os
 
 version = '2.7.0'
@@ -3030,11 +3033,8 @@ setup(
     license='BSD',
 )
 " port))))))))
-    (propagated-inputs
-     (list python-pytorch))
-    (native-inputs
-     (list python-setuptools
-           python-wheel))
+    (propagated-inputs (list python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://pytorch.org/audio")
     (synopsis "Audio library for PyTorch")
     (description
@@ -3086,3 +3086,164 @@ module.")
     (description "Official APIs for the MS-COCO dataset.")
     (license license:bsd-2)))
 
+(define-public libjpeg-turbo-3
+  (package
+    (inherit libjpeg-turbo)
+    (name "libjpeg-turbo")
+    (version "3.0.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://github.com/libjpeg-turbo/libjpeg-turbo"
+                           "/releases/download/"
+                           version
+                           "/libjpeg-turbo-"
+                           version
+                           ".tar.gz"))
+       (sha256
+        (base32 "0sxpsp4pi5jcnbf3f1aap3ajhn1cj7psw3icbxlqsbnnwxcha4wr"))))))
+
+(define-public python-kornia
+  (package
+    (name "python-kornia")
+    (version "0.1.9")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/kornia/kornia-rs")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1rjkn3dmshxv56yw9f0nqn046zcmwwszvq2vm292mivz4wipb1yh"))
+       (modules '((guix build utils)))
+       (snippet '(begin
+                   (substitute* "Cargo.toml"
+                     ;; Remove all example-related workspace members
+                     ((".*\"examples/.*\".*\n")
+                      "")
+                     ;; Add kornia-py to workspace members
+                     (("members = \\[")
+                      "members = [\n    \"kornia-py\",")
+                     ;; Remove kornia-py from exclude list
+                     (("exclude = \\[\"kornia-py\", \"examples/dora\"\\]")
+                      "exclude = [\"examples/dora\"]"))
+                   (delete-file-recursively "examples")))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'install)
+          (add-after 'unpack 'patch-kornia-py-deps
+            (lambda _
+              (substitute* "kornia-py/Cargo.toml"
+                (("pyo3 = \\{ version = \"0.24.0\"")
+                 "pyo3 = { version = \"0.23.0\"")
+                (("numpy = \\{ version = \"0.24.0\" \\}")
+                 "numpy = { version = \"0.23.0\" }"))))
+          (add-before 'build 'configure-build-environment
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; Set compiler paths correctly so cmake doesn't look in gcc:lib
+              (setenv "CC"
+                      (which "gcc"))
+              (setenv "CXX"
+                      (which "g++"))
+              ;; Use dynamic linking with system turbojpeg
+              (setenv "TURBOJPEG_DYNAMIC" "1")
+              ;; Configure pkg-config to find system library
+              (setenv "PKG_CONFIG_PATH"
+                      (string-append (assoc-ref inputs "libjpeg-turbo")
+                                     "/lib/pkgconfig:"
+                                     (or (getenv "PKG_CONFIG_PATH") "")))))
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-before 'build-python-module 'chdir
+            (lambda* _
+              (chdir "kornia-py")))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases
+                       'install))
+          (add-after 'install-python-module 'set-rpath
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site-packages (string-append out
+                                     "/lib/python3.11/site-packages"))
+                     (kornia-so (car (find-files site-packages
+                                                 "kornia_rs.*\\.so$"))))
+                (define runpaths
+                  (string-join (list (string-append (assoc-ref inputs
+                                                     "libjpeg-turbo") "/lib")
+                                     (string-append (assoc-ref inputs "gcc")
+                                                    "/lib")
+                                     (string-append (assoc-ref inputs "libc")
+                                                    "/lib")) ":"))
+                (make-file-writable kornia-so)
+                (format #t "Setting RPATH on '~a'...~%" kornia-so)
+                (invoke "patchelf" "--set-rpath" runpaths "--force-rpath"
+                        kornia-so))))
+          (replace 'validate-runpath
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              ;; Manually validate runpath since we set it ourselves
+              #t)))
+      #:cargo-inputs `(("rust-anyhow" ,rust-anyhow-1)
+                       ("rust-arrow-buffer" ,rust-arrow-buffer-52)
+                       ("rust-bincode" ,rust-bincode-2)
+                       ("rust-candle-core" ,rust-candle-core-0.3)
+                       ("rust-circular-buffer" ,rust-circular-buffer-1)
+                       ("rust-faer" ,rust-faer-0.20)
+                       ("rust-fast-image-resize" ,rust-fast-image-resize-5)
+                       ("rust-glam" ,rust-glam-0.30)
+                       ("rust-gstreamer" ,rust-gstreamer-0.23)
+                       ("rust-gstreamer-app" ,rust-gstreamer-app-0.23)
+                       ("rust-image" ,rust-image-0.25)
+                       ("rust-jpeg-encoder" ,rust-jpeg-encoder-0.6)
+                       ("rust-kiddo" ,rust-kiddo-5)
+                       ("rust-memmap2" ,rust-memmap2-0.9)
+                       ("rust-ndarray" ,rust-ndarray-0.15)
+                       ("rust-num-traits" ,rust-num-traits-0.2)
+                       ("rust-numpy" ,rust-numpy-0.23)
+                       ("rust-pyo3" ,rust-pyo3-0.23)
+                       ("rust-serde" ,rust-serde-1)
+                       ("rust-thiserror" ,rust-thiserror-1)
+                       ("rust-tokio" ,rust-tokio-1)
+                       ("rust-turbojpeg" ,rust-turbojpeg-1))
+      #:cargo-development-inputs `(("rust-clap" ,rust-clap-4)
+                                   ("rust-criterion" ,rust-criterion-0.5)
+                                   ("rust-indicatif" ,rust-indicatif-0.17)
+                                   ("rust-imageproc" ,rust-imageproc-0.25)
+                                   ("rust-rand" ,rust-rand-0.9)
+                                   ("rust-rayon" ,rust-rayon-1)
+                                   ("rust-rerun" ,rust-rerun-0.16)
+                                   ("rust-tempfile" ,rust-tempfile-3)
+                                   ("rust-walkdir" ,rust-walkdir-2))
+      #:install-source? #f))
+    (inputs (list maturin libjpeg-turbo-3 gcc glibc))
+    (native-inputs (list python-wrapper cmake pkg-config nasm patchelf))
+    (home-page "https://kornia.github.io/")
+    (synopsis "Open Source Differentiable Computer Vision Library for PyTorch")
+    (description
+     "Kornia is a differentiable computer vision library for PyTorch.
+It provides a set of routines and differentiable modules to solve
+generic computer vision problems including image transformations,
+filtering, morphology, feature detection, and geometric computer vision.
+Note: This build excludes kornia-rs (Rust extensions) which limits some
+functionality.")
+    (license license:asl2.0)))
+
+;; TODO: Lab-level R&D essential packages to add:
+;; - python-hydra-core: Configuration management for experiments
+;; - python-pytorch3d: 3D deep learning with differentiable rendering
+;; - python-detectron2: Facebook's detection/segmentation platform
+;; - python-monai: Medical imaging deep learning framework
+;; - python-imgaug: Advanced image augmentation library
+;; - python-webdataset: Efficient dataset format for large-scale training
+;; - python-pytorch-ignite: High-level training abstractions
+;; - python-fiftyone: Dataset visualization and debugging tool
+;; - python-dvc: Data version control for ML
