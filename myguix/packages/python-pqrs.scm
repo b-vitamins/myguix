@@ -2697,3 +2697,23 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (synopsis "Type Hints for Python")
     (description "Type Hints for Python.")
     (license license:psfl)))
+
+(define-public python-antlr4-python3-runtime
+  (package
+    (name "python-antlr4-python3-runtime")
+    (version "4.13.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "antlr4_python3_runtime" version))
+       (sha256
+        (base32 "05irxwjkzkcnd9jwr37rhnf92f1yjgrnsn5ch00vghig3mz696wh"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No test suite
+    (propagated-inputs (list python-typing))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://www.antlr.org/")
+    (synopsis "ANTLR 4.13.2 runtime for Python 3")
+    (description "ANTLR 4.13.2 runtime for Python 3.")
+    (license license:bsd-3)))
