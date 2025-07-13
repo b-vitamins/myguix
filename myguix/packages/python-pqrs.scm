@@ -2680,3 +2680,20 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "Gradio is a Python library for creating customizable web interfaces for machine learning models.")
     (license license:asl2.0)))
+
+(define-public python-typing
+  (package
+    (name "python-typing")
+    (version "3.10.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "typing" version))
+       (sha256
+        (base32 "0c5il4d68fd4qrm5k3dps70j0xz0n5krj6lhwn9vzpal3whsvd0k"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://docs.python.org/3/library/typing.html")
+    (synopsis "Type Hints for Python")
+    (description "Type Hints for Python.")
+    (license license:psfl)))
