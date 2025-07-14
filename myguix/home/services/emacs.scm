@@ -114,8 +114,6 @@
         emacs-kotlin-mode
         emacs-kind-icon
         emacs-langtool
-        emacs-latex-snippets
-        emacs-latex-templates
         emacs-lispy
         emacs-lua-mode
         emacs-llm
