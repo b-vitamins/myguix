@@ -1396,8 +1396,9 @@ documented in the respective processor revision guides.")
                             (list "sof-ipc4" "lib/firmware/intel/sof-ipc4")
                             (list "sof-ipc4-tplg"
                                   "lib/firmware/intel/sof-ipc4-tplg")
-                            ("sof-tplg" "lib/firmware/intel/sof-tplg")
-                            ("sof-ipc4-lib" "lib/firmware/intel/sof-ipc4-lib"))))
+                            (list "sof-tplg" "lib/firmware/intel/sof-tplg")
+                            (list "sof-ipc4-lib"
+                                  "lib/firmware/intel/sof-ipc4-lib"))))
     (home-page "https://www.sofproject.org")
     (synopsis "Sound Open Firmware")
     (description
