@@ -15,6 +15,6 @@
   (append-map (lambda (system)
                 (list (image->job store
                                   (image-with-os iso9660-image
-                                                 installation-os-nonfree)
+                                                 my-installation-os)
                                   #:name "nonfree-iso9660-image"
                                   #:system system))) systems))
