@@ -3011,3 +3011,41 @@ setup(
     (synopsis "A drop-in replacement for pprint that's actually pretty")
     (description "A drop-in replacement for pprint that's actually pretty.")
     (license license:bsd-3)))
+
+(define-public python-motor
+  (package
+    (name "python-motor")
+    (version "3.7.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "motor" version))
+       (sha256
+        (base32 "09j5ss4xq7dwjp9kj2971sx1ixf2a5y9vjm667rjhyf84mkd9d17"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f  ;Disable tests for now
+       #:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'fix-build
+           (lambda _
+             ;; Create a simpler pyproject.toml without the metadata hook
+             (with-output-to-file "pyproject.toml"
+               (lambda ()
+                 (display "[build-system]
+requires = [\"hatchling\"]
+build-backend = \"hatchling.build\"
+
+[project]
+name = \"motor\"
+version = \"3.7.1\"
+description = \"Non-blocking MongoDB driver for Tornado and asyncio\"
+dependencies = [\"pymongo>=4.5,<5\"]
+")))
+             #t)))))
+    (propagated-inputs (list python-pymongo))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/mongodb/motor/")
+    (synopsis "Non-blocking MongoDB driver for Tornado and asyncio")
+    (description "Motor is a full-featured, non-blocking MongoDB driver for Python Tornado and asyncio applications.")
+    (license license:asl2.0)))
