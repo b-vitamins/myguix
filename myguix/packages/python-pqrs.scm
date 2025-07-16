@@ -2843,3 +2843,20 @@ build-backend = \"poetry.core.masonry.api\"
     (description
      "This package provides a library for creating @code{GraphQL} APIs.")
     (license license:expat)))
+
+(define-public python-sseclient-py
+  (package
+    (name "python-sseclient-py")
+    (version "1.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "sseclient-py" version))
+       (sha256
+        (base32 "1s63z9qmr4vbni46na4pqaszjf665lda56f5inik0ck3lz0waiy5"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/mpetazzoni/sseclient")
+    (synopsis "SSE client for Python")
+    (description "SSE client for Python.")
+    (license license:expat)))
