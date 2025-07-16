@@ -112,6 +112,7 @@
   #:use-module (guix build-system trivial)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system node)
+  #:use-module (gnu packages node)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
   #:use-module (guix download)
@@ -2890,3 +2891,57 @@ build-backend = \"poetry.core.masonry.api\"
     (synopsis "SSE plugin for Starlette")
     (description "SSE plugin for Starlette.")
     (license license:bsd-3)))
+
+(define-public python-furo
+  (package
+    (name "python-furo")
+    (version "2024.7.18")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "furo" version))
+       (sha256
+        (base32 "10sw69c5s4sg1xdy1payi5ikj126rmxfk2rcf7c4cpf9rigqrc1p"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f  ;Disable tests for now
+       #:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'remove-nodejs-dep
+           (lambda _
+             ;; Remove nodejs-related build requirements
+             (substitute* "pyproject.toml"
+               (("\"nodeenv\".*,") "")
+               (("requires = \\[\"sphinx-theme-builder.*\"\\]")
+                "requires = [\"setuptools\", \"wheel\"]")
+               (("build-backend = \"sphinx_theme_builder\"")
+                "build-backend = \"setuptools.build_meta\""))
+             ;; Create a minimal setup.py
+             (with-output-to-file "setup.py"
+               (lambda ()
+                 (display "from setuptools import setup, find_packages
+setup(
+    name='furo',
+    version='2024.7.18',
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    include_package_data=True,
+    install_requires=['beautifulsoup4', 'sphinx>=6.0,<8.0', 'sphinx-basic-ng'],
+    python_requires='>=3.8',
+    entry_points={
+        'sphinx.html_themes': [
+            'furo = furo',
+        ]
+    },
+    package_data={
+        'furo': ['theme/**/*'],
+    },
+)
+")))
+             #t)))))
+    (propagated-inputs (list python-beautifulsoup4 python-sphinx python-sphinx-basic-ng))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/pradyunsg/furo")
+    (synopsis "A clean customizable Sphinx documentation theme")
+    (description "A clean customizable Sphinx documentation theme.")
+    (license license:expat)))
