@@ -2795,3 +2795,51 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (synopsis "Universal analytics python library")
     (description "Universal analytics python library.")
     (license license:expat)))
+
+(define-public python-strawberry-graphql
+  (package
+    (name "python-strawberry-graphql")
+    (version "0.276.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "strawberry_graphql" version))
+       (sha256
+        (base32 "051sdfyha3fdp2gd1x4mdgnyvid273m53qqagi4l4qqk1p9ldid4"))))
+    (build-system pyproject-build-system)
+    (arguments
+     `(#:tests? #f  ;Disable tests for now
+       #:build-backend "poetry.core.masonry.api"
+       #:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'create-pyproject-toml
+           (lambda _
+             ;; Create a minimal pyproject.toml since the sdist doesn't include it
+             (call-with-output-file "pyproject.toml"
+               (lambda (port)
+                 (format port "[tool.poetry]
+name = \"strawberry\"
+version = \"~a\"
+description = \"A library for creating GraphQL APIs\"
+authors = [\"Patrick Arminio\"]
+packages = [{include = \"strawberry\"}]
+
+[tool.poetry.dependencies]
+python = \"^3.8\"
+graphql-core = \">=3.2.0,<3.4.0\"
+python-dateutil = \"*\"
+typing_extensions = \">=4.5.0\"
+
+[build-system]
+requires = [\"poetry-core>=1.0.0\"]
+build-backend = \"poetry.core.masonry.api\"
+" ,version)))
+             #t)))))
+    (propagated-inputs (list python-graphql-core python-packaging
+                             python-dateutil python-typing-extensions))
+    (native-inputs (list python-poetry-core))
+    (home-page "https://strawberry.rocks/")
+    (synopsis "A library for creating GraphQL APIs")
+    (description
+     "This package provides a library for creating @code{GraphQL} APIs.")
+    (license license:expat)))
