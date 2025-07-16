@@ -2965,3 +2965,23 @@ setup(
     (synopsis "A simple, correct Python build frontend")
     (description "build is a simple, correct Python build frontend that provides a consistent interface to build packages.")
     (license license:expat)))
+
+(define-public python-pydash
+  (package
+    (name "python-pydash")
+    (version "8.0.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pydash" version))
+       (sha256
+        (base32 "1amrz28qs8hvzlgn6bj66rlpkbw2zlx54v3qzzjz0wjvl0yws9qv"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))  ;Disable tests for now
+    (propagated-inputs (list python-typing-extensions))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/dgilland/pydash")
+    (synopsis "The kitchen sink of Python utility libraries for doing stuff")
+    (description "The kitchen sink of Python utility libraries for doing stuff.")
+    (license license:expat)))
