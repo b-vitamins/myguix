@@ -2945,3 +2945,23 @@ setup(
     (synopsis "A clean customizable Sphinx documentation theme")
     (description "A clean customizable Sphinx documentation theme.")
     (license license:expat)))
+
+(define-public python-build
+  (package
+    (name "python-build")
+    (version "1.2.2.post1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "build" version))
+       (sha256
+        (base32 "1dq8nrw55g89m86bljrd19v5ldpz4ahhdrlrkhhmldx95klr6sdk"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))  ;Disable tests to avoid circular dependencies
+    (propagated-inputs (list python-packaging python-pyproject-hooks))
+    (native-inputs (list python-flit-core))
+    (home-page "https://github.com/pypa/build")
+    (synopsis "A simple, correct Python build frontend")
+    (description "build is a simple, correct Python build frontend that provides a consistent interface to build packages.")
+    (license license:expat)))
