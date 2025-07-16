@@ -2735,3 +2735,43 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (synopsis "Library with helpers for the jsonlines file format")
     (description "Library with helpers for the jsonlines file format.")
     (license license:bsd-3)))
+
+(define-public python-voxel51-eta
+  (package
+    (name "python-voxel51-eta")
+    (version "0.14.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "voxel51_eta" version))
+       (sha256
+        (base32 "1007f6cn6sibd5av4s30rbrrm57azh59wdsaky6mmlfcqka8gcih"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require optional dependencies
+    (propagated-inputs (list python-argcomplete
+                             python-dill
+                             python-future
+                             python-glob2
+                             python-jsonlines
+                             python-numpy
+                             python-opencv-python-headless
+                             python-packaging
+                             python-pillow
+                             python-py7zr
+                             python-dateutil
+                             python-pytz
+                             python-rarfile
+                             python-requests
+                             python-retrying
+                             python-scikit-image
+                             python-six
+                             python-sortedcontainers
+                             python-tabulate
+                             python-tzlocal
+                             python-urllib3))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/voxel51/eta")
+    (synopsis "Extensible Toolkit for Analytics")
+    (description "Extensible Toolkit for Analytics.")
+    (license license:asl2.0)))
