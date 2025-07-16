@@ -2985,3 +2985,29 @@ setup(
     (synopsis "The kitchen sink of Python utility libraries for doing stuff")
     (description "The kitchen sink of Python utility libraries for doing stuff.")
     (license license:expat)))
+
+(define-public python-pprintpp
+  (package
+    (name "python-pprintpp")
+    (version "0.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pprintpp" version))
+       (sha256
+        (base32 "00v4pkyiqc0y9qjnp3br58a4k5zwqdrjjxbcsv39vx67w84630pa"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:tests? #f  ;Disable tests for now
+       #:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'fix-setup-py
+           (lambda _
+             (substitute* "setup.py"
+               (("\"U\"") "\"r\""))
+             #t)))))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/wolever/pprintpp")
+    (synopsis "A drop-in replacement for pprint that's actually pretty")
+    (description "A drop-in replacement for pprint that's actually pretty.")
+    (license license:bsd-3)))
