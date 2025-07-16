@@ -2860,3 +2860,33 @@ build-backend = \"poetry.core.masonry.api\"
     (synopsis "SSE client for Python")
     (description "SSE client for Python.")
     (license license:expat)))
+
+(define-public python-sse-starlette
+  (package
+    (name "python-sse-starlette")
+    (version "2.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "sse_starlette" version))
+       (sha256
+        (base32 "09h90zd44v211giplw10ccbcdr3qbjjbssy0bwbfjhx33h5812kw"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f  ;Disable tests for now
+       #:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'fix-pyproject-toml
+           (lambda _
+             ;; Fix license format in pyproject.toml
+             (substitute* "pyproject.toml"
+               (("license = \"BSD-3-Clause\"")
+                "license = {text = \"BSD-3-Clause\"}"))
+             #t))
+         (delete 'sanity-check))))
+    (propagated-inputs (list python-anyio))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/sysid/sse-starlette")
+    (synopsis "SSE plugin for Starlette")
+    (description "SSE plugin for Starlette.")
+    (license license:bsd-3)))
