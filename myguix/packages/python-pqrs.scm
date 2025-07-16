@@ -2775,3 +2775,23 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (synopsis "Extensible Toolkit for Analytics")
     (description "Extensible Toolkit for Analytics.")
     (license license:asl2.0)))
+
+(define-public python-universal-analytics-python3
+  (package
+    (name "python-universal-analytics-python3")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "universal-analytics-python3" version))
+       (sha256
+        (base32 "1bbz5xwq69qjhzqk0qr5hd0dqiz4ffw4bwc0xpprlf7jrsvnm2zm"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require flake8
+    (propagated-inputs (list python-httpx))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/dmvass/universal-analytics-python3")
+    (synopsis "Universal analytics python library")
+    (description "Universal analytics python library.")
+    (license license:expat)))
