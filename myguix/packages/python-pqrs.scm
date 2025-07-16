@@ -3049,3 +3049,23 @@ dependencies = [\"pymongo>=4.5,<5\"]
     (synopsis "Non-blocking MongoDB driver for Tornado and asyncio")
     (description "Motor is a full-featured, non-blocking MongoDB driver for Python Tornado and asyncio applications.")
     (license license:asl2.0)))
+
+(define-public python-mongoengine
+  (package
+    (name "python-mongoengine")
+    (version "0.29.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mongoengine" version))
+       (sha256
+        (base32 "1wrwxs6rnnhsm2dqifcjrv3msjjdizkxkdy2xwwps2sz5npsnhrv"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))  ;Disable tests for now
+    (propagated-inputs (list python-pymongo))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/MongoEngine/mongoengine")
+    (synopsis "Document-Object Mapper for working with MongoDB from Python")
+    (description "MongoEngine is a Document-Object Mapper (think ORM, but for document databases) for working with MongoDB from Python.")
+    (license license:expat)))
