@@ -2717,3 +2717,21 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (synopsis "ANTLR 4.13.2 runtime for Python 3")
     (description "ANTLR 4.13.2 runtime for Python 3.")
     (license license:bsd-3)))
+
+(define-public python-jsonlines
+  (package
+    (name "python-jsonlines")
+    (version "4.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "jsonlines" version))
+       (sha256
+        (base32 "0x7a4a42jvqz6mkd6h9hag8pvxscmq2zcisjk64w0l3m244jqv8c"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-attrs))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/wbolster/jsonlines")
+    (synopsis "Library with helpers for the jsonlines file format")
+    (description "Library with helpers for the jsonlines file format.")
+    (license license:bsd-3)))
