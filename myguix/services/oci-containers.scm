@@ -58,28 +58,6 @@
         '("INDEX_BACKEND" . "solr")
         '("INDEX_HOSTNAME" . "localhost:8983")))
 
-(define neo4j-env
-  (list `("NEO4J_AUTH" unquote
-          (string-append "neo4j/" neo4j-password))
-        '("NEO4J_ACCEPT_LICENSE_AGREEMENT" . "yes")
-        '("NEO4J_gds_arrow_enabled" . "true")
-
-        ;; Memory
-        '("NEO4J_server_memory_heap_initial__size" . "8G")
-        '("NEO4J_server_memory_heap_max__size" . "16G")
-        '("NEO4J_server_memory_pagecache_size" . "12G")
-
-        ;; APOC import / export
-        '("NEO4J_apoc_import_file_enabled" . "true")
-        '("NEO4J_apoc_export_file_enabled" . "true")
-        '("NEO4J_apoc_import_file_use__neo4j__config" . "true")
-
-        ;; Unrestricted procedures
-        '("NEO4J_dbms_security_procedures_unrestricted" . "gds.*,apoc.*")
-
-        ;; Optional – pull plugins automatically
-        '("NEO4J_PLUGINS" . "[\"apoc\",\"graph-data-science\"]")))
-
 (define weaviate-modules
   (string-append "text2vec-cohere,"
                  "text2vec-huggingface,"
@@ -177,10 +155,10 @@
                                (network "host")
                                (ports '(("9000" . "9000") ("9001" . "9001"))) ;S3 + console
                                (volumes (list '("/var/lib/minio/data" . "/data")))
-                               (environment (list '("MINIO_ROOT_USER" . "root")
-                                                  (cons "MINIO_ROOT_PASSWORD"
-                                                        minio-secret)
-                                                  '("MINIO_BROWSER" . "on")))
+                               (environment `(("MINIO_ROOT_USER" . "root") ("MINIO_ROOT_PASSWORD"
+                                                                            unquote
+                                                                            minio-secret)
+                                              ("MINIO_BROWSER" . "on")))
                                (command '("server" "/data" "--console-address"
                                           ":9001"))))
 
@@ -197,7 +175,26 @@
                                               '("/var/lib/neo4j/plugins" . "/plugins")))
                                (extra-arguments '("--ulimit"
                                                   "nofile=262144:262144"))
-                               (environment neo4j-env)))
+                               (environment `(("NEO4J_AUTH" unquote
+                                               neo4j-password)
+                                              ("NEO4J_ACCEPT_LICENSE_AGREEMENT" . "yes")
+                                              ("NEO4J_gds_arrow_enabled" . "true")
+
+                                              ;; Memory
+                                              ("NEO4J_server_memory_heap_initial__size" . "8G")
+                                              ("NEO4J_server_memory_heap_max__size" . "16G")
+                                              ("NEO4J_server_memory_pagecache_size" . "12G")
+
+                                              ;; APOC import / export
+                                              ("NEO4J_apoc_import_file_enabled" . "true")
+                                              ("NEO4J_apoc_export_file_enabled" . "true")
+                                              ("NEO4J_apoc_import_file_use__neo4j__config" . "true")
+
+                                              ;; Unrestricted procedures
+                                              ("NEO4J_dbms_security_procedures_unrestricted" . "gds.*,apoc.*")
+
+                                              ;; Optional – pull plugins automatically
+                                              ("NEO4J_PLUGINS" . "[\"apoc\",\"graph-data-science\"]")))))
 
 ;; Ollama - LLM inference
 (define oci-ollama-service-type
