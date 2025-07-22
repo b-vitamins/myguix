@@ -17,14 +17,17 @@
   (list emacs-pgtk
         emacs-academic-phrases
         emacs-ace-window
+        emacs-ag
         emacs-all-the-icons
         emacs-all-the-icons-completion
         emacs-all-the-icons-dired
         emacs-arei
         emacs-async
         emacs-auctex
+        emacs-avy
         emacs-auctex-latexmk
         emacs-benchmark-init
+        emacs-biblio
         emacs-calc-currency
         emacs-cape
         emacs-cargo
@@ -33,23 +36,31 @@
         emacs-circadian
         emacs-clojure-ts-mode
         emacs-citar
+        emacs-citar-denote
         emacs-citar-embark
         emacs-citar-org-roam
         emacs-csharp-mode
         emacs-clang-format
         emacs-cmake-mode
         emacs-combobulate
-        emacs-company-auctex
         emacs-consult
         emacs-consult-bibtex
+        emacs-consult-dir
         emacs-consult-eglot
         emacs-consult-org-roam
+        emacs-consult-projectile
         emacs-corfu
         emacs-corfu-candidate-overlay
         emacs-corfu-doc
+        emacs-crux
         emacs-daemons
+        emacs-dap-mode
         emacs-dape
+        emacs-dash
         emacs-dashboard
+        emacs-deadgrep
+        emacs-deft
+        emacs-denote
         emacs-devdocs
         emacs-dired-rsync
         emacs-dired-hacks
@@ -69,11 +80,13 @@
         emacs-embark
         emacs-embark-consult
         emacs-emms
+        emacs-engrave-faces
         emacs-envrc
         emacs-direnv
         emacs-erlang
         emacs-ess
         emacs-exec-path-from-shell
+        emacs-f
         emacs-eshell-prompt-extras
         emacs-eshell-syntax-highlighting
         emacs-eslint-fix
@@ -81,6 +94,7 @@
         emacs-flymake
         emacs-flymake-eslint
         emacs-flyspell-correct
+        emacs-forge
         emacs-flyspell-correct-ivy
         emacs-fontaine
         emacs-geiser
@@ -89,10 +103,12 @@
         emacs-git-gutter
         emacs-git-gutter-fringe
         emacs-git-link
+        emacs-git-modes
         emacs-git-timemachine
         emacs-go-mode
         emacs-gptel
         emacs-gptel-quick
+        emacs-grep-a-lot
         emacs-guix
         emacs-haskell-mode
         emacs-helm-bibtex
@@ -101,9 +117,11 @@
         emacs-header-minions
         emacs-highlight-indent-guides
         emacs-hl-todo
+        emacs-ht
         emacs-htmlize
         emacs-hydra
         emacs-info+
+        emacs-jinx
         emacs-jit-spell
         emacs-js2-mode
         emacs-julia-mode
@@ -114,6 +132,8 @@
         emacs-kotlin-mode
         emacs-kind-icon
         emacs-langtool
+        emacs-latex-preview-pane
+        emacs-ligature
         emacs-lispy
         emacs-lua-mode
         emacs-llm
@@ -140,6 +160,7 @@
         emacs-org-agenda-files-track-ql
         emacs-org-appear
         emacs-org-contrib
+        emacs-org-download
         emacs-org-fragtog
         emacs-org-make-toc
         emacs-org-modern
@@ -147,11 +168,15 @@
         emacs-org-noter
         emacs-org-pdftools
         emacs-org-pomodoro
+        emacs-org-present
+        emacs-org-ql
         emacs-org-ref
         emacs-org-recur
         emacs-org-roam
         emacs-org-roam-bibtex
+        emacs-org-roam-ui
         emacs-org-super-agenda
+        emacs-org-transclusion
         emacs-org-wild-notifier
         emacs-ox-html-stable-ids
         emacs-ox-pandoc
@@ -162,6 +187,9 @@
         emacs-plantuml-mode
         emacs-poetry
         emacs-pomidor
+        emacs-popper
+        emacs-prettier
+        emacs-projectile
         emacs-pulseaudio-control
         emacs-pyenv-mode
         emacs-pytest
@@ -174,10 +202,13 @@
         emacs-rainbow-identifiers
         emacs-rainbow-mode
         emacs-request
+        emacs-restclient
+        emacs-rg
         emacs-rust-mode
         emacs-enh-ruby-mode
         emacs-s
         emacs-scala-mode
+        emacs-simple-httpd
         emacs-saveplace-pdf-view
         emacs-sly
         emacs-sly-asdf
@@ -187,20 +218,27 @@
         emacs-telega
         emacs-tempel
         emacs-toml-mode
+        emacs-treemacs
         emacs-transient
         emacs-typescript-mode
+        emacs-undo-tree
         emacs-use-package
         emacs-vertico
         emacs-visual-fill-column
+        emacs-vterm
+        emacs-vundo
         emacs-wc-mode
         emacs-web-mode
         emacs-webpaste
+        emacs-websocket
+        emacs-wgrep
         emacs-which-key
         emacs-writegood-mode
         emacs-ws-butler
         emacs-yaml-mode
         emacs-ytdl
-        emacs-zotra))
+        emacs-zotra
+        emacs-zotxt))
 
 (define my-home-emacs-service-type
   (service-type (name 'home-emacs)
