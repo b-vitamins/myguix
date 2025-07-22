@@ -108,7 +108,9 @@
                                                               "/var/log/secure"
                                                               "/var/log/debug"
                                                               "/var/log/maillog"))
-                                        (calendar-event #~"weekly")
+                                        (calendar-event #~(calendar-event
+                                                                          #:days-of-week '
+                                                                          (0)))
                                         (compression 'gzip)
                                         (expiry (* 4 7 24 3600))))
 
