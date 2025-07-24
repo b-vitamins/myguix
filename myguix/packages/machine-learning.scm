@@ -3273,3 +3273,7 @@ easily get the perfect configuration for each run.")
 ;; - python-pytorch-ignite: High-level training abstractions
 ;; - python-fiftyone: Dataset visualization and debugging tool
 ;; - python-dvc: Data version control for ML
+;; - python-optuna: Hyperparameter optimization framework
+;; - python-ray: Distributed computing for ML
+;; - python-aim: Lightweight experiment tracking
+;; - python-lightning-bolts: Pre-built PyTorch Lightning models
