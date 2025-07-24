@@ -23,6 +23,7 @@
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages image-processing)
+  #:use-module (gnu packages java)
   #:use-module (gnu packages jupyter)
   #:use-module (gnu packages libffi)
   #:use-module (gnu packages libevent)
@@ -77,8 +78,8 @@
   #:use-module (myguix packages compression)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages maths)
-  #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages nvidia)
   #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages video)
   #:use-module (myguix packages bazel)
@@ -3237,8 +3238,33 @@ Note: This build excludes kornia-rs (Rust extensions) which limits some
 functionality.")
     (license license:asl2.0)))
 
+(define-public python-hydra-core
+  (package
+    (name "python-hydra-core")
+    (version "1.3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hydra-core" version))
+       (sha256
+        (base32 "0958j11rl9jb6filxyvsycdfhrs7gcpfga48klz7r68nfbb8x1wa"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f ;Tests require pytest and other test dependencies
+       #:phases (modify-phases %standard-phases
+                  (delete 'sanity-check)))) ;Skip due to omegaconf also using different antlr
+    (native-inputs (list python-setuptools python-wheel icedtea antlr4))
+    (propagated-inputs (list python-antlr4-python3-runtime-4.9
+                             python-omegaconf-2.2 python-packaging))
+    (home-page "https://github.com/facebookresearch/hydra")
+    (synopsis "Framework for elegantly configuring complex applications")
+    (description
+     "Hydra is a framework for elegantly configuring complex applications.
+It enables you to compose your configuration dynamically, enabling you to
+easily get the perfect configuration for each run.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
-;; - python-hydra-core: Configuration management for experiments
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
 ;; - python-monai: Medical imaging deep learning framework
