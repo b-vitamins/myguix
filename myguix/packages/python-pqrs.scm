@@ -2719,6 +2719,20 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description "ANTLR 4.13.2 runtime for Python 3.")
     (license license:bsd-3)))
 
+(define-public python-antlr4-python3-runtime-4.9
+  (package
+    (inherit python-antlr4-python3-runtime)
+    (name "python-antlr4-python3-runtime")
+    (version "4.9.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "antlr4-python3-runtime" version))
+       (sha256
+        (base32 "06w8fz73rk8vzjz9rydfk56g4mbqpyl81yhypc14jab886dlc97j"))))
+    (synopsis "ANTLR 4.9.3 runtime for Python 3")
+    (description "ANTLR 4.9.3 runtime for Python 3, required for hydra-core.")))
+
 (define-public python-jsonlines
   (package
     (name "python-jsonlines")
@@ -2809,16 +2823,16 @@ and YAML-based configuration files with dot-accessible dictionaries.")
         (base32 "051sdfyha3fdp2gd1x4mdgnyvid273m53qqagi4l4qqk1p9ldid4"))))
     (build-system pyproject-build-system)
     (arguments
-     `(#:tests? #f  ;Disable tests for now
+     `(#:tests? #f ;Disable tests for now
        #:build-backend "poetry.core.masonry.api"
-       #:phases
-       (modify-phases %standard-phases
-         (add-after 'unpack 'create-pyproject-toml
-           (lambda _
-             ;; Create a minimal pyproject.toml since the sdist doesn't include it
-             (call-with-output-file "pyproject.toml"
-               (lambda (port)
-                 (format port "[tool.poetry]
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'create-pyproject-toml
+                    (lambda _
+                      ;; Create a minimal pyproject.toml since the sdist doesn't include it
+                      (call-with-output-file "pyproject.toml"
+                        (lambda (port)
+                          (format port
+                           "[tool.poetry]
 name = \"strawberry\"
 version = \"~a\"
 description = \"A library for creating GraphQL APIs\"
@@ -2834,8 +2848,8 @@ typing_extensions = \">=4.5.0\"
 [build-system]
 requires = [\"poetry-core>=1.0.0\"]
 build-backend = \"poetry.core.masonry.api\"
-" ,version)))
-             #t)))))
+"
+                           ,version))) #t)))))
     (propagated-inputs (list python-graphql-core python-packaging
                              python-dateutil python-typing-extensions))
     (native-inputs (list python-poetry-core))
@@ -2874,17 +2888,15 @@ build-backend = \"poetry.core.masonry.api\"
         (base32 "09h90zd44v211giplw10ccbcdr3qbjjbssy0bwbfjhx33h5812kw"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f  ;Disable tests for now
-       #:phases
-       (modify-phases %standard-phases
-         (add-after 'unpack 'fix-pyproject-toml
-           (lambda _
-             ;; Fix license format in pyproject.toml
-             (substitute* "pyproject.toml"
-               (("license = \"BSD-3-Clause\"")
-                "license = {text = \"BSD-3-Clause\"}"))
-             #t))
-         (delete 'sanity-check))))
+     '(#:tests? #f ;Disable tests for now
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'fix-pyproject-toml
+                    (lambda _
+                      ;; Fix license format in pyproject.toml
+                      (substitute* "pyproject.toml"
+                        (("license = \"BSD-3-Clause\"")
+                         "license = {text = \"BSD-3-Clause\"}")) #t))
+                  (delete 'sanity-check))))
     (propagated-inputs (list python-anyio))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/sysid/sse-starlette")
@@ -2904,22 +2916,23 @@ build-backend = \"poetry.core.masonry.api\"
         (base32 "10sw69c5s4sg1xdy1payi5ikj126rmxfk2rcf7c4cpf9rigqrc1p"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f  ;Disable tests for now
-       #:phases
-       (modify-phases %standard-phases
-         (add-after 'unpack 'remove-nodejs-dep
-           (lambda _
-             ;; Remove nodejs-related build requirements
-             (substitute* "pyproject.toml"
-               (("\"nodeenv\".*,") "")
-               (("requires = \\[\"sphinx-theme-builder.*\"\\]")
-                "requires = [\"setuptools\", \"wheel\"]")
-               (("build-backend = \"sphinx_theme_builder\"")
-                "build-backend = \"setuptools.build_meta\""))
-             ;; Create a minimal setup.py
-             (with-output-to-file "setup.py"
-               (lambda ()
-                 (display "from setuptools import setup, find_packages
+     '(#:tests? #f ;Disable tests for now
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'remove-nodejs-dep
+                    (lambda _
+                      ;; Remove nodejs-related build requirements
+                      (substitute* "pyproject.toml"
+                        (("\"nodeenv\".*,")
+                         "")
+                        (("requires = \\[\"sphinx-theme-builder.*\"\\]")
+                         "requires = [\"setuptools\", \"wheel\"]")
+                        (("build-backend = \"sphinx_theme_builder\"")
+                         "build-backend = \"setuptools.build_meta\""))
+                      ;; Create a minimal setup.py
+                      (with-output-to-file "setup.py"
+                        (lambda ()
+                          (display
+                           "from setuptools import setup, find_packages
 setup(
     name='furo',
     version='2024.7.18',
@@ -2938,8 +2951,9 @@ setup(
     },
 )
 ")))
-             #t)))))
-    (propagated-inputs (list python-beautifulsoup4 python-sphinx python-sphinx-basic-ng))
+                      #t)))))
+    (propagated-inputs (list python-beautifulsoup4 python-sphinx
+                             python-sphinx-basic-ng))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/pradyunsg/furo")
     (synopsis "A clean customizable Sphinx documentation theme")
@@ -2958,12 +2972,13 @@ setup(
         (base32 "1dq8nrw55g89m86bljrd19v5ldpz4ahhdrlrkhhmldx95klr6sdk"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f))  ;Disable tests to avoid circular dependencies
+     '(#:tests? #f)) ;Disable tests to avoid circular dependencies
     (propagated-inputs (list python-packaging python-pyproject-hooks))
     (native-inputs (list python-flit-core))
     (home-page "https://github.com/pypa/build")
     (synopsis "A simple, correct Python build frontend")
-    (description "build is a simple, correct Python build frontend that provides a consistent interface to build packages.")
+    (description
+     "build is a simple, correct Python build frontend that provides a consistent interface to build packages.")
     (license license:expat)))
 
 (define-public python-pydash
@@ -2978,12 +2993,13 @@ setup(
         (base32 "1amrz28qs8hvzlgn6bj66rlpkbw2zlx54v3qzzjz0wjvl0yws9qv"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f))  ;Disable tests for now
+     '(#:tests? #f)) ;Disable tests for now
     (propagated-inputs (list python-typing-extensions))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/dgilland/pydash")
     (synopsis "The kitchen sink of Python utility libraries for doing stuff")
-    (description "The kitchen sink of Python utility libraries for doing stuff.")
+    (description
+     "The kitchen sink of Python utility libraries for doing stuff.")
     (license license:expat)))
 
 (define-public python-pprintpp
@@ -2998,14 +3014,13 @@ setup(
         (base32 "00v4pkyiqc0y9qjnp3br58a4k5zwqdrjjxbcsv39vx67w84630pa"))))
     (build-system python-build-system)
     (arguments
-     '(#:tests? #f  ;Disable tests for now
-       #:phases
-       (modify-phases %standard-phases
-         (add-after 'unpack 'fix-setup-py
-           (lambda _
-             (substitute* "setup.py"
-               (("\"U\"") "\"r\""))
-             #t)))))
+     '(#:tests? #f ;Disable tests for now
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'fix-setup-py
+                    (lambda _
+                      (substitute* "setup.py"
+                        (("\"U\"")
+                         "\"r\"")) #t)))))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/wolever/pprintpp")
     (synopsis "A drop-in replacement for pprint that's actually pretty")
@@ -3024,15 +3039,15 @@ setup(
         (base32 "09j5ss4xq7dwjp9kj2971sx1ixf2a5y9vjm667rjhyf84mkd9d17"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f  ;Disable tests for now
-       #:phases
-       (modify-phases %standard-phases
-         (add-after 'unpack 'fix-build
-           (lambda _
-             ;; Create a simpler pyproject.toml without the metadata hook
-             (with-output-to-file "pyproject.toml"
-               (lambda ()
-                 (display "[build-system]
+     '(#:tests? #f ;Disable tests for now
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'fix-build
+                    (lambda _
+                      ;; Create a simpler pyproject.toml without the metadata hook
+                      (with-output-to-file "pyproject.toml"
+                        (lambda ()
+                          (display
+                           "[build-system]
 requires = [\"hatchling\"]
 build-backend = \"hatchling.build\"
 
@@ -3042,12 +3057,13 @@ version = \"3.7.1\"
 description = \"Non-blocking MongoDB driver for Tornado and asyncio\"
 dependencies = [\"pymongo>=4.5,<5\"]
 ")))
-             #t)))))
+                      #t)))))
     (propagated-inputs (list python-pymongo))
     (native-inputs (list python-hatchling))
     (home-page "https://github.com/mongodb/motor/")
     (synopsis "Non-blocking MongoDB driver for Tornado and asyncio")
-    (description "Motor is a full-featured, non-blocking MongoDB driver for Python Tornado and asyncio applications.")
+    (description
+     "Motor is a full-featured, non-blocking MongoDB driver for Python Tornado and asyncio applications.")
     (license license:asl2.0)))
 
 (define-public python-mongoengine
@@ -3062,10 +3078,11 @@ dependencies = [\"pymongo>=4.5,<5\"]
         (base32 "1wrwxs6rnnhsm2dqifcjrv3msjjdizkxkdy2xwwps2sz5npsnhrv"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f))  ;Disable tests for now
+     '(#:tests? #f)) ;Disable tests for now
     (propagated-inputs (list python-pymongo))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/MongoEngine/mongoengine")
     (synopsis "Document-Object Mapper for working with MongoDB from Python")
-    (description "MongoEngine is a Document-Object Mapper (think ORM, but for document databases) for working with MongoDB from Python.")
+    (description
+     "MongoEngine is a Document-Object Mapper (think ORM, but for document databases) for working with MongoDB from Python.")
     (license license:expat)))
