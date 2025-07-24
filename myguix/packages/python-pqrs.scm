@@ -102,6 +102,7 @@
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages version-control)
+  #:use-module (gnu packages java)
   #:use-module (gnu packages gtk)
   #:use-module (gnu packages xorg)
   #:use-module (gnu packages gl)
@@ -2732,6 +2733,31 @@ and YAML-based configuration files with dot-accessible dictionaries.")
         (base32 "06w8fz73rk8vzjz9rydfk56g4mbqpyl81yhypc14jab886dlc97j"))))
     (synopsis "ANTLR 4.9.3 runtime for Python 3")
     (description "ANTLR 4.9.3 runtime for Python 3, required for hydra-core.")))
+
+(define-public python-omegaconf-2.2
+  (package
+    (name "python-omegaconf")
+    (version "2.2.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "omegaconf" version))
+       (sha256
+        (base32 "08r5al0nk3b43d7vpqm276iqziippalyhr0bf7xvbysghsx9zzsr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f ;Tests require pytest and other dependencies
+       #:phases (modify-phases %standard-phases
+                  (delete 'sanity-check)))) ;Skip version check
+    (native-inputs (list python-setuptools python-wheel icedtea antlr4))
+    (propagated-inputs (list python-antlr4-python3-runtime-4.9 python-pyyaml))
+    (home-page "https://github.com/omry/omegaconf")
+    (synopsis "Flexible configuration system")
+    (description
+     "OmegaConf is a hierarchical configuration system and supports
+merging configurations from multiple sources.  It provides a consistent API
+regardless of how the configuration was created.")
+    (license license:bsd-3)))
 
 (define-public python-jsonlines
   (package
