@@ -237,7 +237,6 @@
         emacs-ws-butler
         emacs-yaml-mode
         emacs-ytdl
-        emacs-zotra
         emacs-zotxt))
 
 (define my-home-emacs-service-type
