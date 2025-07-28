@@ -470,7 +470,6 @@
         flamegraph
         massif-visualizer
         kcachegrind
-        hotspot
         sysprof))
 
 (define %benchmark-tools
