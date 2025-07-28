@@ -34,9 +34,7 @@
    (service virtual-terminal-service-type)
    (service console-font-service-type
             (map (lambda (tty)
-                   (cons tty
-                         (file-append font-terminus
-                                      "/share/consolefonts/ter-v16n.psf.gz")))
+                   (cons tty %default-console-font))
                  '("tty1" "tty2" "tty3" "tty4" "tty5" "tty6")))
 
    (service shepherd-system-log-service-type)
@@ -84,35 +82,9 @@
    (service static-networking-service-type
             (list %loopback-static-networking))
    (service urandom-seed-service-type)
-   (service guix-service-type
-            (guix-configuration (build-accounts 16)
-                                (use-substitutes? #t)
-                                (tmpdir "/tmp")
-                                (extra-options '("--max-jobs=8" "--cores=4"))))
-   (service nscd-service-type
-            (nscd-configuration (caches (list (nscd-cache (database 'hosts)
-                                                          (positive-time-to-live
-                                                           (* 3600 12))
-                                                          (negative-time-to-live
-                                                           3600)
-                                                          (persistent? #t))
-                                              (nscd-cache (database 'services)
-                                                          (positive-time-to-live
-                                                           (* 3600 24))
-                                                          (negative-time-to-live
-                                                           3600)
-                                                          (persistent? #t))))))
-
-   (service log-rotation-service-type
-            (log-rotation-configuration (external-log-files '("/var/log/messages"
-                                                              "/var/log/secure"
-                                                              "/var/log/debug"
-                                                              "/var/log/maillog"))
-                                        (calendar-event #~(calendar-event
-                                                                          #:days-of-week '
-                                                                          (0)))
-                                        (compression 'gzip)
-                                        (expiry (* 4 7 24 3600))))
+   (service guix-service-type)
+   (service nscd-service-type)
+   (service log-rotation-service-type)
 
    ;; Convenient services brought by the Shepherd.
    (service shepherd-timer-service-type)
@@ -120,9 +92,8 @@
 
    ;; Periodically delete old build logs.
    (service log-cleanup-service-type
-            (log-cleanup-configuration (directory "/var/log/guix/drvs")
-                                       (expiry (* 30 24 3600)))) ;30 days
-   
+            (log-cleanup-configuration (directory "/var/log/guix/drvs")))
+
    ;; The LVM2 rules are needed as soon as LVM2 or the device-mapper is
    ;; used, so enable them by default.  The FUSE and ALSA rules are
    ;; less critical, but handy.
@@ -155,14 +126,6 @@
    ;; Extra services not in upstream %base-services
    (service gpm-service-type) ;Console mouse support
    
-   ;; Guix publish for sharing substitutes
-   (service guix-publish-service-type
-            (guix-publish-configuration (host "localhost")
-                                        (port 8080)
-                                        (compression '(("zstd" 19)))
-                                        (cache "/var/cache/publish")
-                                        (workers 4)))
-
    ;; System resource limits
    (service pam-limits-service-type
             (list
