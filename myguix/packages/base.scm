@@ -269,7 +269,7 @@
   (list bluez blueman sbc))
 
 (define %kde-desktop-apps
-  (list ;; Core utilities
+  (list ;Core utilities
         kate
         ;; Essential apps
         okular
@@ -290,7 +290,7 @@
         sugar-light-sddm-theme))
 
 (define %kde-productivity-suite
-  (list ;; Personal Information Manager
+  (list ;Personal Information Manager
         kmail
         korganizer
         ;; Note-taking and organization
@@ -301,7 +301,7 @@
         falkon))
 
 (define %kde-developer-tools
-  (list ;; Development IDE
+  (list ;Development IDE
         kdevelop
         ;; Diff/merge tool
         kompare
@@ -313,7 +313,7 @@
         hotspot))
 
 (define %kde-creative-suite
-  (list ;; Digital painting
+  (list ;Digital painting
         krita
         ;; Video editing
         kdenlive
@@ -326,7 +326,7 @@
         kamoso))
 
 (define %kde-system-tools
-  (list ;; System monitoring
+  (list ;System monitoring
         ksystemlog
         kdf
         ;; System utilities
@@ -336,7 +336,7 @@
         ktorrent))
 
 (define %kde-workstation-extras
-  (list ;; Heavy-duty creative apps
+  (list ;Heavy-duty creative apps
         krita
         kdenlive
         ;; Professional development
@@ -353,7 +353,7 @@
         okteta))
 
 (define %kde-laptop-essentials
-  (list ;; Core productivity
+  (list ;Core productivity
         kate
         okular
         gwenview
@@ -584,7 +584,7 @@
         python-mutmut))
 
 (define %python-profiling
-  (list python-memory-profiler python-line-profiler py-spy python-tensorboard))
+  (list python-memory-profiler python-line-profiler py-spy))
 
 (define %perl-development
   (list perl perl-critic perltidy))
