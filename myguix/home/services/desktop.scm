@@ -6,7 +6,6 @@
   #:use-module (gnu home services desktop)
   #:use-module (gnu home services sound)
   #:use-module (gnu home services syncthing)
-  #:use-module (gnu home services mcron)
   #:use-module (gnu home services xdg)
   #:use-module (guix gexp)
   #:use-module (myguix home services base)
@@ -19,9 +18,6 @@
             ;; MIME applications
             %gnome-mimeapps
             %kde-mimeapps
-            
-            ;; Scheduled jobs
-            %garbage-collector-job
             
             ;; Main service bundle
             %my-desktop-home-services))
@@ -133,11 +129,6 @@ application/pdf=okular.desktop;
 image/png=gwenview.desktop;
 image/jpeg=gwenview.desktop;"))
 
-;;; Scheduled jobs
-
-(define-public %garbage-collector-job
-  #~(job "0 0 * * 0"  ; Weekly on Sunday at midnight
-         (string-append #$(file-append guix "/bin/guix") " gc --optimize")))
 
 ;;; Desktop home services
 
@@ -159,9 +150,4 @@ image/jpeg=gwenview.desktop;"))
     ;; Wayland environment variables
     (simple-service 'wayland-environment
                     home-environment-variables-service-type
-                    %wayland-environment-variables)
-    
-    ;; Scheduled maintenance
-    (service home-mcron-service-type
-             (home-mcron-configuration
-              (jobs (list %garbage-collector-job)))))))
+                    %wayland-environment-variables))))
