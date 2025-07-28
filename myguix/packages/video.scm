@@ -109,10 +109,10 @@
      "NV Codec headers are required for FFmpeg and other multimedia frameworks to interface with NVIDIA's hardware-accelerated video encoding and decoding.")
     (license license:expat)))
 
-(define-public ffmpeg-cuda
+(define-public ffmpeg-nvidia
   (package
     (inherit ffmpeg)
-    (name "ffmpeg-cuda")
+    (name "ffmpeg-nvidia")
     (version "6.1.2")
     (source (origin
               (method url-fetch)
@@ -121,20 +121,32 @@
               (sha256
                (base32
                 "0f2fr8ywchhlkdff88lr4d4vscqzsi1ndjh3r5jwbkayf94lcqiv"))))
+    (inputs
+     (modify-inputs
+         (package-inputs ffmpeg)
+       (prepend nv-codec-headers)))
     (arguments
      (substitute-keyword-arguments (package-arguments ffmpeg)
        ((#:configure-flags flags)
+        ;; All the codecs from the original plus NVENC support
         #~(append #$flags
                   (list "--enable-nonfree"
-                        "--enable-cuda-nvcc"
-                        "--enable-libnpp"
                         "--enable-nvdec"
                         "--enable-nvenc"
                         "--enable-cuvid"
                         "--enable-ffnvcodec"
                         "--enable-encoder=hevc_nvenc"
                         "--enable-encoder=h264_nvenc"
+                        "--enable-decoder=hevc_cuvid"
                         "--enable-decoder=h264_cuvid"
+                        "--enable-decoder=mjpeg_cuvid"
+                        "--enable-decoder=mpeg1_cuvid"
+                        "--enable-decoder=mpeg2_cuvid"
+                        "--enable-decoder=mpeg4_cuvid"
+                        "--enable-decoder=vc1_cuvid"
+                        "--enable-decoder=vp8_cuvid"
+                        "--enable-decoder=vp9_cuvid"
+                        "--enable-decoder=av1_cuvid"
                         "--enable-decoder=aac"
                         "--enable-decoder=h264"
                         "--enable-decoder=rawvideo"
@@ -144,50 +156,14 @@
                         "--enable-filter=scale"
                         "--enable-filter=testsrc2"
                         "--enable-protocol=file"
-                        "--enable-protocol=https")))
-       ((#:phases phases)
-        #~(modify-phases #$phases
-            (replace 'configure
-              (lambda* (#:key outputs inputs configure-flags
-                        #:allow-other-keys)
-                (let ((out (assoc-ref outputs "out"))
-                      (cuda-bin (string-append (assoc-ref inputs
-                                                          "cuda-toolkit")
-                                               "/bin"))
-                      (cuda-nvcc (string-append (assoc-ref inputs
-                                                           "cuda-toolkit")
-                                                "/bin/nvcc"))
-                      (cuda-lib (string-append (assoc-ref inputs
-                                                          "cuda-toolkit")
-                                               "/lib"))
-                      (cuda-include (string-append (assoc-ref inputs
-                                                              "cuda-toolkit")
-                                                   "/include")))
-                  (substitute* "configure"
-                    (("#! /bin/sh")
-                     (string-append "#!"
-                                    (which "sh"))))
-                  (setenv "SHELL"
-                          (which "bash"))
-                  (setenv "CONFIG_SHELL"
-                          (which "bash"))
-
-                  (apply invoke
-                         "./configure"
-                         (string-append "--prefix=" out)
-                         ;; Add $libdir to the RUNPATH of all the binaries.
-                         (string-append "--extra-ldflags=-Wl,-rpath=" out
-                                        "/lib")
-                         (string-append "--extra-cflags=-I" cuda-include)
-                         (string-append "--extra-cflags=-I" cuda-bin)
-                         (string-append "--extra-ldflags=-L" cuda-lib)
-                         (string-append "--nvcc=" cuda-nvcc)
-                         configure-flags))))))))
-    (inputs (modify-inputs (package-inputs ffmpeg)
-              (append cuda-toolkit nv-codec-headers)))
+                        "--enable-protocol=https")))))
     (description
-     "FFmpeg with NVIDIA hardware acceleration support using NVDEC and CUDA libraries.")
-    (synopsis "FFmpeg with NVIDIA GPU hardware decoding (NVDEC) support")))
+     (string-append
+      (package-description ffmpeg)
+      "  This build of FFmpeg includes nonfree NVIDIA encoders and decoders for
+hardware acceleration including h264_nvenc, hevc_nvenc encoders and various
+cuvid decoders."))
+    (properties '((upstream-name . "ffmpeg")))))
 
 (define-public mpv-cuda
   (package
@@ -207,7 +183,7 @@
                         "-Dvaapi=enabled"
                         "-Dvulkan=enabled")))))
     (propagated-inputs (modify-inputs (package-propagated-inputs mpv)
-                         (replace "ffmpeg" ffmpeg-cuda)
+                         (replace "ffmpeg" ffmpeg-nvidia)
                          (append cuda-toolkit nv-codec-headers)))))
 
 (define-public gmmlib

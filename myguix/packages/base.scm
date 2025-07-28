@@ -492,7 +492,7 @@
         nccl
         libfabric-cuda
         psm2-cuda
-        ffmpeg-cuda
+        ffmpeg-nvidia
         mpv-cuda))
 
 ;; Tree-sitter Bundles
