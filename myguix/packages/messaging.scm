@@ -126,7 +126,7 @@ its core.")
                 ;; correctly (see:
                 ;; <https://github.com/signalapp/Signal-Desktop/issues/6868>)
                 ("StartupWMClass=Signal")
-                 "StartupWMClass=signal"))))
+                "StartupWMClass=signal")))
           (add-after 'install 'symlink-binary-file
             (lambda _
               (mkdir-p (string-append #$output "/bin"))
