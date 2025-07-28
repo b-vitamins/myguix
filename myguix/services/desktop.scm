@@ -4,10 +4,11 @@
   #:use-module (gnu packages fonts)
   #:use-module (gnu packages gnome)
   #:use-module (gnu packages gnome-xyz)
+  #:use-module (gnu packages linux)
+  #:use-module (gnu packages nfs)
   #:use-module (gnu packages suckless)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu services)
-  #:use-module (gnu services mcron)
   #:use-module (gnu services networking)
   #:use-module (gnu services admin)
   #:use-module (gnu services avahi)
@@ -16,6 +17,8 @@
   #:use-module (gnu services dbus)
   #:use-module (gnu services sound)
   #:use-module (gnu services pm)
+  #:use-module (gnu system)
+  #:use-module (gnu system privilege)
   #:use-module (myguix services base)
   #:export (%my-gnome-shell-assets %my-desktop-services))
 
@@ -44,6 +47,11 @@
                     (screen-locker-configuration (name "slock")
                                                  (program (file-append slock
                                                            "/bin/slock"))))
+           (service screen-locker-service-type
+                    (screen-locker-configuration (name "xlock")
+                                                 (program (file-append
+                                                           xlockmore
+                                                           "/bin/xlock"))))
 
            ;; Scanner support (matches upstream 'sane-service-type)
            (service sane-service-type)
@@ -51,6 +59,19 @@
            ;; Add polkit rules, so that non-root users in the wheel group can
            ;; perform administrative tasks (similar to "sudo").
            polkit-wheel-service
+
+           ;; Allow desktop users to also mount NTFS and NFS file systems
+           ;; without root.
+           (simple-service 'mount-setuid-helpers
+                           privileged-program-service-type
+                           (map file-like->setuid-program
+                                (list (file-append nfs-utils "/sbin/mount.nfs")
+                                      (file-append ntfs-3g
+                                                   "/sbin/mount.ntfs-3g"))))
+
+           ;; Add some of the artwork niceties for the desktop.
+           (simple-service 'guix-artwork profile-service-type
+                           %base-packages-artwork)
 
            ;; File system services for desktop
            gdm-file-system-service
@@ -68,6 +89,8 @@
                                                                  network-manager-openvpn
                                                                  network-manager-openconnect))))
            (service wpa-supplicant-service-type) ;needed by NetworkManager
+           (simple-service 'network-manager-applet profile-service-type
+                           (list network-manager-applet))
            (service modem-manager-service-type)
            (service usb-modeswitch-service-type)
 
