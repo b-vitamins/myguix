@@ -493,13 +493,8 @@
         nccl
         libfabric-cuda
         psm2-cuda
-        tensorpipe-cuda
-        magma-cuda
         ffmpeg-cuda
-        mpv-cuda
-        python-pytorch-cuda
-        python-torchvision-cuda
-        python-lion-pytorch-cuda))
+        mpv-cuda))
 
 ;; Tree-sitter Bundles
 (define %tree-sitter-core
