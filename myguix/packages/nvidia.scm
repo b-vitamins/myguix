@@ -1593,7 +1593,7 @@ implement cuBLAS and cuDNN.")
 (define-public nccl
   (package
     (name "nccl")
-    (version "2.26.6-1")
+    (version "2.27.7-1")
     (source
      (origin
        (method git-fetch)
@@ -1602,7 +1602,7 @@ implement cuBLAS and cuDNN.")
              (url "https://github.com/NVIDIA/nccl")
              (commit (string-append "v" version))))
        (sha256
-        (base32 "18mdlww34bllv5c0w8biyjfsa09qwskpb717c0lx5ydjf0cqqidy"))))
+        (base32 "16zy4idicwj40v7hvihlppnh0wfl2vmrs1wsmv2sfapzm5qn2mls"))))
     (build-system gnu-build-system)
     (arguments
      (list
