@@ -450,8 +450,7 @@
         soundtouch))
 
 (define %build-essentials
-  (list gcc-toolchain
-        gnu-make
+  (list gnu-make
         cmake
         cmakelang
         automake
@@ -567,7 +566,7 @@
 
 ;; Development - Languages
 (define %c-cpp-development
-  (list gcc-toolchain clang gdb valgrind ccls))
+  (list clang gdb valgrind ccls))
 
 (define %rust-development
   (list `(,rust "out")
