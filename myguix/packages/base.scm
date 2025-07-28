@@ -489,7 +489,6 @@
         cutlass-headers
         cutlass-tools
         cutensor
-        nccl
         libfabric-cuda
         psm2-cuda
         ffmpeg-nvidia
