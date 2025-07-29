@@ -2995,9 +2995,9 @@ files for use in Python.  It supports reading and writing various Kaldi data
 types including matrices, vectors, and posterior probabilities.")
     (license license:asl2.0)))
 
-(define-public python-torchaudio
+(define-public python-torchaudio-cuda
   (package
-    (name "python-torchaudio")
+    (name "python-torchaudio-cuda")
     (version "2.7.0")
     (source
      (origin
@@ -3041,7 +3041,7 @@ setup(
     license='BSD',
 )
 " port))))))))
-    (propagated-inputs (list python-pytorch))
+    (propagated-inputs (list python-pytorch-cuda))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://pytorch.org/audio")
     (synopsis "Audio library for PyTorch")
