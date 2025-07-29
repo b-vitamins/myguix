@@ -139,6 +139,7 @@
             %tree-sitter-extended
             %documentation-tools
             %cuda-packages
+            %ml-packages
             ;; Networking
             %network-core
             %network-diagnostics
@@ -493,6 +494,13 @@
         psm2-cuda
         ffmpeg-nvidia
         mpv-cuda))
+
+(define %ml-packages
+  (list nccl
+        python-pytorch-cuda
+        python-torchvision-cuda
+        python-lion-pytorch-cuda
+        python-torchaudio-cuda))
 
 ;; Tree-sitter Bundles
 (define %tree-sitter-core
