@@ -1,0 +1,48 @@
+From 67c23e91c385a7ef903c200ac72166d85fabad21 Mon Sep 17 00:00:00 2001
+Message-ID: <67c23e91c385a7ef903c200ac72166d85fabad21.1753737951.git.bvits@riseup.net>
+From: Ayan Das <bvits@riseup.net>
+Date: Tue, 29 Jul 2025 02:55:43 +0530
+Subject: [PATCH 1/1] Fix CUDA C++ standard to match the rest of the codebase
+
+When building with newer GCC versions (14.3+), the C++ standard library headers
+require C++14 or newer features. This patch ensures CUDA code is compiled with
+the same C++ standard as the rest of the codebase.
+
+The issue occurs because:
+1. The main CMakeLists.txt sets CMAKE_CXX_FLAGS to use -std=c++11
+2. But when used with newer GCC versions, this causes incompatibility
+3. This fix allows CUDA to use the same C++ standard as the rest of the project
+
+Signed-off-by: Ayan Das <bvits@riseup.net>
+---
+ cmake/Cuda.cmake | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/cmake/Cuda.cmake b/cmake/Cuda.cmake
+index d2ca212..db6afb2 100644
+--- a/cmake/Cuda.cmake
++++ b/cmake/Cuda.cmake
+@@ -130,10 +130,19 @@ else()
+   set(GLOO_CUDA_LIBRARIES ${CUDA_CUDART_LIBRARY})
+ 
+   # If the project including us doesn't set any -std=xxx directly, we set it to C++11 here.
++  # However, if CMAKE_CXX_STANDARD is set or if the main project uses a different standard,
++  # we should match that to avoid incompatibilities with modern compilers.
+   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+   if((NOT "${GLOO_NVCC_FLAGS}" MATCHES "-std=c\\+\\+") AND (NOT "${GLOO_NVCC_FLAGS}" MATCHES "-std=gnu\\+\\+"))
+     if(NOT MSVC)
+-      gloo_list_append_if_unique(GLOO_NVCC_FLAGS "-std=c++11")
++      # Extract C++ standard from CMAKE_CXX_FLAGS if available
++      if("${CMAKE_CXX_FLAGS}" MATCHES "-std=c\\+\\+([0-9]+)")
++        gloo_list_append_if_unique(GLOO_NVCC_FLAGS "-std=c++${CMAKE_MATCH_1}")
++      elseif(DEFINED CMAKE_CXX_STANDARD)
++        gloo_list_append_if_unique(GLOO_NVCC_FLAGS "-std=c++${CMAKE_CXX_STANDARD}")
++      else()
++        gloo_list_append_if_unique(GLOO_NVCC_FLAGS "-std=c++11")
++      endif()
+     endif()
+   endif()
+ 
+-- 
+2.50.1
+

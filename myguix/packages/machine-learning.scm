@@ -2162,8 +2162,8 @@ designed for flexibility.")
 
 (define-public gloo-cuda
   (let ((version "0.0.0")
-        (commit "5354032ea08eadd7fc4456477f7f7c6308818509")
-        (revision "20231203"))
+        (commit "c82c8b9387151372fce889215316225cdd44565b")
+        (revision "20240524"))
     (package
       (name "gloo-cuda")
       (version (git-version version revision commit))
@@ -2175,7 +2175,8 @@ designed for flexibility.")
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "1xw1lj8gyq4gfhhsj8syv4przqw2nk59hhwyhjf3gvik4k3yvhi4"))))
+          (base32 "0w8k16kakqznflfm7v8pp7p2dsxlz4fhyr4qp08jlhs77pishxnc"))
+         (patches (search-patches "myguix/patches/gloo-cuda-cpp-standard.patch"))))
       (build-system cmake-build-system)
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
@@ -2363,6 +2364,12 @@ as common bridge to reuse tensor and ops across frameworks.")
                                "caffe2/CMakeLists.txt")
                   (("target_link_libraries\\((.* gtest_main)\\)" all content)
                    (format #f "target_link_libraries(~a gtest)" content)))))
+            (add-after 'cuda-cmake-patches 'fix-missing-algorithm-header
+              (lambda _
+                ;; Fix missing <algorithm> header for std::for_each in Vulkan API
+                (substitute* "aten/src/ATen/native/vulkan/api/QueryPool.cpp"
+                  (("#include <utility>" all)
+                   (string-append all "\n#include <algorithm>")))))
             (replace 'set-max-jobs
               (lambda _
                 (setenv "MAX_JOBS"
