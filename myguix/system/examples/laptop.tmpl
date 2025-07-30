@@ -1,0 +1,263 @@
+;; -*- mode: scheme; -*-
+;; This is an operating system configuration template
+;; for a laptop setup optimized for ThinkPad X1 Carbon Gen 12
+;; with power management, battery optimization, and
+;; development tools using myguix for enhanced hardware support.
+
+(use-modules (gnu)
+             (gnu system nss)
+             (gnu services)
+             (gnu services desktop)
+             (gnu services pm)
+             (gnu services networking)
+             (gnu services ssh)
+             (gnu services cups)
+             (gnu services sysctl)
+             (gnu services linux)
+             (gnu packages gnome)
+             (myguix packages base)
+             (myguix packages linux)
+             (myguix services desktop)
+             (myguix system linux-initrd)
+             (srfi srfi-1))
+
+(operating-system
+  (host-name "laptop")
+  (timezone "Asia/Kolkata")
+  (locale "en_US.utf8")
+
+  ;; Full Linux kernel with firmware and SOF audio support
+  (kernel linux)
+  (kernel-arguments %default-kernel-arguments)
+  (firmware (list linux-firmware sof-firmware))
+  (initrd microcode-initrd)
+
+  ;; ThinkPad-optimized keyboard layout
+  (keyboard-layout (keyboard-layout "us"
+                                    "altgr-intl"
+                                    #:model "thinkpad"
+                                    #:options '("ctrl:nocaps"
+                                                "altwin:swap_alt_win")))
+
+  ;; UEFI boot with encrypted root
+  (bootloader (bootloader-configuration
+                (bootloader grub-efi-bootloader)
+                (targets '("/boot/efi"))
+                (keyboard-layout keyboard-layout)))
+
+  ;; Encrypted root partition
+  (mapped-devices
+   (list (mapped-device
+          (source (uuid "12345678-1234-1234-1234-123456789abc"))
+          (target "crypt-root")
+          (type luks-device-mapping))))
+
+  (file-systems (append
+                 (list (file-system
+                         (device (file-system-label "my-root"))
+                         (mount-point "/")
+                         (type "btrfs")
+                         (dependencies mapped-devices))
+                       (file-system
+                         (device (uuid "1234-ABCD" 'fat32))
+                         (mount-point "/boot/efi")
+                         (type "vfat")))
+                 %base-file-systems))
+
+  ;; Swap configuration
+  (swap-devices (list (swap-space
+                       (target (uuid "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")))))
+
+  ;; User account
+  (users (cons (user-account
+                (name "user")
+                (comment "Laptop User")
+                (group "users")
+                (supplementary-groups '("wheel" "netdev" "audio" "video"
+                                        "adbusers" "realtime" "seat")))
+               %base-user-accounts))
+
+  ;; Additional groups for laptop features
+  (groups (cons* (user-group
+                   (system? #t)
+                   (name "realtime"))
+                 (user-group
+                   (system? #t)
+                   (name "seat"))
+                 (user-group
+                   (system? #t)
+                   (name "adbusers"))
+                 %base-groups))
+
+  ;; Laptop-optimized package selection
+  (packages (append
+             ;; Core System
+             %core-minimal
+             %core-extended
+             %shell-modern
+             %terminal-essentials
+             %text-editors
+             %security-essentials
+             
+             ;; Development - Core
+             %build-essentials
+             %version-control
+             %compression-tools
+             
+             ;; Development - Languages
+             %c-cpp-development
+             %python-development
+             %guile-development
+             
+             ;; Language Servers
+             %language-servers-core
+             
+             ;; Networking
+             %network-core
+             %network-diagnostics
+             
+             ;; File Management
+             %filesystem-core
+             %cloud-sync
+             %backup-tools
+             
+             ;; Desktop
+             %desktop-browsers
+             %desktop-core
+             %audio-system
+             %bluetooth-system
+             
+             ;; Documents
+             %latex-core
+             %spell-checkers
+             
+             ;; Fonts
+             %fonts-essential
+             %fonts-programming
+             
+             %base-packages))
+
+  ;; Laptop services with power management
+  (services
+   (append
+    (list
+     ;; Desktop environment
+     (service gnome-desktop-service-type)
+     
+     ;; X11 configuration
+     (set-xorg-configuration
+      (xorg-configuration (keyboard-layout keyboard-layout)))
+     
+     ;; Printing
+     (service cups-service-type
+              (cups-configuration
+               (web-interface? #t)))
+     
+     ;; SSH (disabled by default for security)
+     (service openssh-service-type
+              (openssh-configuration
+               (permit-root-login #f)
+               (password-authentication? #f)
+               (%auto-start? #f)))
+     
+     ;; Firewall
+     (service nftables-service-type)
+     
+     ;; Bluetooth management
+     (simple-service 'blueman dbus-root-service-type
+                     (list blueman))
+     
+     ;; Memory management - conservative for laptop
+     (service earlyoom-service-type
+              (earlyoom-configuration
+               (minimum-available-memory 10)
+               (minimum-free-swap 10)
+               (memory-report-interval 120)
+               (avoid-regexp "^(sshd|guix-daemon)$")
+               (prefer-regexp "^(chromium|firefox|node|java)$")
+               (show-debug-messages? #f)))
+     
+     ;; Compressed swap for memory efficiency
+     (service zram-device-service-type
+              (zram-device-configuration
+               (size "4G")
+               (compression-algorithm 'zstd)
+               (memory-limit "8G")
+               (priority 100)))
+     
+     ;; SSD optimization
+     (service fstrim-service-type
+              (fstrim-configuration
+               (schedule "0 0 * * 0")
+               (verbose? #f)))
+     
+     ;; Power management - critical for laptops
+     (service tlp-service-type
+              (tlp-configuration
+               ;; CPU settings
+               (cpu-scaling-governor-on-ac (list "balance_performance"))
+               (cpu-scaling-governor-on-bat (list "balance_power"))
+               (cpu-energy-perf-policy-on-ac "balance_performance")
+               (cpu-energy-perf-policy-on-bat "balance_power")
+               (cpu-boost-on-ac? #t)
+               (cpu-boost-on-bat? #f)
+               (sched-powersave-on-bat? #t)
+               
+               ;; Disk settings
+               (disk-apm-level-on-ac (list "254" "254"))
+               (disk-apm-level-on-bat (list "128" "128"))
+               (disk-idle-secs-on-bat 2)
+               
+               ;; PCIe power management
+               (pcie-aspm-on-ac "performance")
+               (pcie-aspm-on-bat "powersupersave")
+               (runtime-pm-on-ac "on")
+               (runtime-pm-on-bat "auto")
+               
+               ;; WiFi power saving
+               (wifi-pwr-on-bat? #t)
+               
+               ;; Audio power saving
+               (sound-power-save-on-ac 10)
+               (sound-power-save-on-bat 1)
+               
+               ;; USB autosuspend
+               (usb-autosuspend? #t)
+               (usb-blacklist-wwan? #t)
+               
+               ;; Battery charge thresholds for longevity
+               (start-charge-thresh-bat0 45)
+               (stop-charge-thresh-bat0 80)))
+     
+     ;; System tuning
+     (service sysctl-service-type
+              (sysctl-configuration
+               (settings (append '(("vm.swappiness" . "10")
+                                   ("vm.vfs_cache_pressure" . "50"))
+                                 %default-sysctl-settings))))
+     
+     ;; Wayland environment preferences
+     (simple-service 'wayland-environment
+                     session-environment-service-type
+                     '(("MOZ_ENABLE_WAYLAND" . "1")
+                       ("QT_QPA_PLATFORM" . "wayland;xcb")
+                       ("CLUTTER_BACKEND" . "wayland")
+                       ("SDL_VIDEODRIVER" . "wayland")
+                       ("_JAVA_AWT_WM_NONREPARENTING" . "1")
+                       ("GDK_BACKEND" . "wayland,x11"))))
+    
+    ;; Modify desktop services for laptop
+    (modify-services %my-desktop-services
+      ;; Configure lid and power button behavior
+      (elogind-service-type config =>
+                            (elogind-configuration
+                             (inherit config)
+                             (handle-lid-switch 'suspend)
+                             (handle-lid-switch-external-power 'suspend)
+                             (handle-lid-switch-docked 'ignore)
+                             (idle-action 'suspend)
+                             (idle-action-seconds (* 20 60))
+                             (holdoff-timeout-seconds 30))))))
+
+  ;; Allow resolution of '.local' host names with mDNS.
+  (name-service-switch %mdns-host-lookup-nss))
