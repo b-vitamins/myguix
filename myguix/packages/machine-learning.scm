@@ -2364,12 +2364,6 @@ as common bridge to reuse tensor and ops across frameworks.")
                                "caffe2/CMakeLists.txt")
                   (("target_link_libraries\\((.* gtest_main)\\)" all content)
                    (format #f "target_link_libraries(~a gtest)" content)))))
-            (add-after 'cuda-cmake-patches 'fix-missing-algorithm-header
-              (lambda _
-                ;; Fix missing <algorithm> header for std::for_each in Vulkan API
-                (substitute* "aten/src/ATen/native/vulkan/api/QueryPool.cpp"
-                  (("#include <utility>" all)
-                   (string-append all "\n#include <algorithm>")))))
             (replace 'set-max-jobs
               (lambda _
                 (setenv "MAX_JOBS"
