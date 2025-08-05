@@ -216,7 +216,7 @@ desktop.")
                      (link (string-append #$output "/bin/pantheon-calendar")))
                 (symlink bin link)))))))
     (inputs (list clutter
-                  evolution-data-server-3.44
+                  evolution-data-server
                   folks-with-libsoup2
                   geoclue
                   geocode-glib-with-libsoup2
