@@ -6,6 +6,7 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages digest)
   #:use-module (gnu packages crates-check)
   #:use-module (gnu packages crates-compression)
   #:use-module (gnu packages crates-crypto)
@@ -3111,4 +3112,46 @@ dependencies = [\"pymongo>=4.5,<5\"]
     (synopsis "Document-Object Mapper for working with MongoDB from Python")
     (description
      "MongoEngine is a Document-Object Mapper (think ORM, but for document databases) for working with MongoDB from Python.")
+    (license license:expat)))
+
+(define-public python-openalex
+  (package
+    (name "python-openalex")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/openalex-python")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0lzkklf84a4gkix30z2czvhsh217d281l9idj2nazvr0c7lyw1ii"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require network access and test fixtures
+    (propagated-inputs (list python-httpx
+                             python-pydantic-2
+                             python-structlog
+                             python-rich
+                             python-dateutil
+                             python-orjson
+                             python-typing-extensions
+                             python-cachetools
+                             python-xxhash))
+    (native-inputs (list python-poetry-core
+                         python-pytest
+                         python-pytest-asyncio
+                         python-pytest-cov
+                         python-pytest-httpx
+                         python-pytest-examples
+                         python-pytest-benchmark
+                         python-requests))
+    (home-page "https://github.com/b-vitamins/openalex-python")
+    (synopsis "Python client for the OpenAlex API with async support")
+    (description
+     "A Python client library for the OpenAlex API providing type-safe data models,
+fluent query interface, comprehensive filtering, async support, and automatic
+pagination.  Features include cursor-based pagination, automatic retries, rate
+limiting, circuit breaker for resilience, and in-memory caching.")
     (license license:expat)))
