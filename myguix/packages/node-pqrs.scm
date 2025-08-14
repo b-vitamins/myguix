@@ -9362,14 +9362,14 @@
 (define-public node-pyright
   (package
     (name "node-pyright")
-    (version "1.1.401")
+    (version "1.1.403")
     (source
       (origin
         (method url-fetch)
-        (uri "https://registry.npmjs.org/pyright/-/pyright-1.1.401.tgz")
+        (uri "https://registry.npmjs.org/pyright/-/pyright-1.1.403.tgz")
         (sha256
           (base32
-            "03rxk89ql404ks5sd4r12ihy2px15cshhk3gv8hc3yb32xsfwjii"))))
+            "17gcgvaa7fydhddf54s5f45qwai3phc5cny2ryw6fpqazzy3cayn"))))
     (build-system node-build-system)
     (arguments
       (list #:tests?
