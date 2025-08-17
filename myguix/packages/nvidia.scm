@@ -1641,16 +1641,16 @@ multi-process (e.g., MPI) applications.")
 (define-public cutensor
   (package
     (name "cutensor")
-    (version "2.2.0.0")
+    (version "2.3.0.6")
     (home-page "https://developer.nvidia.com/cutensor")
     (source
      (origin
        (method url-fetch)
        (uri (string-append
              "https://developer.download.nvidia.com/compute/cutensor/redist/libcutensor/linux-x86_64/libcutensor-linux-x86_64-"
-             version "-archive.tar.xz"))
+             version "_cuda12-archive.tar.xz"))
        (sha256
-        (base32 "1gwd20bsyfv68aiddrzy191ic80yk9g3hk70q65yy5bnk6zdqxnv"))))
+        (base32 "12zxv2nzr5kcn49p8cgjncmzpbkmnjyjrldll7fjabm3v82fl0w9"))))
     (build-system copy-build-system)
     (arguments
      (list
