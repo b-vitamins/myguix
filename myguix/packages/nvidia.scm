@@ -1260,14 +1260,14 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 (define-public cudnn
   (package
     (name "cudnn")
-    (version "9.10.1.4")
+    (version "9.12.0.46")
     (source
      (origin
        (uri (string-append
              "https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-"
              version "_cuda12-archive.tar.xz"))
        (sha256
-        (base32 "1gmqxrm1ndymaiw3bdmjj8g3q2bzr2b4f8hf96dws7xxwma9fxdy"))
+        (base32 "17mi138jny2msqr28x81a6p369j9pn120jqqd2403nx3m2rx3yi1"))
        (method url-fetch)))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
