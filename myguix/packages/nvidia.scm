@@ -1073,13 +1073,13 @@ nvidia-smi.")
 (define-public python-nvidia-ml-py
   (package
     (name "python-nvidia-ml-py")
-    (version "12.575.51")
+    (version "13.580.65")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "nvidia_ml_py" version))
        (sha256
-        (base32 "10a5qllfwyknr1ck9wi1r6a629f6xv31ibi7cfb4xswrx8zyk434"))))
+        (base32 "1jd3yqa6542a1ad3arcy8g73cnqmqb3g1x8w04kqfrfkqw1qpwbv"))))
     (build-system python-build-system)
     (arguments
      (list
