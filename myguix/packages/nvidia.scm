@@ -1824,7 +1824,7 @@ See also
 (define-public nvtx
   (package
     (name "nvtx")
-    (version "3.2.1")
+    (version "3.3.0")
     (source
      (origin
        (method git-fetch)
@@ -1833,7 +1833,7 @@ See also
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0qg05pv3lnzv9myh0i64msxpwxp1hn5fp1b6qy8jdy9ryb5nwy9i"))))
+        (base32 "0xlxjr7s12n9q83mbi1pk7jd73npd9fr8pn8b2a4xc5labbc6m0p"))))
     (build-system copy-build-system)
     (arguments
      (list
