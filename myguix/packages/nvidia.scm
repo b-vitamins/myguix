@@ -1499,7 +1499,7 @@ kernels and applications.")
 (define-public cutlass-headers
   (package
     (name "cutlass-headers")
-    (version "3.8.0")
+    (version "4.1.0")
     (home-page "https://github.com/NVIDIA/cutlass")
     (source
      (origin
@@ -1509,7 +1509,7 @@ kernels and applications.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1s9cv58hd0jqxq6dh5k825waaaidkp5ngld9lyh1wfjxlinfb350"))))
+        (base32 "0yxss2jxbgjija8c7cryjq75irrnj17f5yjfppmaf2y21x7bm3v5"))))
     (build-system copy-build-system)
     (arguments
      (list
