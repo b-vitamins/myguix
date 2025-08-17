@@ -2676,6 +2676,16 @@ Note: currently this package does not provide GPU support.")
                                "caffe2/CMakeLists.txt")
                   (("target_link_libraries\\((.* gtest_main)\\)" all content)
                    (format #f "target_link_libraries(~a gtest)" content)))))
+            (add-after 'cuda-cmake-patches 'fix-fmt-compatibility
+              (lambda _
+                ;; XXX: PyTorch 2.8.0 is incompatible with fmt 9.1.0 due to
+                ;; stricter constexpr requirements in FMT_COMPILE macro.
+                ;; Remove FMT_COMPILE usage where it causes issues.
+                (substitute* "torch/csrc/distributed/c10d/TraceUtils.h"
+                  (("fmt::format\\(FMT_COMPILE\\(\"([^\"]+)\"\\)" _ fmt-string)
+                   (string-append "fmt::format(\"" fmt-string "\""))
+                  (("constexpr auto TB_FMT_CSTR = FMT_COMPILE\\(\"([^\"]+)\"\\)" _ fmt-string)
+                   (string-append "const char* TB_FMT_CSTR = \"" fmt-string "\"")))))
             (replace 'set-max-jobs
               (lambda _
                 (setenv "MAX_JOBS"
