@@ -2162,8 +2162,8 @@ designed for flexibility.")
 
 (define-public gloo-cuda
   (let ((version "0.0.0")
-        (commit "c82c8b9387151372fce889215316225cdd44565b")
-        (revision "20240524"))
+        (commit "c7b7b022c124d9643957d9bd55f57ac59fce8fa2")
+        (revision "20250117"))
     (package
       (name "gloo-cuda")
       (version (git-version version revision commit))
@@ -2175,7 +2175,7 @@ designed for flexibility.")
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "0w8k16kakqznflfm7v8pp7p2dsxlz4fhyr4qp08jlhs77pishxnc"))
+          (base32 "0xsp2m2if3g85l0c3cx9l0j3kz36j3kbmz9mai6kchdhrs13r7d5"))
          (patches (search-patches "myguix/patches/gloo-cuda-cpp-standard.patch"))))
       (build-system cmake-build-system)
       (native-inputs (list googletest))
