@@ -458,7 +458,9 @@
         autoconf
         direnv
         cloc
-        tokei))
+        tokei
+        shellcheck
+        shfmt))
 
 (define %compiler-toolchains
   (list clang mold))
