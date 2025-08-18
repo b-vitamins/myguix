@@ -28,7 +28,7 @@
   #:use-module (guix build-system)
   #:use-module (guix build-system gnu)
   #:use-module (gnu packages base)
-  #:use-module (gnu packages certs)
+  #:use-module (gnu packages nss)
   #:export (%bazel-build-system-modules bazel-build bazel-build-system))
 
 ;; Commentary:

@@ -1,7 +1,7 @@
 (define-module (myguix packages nlp)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bootstrap)
-  #:use-module (gnu packages certs)
+  #:use-module (gnu packages nss)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module ((gnu packages crates-io)
@@ -674,7 +674,7 @@ tokenizers = ~s"
 tokenizers, @code{rust-tokenizers}.")
     (license license:asl2.0)))
 
-(define python-transformers-for-nougat
+(define-public python-transformers-for-nougat
   (package
     (inherit python-transformers)
     (name "python-transformers")
@@ -719,7 +719,6 @@ from _pytest.doctest import (\\1")
                              python-pytorch-cuda
                              python-pyyaml
                              python-regex
-                             nss-certs-for-test
                              python-requests-next
                              python-safetensors
                              python-tokenizers-for-nougat
