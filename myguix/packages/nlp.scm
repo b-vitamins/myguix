@@ -9,8 +9,7 @@
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
-  #:use-module ((gnu packages machine-learning)
-                #:hide (python-safetensors))
+  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages pdf)
   #:use-module (gnu packages pkg-config)
@@ -688,6 +687,14 @@ tokenizers, @code{rust-tokenizers}.")
     (native-inputs (modify-inputs (package-native-inputs python-requests)
                      (prepend nss-certs-for-test)))))
 
+(define-public python-safetensors-cuda
+  (package
+    (inherit python-safetensors)
+    (name "python-safetensors-cuda")
+    (native-inputs
+     (modify-inputs (package-native-inputs python-safetensors)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-transformers-for-nougat
   (package
     (inherit python-transformers)
@@ -734,7 +741,7 @@ from _pytest.doctest import (\\1")
                              python-pyyaml
                              python-regex
                              python-requests-next
-                             python-safetensors
+                             python-safetensors-cuda
                              python-tokenizers-for-nougat
                              python-tqdm))
     (native-inputs (list python-parameterized python-pytest python-setuptools
