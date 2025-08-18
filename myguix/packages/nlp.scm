@@ -673,20 +673,6 @@ tokenizers = ~s"
 tokenizers, @code{rust-tokenizers}.")
     (license license:asl2.0)))
 
-(define python-requests-for-nougat
-  (package
-    (inherit python-requests-next)
-    (name "python-requests")
-    (version "2.32.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "requests" version))
-       (sha256
-        (base32 "129j8gidirf8ycpfg6l3v90snpa9fyx061xl4smb7qzkxksiz5fx"))))
-    (native-inputs (modify-inputs (package-native-inputs python-requests)
-                     (prepend nss-certs-for-test)))))
-
 (define-public python-safetensors-cuda
   (package
     (inherit python-safetensors)
@@ -740,7 +726,7 @@ from _pytest.doctest import (\\1")
                              python-pytorch-cuda
                              python-pyyaml
                              python-regex
-                             python-requests-next
+                             python-requests
                              python-safetensors-cuda
                              python-tokenizers-for-nougat
                              python-tqdm))
