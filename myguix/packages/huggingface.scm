@@ -221,6 +221,20 @@ datasets and other repos on the @url{huggingface.co} hub.")
     (description "Accelerate.")
     (license license:asl2.0)))
 
+(define python-requests-for-datasets
+  (package
+    (inherit python-requests)
+    (name "python-requests")
+    (version "2.32.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "requests" version))
+       (sha256
+        (base32 "129j8gidirf8ycpfg6l3v90snpa9fyx061xl4smb7qzkxksiz5fx"))))
+    (native-inputs (modify-inputs (package-native-inputs python-requests)
+                     (prepend nss-certs-for-test)))))
+
 (define-public python-datasets
   (package
     (name "python-datasets")
@@ -255,7 +269,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
                              python-pandas
                              python-pyarrow
                              python-pyyaml
-                             python-requests-next
+                             python-requests-for-datasets
                              python-setuptools
                              python-tqdm
                              python-xxhash))
