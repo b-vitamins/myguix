@@ -3379,7 +3379,7 @@ This is a minimal pure-Python build without C++ extensions.")
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f)) ;No tests included
-    (propagated-inputs (list python-pytorch))
+    (propagated-inputs (list python-pytorch-cuda))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/lucidrains/ema-pytorch")
     (synopsis
