@@ -1507,7 +1507,7 @@ for monitoring training progress, visualizing computational graphs, and analyzin
                              python-packaging
                              python-protobuf
                              python-pylint
-                             python-pytorch
+                             python-pytorch-cuda
                              python-simple-parsing
                              python-tensorflow
                              python-tqdm
