@@ -204,7 +204,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
                              python-setuptools
                              python-safetensors
                              python-pytorch-cuda))
-    (native-inputs (list python-bitsandbytes
+    (native-inputs (list python-bitsandbytes-cuda
                          python-black
                          python-parameterized
                          python-pytest
