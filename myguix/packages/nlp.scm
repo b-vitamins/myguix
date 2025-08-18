@@ -9,7 +9,8 @@
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
-  #:use-module (gnu packages machine-learning)
+  #:use-module ((gnu packages machine-learning)
+                #:hide (python-safetensors))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages pdf)
   #:use-module (gnu packages pkg-config)
@@ -42,8 +43,7 @@
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages machine-learning)
-  #:use-module ((myguix packages huggingface)
-                #:hide (python-safetensors)))
+  #:use-module (myguix packages huggingface))
 
 (define-public whisper-cpp
   (package
