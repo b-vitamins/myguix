@@ -976,7 +976,7 @@ GBM EGL support.")
 (define-public egl-x11
   (package
     (name "egl-x11")
-    (version "1.0.0")
+    (version "1.0.2")
     (source
      (origin
        (method git-fetch)
@@ -985,7 +985,7 @@ GBM EGL support.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "15zqzx061cpzcs0mxc7nnsv9rabfszfxxmwr5v7flxi4m9j6hshc"))))
+        (base32 "0s18xpylz16ry51xp1bs2s4hmvwsq49hcfc0gnmmvnymdzm041aq"))))
     (build-system meson-build-system)
     (native-inputs (list pkg-config))
     (inputs (list eglexternalplatform mesa-for-nvda))
