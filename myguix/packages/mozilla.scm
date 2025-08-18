@@ -506,7 +506,7 @@ StartupWMClass=Firefox"))
                   libxt
                   mesa
                   mit-krb5
-                  nspr-4.32
+                  nspr
                   ;; nss
                   pango
                   pciutils
