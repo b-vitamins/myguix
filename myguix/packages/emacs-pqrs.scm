@@ -464,14 +464,14 @@ All available commands are listed in a hydra help menu accessible by pressing `?
 (define-public emacs-info+
   (package
     (name "emacs-info+")
-    (version "5228")
+    (version "7580")
     (source
      (origin
        (method url-fetch)
        (uri "https://www.emacswiki.org/emacs/download/info+.el")
        (file-name "info+.el") ;Changed to match the expected name
        (sha256
-        (base32 "082gzqqr257yid0sfjfcqgn9z0n6c3ahd0mysdsff7a3c0rpvd93"))))
+        (base32 "1gnzsxdcc0rzrpb9fs62pzl5ygdfqx11bzjzcfrjswffi0b1fif7"))))
     (build-system emacs-build-system)
     (arguments
      `(#:phases (modify-phases %standard-phases
