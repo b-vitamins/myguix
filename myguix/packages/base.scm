@@ -100,6 +100,7 @@
   #:use-module (myguix packages mozilla)
   #:use-module (myguix packages node-pqrs)
   #:use-module (myguix packages nvidia)
+  #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages video)
   #:export ( ;Core System Bundles
@@ -172,6 +173,7 @@
             %latex-extended
             %document-conversion-packages
             %spell-checkers
+            %note-taking
             ;; Math/Science
             %math-core
             %math-applications
@@ -429,6 +431,9 @@
 
 (define %spell-checkers
   (list hunspell hunspell-dict-en-us hunspell-dict-en-gb-ize))
+
+(define %note-taking
+  (list anytype obsidian zotero))
 
 ;; Media Bundles
 (define %media-players
