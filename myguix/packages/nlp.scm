@@ -47,7 +47,7 @@
 (define-public whisper-cpp
   (package
     (name "whisper-cpp")
-    (version "1.7.5")
+    (version "1.7.6")
     (source
      (origin
        (method git-fetch)
@@ -56,7 +56,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0fs15rizz4psd3flfjpdivzvc9w19i3706flisn136ax0k8r7w5n"))))
+        (base32 "0gn64jw4pr4vfnn2hll7yd98r8yhaqg97hhg5z22vq4j423436kn"))))
     (build-system cmake-build-system)
     (arguments
      `(#:tests? #f ;No tests.
@@ -67,30 +67,14 @@
                   (ice-9 rdelim)
                   (ice-9 popen))
        #:phases (modify-phases %standard-phases
-                  (add-after 'install 'install-binaries
+                  (add-after 'install 'create-whisper-symlink
                     (lambda* (#:key outputs #:allow-other-keys)
                       (let ((bin (string-append (assoc-ref outputs "out")
-                                                "/bin"))
-                            (build-dir (string-append (getcwd) "/bin/")))
-                        ;; Install files that already have correct names
-                        (for-each (lambda (file)
-                                    (install-file (string-append build-dir
-                                                                 file) bin))
-                                  '("whisper-cli" "whisper-server"
-                                    "whisper-bench"))
-                        (for-each (lambda (file)
-                                    (let ((orig-file (string-append build-dir
-                                                                    file))
-                                          (new-file (if (string=? file "main")
-                                                        (string-append
-                                                         build-dir "/whisper")
-                                                        (string-append
-                                                         build-dir "/whisper-"
-                                                         file))))
-                                      (invoke "mv" orig-file new-file)
-                                      (install-file new-file bin)))
-                                  '("main" "quantize")))))
-                  (add-after 'install-binaries 'fix-rpath
+                                                "/bin")))
+                        ;; Create whisper symlink pointing to whisper-cli
+                        (symlink (string-append bin "/whisper-cli")
+                                 (string-append bin "/whisper")))))
+                  (add-after 'create-whisper-symlink 'fix-rpath
                     (lambda* (#:key outputs #:allow-other-keys)
                       (let ((libdir (string-append (assoc-ref outputs "out")
                                                    "/lib"))
@@ -677,9 +661,8 @@ tokenizers, @code{rust-tokenizers}.")
   (package
     (inherit python-safetensors)
     (name "python-safetensors-cuda")
-    (native-inputs
-     (modify-inputs (package-native-inputs python-safetensors)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (native-inputs (modify-inputs (package-native-inputs python-safetensors)
+                     (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-transformers-for-nougat
   (package

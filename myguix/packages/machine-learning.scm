@@ -2684,8 +2684,10 @@ Note: currently this package does not provide GPU support.")
                 (substitute* "torch/csrc/distributed/c10d/TraceUtils.h"
                   (("fmt::format\\(FMT_COMPILE\\(\"([^\"]+)\"\\)" _ fmt-string)
                    (string-append "fmt::format(\"" fmt-string "\""))
-                  (("constexpr auto TB_FMT_CSTR = FMT_COMPILE\\(\"([^\"]+)\"\\)" _ fmt-string)
-                   (string-append "const char* TB_FMT_CSTR = \"" fmt-string "\"")))))
+                  (("constexpr auto TB_FMT_CSTR = FMT_COMPILE\\(\"([^\"]+)\"\\)"
+                    _ fmt-string)
+                   (string-append "const char* TB_FMT_CSTR = \"" fmt-string
+                                  "\"")))))
             (replace 'set-max-jobs
               (lambda _
                 (setenv "MAX_JOBS"
