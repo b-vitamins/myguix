@@ -488,7 +488,7 @@
   (list rust-analyzer ccls node-pyright gopls))
 
 (define %language-servers-extended
-  (list python-ruff-lsp guile-lsp-server ocaml-lsp-server vala-language-server))
+  (list guile-lsp-server ocaml-lsp-server vala-language-server))
 
 (define %cuda-packages
   (list cuda-toolkit
@@ -586,7 +586,6 @@
   (list python
         python-flake8
         python-black
-        python-ruff
         python-pytest
         python-pyclean
         python-mutmut))

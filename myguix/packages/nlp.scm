@@ -4,8 +4,6 @@
   #:use-module (gnu packages nss)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
-  #:use-module ((past-crates packages crates-io)
-                #:hide (rust-onig-6 rust-regex-1))
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
@@ -40,9 +38,22 @@
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages python-pqrs)
-  #:use-module (myguix packages rust-pqrs)
+  #:use-module ((myguix packages rust-crates-pqrs)
+                #:select (lookup-myguix-cargo-inputs))
+  #:use-module ((guix build-system cargo)
+                #:select (cargo-inputs))
+  #:use-module (gnu packages textutils)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages huggingface))
+
+;; Helper function to use myguix cargo inputs
+(define (myguix-cargo-inputs name)
+  "Lookup Cargo inputs for NAME from myguix rust-crates-pqrs."
+  (or (lookup-myguix-cargo-inputs name)
+      (begin
+        (format (current-error-port)
+                "Warning: no Cargo inputs available for '~a'~%" name)
+        '())))
 
 (define-public whisper-cpp
   (package
@@ -213,27 +224,39 @@
     (build-system cargo-build-system)
     (arguments
      (list
-      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:install-source? #f
+      #:imported-modules (append %pyproject-build-system-modules
+                                 %cargo-build-system-modules)
       #:modules '((guix build cargo-build-system)
                   ((guix build pyproject-build-system)
                    #:prefix py:)
                   (guix build utils))
       #:phases
       #~(modify-phases %standard-phases
-          (add-after 'build 'build-python-module
+          (replace 'build
             (assoc-ref py:%standard-phases
                        'build))
-          (add-after 'build-python-module 'install-python-module
+          (add-after 'install 'wrap
+            (lambda _
+              ;; Collection of python- and pyproject-build-system phases
+              ;; between 'install and 'check.
+              (assoc-ref py:%standard-phases
+                         'add-install-to-pythonpath)
+              (assoc-ref py:%standard-phases
+                         'add-install-to-path)
+              (assoc-ref py:%standard-phases
+                         'wrap)
+              (assoc-ref py:%standard-phases
+                         'create-entrypoints)
+              (assoc-ref py:%standard-phases
+                         'compile-bytecode)))
+          (replace 'install
             (assoc-ref py:%standard-phases
-                       'install)))
-      #:cargo-inputs `(("rust-pyo3" ,rust-pyo3-0.22)
-                       ("rust-regex" ,rust-regex-1)
-                       ("rust-fancy-regex" ,rust-fancy-regex-0.13)
-                       ("rust-rustc-hash" ,rust-rustc-hash-1)
-                       ("rust-bstr" ,rust-bstr-1))))
+                       'install)))))
     (propagated-inputs (list python-regex python-requests))
-    (native-inputs (list python-wrapper python-setuptools
-                         python-setuptools-rust python-wheel))
+    (inputs (myguix-cargo-inputs 'python-tiktoken))
+    (native-inputs (list python-setuptools python-setuptools-rust python-wheel
+                         python-wrapper))
     (home-page "https://github.com/openai/tiktoken")
     (synopsis "tiktoken is a fast BPE tokeniser for use with OpenAI's models")
     (description
@@ -533,7 +556,7 @@ benchmarks and matches Llama 1 34B on many benchmarks.")
         (base32 "07qwj3gifdly4v2sf59layp2m23sx8axb45sk8035i3ndbk94ysx"))))
     (native-inputs (list python-setuptools python-wheel))))
 
-(define python-tokenizers-for-nougat
+(define-public python-tokenizers-for-nougat
   (package
     (name "python-tokenizers")
     (version "0.15.2")
@@ -559,58 +582,24 @@ benchmarks and matches Llama 1 34B on many benchmarks.")
                                   (rename-file (string-append
                                                 "bindings/python/" file) file)))
                               (scandir "bindings/python"))
-                    (delete-file-recursively ".cargo")))))
+                    (delete-file-recursively ".cargo")
+                    ;; Remove the path dependency on parent tokenizers library
+                    ;; (version is already specified)
+                    (substitute* "Cargo.toml"
+                      (("^path = .*")
+                       ""))))))
     (build-system cargo-build-system)
     (arguments
      (list
-      #:cargo-test-flags ''("--no-default-features" "--"
-                            "--skip"
-                            "models::test::get_subtype"
-                            "--skip"
-                            "decoders::test::get_subtype"
-                            "--skip"
-                            "normalizers::test::get_subtype"
-                            "--skip"
-                            "pre_tokenizers::test::get_subtype"
-                            "--skip"
-                            "decoders::test::serialize"
-                            "--skip"
-                            "pre_tokenizers::test::serialize"
-                            "--skip"
-                            "processors::test::get_subtype"
-                            "--skip"
-                            "trainers::tests::get_subtype")
+      #:install-source? #f
+      #:cargo-test-flags ''("--no-default-features")
       #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
       #:modules '((guix build cargo-build-system)
                   ((guix build pyproject-build-system)
                    #:prefix py:)
-                  (guix build utils)
-                  (ice-9 regex)
-                  (ice-9 textual-ports))
+                  (guix build utils))
       #:phases
       #~(modify-phases %standard-phases
-          (add-after 'unpack-rust-crates 'inject-tokenizers
-            (lambda _
-              (substitute* "Cargo.toml"
-                (("\\[dependencies\\]")
-                 (format #f "
-[dev-dependencies]
-tempfile = ~s
-
-[dependencies]
-tokenizers = ~s"
-                         #$(package-version rust-tempfile-3)
-                         #$(package-version rust-tokenizers-0.15))))
-              (let ((file-path "Cargo.toml"))
-                (call-with-input-file file-path
-                  (lambda (port)
-                    (let* ((content (get-string-all port))
-                           (top-match (string-match
-                                       "\\[dependencies.tokenizers" content)))
-                      (call-with-output-file file-path
-                        (lambda (out)
-                          (format out "~a"
-                                  (match:prefix top-match))))))))))
           (add-after 'check 'python-check
             (lambda _
               (copy-file "target/release/libtokenizers.so"
@@ -636,20 +625,10 @@ tokenizers = ~s"
                 (copy-file "PKG-INFO"
                            (string-append info "/METADATA"))
                 (copy-recursively "py_src/tokenizers"
-                                  (string-append lib "tokenizers"))))))
-      #:cargo-inputs `(("rust-rayon" ,rust-rayon-1)
-                       ("rust-serde" ,rust-serde-1)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-libc" ,rust-libc-0.2)
-                       ("rust-env-logger" ,rust-env-logger-0.11)
-                       ("rust-pyo3" ,rust-pyo3-0.21)
-                       ("rust-numpy" ,rust-numpy-0.20)
-                       ("rust-ndarray" ,rust-ndarray-0.15)
-                       ("rust-onig" ,rust-onig-6)
-                       ("rust-itertools" ,rust-itertools-0.12)
-                       ("rust-tokenizers" ,rust-tokenizers-0.15))
-      #:cargo-development-inputs `(("rust-tempfile" ,rust-tempfile-3))))
-    (native-inputs (list python-minimal python-pytest))
+                                  (string-append lib "tokenizers"))))))))
+    (native-inputs (list pkg-config python-minimal python-pytest))
+    (inputs (cons oniguruma
+                  (myguix-cargo-inputs 'python-tokenizers-for-nougat)))
     (home-page "https://huggingface.co/docs/tokenizers")
     (synopsis "Implementation of various popular tokenizers")
     (description

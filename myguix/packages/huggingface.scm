@@ -3,7 +3,6 @@
                 #:prefix license:)
   #:use-module (gnu packages)
   #:use-module (gnu packages nss)
-  #:use-module (past-crates packages crates-io)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages digest)
@@ -29,9 +28,19 @@
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module (myguix packages rust-pqrs)
   #:use-module (myguix packages python-pqrs)
+  #:use-module ((myguix packages rust-crates-pqrs)
+                #:select (lookup-myguix-cargo-inputs))
   #:use-module (myguix packages machine-learning))
+
+;; Helper function to use myguix cargo inputs
+(define (myguix-cargo-inputs name)
+  "Lookup Cargo inputs for NAME from myguix rust-crates-pqrs."
+  (or (lookup-myguix-cargo-inputs name)
+      (begin
+        (format (current-error-port)
+                "Warning: no Cargo inputs available for '~a'~%" name)
+        '())))
 
 (define-public python-huggingface-hub
   (package
@@ -171,11 +180,9 @@ datasets and other repos on the @url{huggingface.co} hub.")
                        'build))
           (add-after 'build-python-module 'install-python-module
             (assoc-ref py:%standard-phases
-                       'install)))
-      #:cargo-inputs `(("rust-pyo3" ,rust-pyo3-0.23)
-                       ("rust-serde-json" ,rust-serde-json-1)
-                       ("rust-memmap2" ,rust-memmap2-0.9))))
-    (inputs (list maturin))
+                       'install)))))
+    (inputs (cons maturin
+                  (myguix-cargo-inputs 'python-safetensors)))
     (native-inputs (list python-wrapper))
     (home-page "https://github.com/huggingface/safetensors")
     (synopsis "Safely store tensors")
@@ -212,7 +219,6 @@ datasets and other repos on the @url{huggingface.co} hub.")
                          python-pytest-subtests
                          python-pytest-xdist
                          python-rich
-                         python-ruff
                          python-setuptools
                          python-scikit-learn
                          python-scipy
@@ -351,54 +357,6 @@ datasets and other repos on the @url{huggingface.co} hub.")
      "Optimum Library is an extension of the Hugging Face Transformers library,
 providing a framework to integrate third-party libraries from Hardware Partners
 and interface with their specific functionality.")
-    (license license:asl2.0)))
-
-(define-public python-peft
-  (package
-    (name "python-peft")
-    (version "0.14.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "peft" version))
-       (sha256
-        (base32 "1p3jmmv2qgzdhzhxgramc2p1gjcbh7nn2cixb9qyzxa2gfpnjval"))))
-    (build-system pyproject-build-system)
-    (arguments
-     '(#:tests? #f
-       #:phases (modify-phases %standard-phases
-                  ;; Disable the sanity check, which fails with the following error:
-                  ;;
-                  ;; File "/gnu/store/...-python-requests-2.32.2/lib/python3.10/site-packages/requests/adapters.py", line 77, in <module>
-                  ;; _preloaded_ssl_context.load_verify_locations(
-                  ;; FileNotFoundError: [Errno 2] No such file or directory
-                  (delete 'sanity-check))))
-    (propagated-inputs (list python-accelerate
-                             python-huggingface-hub
-                             python-numpy
-                             python-packaging
-                             python-psutil
-                             python-pyyaml
-                             python-safetensors
-                             python-pytorch-cuda
-                             python-tqdm
-                             python-transformers))
-    (native-inputs (list python-black
-                         python-datasets
-                         python-diffusers
-                         python-parameterized
-                         python-protobuf
-                         python-pytest
-                         python-pytest-cov
-                         python-pytest-xdist
-                         python-ruff
-                         python-scipy
-                         python-sentencepiece
-                         python-setuptools
-                         python-wheel))
-    (home-page "https://github.com/huggingface/peft")
-    (synopsis "Parameter-Efficient Fine-Tuning (PEFT)")
-    (description "Parameter-Efficient Fine-Tuning (PEFT).")
     (license license:asl2.0)))
 
 (define-public python-timm
