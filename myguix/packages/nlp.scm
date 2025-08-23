@@ -4,7 +4,7 @@
   #:use-module (gnu packages nss)
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
-  #:use-module ((gnu packages crates-io)
+  #:use-module ((past-crates packages crates-io)
                 #:hide (rust-onig-6 rust-regex-1))
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)

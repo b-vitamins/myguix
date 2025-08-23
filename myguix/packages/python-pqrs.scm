@@ -7,11 +7,7 @@
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages digest)
-  #:use-module (gnu packages crates-check)
-  #:use-module (gnu packages crates-compression)
-  #:use-module (gnu packages crates-crypto)
-  #:use-module (gnu packages crates-windows)
-  #:use-module ((gnu packages crates-io)
+  #:use-module ((past-crates packages crates-io)
                 #:hide (rust-annotate-snippets-0.11 rust-wasm-bindgen-test-0.3
                         rust-wasm-bindgen-0.2
                         rust-walkdir-2

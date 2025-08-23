@@ -3,7 +3,7 @@
                 #:prefix license:)
   #:use-module (gnu packages)
   #:use-module (gnu packages nss)
-  #:use-module (gnu packages crates-io)
+  #:use-module (past-crates packages crates-io)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages digest)
