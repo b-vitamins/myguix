@@ -57,7 +57,18 @@
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages java-pqrs)
   #:use-module (myguix packages nvidia)
+  #:use-module ((myguix packages rust-crates-pqrs)
+                #:select (lookup-myguix-cargo-inputs))
   #:use-module (myguix build-system binary))
+
+;; Helper function to use myguix cargo inputs
+(define (myguix-cargo-inputs name)
+  "Lookup Cargo inputs for NAME from myguix rust-crates-pqrs."
+  (or (lookup-myguix-cargo-inputs name)
+      (begin
+        (format (current-error-port)
+                "Warning: no Cargo inputs available for '~a'~%" name)
+        '())))
 
 (define-public python-grobid-client-python
   (package
@@ -533,7 +544,6 @@ It is the recommended replacement for Python's original
 @code{distro} also provides a command-line interface to output the platform
 information in various formats.")
     (license license:asl2.0)))
-
 
 (define-public python-bibtexparser
   (package
@@ -1205,7 +1215,6 @@ parallelism.")))
     (description
      "CodeCarbon started with a quite simple question: What is the carbon emission impact of my computer program? We found some global data like computing currently represents roughly 0.5% of the world’s energy consumption but nothing on our individual/organisation level impact. At CodeCarbon, we believe, along with Niels Bohr, that Nothing exists until it is measured. So we found a way to estimate how much CO2 we produce while running our code. How? We created a Python package that estimates your hardware electricity power consumption (GPU + CPU + RAM) and we apply to it the carbon intensity of the region where the computing is done.")
     (license license:expat)))
-
 
 (define-public python-alexify
   (package
@@ -2737,4 +2746,99 @@ dependencies = [\"pymongo>=4.5,<5\"]
 fluent query interface, comprehensive filtering, async support, and automatic
 pagination.  Features include cursor-based pagination, automatic retries, rate
 limiting, circuit breaker for resilience, and in-memory caching.")
+    (license license:expat)))
+
+(define-public python-ruff
+  (package
+    (name "python-ruff")
+    (version "0.9.5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/astral-sh/ruff")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0cc2qgzi0za8zlfw3l77fvqsa79dkpk7w4mpl0ba0kdcf7bib1jn"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'install)
+          (add-after 'configure 'patch-salsa-dependency
+            (lambda _
+              ;; Remove workspace definition from vendored salsa to avoid conflicts
+              (when (file-exists?
+                     "guix-vendor/rust-salsa-0.18.0.88a1d77-checkout/Cargo.toml")
+                (substitute* "guix-vendor/rust-salsa-0.18.0.88a1d77-checkout/Cargo.toml"
+                  ;; Remove workspace section
+                  (("^\\[workspace\\].*\n")
+                   "")
+                  (("^members = .*\n")
+                   "")))
+              ;; Replace git dependencies with path dependencies
+              (substitute* "Cargo.toml"
+                (("git = \"https://github.com/salsa-rs/salsa.git\", rev = \"[^\"]+\"")
+                 "path = \"guix-vendor/rust-salsa-0.18.0.88a1d77-checkout\"")
+                (("git = \"https://github.com/astral-sh/lsp-types.git\", rev = \"[^\"]+\"")
+                 "path = \"guix-vendor/rust-lsp-types-0.95.1.3512a9f-checkout\""))
+              (when (file-exists? "fuzz/Cargo.toml")
+                (substitute* "fuzz/Cargo.toml"
+                  (("git = \"https://github.com/salsa-rs/salsa.git\", rev = \"[^\"]+\"")
+                   "path = \"../guix-vendor/rust-salsa-0.18.0.88a1d77-checkout\"")))))
+          (add-after 'unpack 'override-jemalloc
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((jemalloc (assoc-ref inputs "jemalloc")))
+                ;; This flag is needed when not using the bundled jemalloc.
+                ;; https://github.com/tikv/jemallocator/issues/19
+                (setenv
+                 "CARGO_FEATURE_UNPREFIXED_MALLOC_ON_SUPPORTED_PLATFORMS" "1")
+                (setenv "JEMALLOC_OVERRIDE"
+                        (string-append jemalloc "/lib/libjemalloc.so")))))
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-after 'build-python-module 'install-python-module
+            (lambda* (#:key outputs #:allow-other-keys)
+              ;; We'll do a manual ‘pip install’ to prefix=$out and trust that
+              ;; it installs the compiled `ruff` binary without trying to parse it.
+              (let* ((out (assoc-ref outputs "out"))
+                     (wheel (car (find-files "target/wheels" "\\.whl$"))))
+                (invoke "pip"
+                        "--no-cache-dir"
+                        "--no-input"
+                        "install"
+                        "--no-deps"
+                        "--prefix"
+                        out
+                        wheel)))))
+      #:cargo-test-flags `(list "--release"
+                           "--"
+                           "--skip=rules::flake8_executable::tests::rules::path_new_exe001_1_py_expects"
+                           "--skip=rules::flake8_executable::tests::rules::path_new_exe003_py_expects"
+                           "--skip=rules::isort::tests::required_import::path_new_comment_py_expects"
+                           "--skip=rules::isort::tests::required_import_with_alias::path_new_comment_py_expects"
+                           "--skip=rules::pycodestyle::tests::max_doc_length"
+                           "--skip=rules::pycodestyle::tests::max_doc_length_with_utf_8"
+                           "--skip=rules::pycodestyle::tests::shebang"
+                           "--skip=rules::pyupgrade::tests::rules::rule_utf8encodingdeclaration_path_new_up009_1_py_expects"
+                           "--skip=black_compatibility"
+                           "--skip=compile_fail")
+      #:install-source? #f))
+    (inputs (cons* (list zstd "lib") jemalloc
+                   (myguix-cargo-inputs 'ruff)))
+    (native-inputs (list maturin python-pypa-build python-typing-extensions
+                         python-wrapper pkg-config))
+    (home-page "https://docs.astral.sh/ruff")
+    (synopsis
+     "An extremely fast Python linter and code formatter, written in Rust.")
+    (description
+     "An extremely fast Python linter and code formatter, written in Rust.")
     (license license:expat)))
