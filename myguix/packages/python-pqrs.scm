@@ -2842,3 +2842,50 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (description
      "An extremely fast Python linter and code formatter, written in Rust.")
     (license license:expat)))
+
+(define-public python-jiter
+  (package
+    (name "python-jiter")
+    (version "0.8.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/pydantic/jiter")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "02fnjgiw9avjqxzrx3bgy828l5g7ngp4nysgx9yb1k3zmd1z0lz8"))
+       (modules '((guix build utils)))
+       (snippet '(begin
+                   (substitute* "crates/jiter/Cargo.toml"
+                     (("version = \\{ workspace = true \\}")
+                      "version = \"0.8.2\""))))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'install)
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases
+                       'build))
+          (add-before 'build-python-module 'chdir
+            (lambda* _
+              (chdir "crates/jiter-python")))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases
+                       'install)))
+      #:install-source? #f))
+    (inputs (cons* maturin
+                   (myguix-cargo-inputs 'jiter)))
+    (native-inputs (list python-wrapper))
+    (home-page "https://github.com/pydantic/jiter/")
+    (synopsis "Fast Iterable JSON parser")
+    (description "This package provides Fast Iterable JSON parser.")
+    (license license:expat)))
