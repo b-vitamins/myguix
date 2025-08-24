@@ -59,16 +59,9 @@
   #:use-module (myguix packages nvidia)
   #:use-module ((myguix packages rust-crates-pqrs)
                 #:select (lookup-myguix-cargo-inputs))
+  #:use-module ((myguix utils)
+                #:select (myguix-cargo-inputs))
   #:use-module (myguix build-system binary))
-
-;; Helper function to use myguix cargo inputs
-(define (myguix-cargo-inputs name)
-  "Lookup Cargo inputs for NAME from myguix rust-crates-pqrs."
-  (or (lookup-myguix-cargo-inputs name)
-      (begin
-        (format (current-error-port)
-                "Warning: no Cargo inputs available for '~a'~%" name)
-        '())))
 
 (define-public python-grobid-client-python
   (package
