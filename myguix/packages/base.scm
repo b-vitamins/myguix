@@ -514,7 +514,6 @@
   (list tree-sitter
         tree-sitter-cli
         tree-sitter-c
-        tree-sitter-cpp
         tree-sitter-python
         tree-sitter-javascript
         tree-sitter-typescript
