@@ -2889,3 +2889,31 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (synopsis "Fast Iterable JSON parser")
     (description "This package provides Fast Iterable JSON parser.")
     (license license:expat)))
+
+(define-public python-openai-next
+  (package
+    (name "python-openai")
+    (version "1.78.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "openai" version))
+       (sha256
+        (base32 "1cv2zc0z0jrkn1lnqk66096jf7fhiqs1znxxdklni138h14yyji5"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-anyio
+                             python-distro
+                             python-httpx
+                             python-jiter
+                             python-pydantic
+                             python-sniffio
+                             python-tqdm
+                             python-typing-extensions))
+    (native-inputs (list python-hatch-fancy-pypi-readme python-hatchling))
+    (home-page "https://github.com/openai/openai-python")
+    (synopsis "The official Python library for the openai API")
+    (description "The official Python library for the openai API.")
+    (license license:expat)))
