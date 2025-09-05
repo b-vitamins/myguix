@@ -3117,6 +3117,30 @@ recommendations.")
     (description "Official APIs for the MS-COCO dataset.")
     (license license:bsd-2)))
 
+(define-public python-pystoi
+  (package
+    (name "python-pystoi")
+    (version "0.4.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pystoi" version))
+       (sha256
+        (base32 "1r76glpzq06nixwfl7581j1xja3jsbdqqi92r406pr7yzgb50vqw"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests not included in PyPI release
+    (propagated-inputs (list python-numpy python-scipy))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/mpariente/pystoi")
+    (synopsis "Computes Short Term Objective Intelligibility measure")
+    (description
+     "PySTOI provides a Python implementation of the Short Term Objective
+Intelligibility (STOI) measure, which is used to predict the intelligibility
+of speech signals.  STOI is commonly used in speech enhancement and audio
+processing research to evaluate the quality of processed speech.")
+    (license license:expat)))
+
 (define-public libjpeg-turbo-3
   (package
     (inherit libjpeg-turbo)
