@@ -3072,6 +3072,30 @@ CUDNN, cuSPARSELt, cuDSS, and cuFile support.")))
 module.")
     (license license:expat)))
 
+(define-public python-pesq
+  (package
+    (name "python-pesq")
+    (version "0.0.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pesq" version))
+       (sha256
+        (base32 "02w9zjkpmc9k0939lqqhabsf4mq97j68xmibk0i8aqzvff7v495p"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require audio files
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-cython python-setuptools python-wheel))
+    (home-page "https://github.com/ludlows/python-pesq")
+    (synopsis "Python wrapper for PESQ Score (narrow band and wide band)")
+    (description
+     "This package provides a Python wrapper for the Perceptual Evaluation of
+Speech Quality (PESQ) score calculation.  It supports both narrow band and
+wide band modes for speech quality assessment according to ITU-T P.862
+recommendations.")
+    (license license:expat)))
+
 (define-public python-pycocotools
   (package
     (name "python-pycocotools")
