@@ -3005,13 +3005,49 @@ types including matrices, vectors, and posterior probabilities.")
   (package
     (inherit python-torchaudio)
     (name "python-torchaudio-cuda")
+    (arguments
+     (substitute-keyword-arguments (package-arguments python-torchaudio)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-before 'configure 'configure-cuda
+              (lambda _
+                ;; Enable CUDA-specific features
+                (setenv "USE_CUDA" "1")
+                (setenv "USE_CUDNN" "1")
+                (setenv "USE_CUSPARSELT" "1")
+                (setenv "USE_CUDSS" "1")
+                (setenv "USE_CUFILE" "1")
+                ;; Set CUDA paths
+                (setenv "CUDA_HOME"
+                        #$(this-package-input "cuda-toolkit"))
+                (setenv "CUDNN_LIB_DIR"
+                        #$(file-append (this-package-input "cudnn") "/lib"))
+                (setenv "CUDNN_INCLUDE_DIR"
+                        #$(file-append (this-package-input "cudnn") "/include"))
+                (setenv "CUDSS_LIB_DIR"
+                        #$(file-append (this-package-input "cudss") "/lib"))
+                (setenv "CUDSS_INCLUDE_DIR"
+                        #$(file-append (this-package-input "cudss") "/include"))
+                (setenv "CUSPARSELT_LIBRARY_PATH"
+                        #$(file-append (this-package-input "cusparselt") "/lib"))
+                (setenv "CUSPARSELT_INCLUDE_PATH"
+                        #$(file-append (this-package-input "cusparselt") "/include"))
+                ;; Set architecture list for RTX 3060
+                (setenv "TORCH_CUDA_ARCH_LIST" "8.6")))))))
+    (inputs (modify-inputs (package-inputs python-torchaudio)
+                          (append cuda-toolkit
+                                  cudnn
+                                  cudss
+                                  cusparselt
+                                  nccl)))
     (propagated-inputs (modify-inputs (package-propagated-inputs
                                        python-torchaudio)
                          (replace "python-pytorch" python-pytorch-cuda)))
     (synopsis "Audio library for PyTorch with CUDA support")
     (description
      "TorchAudio is a library for audio and signal processing with PyTorch.
-This variant is built with CUDA support for GPU acceleration.")))
+This variant is built with CUDA support for GPU acceleration, including
+CUDNN, cuSPARSELt, cuDSS, and cuFile support.")))
 
 (define-public python-ema-pytorch
   (package
