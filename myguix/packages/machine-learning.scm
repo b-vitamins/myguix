@@ -27,7 +27,7 @@
   #:use-module (gnu packages linux)
   #:use-module (gnu packages llvm)
   #:use-module ((gnu packages machine-learning)
-                #:hide (tensorflow python-pytorch))
+                #:hide (tensorflow))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages ninja)
