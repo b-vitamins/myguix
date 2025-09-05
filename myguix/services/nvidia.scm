@@ -33,7 +33,7 @@
     (list (shepherd-service (documentation
                              "Prepare system environment for NVIDIA driver.")
                             (provision '(nvidia))
-                            (requirement '(udev))
+                            (requirement '(kernel-module-loader))
                             (one-shot? #t)
                             (modules '(((guix build utils)
                                         #:select (invoke/quiet))
@@ -67,6 +67,10 @@
                                                       nvidia-configuration-firmware))
                                   (service-extension
                                    linux-loadable-module-service-type
-                                   (compose list nvidia-configuration-module))))
+                                   (compose list nvidia-configuration-module))
+                                  ;; Start before other user processes, necessary for some display
+                                  ;; managers.
+                                  (service-extension user-processes-service-type
+                                                     (const '(nvidia)))))
                 (default-value (nvidia-configuration))
                 (description "Prepare system environment for NVIDIA driver.")))
