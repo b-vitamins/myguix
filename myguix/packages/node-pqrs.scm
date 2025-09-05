@@ -9402,7 +9402,7 @@
 (define-public node-anthropic-ai-claude-code
   (package
     (name "node-anthropic-ai-claude-code")
-    (version "1.0.95")
+    (version "1.0.107")
     (source
       (origin
         (method url-fetch)
@@ -9412,7 +9412,7 @@
                ".tgz"))
         (sha256
           (base32
-            "0n44bhkjakc2qzzy5992qwndwfna3zg3i0b7f0nqbkfqlx2mx7mi"))))
+            "18f5633f3h9188q22bwkwirl5pvwi4xga92ng371z63mrpk8cbpg"))))
     (build-system node-build-system)
     (arguments
       (list #:tests?
