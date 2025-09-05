@@ -1,6 +1,7 @@
 (define-module (myguix packages machine-learning)
   #:use-module (gnu packages)
   #:use-module (gnu packages base)
+  #:use-module (gnu packages audio)
   #:use-module (gnu packages algebra)
   #:use-module (gnu packages assembly)
   #:use-module ((gnu packages bioinformatics)
@@ -2316,7 +2317,6 @@ as common bridge to reuse tensor and ops across frameworks.")
                             "aten/src/ATen/native/transformers/cuda/mem_eff_attention"
                             "aten/src/ATen/native/transformers/hip/flash_attn"))))))
 
-
 ;; Just re-export $LIBRARY_PATH as $LD_LIBRARY_PATH and torch.cuda.is_available() will return True.
 (define-public python-pytorch-cuda
   (package
@@ -3005,9 +3005,9 @@ types including matrices, vectors, and posterior probabilities.")
   (package
     (inherit python-torchaudio)
     (name "python-torchaudio-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-torchaudio)
-       (replace "python-pytorch" python-pytorch-cuda)))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchaudio)
+                         (replace "python-pytorch" python-pytorch-cuda)))
     (synopsis "Audio library for PyTorch with CUDA support")
     (description
      "TorchAudio is a library for audio and signal processing with PyTorch.
@@ -3074,7 +3074,6 @@ module.")
        (sha256
         (base32 "0sxpsp4pi5jcnbf3f1aap3ajhn1cj7psw3icbxlqsbnnwxcha4wr"))))))
 
-
 (define-public python-hydra-core
   (package
     (name "python-hydra-core")
@@ -3100,6 +3099,34 @@ module.")
 It enables you to compose your configuration dynamically, enabling you to
 easily get the perfect configuration for each run.")
     (license license:expat)))
+
+(define-public python-torchvggish
+  (package
+    (name "python-torchvggish")
+    (version "0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "torchvggish" version))
+       (sha256
+        (base32 "0pz39ipdzng7dvr7swxyfxl0rz7hjy45yqlkyxxqcmxmgp0pqkgw"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-numpy python-resampy python-pytorch
+                             python-soundfile))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/harritaylor/torchvggish")
+    (synopsis "Pytorch port of Tensorflow's VGGish embedding model")
+    (description
+     "This package provides a Pytorch port of Tensorflow's VGGish embedding model.")
+    (license license:asl2.0)))
+
+(define-public python-torchvggish-cuda
+  (package
+    (inherit python-torchvggish)
+    (name "python-torchvggish-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchvggish)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
