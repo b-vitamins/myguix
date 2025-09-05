@@ -108,7 +108,8 @@ some freedo package or an output of package-version procedure."
                         #:key (name "linux")
                         (configs "")
                         (defconfig "myguix_defconfig")
-                        (get-extra-configs myguix-extra-linux-options))
+                        (get-extra-configs myguix-extra-linux-options)
+                        modconfig)
   
   ;; TODO: This very directly depends on guix internals.
   ;; Throw it all out when we manage kernel hashes.
@@ -171,7 +172,8 @@ some freedo package or an output of package-version procedure."
                                            (uri url)
                                            (hash hash))
                                 #:configs configs
-                                #:defconfig defconfig))
+                                #:defconfig defconfig
+                                #:modconfig modconfig))
       (home-page "https://www.kernel.org/")
       (synopsis "Linux kernel with nonfree binary blobs included")
       (description
