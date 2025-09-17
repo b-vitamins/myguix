@@ -186,7 +186,6 @@
         emacs-php-mode
         emacs-plantuml-mode
         emacs-poetry
-        emacs-pomidor
         emacs-popper
         emacs-prettier
         emacs-projectile
