@@ -382,14 +382,14 @@ stable, responsive and smooth desktop experience.")))
 (define-public linux-firmware
   (package
     (name "linux-firmware")
-    (version "20250808")
+    (version "20250917")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "mirror://kernel.org/linux/kernel/firmware/"
                            "linux-firmware-" version ".tar.xz"))
        (sha256
-        (base32 "0zw3vsmd07yr27y5fz0m357hci00ah5impx5sz4jcnd18ldmaaf0"))))
+        (base32 "0xgvb0fb4s48423asdb1dnkjjskbfmm336gm6vki2nliasvpa18j"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -426,9 +426,11 @@ if your hardware is supported by one of the smaller firmware packages.")
   #~(lambda _
       (use-modules (ice-9 regex))
       (substitute* "WHENCE"
-        (("^(File|RawFile|Link): *([^ ]*)(.*)" _ type file rest)
-         (string-append (if (string-match #$keep file) type "Skip") ": " file
-                        rest)))))
+        (("^(File|RawFile): *([^ ]*)(.*)" _ type file rest)
+         (string-append (if (string-match #$keep file) type "Skip") ": " file rest))
+        (("^Link: *(.*) *-> *(.*)" _ file target)
+         (string-append (if (string-match #$keep target) "Link" "Skip")
+                        ": " file " -> " target)))))
 
 (define-public amdgpu-firmware
   (package
@@ -722,7 +724,7 @@ laptops).")
                 #~%standard-phases)
                #~(modify-phases #$phases
                    (add-after 'unpack 'select-firmware
-                     #$(select-firmware "^iwlwifi-")))))))
+                     #$(select-firmware "^intel/iwlwifi/")))))))
     (home-page "https://wireless.wiki.kernel.org/en/users/drivers/iwlwifi")
     (synopsis "Nonfree firmware for Intel wifi chips")
     (description
