@@ -955,7 +955,7 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 (define-public egl-gbm
   (package
     (name "egl-gbm")
-    (version "1.1.2")
+    (version "1.1.2.1")
     (source
      (origin
        (method git-fetch)
@@ -964,7 +964,7 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1rfgfi06ry7c7hnzdm4b0dc8r3hmbfn2rd37z3mc4wn38sgz5l3a"))))
+        (base32 "1zcr1jksnh0431marzvgg301aybli29r1xw5vs4wnxgcp9bigvn6"))))
     (build-system meson-build-system)
     (native-inputs (list pkg-config))
     (inputs (list eglexternalplatform mesa-for-nvda))
