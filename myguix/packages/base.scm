@@ -68,6 +68,7 @@
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-xyz)
+  #:use-module (gnu packages raspberry-pi)
   #:use-module (gnu packages rsync)
   #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
@@ -378,7 +379,8 @@
         dosfstools
         e2fsprogs
         exfat-utils
-        bcache-tools))
+        bcache-tools
+        rpi-imager))
 
 ;; Math/Science Bundles
 (define %math-core
