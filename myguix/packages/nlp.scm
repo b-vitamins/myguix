@@ -991,3 +991,52 @@ in CosyVoice.")
     (synopsis "Python module to wrap rubberband")
     (description "Python module to wrap rubberband.")
     (license license:isc)))
+
+(define-public python-resemble-perth
+  (package
+    (name "python-resemble-perth")
+    (version "1.0.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "resemble_perth" version))
+       (sha256
+        (base32 "14i3mlrjjjkrsv7zmyrppjfc2jkfqar7x63vav72lyz04by8qs74"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'check 'disable-numba-cache
+            (lambda _
+              ;; Disable numba JIT caching to avoid issues with read-only store paths
+              (setenv "NUMBA_CACHE_DIR" "/tmp")))
+          (add-before 'sanity-check 'disable-numba-cache-for-sanity
+            (lambda _
+              ;; Also disable for sanity check
+              (setenv "NUMBA_CACHE_DIR" "/tmp"))))))
+    (propagated-inputs (list python-bitstring
+                             python-librosa
+                             python-matplotlib
+                             python-numpy
+                             python-pandas
+                             python-pillow
+                             python-praat-parselmouth
+                             python-pydub
+                             python-pyloudnorm
+                             python-pyrubberband
+                             python-pywavelets
+                             python-pyyaml
+                             python-scikit-learn
+                             python-soundfile
+                             python-sox
+                             python-tabulate
+                             python-tensorboard
+                             python-pytorch
+                             python-torchaudio
+                             python-tqdm))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/resemble-ai/Perth")
+    (synopsis "Audio Watermarking and Detection Library")
+    (description "Audio Watermarking and Detection Library.")
+    (license license:expat)))
