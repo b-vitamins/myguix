@@ -2682,18 +2682,20 @@ implemented for PyTorch.")
 (define-public python-triton
   (package
     (name "python-triton")
-    (version "3.3.1")
+    (version "3.4.0")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/triton-lang/triton")
-             ;; commit behind the 3.3.0 PyPI tarball (2025-04-09)
-             (commit "d654e0f2d91f07496454e0fcbec2a9b97df37d47")
+             ;; v3.4.0 release tag
+             (commit "c817b9b63d40ead1ed023b7663f5ea14f676f4bc")
              (recursive? #t)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0zd69f4ngcv6gir38jfm5jan8jli8xlvlk7k4agqk3xljarkpg2w"))))
+        (base32 "0fcs959s4fwnh037mqfi890fll3i352az0kwqzkv8mwlxs8kvjzg"))
+       (patches (search-patches "myguix/patches/triton-link-llvm-dynamically.patch"
+                                "myguix/patches/triton-fix-ldconfig-path.patch"))))
     (build-system cmake-build-system)
     (arguments
      (list
@@ -2704,7 +2706,8 @@ implemented for PyTorch.")
               (string-append "-DCMAKE_INSTALL_RPATH="
                              (assoc-ref %build-inputs "llvm-for-triton")
                              "/lib")
-              "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--exclude-libs,ALL")
+              "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--exclude-libs,ALL"
+              "-DLLVM_LINK_LLVM_DYLIB=ON")
       #:phases
       #~(modify-phases %standard-phases
           (add-before 'configure 'patch-source
@@ -2741,7 +2744,7 @@ endif()
                         (find-files "python" "check\\.py$"))
               (setenv "TRITON_DISABLE_LLVM_DOWNLOAD" "1")
               ;; 5. drop cmake / ninja wheels from pyproject
-              (substitute* "python/pyproject.toml"
+              (substitute* "pyproject.toml"
                 ((" *\"cmake[^\"]+\",?")
                  "")
                 ((" *\"ninja[^\"]+\",?")
@@ -2767,7 +2770,9 @@ endif()
                 (setenv "TRITON_LLVM_INSTALL_DIR" llvm)
                 (setenv "LLVM_SYSPATH" llvm)
                 (setenv "CUDAToolkit_ROOT" cuda)
-                (setenv "CUDA_HOME" cuda))
+                (setenv "CUDA_HOME" cuda)
+                (setenv "CUDA_TOOLKIT_ROOT_DIR" cuda)
+                (setenv "PATH" (string-append cuda "/bin:" (getenv "PATH"))))
               ;; Add this new part to set LDFLAGS for proper RPATH
               (let* ((llvm (assoc-ref inputs "llvm-for-triton")))
                 (setenv "LDFLAGS"
@@ -2777,7 +2782,7 @@ endif()
           ;; build & install the wheel after the C++ libs
           (replace 'install
             (lambda* (#:key inputs outputs #:allow-other-keys)
-              (with-directory-excursion "../source/python"
+              (with-directory-excursion "../source"
                 (let* ((out (assoc-ref outputs "out"))
                        (llvm (assoc-ref inputs "llvm-for-triton"))
                        (rapidjson (assoc-ref inputs "rapidjson"))
@@ -2816,14 +2821,16 @@ endif()
                                          (string-append "--prefix=" out)
                                          (car (find-files "dist" "\\.whl$"))))))))))
           (delete 'check))))
-    (inputs (list libffi
+    (inputs (list llvm-for-triton
+                  libffi
                   rapidjson
                   python
                   python-numpy
                   python-packaging
                   python-filelock
                   python-psutil
-                  python-sympy))
+                  python-sympy
+                  linux-libre-headers))
     (native-inputs (list cmake
                          ninja
                          pkg-config
@@ -2831,17 +2838,23 @@ endif()
                          python-installer
                          python-wrapper
                          pybind11))
-    (propagated-inputs (list cuda-toolkit llvm-for-triton))
+    (propagated-inputs (list cuda-toolkit))
     (native-search-paths
      (list (search-path-specification
             (variable "CUDA_HOME")
-            (files '("")))))
+            (files '(".")))
+           (search-path-specification
+            (variable "C_INCLUDE_PATH")
+            (files '("include")))
+           (search-path-specification
+            (variable "CPLUS_INCLUDE_PATH")
+            (files '("include")))))
     (home-page "https://github.com/triton-lang/triton")
     (synopsis "JIT-compile high-performance custom GPU kernels from Python")
     (description
      "Triton is an open-source language and compiler that lets you write
 high-performance GPU code directly in Python.  This Guix package ships version
-3.3.0, built against LLVM 20 and the NVIDIA CUDA toolkit, with all online
+3.4.0, built against LLVM 20 and the NVIDIA CUDA toolkit, with all online
 downloads disabled for reproducible, network-free builds.")
     (license license:asl2.0)
     (supported-systems (list "x86_64-linux"))))
