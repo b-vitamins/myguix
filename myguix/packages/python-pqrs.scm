@@ -2256,7 +2256,7 @@ and YAML-based configuration files with dot-accessible dictionaries.")
                              python-packaging
                              python-pandas
                              python-pillow
-                             python-pydantic
+                             python-pydantic-2
                              python-multipart
                              python-pydub
                              python-pyyaml
