@@ -877,3 +877,35 @@ while providing an interface that looks like any other Python library.  This
 allows Python users to leverage Praat's sophisticated acoustic analysis tools
 without needing to learn Praat's scripting language.")
     (license license:gpl3+)))
+
+(define-public python-pkuseg
+  (package
+    (name "python-pkuseg")
+    (version "0.0.25")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pkuseg" version))
+       (sha256
+        (base32 "148yp0l7h8cflxag62pc1iwj5b5liyljnaxwfjaiqwl96vwjn0fx"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f  ;; Test discovery fails with Config object error
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'regenerate-cython
+            (lambda _
+              ;; Delete pre-generated C/C++ files to force regeneration with
+              ;; current Cython version (compatible with Python 3.11)
+              (for-each delete-file
+                        (find-files "." "\\.(c|cpp)$")))))))
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-cython python-setuptools python-wheel))
+    (home-page "https://github.com/lancopku/pkuseg-python")
+    (synopsis "A multi-domain Chinese word segmentation toolkit")
+    (description
+     "pkuseg is a multi-domain Chinese word segmentation toolkit developed by
+Peking University.  It provides improved performance over other segmentation
+tools, especially for domain-specific texts.")
+    (license license:expat)))
