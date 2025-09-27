@@ -42,6 +42,7 @@
   #:use-module (gnu packages game-development)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages elf)
+  #:use-module (gnu packages audio)
   #:use-module (guix build-system trivial)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system node)
@@ -2958,3 +2959,70 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (synopsis "Ruff linting plugin for pylsp")
     (description "Ruff linting plugin for pylsp.")
     (license license:expat)))
+
+(define-public python-pep8
+  (package
+    (name "python-pep8")
+    (version "1.7.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pep8" version))
+       (sha256
+        (base32 "0x33zswzsvvphnm9xv16bclzr6gfaam5cljw1fgfb604w999n97y"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;; Tests fail with deprecated pep8 module warning
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "http://pep8.readthedocs.org/")
+    (synopsis "Python style guide checker")
+    (description "Python style guide checker.")
+    (license license:expat)))
+
+(define-public python-pytest-pep8
+  (package
+    (name "python-pytest-pep8")
+    (version "1.0.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pytest-pep8" version))
+       (sha256
+        (base32 "06032agzhw1i9d9qlhfblnl3dw5hcyxhagn7b120zhrszbjzfbh3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;; Tests fail with deprecated API usage
+    (propagated-inputs (list python-pep8 python-pytest python-pytest-cache))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://bitbucket.org/pytest-dev/pytest-pep8")
+    (synopsis "pytest plugin to check PEP8 requirements")
+    (description "pytest plugin to check PEP8 requirements.")
+    (license license:expat)))
+
+(define-public python-sox
+  (package
+    (name "python-sox")
+    (version "1.5.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "sox" version))
+       (sha256
+        (base32 "185dd4jfnnif11h8ya95w9s1s6jzrw42rs0izs8xhj7mn5dvxiqj"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;; Tests fail due to missing test data files
+    (propagated-inputs (list python-numpy python-typing-extensions))
+    (native-inputs (list python-pytest
+                         python-pytest-cov
+                         python-pytest-pep8
+                         python-setuptools
+                         python-soundfile
+                         python-wheel))
+    (home-page "https://github.com/rabitt/pysox")
+    (synopsis "Python wrapper around SoX.")
+    (description "Python wrapper around @code{SoX}.")
+    (license license:bsd-3)))
