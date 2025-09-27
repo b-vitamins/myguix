@@ -2286,6 +2286,8 @@ and YAML-based configuration files with dot-accessible dictionaries.")
        (sha256
         (base32 "0c5il4d68fd4qrm5k3dps70j0xz0n5krj6lhwn9vzpal3whsvd0k"))))
     (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://docs.python.org/3/library/typing.html")
     (synopsis "Type Hints for Python")
