@@ -21,7 +21,8 @@
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-xyz)
                 #:hide (python-pillow-simd))
-  #:use-module (gnu packages python-web)
+  #:use-module ((gnu packages python-web)
+                #:hide (python-huggingface-hub))
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-check)
@@ -58,6 +59,7 @@
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages java-pqrs)
   #:use-module (myguix packages nvidia)
+  #:use-module (myguix packages huggingface)
   #:use-module ((myguix packages rust-crates-pqrs)
                 #:select (lookup-myguix-cargo-inputs))
   #:use-module ((myguix utils)
@@ -436,6 +438,9 @@ glass')")
        (sha256
         (base32 "13x74ydb8sa769z65h3qxv9mdgxr5p6xnjckjs6inrj423zvypj7"))))
     (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/Ch00k/ffmpy")
     (synopsis "A simple Python wrapper for ffmpeg")
@@ -2973,7 +2978,7 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;; Tests fail with deprecated pep8 module warning
+      #:tests? #f)) ;Tests fail with deprecated pep8 module warning
     (native-inputs (list python-setuptools python-wheel))
     (home-page "http://pep8.readthedocs.org/")
     (synopsis "Python style guide checker")
@@ -2993,7 +2998,7 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;; Tests fail with deprecated API usage
+      #:tests? #f)) ;Tests fail with deprecated API usage
     (propagated-inputs (list python-pep8 python-pytest))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://bitbucket.org/pytest-dev/pytest-pep8")
@@ -3014,14 +3019,10 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;; Tests fail due to missing test data files
+      #:tests? #f))
     (propagated-inputs (list python-numpy python-typing-extensions))
-    (native-inputs (list python-pytest
-                         python-pytest-cov
-                         python-pytest-pep8
-                         python-setuptools
-                         python-soundfile
-                         python-wheel))
+    (native-inputs (list python-pytest python-pytest-cov python-setuptools
+                         python-soundfile python-wheel))
     (home-page "https://github.com/rabitt/pysox")
     (synopsis "Python wrapper around SoX.")
     (description "Python wrapper around @code{SoX}.")
