@@ -910,7 +910,7 @@ Cflags: -I~a/include/tensorflow
       (outputs '("out" "python"))
       (inputs (list curl
                     double-conversion
-                    flatbuffers-23.1
+                    flatbuffers
                     giflib
                     grpc
                     hwloc
