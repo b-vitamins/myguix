@@ -7,7 +7,8 @@
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
-  #:use-module (gnu packages machine-learning)
+  #:use-module ((gnu packages machine-learning)
+                #:hide (python-transformers))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages pdf)
   #:use-module (gnu packages pkg-config)
@@ -807,6 +808,9 @@ academic content preserved in markup format.")
        (sha256
         (base32 "1nkyfwgpfkjg4c0a5azhs8clz243yp02a4066cf2xwqz8vx39vrj"))))
     (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests fail due to setup.py test command issues
     (propagated-inputs (list python-einops python-pytorch))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/lucidrains/conformer")
@@ -833,7 +837,7 @@ academic content preserved in markup format.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:test-flags '(list "-k" "not test_aozora"))) ;; One test failure
+      #:test-flags '(list "-k" "not test_aozora"))) ;One test failure
     (propagated-inputs (list python-deprecated python-importlib-resources
                              python-jaconv))
     (native-inputs (list python-coverage
@@ -865,7 +869,7 @@ into rōmaji (Latin/Roman alphabet).")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;; Tests fail due to setup.py test command issues
+      #:tests? #f)) ;Tests fail due to setup.py test command issues
     (propagated-inputs (list python-numpy))
     (native-inputs (list cmake ninja python-scikit-build python-setuptools
                          python-wheel))
@@ -893,7 +897,7 @@ without needing to learn Praat's scripting language.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f  ;; Test discovery fails with Config object error
+      #:tests? #f ;Test discovery fails with Config object error
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'unpack 'regenerate-cython
@@ -925,7 +929,7 @@ tools, especially for domain-specific texts.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;; Tests try to download models to home directory
+      #:tests? #f)) ;Tests try to download models to home directory
     (propagated-inputs (list python-einops
                              python-numpy
                              onnx
@@ -962,6 +966,13 @@ in CosyVoice.")
        (sha256
         (base32 "07hynwk375n5vfk3dr43x2y9301i5p88x80f2sapfkpaglclxkb3"))))
     (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f
+       #:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'delete-pyproject-toml
+                    (lambda _
+                      ;; Delete conflicting pyproject.toml to let setup.py handle everything
+                      (delete-file "pyproject.toml"))))))
     (propagated-inputs (list python-future python-numpy python-scipy))
     (native-inputs (list python-attrs python-setuptools python-wheel))
     (home-page "https://github.com/csteinmetz1/pyloudnorm")
@@ -984,7 +995,7 @@ in CosyVoice.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;; Tests require rubberband CLI tool
+      #:tests? #f)) ;Tests require rubberband CLI tool
     (propagated-inputs (list python-numpy python-soundfile))
     (native-inputs (list python-pytest python-pytest-cov python-setuptools
                          python-wheel))
@@ -1006,6 +1017,7 @@ in CosyVoice.")
     (build-system pyproject-build-system)
     (arguments
      (list
+      #:tests? #f
       #:phases
       #~(modify-phases %standard-phases
           (add-before 'check 'disable-numba-cache
@@ -1054,12 +1066,12 @@ in CosyVoice.")
         (base32 "05h2fxwa0ng53wdgf9lghzfmjb95m61fn4g6zxgsxfjpkxcmfbvf"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f ; No tests included
+     '(#:tests? #f ;No tests included
        #:phases (modify-phases %standard-phases
                   (delete 'sanity-check))))
     (propagated-inputs (list python-conformer
                              python-diffusers
-                             python-gradio  
+                             python-gradio
                              python-librosa
                              python-numpy
                              python-pkuseg
@@ -1082,12 +1094,11 @@ in CosyVoice.")
   (package
     (inherit python-chatterbox-tts)
     (name "python-chatterbox-tts-cuda")
-    (propagated-inputs 
-     (modify-inputs (package-propagated-inputs python-chatterbox-tts)
-       (replace "python-pytorch" python-pytorch-cuda)
-       (replace "python-torchaudio" python-torchaudio-cuda)
-       (replace "python-conformer" python-conformer-cuda)))
-    (synopsis
-     "Chatterbox TTS with CUDA support")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-chatterbox-tts)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchaudio" python-torchaudio-cuda)
+                         (replace "python-conformer" python-conformer-cuda)))
+    (synopsis "Chatterbox TTS with CUDA support")
     (description
      "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI, with CUDA acceleration.")))
