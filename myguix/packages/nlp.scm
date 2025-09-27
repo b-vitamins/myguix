@@ -816,3 +816,35 @@ academic content preserved in markup format.")
     (inherit python-conformer)
     (name "python-conformer-cuda")
     (propagated-inputs (list python-einops python-pytorch-cuda))))
+
+(define-public python-pykakasi
+  (package
+    (name "python-pykakasi")
+    (version "2.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pykakasi" version))
+       (sha256
+        (base32 "18dhcw7myw5idajnfynjbvqxmyf9m0cygfwsavbbi7zmcf72l1gs"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags '(list "-k" "not test_aozora"))) ;; One test failure
+    (propagated-inputs (list python-deprecated python-importlib-resources
+                             python-jaconv))
+    (native-inputs (list python-coverage
+                         python-py-cpuinfo
+                         python-pytest
+                         python-pytest-benchmark
+                         python-setuptools
+                         python-setuptools-scm
+                         python-wheel))
+    (home-page "https://codeberg.org/miurahr/pykakasi")
+    (synopsis "Kana kanji simple inversion library")
+    (description
+     "PyKakasi is a lightweight converter from Japanese Kana-kanji sentences
+into Kana-Roman.  It provides Python Natural Language Processing (NLP)
+capabilities to transliterate hiragana, katakana and kanji (Japanese text)
+into rōmaji (Latin/Roman alphabet).")
+    (license license:gpl3+)))
