@@ -44,6 +44,7 @@
                 #:select (cargo-inputs))
   #:use-module (gnu packages textutils)
   #:use-module (gnu packages ninja)
+  #:use-module (gnu packages audio)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages huggingface))
 
@@ -968,3 +969,25 @@ in CosyVoice.")
     (description
      "Implementation of ITU-R BS.1770-4 loudness algorithm in Python.")
     (license license:expat)))
+
+(define-public python-pyrubberband
+  (package
+    (name "python-pyrubberband")
+    (version "0.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyrubberband" version))
+       (sha256
+        (base32 "1xs9mj4467yl6pai381xv37jz9h8bjma9nfj9bl38qkcrb47ww3l"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;; Tests require rubberband CLI tool
+    (propagated-inputs (list python-numpy python-soundfile))
+    (native-inputs (list python-pytest python-pytest-cov python-setuptools
+                         python-wheel))
+    (home-page "http://github.com/bmcfee/pyrubberband")
+    (synopsis "Python module to wrap rubberband")
+    (description "Python module to wrap rubberband.")
+    (license license:isc)))
