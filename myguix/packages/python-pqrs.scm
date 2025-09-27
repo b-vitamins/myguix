@@ -2994,7 +2994,7 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (arguments
      (list
       #:tests? #f)) ;; Tests fail with deprecated API usage
-    (propagated-inputs (list python-pep8 python-pytest python-pytest-cache))
+    (propagated-inputs (list python-pep8 python-pytest))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://bitbucket.org/pytest-dev/pytest-pep8")
     (synopsis "pytest plugin to check PEP8 requirements")
