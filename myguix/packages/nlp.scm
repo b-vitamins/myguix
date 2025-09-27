@@ -948,3 +948,23 @@ of extracted tokens to textual and paralinguistic information.  This is a
 reverse-engineered PyTorch implementation of the tokenizer originally proposed
 in CosyVoice.")
     (license license:asl2.0)))
+
+(define-public python-pyloudnorm
+  (package
+    (name "python-pyloudnorm")
+    (version "0.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyloudnorm" version))
+       (sha256
+        (base32 "07hynwk375n5vfk3dr43x2y9301i5p88x80f2sapfkpaglclxkb3"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-future python-numpy python-scipy))
+    (native-inputs (list python-attrs python-setuptools python-wheel))
+    (home-page "https://github.com/csteinmetz1/pyloudnorm")
+    (synopsis
+     "Implementation of ITU-R BS.1770-4 loudness algorithm in Python.")
+    (description
+     "Implementation of ITU-R BS.1770-4 loudness algorithm in Python.")
+    (license license:expat)))
