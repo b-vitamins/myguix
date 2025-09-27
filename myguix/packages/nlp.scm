@@ -1040,3 +1040,53 @@ in CosyVoice.")
     (synopsis "Audio Watermarking and Detection Library")
     (description "Audio Watermarking and Detection Library.")
     (license license:expat)))
+
+(define-public python-chatterbox-tts
+  (package
+    (name "python-chatterbox-tts")
+    (version "0.1.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "chatterbox_tts" version))
+       (sha256
+        (base32 "05h2fxwa0ng53wdgf9lghzfmjb95m61fn4g6zxgsxfjpkxcmfbvf"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f ; No tests included
+       #:phases (modify-phases %standard-phases
+                  (delete 'sanity-check))))
+    (propagated-inputs (list python-conformer
+                             python-diffusers
+                             python-gradio  
+                             python-librosa
+                             python-numpy
+                             python-pkuseg
+                             python-pykakasi
+                             python-resemble-perth
+                             python-s3tokenizer
+                             python-safetensors
+                             python-pytorch
+                             python-torchaudio
+                             python-transformers))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/resemble-ai/chatterbox")
+    (synopsis
+     "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI")
+    (description
+     "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI.")
+    (license license:expat)))
+
+(define-public python-chatterbox-tts-cuda
+  (package
+    (inherit python-chatterbox-tts)
+    (name "python-chatterbox-tts-cuda")
+    (propagated-inputs 
+     (modify-inputs (package-propagated-inputs python-chatterbox-tts)
+       (replace "python-pytorch" python-pytorch-cuda)
+       (replace "python-torchaudio" python-torchaudio-cuda)
+       (replace "python-conformer" python-conformer-cuda)))
+    (synopsis
+     "Chatterbox TTS with CUDA support")
+    (description
+     "Chatterbox: Open Source TTS and Voice Conversion by Resemble AI, with CUDA acceleration.")))
