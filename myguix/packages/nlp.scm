@@ -43,6 +43,7 @@
   #:use-module ((guix build-system cargo)
                 #:select (cargo-inputs))
   #:use-module (gnu packages textutils)
+  #:use-module (gnu packages ninja)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages huggingface))
 
@@ -847,4 +848,32 @@ academic content preserved in markup format.")
 into Kana-Roman.  It provides Python Natural Language Processing (NLP)
 capabilities to transliterate hiragana, katakana and kanji (Japanese text)
 into rōmaji (Latin/Roman alphabet).")
+    (license license:gpl3+)))
+
+(define-public python-praat-parselmouth
+  (package
+    (name "python-praat-parselmouth")
+    (version "0.4.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "praat_parselmouth" version))
+       (sha256
+        (base32 "06l5qryfmhkc70fg1hjk35pbwm4aj01ziaia7w205lmrrb7hjkl4"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;; Tests fail due to setup.py test command issues
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list cmake ninja python-scikit-build python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/YannickJadoul/Parselmouth")
+    (synopsis "Praat in Python, the Pythonic way")
+    (description
+     "Parselmouth is a Python library that provides a Pythonic interface to
+Praat, the speech analysis software.  It directly accesses Praat's C/C++ code,
+ensuring that algorithms and their output are exactly the same as in Praat
+while providing an interface that looks like any other Python library.  This
+allows Python users to leverage Praat's sophisticated acoustic analysis tools
+without needing to learn Praat's scripting language.")
     (license license:gpl3+)))
