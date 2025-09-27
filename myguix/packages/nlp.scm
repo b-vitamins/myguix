@@ -909,3 +909,42 @@ without needing to learn Praat's scripting language.")
 Peking University.  It provides improved performance over other segmentation
 tools, especially for domain-specific texts.")
     (license license:expat)))
+
+(define-public python-s3tokenizer
+  (package
+    (name "python-s3tokenizer")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "s3tokenizer" version))
+       (sha256
+        (base32 "19gwsh06h2prhhzz23jfh89d6xmrsyscd3gqnvf7x77wz8snz0i1"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;; Tests try to download models to home directory
+    (propagated-inputs (list python-einops
+                             python-numpy
+                             onnx
+                             python-pre-commit
+                             python-pytorch
+                             python-torchaudio
+                             python-tqdm))
+    (native-inputs (list python-black
+                         python-flake8
+                         python-isort
+                         python-pytest
+                         python-scipy
+                         python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/xingchensong/S3Tokenizer")
+    (synopsis
+     "Reverse Engineering of Supervised Semantic Speech Tokenizer (S3Tokenizer) proposed in CosyVoice")
+    (description
+     "S3Tokenizer is a Supervised Semantic Speech Tokenizer based on the
+pre-trained SenseVoice-Large model, which enhances the semantic relationship
+of extracted tokens to textual and paralinguistic information.  This is a
+reverse-engineered PyTorch implementation of the tokenizer originally proposed
+in CosyVoice.")
+    (license license:asl2.0)))
