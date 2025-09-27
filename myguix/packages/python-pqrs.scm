@@ -3027,3 +3027,25 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (synopsis "Python wrapper around SoX.")
     (description "Python wrapper around @code{SoX}.")
     (license license:bsd-3)))
+
+(define-public python-types-toml
+  (package
+    (name "python-types-toml")
+    (version "0.10.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "types-toml" version))
+       (sha256
+        (base32 "10400bd3yv6rjfnq8galskkbpqz1sfx9sfgr5qwvw04270x4cjgr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;Tests fail due to missing test data files
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/python/typeshed")
+    (synopsis "Typing stubs for TOML")
+    (description
+     "This package contains typing stubs for TOML, a very small subset the
+Python stubs contained in the complete @code{typeshed} collection.")
+    (license license:asl2.0)))
