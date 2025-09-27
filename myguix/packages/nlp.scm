@@ -792,3 +792,21 @@ Recognition (OCR) on academic documents and outputs structured markup.  It can
 convert PDF documents to text with mathematical equations, tables, and other
 academic content preserved in markup format.")
       (license license:expat))))
+
+(define-public python-conformer
+  (package
+    (name "python-conformer")
+    (version "0.3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "conformer" version))
+       (sha256
+        (base32 "1nkyfwgpfkjg4c0a5azhs8clz243yp02a4066cf2xwqz8vx39vrj"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-einops python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/lucidrains/conformer")
+    (synopsis "The convolutional module from the Conformer paper")
+    (description "The convolutional module from the Conformer paper.")
+    (license license:expat)))
