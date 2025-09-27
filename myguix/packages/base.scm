@@ -99,6 +99,7 @@
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages maths)
   #:use-module (myguix packages mozilla)
+  #:use-module (myguix packages nlp)
   #:use-module (myguix packages node-pqrs)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
@@ -509,7 +510,8 @@
         python-pytorch-cuda
         python-torchvision-cuda
         python-lion-pytorch-cuda
-        python-torchaudio-cuda))
+        python-torchaudio-cuda
+        python-chatterbox-tts-cuda))
 
 ;; Tree-sitter Bundles
 (define %tree-sitter-core
