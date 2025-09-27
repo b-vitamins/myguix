@@ -2217,13 +2217,13 @@ and YAML-based configuration files with dot-accessible dictionaries.")
 (define-public python-gradio
   (package
     (name "python-gradio")
-    (version "5.36.2")
+    (version "5.44.1")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "gradio" version))
        (sha256
-        (base32 "0y30mc9lva7m04cmsppv8cb3msv5w5axg57kf3rcnp83msyrs3i9"))
+        (base32 "13c1zabw8spwdvdd03hld7dcksp3r2m1pcfsk0ihsjyylrx869w5"))
        (modules '((guix build utils)))
        (snippet '(begin
                    ;; Remove examples with syntax errors
