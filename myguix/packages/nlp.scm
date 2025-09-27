@@ -810,3 +810,9 @@ academic content preserved in markup format.")
     (synopsis "The convolutional module from the Conformer paper")
     (description "The convolutional module from the Conformer paper.")
     (license license:expat)))
+
+(define-public python-conformer-cuda
+  (package
+    (inherit python-conformer)
+    (name "python-conformer-cuda")
+    (propagated-inputs (list python-einops python-pytorch-cuda))))
