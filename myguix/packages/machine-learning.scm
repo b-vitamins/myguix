@@ -315,6 +315,26 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
               (append python-bitsandbytes)))
     (propagated-inputs (list cuda-toolkit))))
 
+(define-public python-sarif-om
+  (package
+    (name "python-sarif-om")
+    (version "1.0.4")
+    (source (origin
+              (method url-fetch)
+              (uri (pypi-uri "sarif_om" version))
+              (sha256
+               (base32
+                "167gb8xjm0310km3w1s12bqldbv7zyklkr4j5900vq4361ml2pyd"))))
+    (build-system python-build-system)
+    (propagated-inputs (list python-attrs))
+    (native-inputs (list python-pbr))
+    (home-page "https://github.com/microsoft/sarif-python-om")
+    (synopsis "Python implementation of the SARIF 2.1.0 object model")
+    (description "This module contains classes for the object model defined
+by the @url{https://sarifweb.azurewebsites.net,Static Analysis Results
+Interchange Format (SARIF)} file format.")
+    (license license:expat)))
+
 (define-public python-tensorstore
   (let ((tensorstore-python-packages (list "absl_py"
                                            ;; "alabaster"
