@@ -1387,6 +1387,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (build-system pyproject-build-system)
     (arguments
      (list
+      #:tests? #f ; No tests defined
       #:modules '((guix build pyproject-build-system)
                   (guix build union)
                   (guix build utils))
