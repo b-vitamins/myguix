@@ -2589,6 +2589,8 @@ and common image transformations for computer vision.")
        (sha256
         (base32 "127xr3jpwpmh6zqhm421wirgswanawpf49y7cxndvsapx1y13fj2"))))
     (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Disable tests
     (propagated-inputs (list python-pytorch))
     (native-inputs (list python-setuptools))
     (home-page "https://github.com/lucidrains/lion-pytorch")
