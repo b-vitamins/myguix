@@ -2671,6 +2671,15 @@ fully supported to run on the GPU.")
      "High-fidelity performance metrics for generative models in @code{PyTorch}.")
     (license license:asl2.0)))
 
+(define-public python-torch-fidelity-cuda
+  (package
+    (inherit python-torch-fidelity)
+    (name "python-torch-fidelity-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-torch-fidelity)
+       (replace "python-pytorch" python-pytorch-cuda)
+       (replace "python-torchvision" python-torchvision-cuda)))))
+
 (define-public python-entmax
   (package
     (name "python-entmax")
