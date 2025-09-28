@@ -2641,6 +2641,36 @@ fully supported to run on the GPU.")
     (name "python-torch-diffeq-cuda")
     (propagated-inputs (list python-pytorch-cuda cuda-toolkit))))
 
+(define-public python-torch-fidelity
+  (package
+    (name "python-torch-fidelity")
+    (version "0.3.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/toshas/torch-fidelity")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0cw126rlc4samgg5d1f13znklaykkv5x83xlys6cz3cdlfn0g44v"))))
+    (build-system python-build-system)
+    (arguments
+     '(#:tests? #f)) ;No test command in setup.py
+    (propagated-inputs (list python-numpy
+                             python-pillow
+                             python-scipy
+                             python-pytorch
+                             python-torchvision
+                             python-tqdm))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://www.github.com/toshas/torch-fidelity")
+    (synopsis
+     "High-fidelity performance metrics for generative models in PyTorch")
+    (description
+     "High-fidelity performance metrics for generative models in @code{PyTorch}.")
+    (license license:asl2.0)))
+
 (define-public python-entmax
   (package
     (name "python-entmax")
