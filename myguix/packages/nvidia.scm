@@ -604,7 +604,7 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
     (build-system linux-module-build-system)
     (arguments
      (list
-      #:linux linux
+      #:linux linux-lts
       #:source-directory "kernel"
       #:tests? #f
       #:make-flags
