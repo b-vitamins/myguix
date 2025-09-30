@@ -15,7 +15,6 @@
 
 ;; TODO: Packages that need to be packaged for vLLM:
 ;; - python-compressed-tensors
-;; - python-lm-format-enforcer
 ;; - python-mistral-common
 ;; - python-ninja
 ;; - python-openai-harmony
@@ -43,4 +42,25 @@
     (home-page "https://github.com/thuml/depyf")
     (synopsis "Decompile python functions, from bytecode to source code!")
     (description "Decompile python functions, from bytecode to source code!")
+    (license license:expat)))
+
+(define-public python-lm-format-enforcer
+  (package
+    (name "python-lm-format-enforcer")
+    (version "0.11.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "lm_format_enforcer" version))
+       (sha256
+        (base32 "1ni8snbglb51lgmvai8rb84gnvxj16bqik4v98lcx73i130q3076"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list #:tests? #f))  ; Tests require interegular which is not packaged
+    (native-inputs (list python-poetry-core))
+    (home-page "https://github.com/noamgat/lm-format-enforcer")
+    (synopsis
+     "Enforce the output format (JSON Schema, Regex etc) of a language model")
+    (description
+     "Enforce the output format (JSON Schema, Regex etc) of a language model.")
     (license license:expat)))
