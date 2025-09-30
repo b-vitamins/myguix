@@ -8,14 +8,17 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages image)
+  #:use-module (gnu packages iso-codes)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-check)
+  #:use-module (gnu packages python-crypto)
+  #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages version-control))
 
 ;; TODO: Packages that need to be packaged for vLLM:
 ;; - python-compressed-tensors
-;; - python-mistral-common
 ;; - python-ninja
 ;; - python-openai-harmony
 ;; - python-outlines-core
@@ -64,3 +67,56 @@
     (description
      "Enforce the output format (JSON Schema, Regex etc) of a language model.")
     (license license:expat)))
+
+(define-public python-pydantic-extra-types
+  (package
+    (name "python-pydantic-extra-types")
+    (version "2.10.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pydantic_extra_types" version))
+       (sha256
+        (base32 "1n5sl9cczhynh1pkvnjhy2mavgz7j13bn3cf10pl46klrz0a5kqx"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list #:tests? #f))  ; Tests require pytest
+    (propagated-inputs (list python-pycountry
+                             python-pydantic-2
+                             python-typing-extensions))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/pydantic/pydantic-extra-types")
+    (synopsis "Extra Pydantic types")
+    (description "Extra Pydantic types.")
+    (license license:expat)))
+
+(define-public python-mistral-common
+  (package
+    (name "python-mistral-common")
+    (version "1.8.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mistral_common" version))
+       (sha256
+        (base32 "1s2x08m72bn15lhdb72s5qzgk3p738waj252828g01y8x7nh8qlz"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list #:tests? #f))  ; No tests in tarball
+    (propagated-inputs (list python-fastapi
+                             python-jsonschema
+                             python-numpy
+                             python-pillow
+                             python-pydantic-2
+                             python-pydantic-extra-types
+                             python-requests
+                             python-tiktoken
+                             python-typing-extensions
+                             python-uvicorn))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/mistralai/mistral-common")
+    (synopsis
+     "Common utilities library for Mistral AI")
+    (description
+     "Mistral-common is a library of common utilities for Mistral AI.")
+    (license license:asl2.0)))
