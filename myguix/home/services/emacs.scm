@@ -204,7 +204,6 @@
         emacs-restclient
         emacs-rg
         emacs-rust-mode
-        emacs-enh-ruby-mode
         emacs-s
         emacs-scala-mode
         emacs-simple-httpd
