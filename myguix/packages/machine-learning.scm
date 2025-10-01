@@ -2415,8 +2415,6 @@ as common bridge to reuse tensor and ops across frameworks.")
                 (setenv "TORCH_CUDA_ARCH_LIST" "8.6")
                 (setenv "USE_ROCM" "0")
                 (setenv "USE_NUMA" "0")
-                (setenv "MAGMA_HOME"
-                        #$(this-package-input "magma"))
                 (setenv "CUDA_HOME"
                         #$(this-package-input "cuda-toolkit"))
                 (setenv "CUDA_NVCC_EXECUTABLE"
@@ -2472,7 +2470,6 @@ as common bridge to reuse tensor and ops across frameworks.")
                       cutlass-headers
                       cutlass-tools
                       cudnn-frontend
-                      magma-cuda
                       nlohmann-json
                       nccl
                       nvtx)))
