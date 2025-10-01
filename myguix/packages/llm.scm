@@ -24,7 +24,6 @@
 ;; - python-ninja
 ;; - python-openai-harmony
 ;; - python-outlines-core
-;; - python-pybase64
 ;; - python-ray
 
 (define-public python-depyf
@@ -182,3 +181,22 @@
     (synopsis "Instrument your FastAPI app with Prometheus metrics")
     (description "Instrument your @code{FastAPI} app with Prometheus metrics.")
     (license license:isc)))
+
+(define-public python-pybase64
+  (package
+    (name "python-pybase64")
+    (version "1.4.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pybase64" version))
+       (sha256
+        (base32 "1l4jfvwpm0nigz4kwvnf26lbkj8dx16y8bwmblql75pdhg9fzka6"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list #:tests? #f))  ; Tests require pytest
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/mayeut/pybase64")
+    (synopsis "Fast Base64 encoding/decoding")
+    (description "Fast Base64 encoding/decoding.")
+    (license license:bsd-2)))
