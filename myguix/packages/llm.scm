@@ -10,15 +10,16 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages image)
   #:use-module (gnu packages iso-codes)
+  #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-crypto)
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
-  #:use-module (gnu packages version-control))
+  #:use-module (gnu packages version-control)
+  #:use-module (myguix packages huggingface))
 
 ;; TODO: Packages that need to be packaged for vLLM:
-;; - python-compressed-tensors
 ;; - python-ninja
 ;; - python-openai-harmony
 ;; - python-outlines-core
@@ -119,4 +120,31 @@
      "Common utilities library for Mistral AI")
     (description
      "Mistral-common is a library of common utilities for Mistral AI.")
+    (license license:asl2.0)))
+
+(define-public python-compressed-tensors
+  (package
+    (name "python-compressed-tensors")
+    (version "0.11.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "compressed_tensors" version))
+       (sha256
+        (base32 "07sbqk7wc8hs1hcj0ra92n04z8p8a9glx1nxjijdyxgpk6bg3pcm"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list #:tests? #f))  ; Tests require additional dependencies
+    (propagated-inputs (list python-frozendict
+                             python-pydantic-2
+                             python-pytorch
+                             python-transformers))
+    (native-inputs (list python-setuptools
+                         python-setuptools-scm
+                         python-wheel))
+    (home-page "https://github.com/neuralmagic/compressed-tensors")
+    (synopsis
+     "Library for utilization of compressed safetensors of neural network models")
+    (description
+     "Library for utilization of compressed safetensors of neural network models.")
     (license license:asl2.0)))
