@@ -9248,14 +9248,13 @@
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.1.2505291658")
+    (version "0.45.0")
     (source
-      (origin
-        (method url-fetch)
-        (uri "https://registry.npmjs.org/@openai/codex/-/codex-0.1.2505291658.tgz")
-        (sha256
-          (base32
-            "0sm8rhifpafdq937b40dljqdw0cnpihg631kk43nhpc15qr12sh6"))))
+     (origin
+       (method url-fetch)
+       (uri "https://registry.npmjs.org/@openai/codex/-/codex-0.45.0.tgz")
+       (sha256
+        (base32 "0iy9prkyllvnv4k0xbbbc1q8184kfj4lh7vvfmyxqch389sacb61"))))
     (build-system node-build-system)
     (arguments
       (list #:tests?
@@ -9264,99 +9263,18 @@
             (gexp (modify-phases
                     %standard-phases
                     (delete 'build)
-                    (replace 'configure (lambda _ #t))
-                    (replace
-                      'install
-                      (lambda* (#:key outputs #:allow-other-keys)
-                        (let* ((out (assoc-ref outputs "out"))
-                               (lib (string-append
-                                      out
-                                      "/lib/node_modules/@openai/codex")))
-                          (mkdir-p lib)
-                          (copy-recursively "." lib)
-                          (delete-file
-                            (string-append lib "/bin/use-native"))
-                          (with-directory-excursion
-                            (string-append lib "/bin")
-                            (for-each
-                              delete-file
-                              (find-files
-                                "."
-                                (lambda (file stat)
-                                  (and (not (string-suffix? ".js" file))
-                                       (string-prefix?
-                                         "codex-"
-                                         (basename file)))))))
-                          (let ((bin (string-append out "/bin")))
-                            (mkdir-p bin)
-                            (symlink
-                              (string-append lib "/bin/codex.js")
-                              (string-append bin "/codex")))
-                          #t)))
                     (add-after
-                      'patch-dependencies
-                      'delete-dev-dependencies
+                      'unpack
+                      'remove-precompiled-binaries
                       (lambda _
-                        (modify-json
-                          (delete-dependencies
-                            '("vite"
-                              "boxen"
-                              "husky"
-                              "which"
-                              "semver"
-                              "vitest"
-                              "esbuild"
-                              "ts-node"
-                              "prettier"
-                              "punycode"
-                              "@eslint/js"
-                              "typescript"
-                              "whatwg-url"
-                              "@types/diff"
-                              "@types/react"
-                              "@types/which"
-                              "@types/semver"
-                              "@types/express"
-                              "@types/js-yaml"
-                              "@types/shell-quote"
-                              "eslint-plugin-react"
-                              "ink-testing-library"
-                              "eslint-plugin-import"
-                              "@types/marked-terminal"
-                              "@typescript-eslint/parser"
-                              "eslint-plugin-react-hooks"
-                              "eslint-plugin-react-refresh"
-                              "@typescript-eslint/eslint-plugin")))))))))
-    (inputs
-      (list node-package-manager-detector
-            node-https-proxy-agent
-            node-marked-terminal
-            node-fast-deep-equal
-            node-fast-npm-meta
-            node-use-interval
-            node-shell-quote
-            node-to-rotated
-            node-strip-ansi
-            node-file-type
-            node-inkjs-ui
-            node-js-yaml
-            node-figures
-            node-express
-            node-openai
-            node-marked
-            node-dotenv
-            node-react
-            node-chalk
-            node-open
-            node-meow
-            node-diff
-            node-zod
-            node-ink))
+                        (delete-file-recursively "vendor/aarch64-unknown-linux-musl/path/rg")
+                        #t))))))
+    (propagated-inputs (list node))    
     (home-page "https://github.com/openai/codex")
     (synopsis
-      "OpenAI Codex CLI - Lightweight coding agent that runs in your terminal")
+     "Codex CLI is a coding agent from OpenAI that runs locally on your computer.")
     (description
-      "OpenAI Codex CLI - Lightweight coding agent that runs in your terminal")
+     "Codex CLI is a coding agent from OpenAI that runs locally on your computer.")
     (license license:asl2.0)))
 
 (define-public node-pyright
