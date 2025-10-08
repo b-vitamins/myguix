@@ -362,7 +362,6 @@
 (define %performance-profiling
   (list perf
         flamegraph
-        kcachegrind
         sysprof))
 
 (define %benchmark-tools
