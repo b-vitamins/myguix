@@ -38,14 +38,6 @@
   #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages inkscape)
   #:use-module (gnu packages instrumentation)
-  #:use-module (gnu packages kde)
-  #:use-module (gnu packages kde-internet)
-  #:use-module (gnu packages kde-multimedia)
-  #:use-module (gnu packages kde-office)
-  #:use-module (gnu packages kde-pim)
-  #:use-module (gnu packages kde-plasma)
-  #:use-module (gnu packages kde-systemtools)
-  #:use-module (gnu packages kde-utils)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages mail)
@@ -93,7 +85,6 @@
   #:use-module (gnu packages wget)
   #:use-module (gnu packages xiph)
   #:use-module (myguix packages chrome)
-  #:use-module (myguix packages kde-pqrs)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages maths)
@@ -158,13 +149,6 @@
             %desktop-core
             %audio-system
             %bluetooth-system
-            %kde-desktop-apps
-            %kde-productivity-suite
-            %kde-developer-tools
-            %kde-creative-suite
-            %kde-system-tools
-            %kde-workstation-extras
-            %kde-laptop-essentials
             ;; Media
             %media-players
             %media-editors
@@ -271,106 +255,6 @@
 
 (define %bluetooth-system
   (list bluez blueman sbc))
-
-(define %kde-desktop-apps
-  (list ;Core utilities
-        kate
-        ;; Essential apps
-        okular
-        gwenview
-        ark
-        kcalc
-        ;; Phone integration
-        kdeconnect
-        ;; Music player
-        elisa
-        ;; Video editor (workstation only)
-        kdenlive
-        ;; Disk usage visualization
-        filelight
-        ;; Desktop enhancement
-        latte-dock
-        ;; SDDM theme
-        sugar-light-sddm-theme))
-
-(define %kde-productivity-suite
-  (list ;Personal Information Manager
-        kmail
-        korganizer
-        ;; Note-taking and organization
-        krusader
-        krename
-        ;; Communication
-        kdeconnect
-        falkon))
-
-(define %kde-developer-tools
-  (list ;Development IDE
-        kdevelop
-        ;; Diff/merge tool
-        kompare
-        ;; Hex editor
-        okteta
-        ;; Performance analysis
-        kcachegrind
-        massif-visualizer
-        hotspot))
-
-(define %kde-creative-suite
-  (list ;Digital painting
-        krita
-        ;; Video editing
-        kdenlive
-        ;; Audio editing
-        kwave
-        ;; Music production
-        k3b
-        kid3
-        ;; Media recording
-        kamoso))
-
-(define %kde-system-tools
-  (list ;System monitoring
-        ksystemlog
-        kdf
-        ;; System utilities
-        ktimer
-        kcharselect
-        ;; Network tools
-        ktorrent))
-
-(define %kde-workstation-extras
-  (list ;Heavy-duty creative apps
-        krita
-        kdenlive
-        ;; Professional development
-        kdevelop
-        kompare
-        kcachegrind
-        massif-visualizer
-        hotspot
-        ;; Advanced media
-        k3b
-        kwave
-        ;; Power user tools
-        krusader
-        okteta))
-
-(define %kde-laptop-essentials
-  (list ;Core productivity
-        kate
-        okular
-        gwenview
-        ;; Lightweight utilities
-        ark
-        kcalc
-        filelight
-        ;; Communication
-        kdeconnect
-        ;; Battery-friendly media
-        elisa
-        ;; Essential system tools
-        kcharselect))
 
 ;; File Management Bundles
 (define %filesystem-core
