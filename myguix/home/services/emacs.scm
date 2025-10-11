@@ -152,7 +152,6 @@
         emacs-nerd-icons-completion
         emacs-nerd-icons-dired
         emacs-nerd-icons-ibuffer
-        emacs-nix-mode
         emacs-nov-el
         emacs-ol-notmuch
         emacs-olivetti
