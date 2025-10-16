@@ -3304,6 +3304,30 @@ easily get the perfect configuration for each run.")
     (description "Base classes for sklearn-like parametric objects.")
     (license license:bsd-3)))
 
+(define-public python-signatory
+  (package
+    (name "python-signatory")
+    (version "1.2.6.1.9.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "signatory" version))
+       (sha256
+        (base32 "1n0753hidxhzdj3m39gw3mlff7qs0c3fkh0jgcf8qs46cbgigay9"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-pytorch-cuda))
+    (native-inputs (list pybind11 python-setuptools python-wheel))
+    (home-page "https://github.com/patrick-kidger/signatory")
+    (synopsis
+     "Differentiable computations of the signature and logsignature transforms, on both CPU and GPU.")
+    (description
+     "Differentiable computations of the signature and logsignature transforms, on
+both CPU and GPU.")
+    (license license:asl2.0)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
