@@ -3279,13 +3279,13 @@ easily get the perfect configuration for each run.")
 (define-public python-scikit-base
   (package
     (name "python-scikit-base")
-    (version "0.13.0")
+    (version "0.12.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "scikit_base" version))
        (sha256
-        (base32 "1p1xik1j2vm1wkjca24ky24zixh8a08aqr2w8rf279vkf432cv23"))))
+        (base32 "1zm76iq11fpvdh47n2adjz33v9bs2g3b7x97yf0l956skla1m01g"))))
     (build-system pyproject-build-system)
     (native-inputs (list python-coverage
                          python-numpy
