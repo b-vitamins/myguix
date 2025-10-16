@@ -3367,6 +3367,30 @@ both CPU and GPU.")
      "This package provides a unified framework for machine learning with time series.")
     (license license:bsd-3)))
 
+(define-public python-torchsde
+  (package
+    (name "python-torchsde")
+    (version "0.2.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "torchsde" version))
+       (sha256
+        (base32 "12vpnkjkk9k22bdqma23xq44dgmgjmim5ywl2q7ik7aga39p9l41"))))
+    (build-system pyproject-build-system)
+        (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-numpy python-scipy python-pytorch-cuda
+                             python-trampoline))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/google-research/torchsde")
+    (synopsis
+     "SDE solvers and stochastic adjoint sensitivity analysis in PyTorch.")
+    (description
+     "SDE solvers and stochastic adjoint sensitivity analysis in @code{PyTorch}.")
+    (license license:asl2.0)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
