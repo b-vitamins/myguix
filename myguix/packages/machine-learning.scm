@@ -3328,6 +3328,45 @@ easily get the perfect configuration for each run.")
 both CPU and GPU.")
     (license license:asl2.0)))
 
+(define-public python-sktime
+  (package
+    (name "python-sktime")
+    (version "0.39.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "sktime" version))
+       (sha256
+        (base32 "04wxbd085y42vxgx1zckyrixkqrvl78jhn6ijf7i2ajvlpx7df8s"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-joblib
+                             python-numpy
+                             python-packaging
+                             python-pandas
+                             python-scikit-base
+                             python-scikit-learn
+                             python-scipy))
+    (native-inputs (list python-backoff
+                         python-boto3
+                         python-botocore
+                         python-httpx
+                         python-moto
+                         python-pre-commit
+                         python-pytest
+                         python-pytest-randomly
+                         python-pytest-timeout
+                         python-pytest-xdist
+                         python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/sktime/sktime")
+    (synopsis "A unified framework for machine learning with time series")
+    (description
+     "This package provides a unified framework for machine learning with time series.")
+    (license license:bsd-3)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
