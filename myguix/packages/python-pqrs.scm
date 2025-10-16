@@ -3071,3 +3071,28 @@ Python stubs contained in the complete @code{typeshed} collection.")
     (synopsis "Function decoration for backoff and retry")
     (description "Function decoration for backoff and retry.")
     (license license:expat)))
+
+(define-public python-trampoline
+  (package
+    (name "python-trampoline")
+    (version "0.1.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+              (url "https://gitlab.com/ferreum/trampoline")
+              (commit "6ff003ed89abc4b64587227d10a6a8ba48309a83")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1aapnlnx1ks8pq9csdbpriilf7nqywx4756a9xdpif3mw4qb8qnl"))))
+    (build-system pyproject-build-system)
+        (arguments
+     (list
+      #:tests? #f))
+        (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://gitlab.com/ferreum/trampoline")
+    (synopsis
+     "Simple and tiny yield-based trampoline implementation.")
+    (description
+     "Simple and tiny yield-based trampoline implementation.")
+    (license license:expat)))
