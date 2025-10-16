@@ -3378,7 +3378,7 @@ both CPU and GPU.")
        (sha256
         (base32 "12vpnkjkk9k22bdqma23xq44dgmgjmim5ywl2q7ik7aga39p9l41"))))
     (build-system pyproject-build-system)
-        (arguments
+    (arguments
      (list
       #:tests? #f))
     (propagated-inputs (list python-numpy python-scipy python-pytorch-cuda
@@ -3389,6 +3389,30 @@ both CPU and GPU.")
      "SDE solvers and stochastic adjoint sensitivity analysis in PyTorch.")
     (description
      "SDE solvers and stochastic adjoint sensitivity analysis in @code{PyTorch}.")
+    (license license:asl2.0)))
+
+(define-public python-torchcde
+  (package
+    (name "python-torchcde")
+    (version "0.2.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "torchcde" version))
+       (sha256
+        (base32 "1rhd1zk1g03vvc37pfb8v0s739n6wracx5qdxca66iq05qcq2q3f"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-pytorch-cuda python-torchdiffeq python-torchsde))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/patrick-kidger/torchcde")
+    (synopsis
+     "Differentiable controlled differential equation solvers for PyTorch with GPU support and memory-efficient adjoint backpropagation.")
+    (description
+     "Differentiable controlled differential equation solvers for @code{PyTorch} with
+GPU support and memory-efficient adjoint backpropagation.")
     (license license:asl2.0)))
 
 ;; TODO: Lab-level R&D essential packages to add:
