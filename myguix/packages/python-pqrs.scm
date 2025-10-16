@@ -3051,3 +3051,23 @@ limiting, circuit breaker for resilience, and in-memory caching.")
      "This package contains typing stubs for TOML, a very small subset the
 Python stubs contained in the complete @code{typeshed} collection.")
     (license license:asl2.0)))
+
+(define-public python-backoff
+  (package
+    (name "python-backoff")
+    (version "2.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "backoff" version))
+       (sha256
+        (base32 "1fjwz9x81wpfn22j96ck49l3nb2hn19qfgv44441h8qrpgsjky03"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-poetry-core python-setuptools python-wheel))
+    (home-page "https://github.com/litl/backoff")
+    (synopsis "Function decoration for backoff and retry")
+    (description "Function decoration for backoff and retry.")
+    (license license:expat)))
