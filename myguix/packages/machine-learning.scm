@@ -3276,6 +3276,34 @@ easily get the perfect configuration for each run.")
                                        python-torchvggish)
                          (replace "python-pytorch" python-pytorch-cuda)))))
 
+(define-public python-scikit-base
+  (package
+    (name "python-scikit-base")
+    (version "0.13.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "scikit_base" version))
+       (sha256
+        (base32 "1p1xik1j2vm1wkjca24ky24zixh8a08aqr2w8rf279vkf432cv23"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-coverage
+                         python-numpy
+                         python-pandas
+                         python-pre-commit
+                         python-pytest
+                         python-pytest-cov
+                         python-safety
+                         python-scikit-learn
+                         python-scipy
+                         python-setuptools
+                         python-toml
+                         python-wheel))
+    (home-page "https://github.com/sktime/base")
+    (synopsis "Base classes for sklearn-like parametric objects")
+    (description "Base classes for sklearn-like parametric objects.")
+    (license license:bsd-3)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
