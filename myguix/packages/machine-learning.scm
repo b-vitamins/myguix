@@ -3318,7 +3318,7 @@ easily get the perfect configuration for each run.")
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-pytorch-cuda))
+    (propagated-inputs (list python-pytorch))
     (native-inputs (list pybind11 python-setuptools python-wheel))
     (home-page "https://github.com/patrick-kidger/signatory")
     (synopsis
