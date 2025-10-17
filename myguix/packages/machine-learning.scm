@@ -3328,6 +3328,14 @@ easily get the perfect configuration for each run.")
 both CPU and GPU.")
     (license license:asl2.0)))
 
+(define-public python-signatory-cuda
+  (package
+    (inherit python-signatory)
+    (name "python-signatory-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-signatory)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-sktime
   (package
     (name "python-sktime")
