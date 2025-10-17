@@ -3436,6 +3436,33 @@ GPU support and memory-efficient adjoint backpropagation.")
     (description "Iterated integral signature calculations.")
     (license license:expat)))
 
+(define-public python-torchsignature
+  (package
+    (name "python-torchsignature")
+    (version "0.2.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+              (url "https://github.com/b-vitamins/torchsignature")
+              (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "18hdii0g39jiwc9fga7sfzrckf2d361c67hhv7hlmg97fmfnd4yd"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-numpy python-pytorch python-typing-extensions))
+    (native-inputs (list python-poetry-core))
+    (home-page "https://github.com/b-vitamins/torchsignature")
+    (synopsis
+     "PyTorch signatures and logsignatures.")
+    (description
+     "PyTorch signatures and logsignatures.")
+    (license license:expat)))
+
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
