@@ -3415,6 +3415,14 @@ both CPU and GPU.")
 GPU support and memory-efficient adjoint backpropagation.")
     (license license:asl2.0)))
 
+(define-public python-torchcde-cuda
+  (package
+    (inherit python-torchcde)
+    (name "python-torchcde-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchcde)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-iisignature
   (package
     (name "python-iisignature")
