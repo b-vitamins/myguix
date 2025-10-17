@@ -1537,6 +1537,14 @@ for monitoring training progress, visualizing computational graphs, and analyzin
 providing utilities for various projects.")
     (license license:asl2.0)))
 
+(define-public python-etils-cuda
+  (package
+    (inherit python-etils)
+    (name "python-etils-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-etils)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define python-jaxlib/wheel
   (let ((jaxlib-system-libs (list "absl_py"
                                   "com_github_grpc_grpc"
