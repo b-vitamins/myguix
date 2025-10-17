@@ -3405,7 +3405,7 @@ both CPU and GPU.")
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-pytorch-cuda python-torchdiffeq python-torchsde))
+    (propagated-inputs (list python-pytorch python-torchdiffeq python-torchsde))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/patrick-kidger/torchcde")
     (synopsis
