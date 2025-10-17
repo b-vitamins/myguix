@@ -3126,7 +3126,7 @@ CUDNN, cuSPARSELt, cuDSS, and cuFile support.")))
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f)) ;No tests included
-    (propagated-inputs (list python-pytorch-cuda))
+    (propagated-inputs (list python-pytorch))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/lucidrains/ema-pytorch")
     (synopsis
