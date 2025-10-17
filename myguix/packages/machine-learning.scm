@@ -3050,6 +3050,17 @@ datasets and models, and collaborate with your team.")
      "XFormers: A collection of composable Transformer building blocks.")
     (license license:bsd-3)))
 
+(define-public python-xformers-cuda
+  (package
+    (inherit python-xformers)
+    (name "python-xformers-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-xformers)
+                         (replace "python-pytorch" python-pytorch-cuda)))
+    (native-inputs (modify-inputs (package-native-inputs
+                                       python-xformers)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-kaldi-io
   (package
     (name "python-kaldi-io")
