@@ -3391,6 +3391,14 @@ both CPU and GPU.")
      "SDE solvers and stochastic adjoint sensitivity analysis in @code{PyTorch}.")
     (license license:asl2.0)))
 
+(define-public python-torchsde-cuda
+  (package
+    (inherit python-torchsde)
+    (name "python-torchsde-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchsde)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-torchcde
   (package
     (name "python-torchcde")
