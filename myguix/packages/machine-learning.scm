@@ -3462,6 +3462,14 @@ GPU support and memory-efficient adjoint backpropagation.")
      "PyTorch signatures and logsignatures.")
     (license license:expat)))
 
+(define-public python-torchsignature-cuda
+  (package
+    (inherit python-torchsignature)
+    (name "python-torchsignature-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchsignature)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
