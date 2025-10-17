@@ -3415,6 +3415,27 @@ both CPU and GPU.")
 GPU support and memory-efficient adjoint backpropagation.")
     (license license:asl2.0)))
 
+(define-public python-iisignature
+  (package
+    (name "python-iisignature")
+    (version "0.24")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "iisignature" version))
+       (sha256
+        (base32 "1imrjnv3ja9v1b7nf33bx0k45bc6b6riy693ygx8f15qx33194qb"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/bottler/iisignature")
+    (synopsis "Iterated integral signature calculations")
+    (description "Iterated integral signature calculations.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
