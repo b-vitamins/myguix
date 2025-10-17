@@ -3136,6 +3136,14 @@ CUDNN, cuSPARSELt, cuDSS, and cuFile support.")))
 module.")
     (license license:expat)))
 
+(define-public python-ema-pytorch-cuda
+  (package
+    (inherit python-ema-pytorch)
+    (name "python-ema-pytorch-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-ema-pytorch)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-pesq
   (package
     (name "python-pesq")
