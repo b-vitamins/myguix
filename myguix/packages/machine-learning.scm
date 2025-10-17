@@ -3381,7 +3381,7 @@ both CPU and GPU.")
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-numpy python-scipy python-pytorch-cuda
+    (propagated-inputs (list python-numpy python-scipy python-pytorch
                              python-trampoline))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/google-research/torchsde")
