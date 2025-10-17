@@ -3041,8 +3041,8 @@ datasets and models, and collaborate with your team.")
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f)) ;Tests require CUDA device
-    (propagated-inputs (list python-numpy python-pytorch-cuda))
-    (native-inputs (list python-setuptools python-pytorch-cuda python-wheel))
+    (propagated-inputs (list python-numpy python-pytorch))
+    (native-inputs (list python-setuptools python-pytorch python-wheel))
     (home-page "https://facebookresearch.github.io/xformers/")
     (synopsis
      "XFormers: A collection of composable Transformer building blocks.")
