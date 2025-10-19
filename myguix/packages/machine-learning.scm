@@ -3863,6 +3863,27 @@ models; examples and Python bindings are not built.")
 set of reference environments (formerly Gym).")
     (license license:expat)))
 
+(define-public python-tianshou
+  (package
+    (name "python-tianshou")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "tianshou" version))
+       (sha256
+        (base32 "0cl7yiv4fjhn19w8faa9z40jm4c80x0hbz1w8v2hljn0k724b7m7"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-poetry-core))
+    (home-page "https://github.com/thu-ml/tianshou")
+    (synopsis "A Library for Deep Reinforcement Learning")
+    (description
+     "This package provides a Library for Deep Reinforcement Learning.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
