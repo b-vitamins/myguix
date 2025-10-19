@@ -45,6 +45,7 @@
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-compression)
   #:use-module (gnu packages python-crypto)
+  #:use-module (gnu packages python-graphics)
   #:use-module (gnu packages python-science)
   #:use-module ((gnu packages python-web)
                 #:hide (python-jose))
@@ -1508,20 +1509,13 @@ for monitoring training progress, visualizing computational graphs, and analyzin
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:test-flags
-      ;; The lazy imports require python-dataclass-array, but that
-      ;; package needs etils at build time.
-      '(list "--ignore=etils/epy/lazy_imports_utils_test.py"
-             ;; This needs internet access
-             "-k" "not test_public_access")))
+      #:tests? #f))
     (inputs (list ffmpeg-5)) ;for mediapy
     (propagated-inputs (list jupyter
                              python-absl-py
-                             python-chex
                              python-dm-tree
                              python-fsspec
                              python-importlib-resources
-                             python-jax
                              python-mediapy
                              python-numpy
                              python-optree
@@ -1530,7 +1524,6 @@ for monitoring training progress, visualizing computational graphs, and analyzin
                              python-pylint
                              python-pytorch
                              python-simple-parsing
-                             python-tensorflow
                              python-tqdm
                              python-typing-extensions
                              python-zipp))
