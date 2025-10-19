@@ -3080,19 +3080,39 @@ Python stubs contained in the complete @code{typeshed} collection.")
      (origin
        (method git-fetch)
        (uri (git-reference
-              (url "https://gitlab.com/ferreum/trampoline")
-              (commit "6ff003ed89abc4b64587227d10a6a8ba48309a83")))
+             (url "https://gitlab.com/ferreum/trampoline")
+             (commit "6ff003ed89abc4b64587227d10a6a8ba48309a83")))
        (file-name (git-file-name name version))
        (sha256
         (base32 "1aapnlnx1ks8pq9csdbpriilf7nqywx4756a9xdpif3mw4qb8qnl"))))
     (build-system pyproject-build-system)
-        (arguments
+    (arguments
      (list
       #:tests? #f))
-        (native-inputs (list python-setuptools python-wheel))
+    (native-inputs (list python-setuptools python-wheel))
     (home-page "https://gitlab.com/ferreum/trampoline")
-    (synopsis
-     "Simple and tiny yield-based trampoline implementation.")
-    (description
-     "Simple and tiny yield-based trampoline implementation.")
+    (synopsis "Simple and tiny yield-based trampoline implementation.")
+    (description "Simple and tiny yield-based trampoline implementation.")
     (license license:expat)))
+
+(define-public python-array-api-extra
+  (package
+    (name "python-array-api-extra")
+    (version "0.9.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "array_api_extra" version))
+       (sha256
+        (base32 "0xzbci9kzv5qg9lk7nnsy7yycdl6496rd03vy6p6ragmjj1y6j9d"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-array-api-compat))
+    (native-inputs (list python-hatchling))
+    (home-page #f)
+    (synopsis "Extra array functions built on top of the array API standard.")
+    (description
+     "Extra array functions built on top of the array API standard.")
+    (license #f)))
