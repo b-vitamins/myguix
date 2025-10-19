@@ -21,6 +21,7 @@
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages image-processing)
+  #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages java)
   #:use-module (gnu packages jupyter)
   #:use-module (gnu packages libffi)
@@ -31,6 +32,9 @@
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages ninja)
+  #:use-module (gnu packages gl)
+  #:use-module (gnu packages xorg)
+  #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages parallel)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages pkg-config)
@@ -319,18 +323,19 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
   (package
     (name "python-sarif-om")
     (version "1.0.4")
-    (source (origin
-              (method url-fetch)
-              (uri (pypi-uri "sarif_om" version))
-              (sha256
-               (base32
-                "167gb8xjm0310km3w1s12bqldbv7zyklkr4j5900vq4361ml2pyd"))))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "sarif_om" version))
+       (sha256
+        (base32 "167gb8xjm0310km3w1s12bqldbv7zyklkr4j5900vq4361ml2pyd"))))
     (build-system python-build-system)
     (propagated-inputs (list python-attrs))
     (native-inputs (list python-pbr))
     (home-page "https://github.com/microsoft/sarif-python-om")
     (synopsis "Python implementation of the SARIF 2.1.0 object model")
-    (description "This module contains classes for the object model defined
+    (description
+     "This module contains classes for the object model defined
 by the @url{https://sarifweb.azurewebsites.net,Static Analysis Results
 Interchange Format (SARIF)} file format.")
     (license license:expat)))
@@ -1541,8 +1546,7 @@ providing utilities for various projects.")
   (package
     (inherit python-etils)
     (name "python-etils-cuda")
-    (propagated-inputs (modify-inputs (package-propagated-inputs
-                                       python-etils)
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-etils)
                          (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define python-jaxlib/wheel
@@ -2674,10 +2678,10 @@ fully supported to run on the GPU.")
   (package
     (inherit python-torch-fidelity)
     (name "python-torch-fidelity-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-torch-fidelity)
-       (replace "python-pytorch" python-pytorch-cuda)
-       (replace "python-torchvision" python-torchvision-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torch-fidelity)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchvision" python-torchvision-cuda)))))
 
 (define-public python-entmax
   (package
@@ -2754,8 +2758,9 @@ implemented for PyTorch.")
        (file-name (git-file-name name version))
        (sha256
         (base32 "0fcs959s4fwnh037mqfi890fll3i352az0kwqzkv8mwlxs8kvjzg"))
-       (patches (search-patches "myguix/patches/triton-link-llvm-dynamically.patch"
-                                "myguix/patches/triton-fix-ldconfig-path.patch"))))
+       (patches (search-patches
+                 "myguix/patches/triton-link-llvm-dynamically.patch"
+                 "myguix/patches/triton-fix-ldconfig-path.patch"))))
     (build-system cmake-build-system)
     (arguments
      (list
@@ -2832,7 +2837,9 @@ endif()
                 (setenv "CUDAToolkit_ROOT" cuda)
                 (setenv "CUDA_HOME" cuda)
                 (setenv "CUDA_TOOLKIT_ROOT_DIR" cuda)
-                (setenv "PATH" (string-append cuda "/bin:" (getenv "PATH"))))
+                (setenv "PATH"
+                        (string-append cuda "/bin:"
+                                       (getenv "PATH"))))
               ;; Add this new part to set LDFLAGS for proper RPATH
               (let* ((llvm (assoc-ref inputs "llvm-for-triton")))
                 (setenv "LDFLAGS"
@@ -3057,9 +3064,8 @@ datasets and models, and collaborate with your team.")
     (propagated-inputs (modify-inputs (package-propagated-inputs
                                        python-xformers)
                          (replace "python-pytorch" python-pytorch-cuda)))
-    (native-inputs (modify-inputs (package-native-inputs
-                                       python-xformers)
-                         (replace "python-pytorch" python-pytorch-cuda)))))
+    (native-inputs (modify-inputs (package-native-inputs python-xformers)
+                     (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-kaldi-io
   (package
@@ -3112,17 +3118,15 @@ types including matrices, vectors, and posterior probabilities.")
                 (setenv "CUDSS_INCLUDE_DIR"
                         #$(file-append (this-package-input "cudss") "/include"))
                 (setenv "CUSPARSELT_LIBRARY_PATH"
-                        #$(file-append (this-package-input "cusparselt") "/lib"))
+                        #$(file-append (this-package-input "cusparselt")
+                                       "/lib"))
                 (setenv "CUSPARSELT_INCLUDE_PATH"
-                        #$(file-append (this-package-input "cusparselt") "/include"))
+                        #$(file-append (this-package-input "cusparselt")
+                                       "/include"))
                 ;; Set architecture list for RTX 3060
                 (setenv "TORCH_CUDA_ARCH_LIST" "8.6")))))))
     (inputs (modify-inputs (package-inputs python-torchaudio)
-                          (append cuda-toolkit
-                                  cudnn
-                                  cudss
-                                  cusparselt
-                                  nccl)))
+              (append cuda-toolkit cudnn cudss cusparselt nccl)))
     (propagated-inputs (modify-inputs (package-propagated-inputs
                                        python-torchaudio)
                          (replace "python-pytorch" python-pytorch-cuda)))
@@ -3495,8 +3499,8 @@ GPU support and memory-efficient adjoint backpropagation.")
      (origin
        (method git-fetch)
        (uri (git-reference
-              (url "https://github.com/b-vitamins/torchsignature")
-              (commit (string-append "v" version))))
+             (url "https://github.com/b-vitamins/torchsignature")
+             (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
         (base32 "18hdii0g39jiwc9fga7sfzrckf2d361c67hhv7hlmg97fmfnd4yd"))))
@@ -3504,13 +3508,12 @@ GPU support and memory-efficient adjoint backpropagation.")
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-numpy python-pytorch python-typing-extensions))
+    (propagated-inputs (list python-numpy python-pytorch
+                             python-typing-extensions))
     (native-inputs (list python-poetry-core))
     (home-page "https://github.com/b-vitamins/torchsignature")
-    (synopsis
-     "PyTorch signatures and logsignatures.")
-    (description
-     "PyTorch signatures and logsignatures.")
+    (synopsis "PyTorch signatures and logsignatures.")
+    (description "PyTorch signatures and logsignatures.")
     (license license:expat)))
 
 (define-public python-torchsignature-cuda
@@ -3521,6 +3524,321 @@ GPU support and memory-efficient adjoint backpropagation.")
                                        python-torchsignature)
                          (replace "python-pytorch" python-pytorch-cuda)))))
 
+(define-public mujoco
+  (package
+    (name "mujoco")
+    (version "3.3.7")
+    (home-page "https://mujoco.org")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/deepmind/mujoco.git")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ahjk9kk3kw525wr056rgfz1wjr436lksgqap30a1d8p71061sx9"))
+       (patches (search-patches
+                 "myguix/patches/mujoco-skip-tmd-header-rewrite.patch"))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:configure-flags
+      #~(list "-DCMAKE_BUILD_TYPE=Release"
+              ;; Avoid network and preseed third-party sources.
+              "-DFETCHCONTENT_FULLY_DISCONNECTED=ON"
+              ;; Build GUI examples and simulate using system GLFW.
+              "-DMUJOCO_BUILD_EXAMPLES=ON"
+              "-DMUJOCO_BUILD_SIMULATE=ON"
+              "-DMUJOCO_SAMPLES_USE_SYSTEM_GLFW=ON"
+              "-DMUJOCO_SIMULATE_USE_SYSTEM_GLFW=ON"
+              (string-append "-Dglfw3_DIR="
+                             #$(this-package-input "glfw") "/lib/cmake/glfw3")
+              "-DMUJOCO_BUILD_TESTS=OFF"
+              "-DMUJOCO_TEST_PYTHON_UTIL=OFF"
+              ;; No USD by default.
+              "-DMUJOCO_WITH_USD=OFF"
+              (string-append "-DFETCHCONTENT_SOURCE_DIR_LODEPNG="
+                             #$(this-package-native-input "lodepng-src"))
+              (string-append "-DFETCHCONTENT_SOURCE_DIR_TINYXML2="
+                             #$(this-package-native-input "tinyxml2-src"))
+              (string-append "-DFETCHCONTENT_SOURCE_DIR_TINYOBJLOADER="
+                             #$(this-package-native-input "tinyobjloader-src"))
+              (string-append "-DFETCHCONTENT_SOURCE_DIR_CCD="
+                             #$(this-package-native-input "libccd-src"))
+              (string-append "-DFETCHCONTENT_SOURCE_DIR_QHULL="
+                             #$(this-package-native-input "qhull-src"))
+              (string-append "-DFETCHCONTENT_SOURCE_DIR_TRIANGLEMESHDISTANCE="
+               #$(this-package-native-input "trianglemeshdistance-src"))
+              (string-append "-DFETCHCONTENT_SOURCE_DIR_MARCHINGCUBECPP="
+                             #$(this-package-native-input
+                                "marchingcubecpp-src")))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'alias-system-glfw-target
+            (lambda _
+              (define (inject-glfw-alias file)
+                (substitute* file
+                  (("EXCLUDE_FROM_ALL[[:space:]]*\\)" all)
+                   (string-append "EXCLUDE_FROM_ALL)\n\n"
+                    "# Guix: System GLFW may not export a `glfw` CMake target. Create a
+"
+                    "# compatible alias if alternative targets or variables are available.
+"
+                    "if(NOT TARGET glfw)\n"
+                    "  if(TARGET glfw3::glfw)\n"
+                    "    add_library(glfw INTERFACE IMPORTED)
+"
+                    "    set_target_properties(glfw PROPERTIES INTERFACE_LINK_LIBRARIES glfw3::glfw)
+"
+                    "  elseif(TARGET glfw3)\n"
+                    "    add_library(glfw INTERFACE IMPORTED)
+"
+                    "    set_target_properties(glfw PROPERTIES INTERFACE_LINK_LIBRARIES glfw3)
+"
+                    "  else()\n"
+                    "    # Try legacy FindGLFW3 variables.\n"
+                    "    if(NOT DEFINED GLFW3_LIBRARY)\n"
+                    "      find_package(glfw3 REQUIRED)\n"
+                    "    endif()\n"
+                    "    if(TARGET glfw)\n"
+                    "      # nothing to do\n"
+                    "    elseif(DEFINED GLFW3_LIBRARY OR DEFINED GLFW3_LIBRARIES)
+"
+                    "      add_library(glfw INTERFACE IMPORTED)
+"
+                    "      set(_GLFW_LINK_LIBS \"${GLFW3_LIBRARY}\")
+"
+                    "      if(DEFINED GLFW3_LIBRARIES)\n"
+                    "        list(APPEND _GLFW_LINK_LIBS ${GLFW3_LIBRARIES})
+"
+                    "      endif()\n"
+                    "      set_target_properties(glfw PROPERTIES INTERFACE_LINK_LIBRARIES \"${_GLFW_LINK_LIBS}\")
+"
+                    "      if(DEFINED GLFW3_INCLUDE_DIR)\n"
+                    "        target_include_directories(glfw INTERFACE \"${GLFW3_INCLUDE_DIR}\")
+"
+                    "      endif()\n"
+                    "    else()\n"
+                    "      message(FATAL_ERROR \"GLFW found but no CMake target or GLFW3_LIBRARY provided.\")
+"
+                    "    endif()\n"
+                    "  endif()\n"
+                    "endif()\n"))))
+              (inject-glfw-alias "sample/cmake/SampleDependencies.cmake")
+              (inject-glfw-alias "simulate/cmake/SimulateDependencies.cmake")
+              #t))
+          (add-after 'install 'install-plugins
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (libdir (string-append out "/lib"))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (libc (assoc-ref inputs "libc"))
+                     (rpaths (cons libdir
+                                   (append (if libc
+                                               (list (string-append libc
+                                                                    "/lib"))
+                                               '())
+                                           (if gcc-lib
+                                               (list (string-append gcc-lib
+                                                                    "/lib"))
+                                               '()))))
+                     (rpath (string-join rpaths ":"))
+                     (names '("elasticity" "sensor" "sdf_plugin" "actuator"))
+                     (patterns (map (lambda (n)
+                                      (string-append "lib" n "\\.so$")) names))
+                     (copied '()))
+                (for-each (lambda (rx)
+                            (let ((matches (find-files "." rx)))
+                              (when (pair? matches)
+                                (let* ((src (car matches))
+                                       (dst libdir)
+                                       (out-so (string-append dst "/"
+                                                              (basename src))))
+                                  (install-file src dst)
+                                  ;; Set RPATH so plugins find libmujoco and toolchains.
+                                  (make-file-writable out-so)
+                                  (invoke "patchelf" "--set-rpath" rpath
+                                          out-so)
+                                  (set! copied
+                                        (cons out-so copied)))))) patterns)
+                (format #t "Installed ~a MuJoCo plugin libraries into ~a~%"
+                        (length copied) libdir) #t)))
+          (add-after 'install-plugins 'wrap-binaries
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (bin (string-append out "/bin"))
+                     (lib (string-append out "/lib"))
+                     (plugin-files (filter file-exists?
+                                           (map (lambda (n)
+                                                  (string-append lib "/" n))
+                                                '("libactuator.so"
+                                                  "libelasticity.so"
+                                                  "libsdf_plugin.so"
+                                                  "libsensor.so")))))
+                (define (wrap-one name)
+                  (let ((p (string-append bin "/" name)))
+                    (when (file-exists? p)
+                      (let ((envs (append `(("MUJOCO_PLUGIN_PATH" ":" prefix
+                                             (,lib)))
+                                          (if (null? plugin-files)
+                                              '()
+                                              `(("LD_PRELOAD" " " prefix
+                                                 (,@plugin-files)))))))
+                        (apply wrap-program p envs)))))
+                (for-each wrap-one
+                          '("simulate" "basic" "record" "compile"
+                            "dependencies" "testspeed")) #t)))
+          (add-after 'wrap-binaries 'install-desktop-files
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (apps (string-append out "/share/applications"))
+                     (bin (string-append out "/bin")))
+                (mkdir-p apps)
+                (define (write-desktop name exec comment)
+                  (with-output-to-file (string-append apps "/" name ".desktop")
+                    (lambda ()
+                      (display (string-append "[Desktop Entry]\n"
+                                "Type=Application\n"
+                                "Name="
+                                comment
+                                "\n"
+                                "Exec="
+                                exec
+                                " %f\n"
+                                "Icon="
+                                name
+                                "\n"
+                                "Terminal=false\n"
+                                "Categories=Science;Education;Graphics;Utility;
+"
+                                "Keywords=physics;simulator;MuJoCo;\n")))))
+                (write-desktop "org.mujoco.Simulate"
+                               (string-append bin "/simulate")
+                               "MuJoCo Simulate")
+                (write-desktop "org.mujoco.Basic"
+                               (string-append bin "/basic")
+                               "MuJoCo Basic Sample")
+                (write-desktop "org.mujoco.Record"
+                               (string-append bin "/record")
+                               "MuJoCo Record Sample")
+                #t)))
+          (add-after 'install-desktop-files 'install-icons
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (icons (string-append out "/share/icons/hicolor"))
+                     (apps (string-append icons "/256x256/apps"))
+                     (ico #$(file-append (package-source mujoco)
+                                         "/dist/mujoco.ico"))
+                     (dest (string-append apps "/org.mujoco.Simulate.png")))
+                (mkdir-p apps)
+                ;; Try first frame of ICO explicitly, resize to 256x256.
+                (invoke "convert"
+                        (string-append ico "[0]") "-resize" "256x256" dest)
+                (unless (file-exists? dest)
+                  (invoke "convert" ico "-resize" "256x256" dest))
+                (when (file-exists? dest)
+                  (let ((basic (string-append apps "/org.mujoco.Basic.png"))
+                        (record (string-append apps "/org.mujoco.Record.png")))
+                    (false-if-exception (delete-file basic))
+                    (false-if-exception (delete-file record))
+                    (symlink dest basic)
+                    (symlink dest record)))
+                #t))))))
+    (inputs (list (list "glfw" glfw)
+                  (list "gcc:lib" gcc "lib")))
+    (native-inputs (append (list (list "cmake" cmake-minimal)
+                                 (list "pkg-config" pkg-config)
+                                 (list "ninja" ninja)
+                                 (list "patchelf" patchelf)
+                                 (list "imagemagick" imagemagick))
+                           ;; Vendored third-party sources for FetchContent.
+                           (list (list "lodepng-src"
+                                       (origin
+                                         (method git-fetch)
+                                         (uri (git-reference (url
+                                                              "https://github.com/lvandeve/lodepng.git")
+                                                             (commit
+                                                              "17d08dd26cac4d63f43af217ebd70318bfb8189c")))
+                                         (file-name (git-file-name "lodepng"
+                                                                   "git"))
+                                         (sha256 (base32
+                                                  "1703khw3j5v6qk989c6in96rpvvkayriywspxwwayqr5dpc3jz5y"))))
+                                 (list "tinyxml2-src"
+                                       (origin
+                                         (method git-fetch)
+                                         (uri (git-reference (url
+                                                              "https://github.com/leethomason/tinyxml2.git")
+                                                             (commit
+                                                              "e6caeae85799003f4ca74ff26ee16a789bc2af48")))
+                                         (file-name (git-file-name "tinyxml2"
+                                                                   "git"))
+                                         (sha256 (base32
+                                                  "0s4r3ysc8zbahhpl6sd8rqlzid6v52qm5c9kpmsp3mgzbrd4b48s"))))
+                                 (list "tinyobjloader-src"
+                                       (origin
+                                         (method git-fetch)
+                                         (uri (git-reference (url
+                                                              "https://github.com/tinyobjloader/tinyobjloader.git")
+                                                             (commit
+                                                              "1421a10d6ed9742f5b2c1766d22faa6cfbc56248")))
+                                         (file-name (git-file-name
+                                                     "tinyobjloader" "git"))
+                                         (sha256 (base32
+                                                  "03gbssdx9wd08fj7yq55031988d5zzlhmz4l8bj2a2lgymxqsggp"))))
+                                 (list "libccd-src"
+                                       (origin
+                                         (method git-fetch)
+                                         (uri (git-reference (url
+                                                              "https://github.com/danfis/libccd.git")
+                                                             (commit
+                                                              "7931e764a19ef6b21b443376c699bbc9c6d4fba8")))
+                                         (file-name (git-file-name "libccd"
+                                                                   "git"))
+                                         (sha256 (base32
+                                                  "0sfmn5pd7k5kyhbxnd689xmsa5v843r7sska96dlysqpljd691jc"))))
+                                 (list "qhull-src"
+                                       (origin
+                                         (method git-fetch)
+                                         (uri (git-reference (url
+                                                              "https://github.com/qhull/qhull.git")
+                                                             (commit
+                                                              "62ccc56af071eaa478bef6ed41fd7a55d3bb2d80")))
+                                         (file-name (git-file-name "qhull"
+                                                                   "git"))
+                                         (sha256 (base32
+                                                  "1z205prkzx63z3cps8s0h6hb2j9phly479v2ymasrz8b9ns4g34h"))))
+                                 (list "trianglemeshdistance-src"
+                                       (origin
+                                         (method git-fetch)
+                                         (uri (git-reference (url
+                                                              "https://github.com/InteractiveComputerGraphics/TriangleMeshDistance.git")
+                                                             (commit
+                                                              "2cb643de1436e1ba8e2be49b07ec5491ac604457")))
+                                         (file-name (git-file-name
+                                                     "TriangleMeshDistance"
+                                                     "git"))
+                                         (sha256 (base32
+                                                  "15ys0d2c08d57q4qk8dxpx9fg0hnhczjwrwx81a4m7afm90gqvx8"))))
+                                 (list "marchingcubecpp-src"
+                                       (origin
+                                         (method git-fetch)
+                                         (uri (git-reference (url
+                                                              "https://github.com/aparis69/MarchingCubeCpp.git")
+                                                             (commit
+                                                              "f03a1b3ec29b1d7d865691ca8aea4f1eb2c2873d")))
+                                         (file-name (git-file-name
+                                                     "MarchingCubeCpp" "git"))
+                                         (sha256 (base32
+                                                  "077hgjd1w0nmxladjv9zmyv11pcryxkaqd32akpca0s9bb9a4izp")))))))
+    (synopsis "MuJoCo physics simulator (C/C++ library)")
+    (description
+     "MuJoCo (Multi-Joint dynamics with Contact) is a physics engine for
+research and development in robotics, biomechanics, graphics and animation.
+This package builds the core C/C++ shared library and installs headers and
+models; examples and Python bindings are not built.")
+    (license license:asl2.0)))
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
