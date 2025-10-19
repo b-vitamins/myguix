@@ -3833,6 +3833,36 @@ This package builds the core C/C++ shared library and installs headers and
 models; examples and Python bindings are not built.")
     (license license:asl2.0)))
 
+(define-public python-gymnasium
+  (package
+    (name "python-gymnasium")
+    (version "1.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gymnasium" version))
+       (sha256
+        (base32 "0v5njl27fxdnqj4dwrh8z8akzc8ic7xvx6fvnf83lli86lkq0r2f"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-cloudpickle python-farama-notifications
+                             python-numpy python-typing-extensions))
+    (native-inputs (list python-array-api-extra
+                         python-dill
+                         python-pytest
+                         python-scipy
+                         python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/Farama-Foundation/Gymnasium")
+    (synopsis
+     "A standard API for reinforcement learning and a diverse set of reference environments (formerly Gym).")
+    (description
+     "This package provides a standard API for reinforcement learning and a diverse
+set of reference environments (formerly Gym).")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
