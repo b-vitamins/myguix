@@ -1946,6 +1946,75 @@ the NVIDIA driver stack packaged in this channel (nvda).")
               "https://developer.nvidia.com/omniverse/eula"))))
 
 ;;;
+;;; Isaac Sim: WebRTC Streaming Client (AppImage)
+;;;
+
+(define-public isaac-sim-webrtc-client
+  (package
+    (name "isaac-sim-webrtc-client")
+    (version "1.1.4")
+    (supported-systems '("x86_64-linux"))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://download.isaacsim.omniverse.nvidia.com/"
+             "isaacsim-webrtc-streaming-client-" version "-linux-x64.AppImage"))
+       (sha256 (base32 "0hdbf233f956afykw47gma3gjcqhkb4sw3xc40as8z1fyqjy0vx5"))))
+    (build-system gnu-build-system)
+    (native-inputs (list bash-minimal patchelf-0.16))
+    (inputs `(("zlib" ,zlib)
+              ("gcc:lib" ,gcc "lib")))
+    (arguments
+     (list
+      #:modules '((guix build utils)
+                  (guix build gnu-build-system))
+      #:tests? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (copy-file source "client.AppImage")))
+          (delete 'configure)
+          (replace 'build
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let* ((ld.so (search-input-file inputs #$(glibc-dynamic-linker)))
+                     (zlib (assoc-ref inputs "zlib"))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (ldpath (string-join (list (string-append zlib "/lib")
+                                               (string-append gcc-lib "/lib")) ":")))
+                (chmod "client.AppImage" #o755)
+                (invoke "patchelf" "--set-interpreter" ld.so "client.AppImage")
+                (setenv "LD_LIBRARY_PATH" ldpath)
+                (invoke "./client.AppImage" "--appimage-extract"))))
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (opt (string-append out "/opt/isaac-sim-webrtc-client"))
+                     (bin (string-append out "/bin")))
+                (mkdir-p opt)
+                (mkdir-p bin)
+                (copy-recursively "squashfs-root" opt)
+                (call-with-output-file (string-append bin "/isaac-sim-webrtc-client")
+                  (lambda (port)
+                    (display (string-append
+                              "#!" #$(file-append bash-minimal "/bin/bash") "\n"
+                              "set -euo pipefail\n"
+                              "cd \"" opt "\"\n"
+                              "exec ./AppRun \"$@\"\n") port)))
+                (chmod (string-append bin "/isaac-sim-webrtc-client") #o755)))))))
+    (home-page "https://developer.nvidia.com/isaac-sim")
+    (synopsis "NVIDIA Isaac Sim WebRTC Streaming Client")
+    (description
+     "A desktop client to view Isaac Sim remotely over WebRTC without requiring
+local high-end GPU resources. This package extracts the AppImage at build time
+and provides a wrapper executable.")
+    (license (license:nonfree
+              "https://developer.nvidia.com/omniverse/eula"))))
+
+;;;
 ;;; Isaac Sim: Compatibility Checker
 ;;;
 
