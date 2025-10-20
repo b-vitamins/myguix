@@ -2004,7 +2004,29 @@ the NVIDIA driver stack packaged in this channel (nvda).")
                               "set -euo pipefail\n"
                               "cd \"" opt "\"\n"
                               "exec ./AppRun \"$@\"\n") port)))
-                (chmod (string-append bin "/isaac-sim-webrtc-client") #o755)))))))
+                (chmod (string-append bin "/isaac-sim-webrtc-client") #o755))))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key outputs inputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (root (string-append out "/opt/isaac-sim-webrtc-client"))
+                     (ld.so (search-input-file inputs #$(glibc-dynamic-linker)))
+                     (rpath (string-join
+                             '("$ORIGIN"
+                               "$ORIGIN/lib" "$ORIGIN/lib64"
+                               "$ORIGIN/../lib" "$ORIGIN/../lib64"
+                               "$ORIGIN/usr/lib" "$ORIGIN/usr/lib64"
+                               "$ORIGIN/../usr/lib" "$ORIGIN/../usr/lib64")
+                             ":")))
+                (define (patch file)
+                  (when (elf-file? file)
+                    (format #t "Patching ~a ..." file)
+                    (unless (string-contains file ".so")
+                      (invoke "patchelf" "--set-interpreter" ld.so file))
+                    (invoke "patchelf" "--set-rpath" rpath file)
+                    (display " done\n")))
+                (for-each patch (find-files root)))))
+          )
+      ))
     (home-page "https://developer.nvidia.com/isaac-sim")
     (synopsis "NVIDIA Isaac Sim WebRTC Streaming Client")
     (description
