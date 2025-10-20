@@ -1855,3 +1855,75 @@ debugging CUDA applications with tools like NVIDIA Nsight Systems and NVIDIA
 Nsight Compute.")
     (license license-gnu:asl2.0)))
 
+
+;;;
+;;; Isaac Sim: Compatibility Checker
+;;;
+
+(define-public isaac-sim-compat-checker
+  (package
+    (name "isaac-sim-compat-checker")
+    (version "5.0.0")
+    (supported-systems '("x86_64-linux"))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://download.isaacsim.omniverse.nvidia.com/"
+             "isaac-sim-comp-check-" version "-linux-x86_64.zip"))
+       (sha256
+        (base32 "1w7v7d9yhv93n2l3lfqbhfrjdyzaxfz2vrfjpqysxz28lvw61l8s"))))
+    (build-system gnu-build-system)
+    (native-inputs (list unzip which bash-minimal))
+    (inputs (list nvidia-driver))
+    (arguments
+     (list
+      #:modules '((guix build utils)
+                  (guix build gnu-build-system)
+                  (ice-9 ftw))
+      #:tests? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "unzip" "-q" source)))
+          (delete 'configure)
+          (delete 'build)
+          (delete 'check)
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (opt (string-append out "/opt/isaac-sim-compat-checker")))
+                (mkdir-p opt)
+                (copy-recursively "." opt)
+                (let* ((script (car (or (find-files opt
+                                                    "omni\\.isaac\\.sim\\.compatibility_check\\.sh$")
+                                         '()))))
+                  (when script
+                    (make-file-writable script)
+                    (chmod script #o755)
+                    (let* ((bin (string-append out "/bin"))
+                           (sdir (dirname script))
+                           (sbase (basename script)))
+                      (mkdir-p bin)
+                      (call-with-output-file (string-append bin 
+                                                            "/isaac-sim-compat-check")
+                        (lambda (port)
+                          (display (string-append
+                                    "#!" #$(file-append bash-minimal "/bin/bash") "\n"
+                                    "set -euo pipefail\n"
+                                    "export PATH=\"" #$(file-append nvidia-driver "/bin") ":$PATH\"\n"
+                                    "cd \"" sdir "\"\n"
+                                    "exec ./" sbase " \"$@\"\n")
+                                   port)))
+                      (chmod (string-append bin "/isaac-sim-compat-check") #o755))))))))))
+    (home-page "https://developer.nvidia.com/isaac-sim")
+    (synopsis "NVIDIA Isaac Sim Compatibility Checker")
+    (description
+     "Lightweight tool to validate system requirements for running NVIDIA Isaac
+Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
+    (license (license:nonfree
+              "https://developer.nvidia.com/omniverse/eula"))))
+
