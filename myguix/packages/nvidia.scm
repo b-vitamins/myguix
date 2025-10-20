@@ -1857,6 +1857,95 @@ Nsight Compute.")
 
 
 ;;;
+;;; Isaac Sim: Main Application (Standalone)
+;;;
+
+(define-public isaac-sim
+  (package
+    (name "isaac-sim")
+    (version "5.0.0")
+    (supported-systems '("x86_64-linux"))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://download.isaacsim.omniverse.nvidia.com/"
+             "isaac-sim-standalone-" version "-linux-x86_64.zip"))
+       (sha256 (base32 "17x8plwv2jm209zpimnxvxby5wim50f319fcphjz6wbf7d8wmr9x"))))
+    (build-system gnu-build-system)
+    (native-inputs (list unzip which bash-minimal))
+    (inputs (list nvda nvidia-driver egl-gbm egl-x11))
+    (arguments
+     (list
+      #:modules '((guix build utils)
+                  (guix build gnu-build-system)
+                  (ice-9 ftw))
+      #:tests? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "unzip" "-q" source)))
+          (delete 'configure)
+          (delete 'build)
+          (delete 'check)
+          (replace 'install
+            (lambda* (#:key outputs inputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (root (string-append out "/opt/isaac-sim"))
+                     (bin  (string-append out "/bin"))
+                     (nvda (assoc-ref inputs "nvda"))
+                     (nvda-lib (string-append nvda "/lib"))
+                     (nvda-share (string-append nvda "/share")))
+                ;; Define wrappers first (definitions must be at top of body).
+                (define (write-wrapper target script)
+                  (call-with-output-file target
+                    (lambda (port)
+                      (display (string-append
+                                "#!" #$(file-append bash-minimal "/bin/bash") "\n"
+                                "set -euo pipefail\n"
+                                "export PATH=\"" #$(file-append nvidia-driver "/bin") ":$PATH\"\n"
+                                "export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=\"" nvda-share "/egl/egl_external_platform.d\"\n"
+                                "export __EGL_VENDOR_LIBRARY_DIRS=\"" nvda-share "/glvnd/egl_vendor.d\"\n"
+                                "export GBM_BACKENDS_PATH=\"" nvda-lib "/gbm\"\n"
+                                "export LIBVA_DRIVERS_PATH=\"" nvda-lib "/dri\"\n"
+                                "export VDPAU_DRIVER_PATH=\"" nvda-lib "/vdpau\"\n"
+                                "export XDG_DATA_DIRS=\"" nvda-share ":${XDG_DATA_DIRS:-}\"\n"
+                                "export LD_LIBRARY_PATH=\"" root "/kit/lib:" root "/kit/lib64:" nvda-lib ":${LD_LIBRARY_PATH:-}\"\n"
+                                "cd \"" root "\"\n"
+                                "exec ./" script " \"$@\"\n")
+                               port)))
+                  (chmod target #o755))
+
+                (mkdir-p root)
+                (mkdir-p bin)
+                (copy-recursively "." root)
+                ;; Ensure scripts are executable
+                (for-each (lambda (name)
+                            (let ((p (string-append root "/" name)))
+                              (when (file-exists? p)
+                                (make-file-writable p)
+                                (chmod p #o755))))
+                          '("isaac-sim.sh"
+                            "isaac-sim.selector.sh"
+                            "isaac-sim.streaming.sh"))
+
+                (write-wrapper (string-append bin "/isaac-sim") "isaac-sim.sh")
+                (write-wrapper (string-append bin "/isaac-sim.selector") "isaac-sim.selector.sh")
+                (write-wrapper (string-append bin "/isaac-sim.streaming") "isaac-sim.streaming.sh")))))))
+    (home-page "https://developer.nvidia.com/isaac-sim")
+    (synopsis "NVIDIA Isaac Sim (Standalone Workstation Build)")
+    (description
+     "NVIDIA Isaac Sim provides a robotics simulation and synthetic data
+generation environment built on Omniverse Kit. This package installs the
+standalone workstation build and provides launch wrappers that integrate with
+the NVIDIA driver stack packaged in this channel (nvda).")
+    (license (license:nonfree
+              "https://developer.nvidia.com/omniverse/eula"))))
+
+;;;
 ;;; Isaac Sim: Compatibility Checker
 ;;;
 
@@ -1926,4 +2015,3 @@ Nsight Compute.")
 Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
     (license (license:nonfree
               "https://developer.nvidia.com/omniverse/eula"))))
-
