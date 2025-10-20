@@ -2133,3 +2133,47 @@ and provides a wrapper executable.")
 Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
     (license (license:nonfree
               "https://developer.nvidia.com/omniverse/eula"))))
+
+;;;
+;;; Isaac Sim: Asset Packs
+;;;
+
+(define-public isaac-sim-assets-robots-sensors
+  (package
+    (name "isaac-sim-assets-robots-sensors")
+    (version "5.0.0")
+    (supported-systems '("x86_64-linux"))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://download.isaacsim.omniverse.nvidia.com/"
+             "isaac-sim-assets-robots_and_sensors-" version ".zip"))
+       (sha256 (base32 "0ah0dld58zkpawnilsgjgqblym60d02nf3vc19xa2nzmd4d1xrpl"))))
+    (build-system gnu-build-system)
+    (native-inputs (list unzip))
+    (arguments
+     (list
+      #:tests? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "unzip" "-q" source)))
+          (delete 'configure)
+          (delete 'build)
+          (delete 'check)
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (dest (string-append out "/share/isaac-sim/assets/robots_and_sensors")))
+                (mkdir-p dest)
+                (copy-recursively "." dest)))))))
+    (home-page "https://developer.nvidia.com/isaac-sim")
+    (synopsis "Isaac Sim asset pack: Robots and Sensors")
+    (description
+     "Robots and Sensors asset pack for NVIDIA Isaac Sim.")
+    (license (license:nonfree
+              "https://developer.nvidia.com/omniverse/eula"))))
