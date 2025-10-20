@@ -2177,3 +2177,43 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
      "Robots and Sensors asset pack for NVIDIA Isaac Sim.")
     (license (license:nonfree
               "https://developer.nvidia.com/omniverse/eula"))))
+
+(define-public isaac-sim-assets-materials-props
+  (package
+    (name "isaac-sim-assets-materials-props")
+    (version "5.0.0")
+    (supported-systems '("x86_64-linux"))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://download.isaacsim.omniverse.nvidia.com/"
+             "isaac-sim-assets-materials_and_props-" version ".zip"))
+       (sha256 (base32 "0qrq598cdiv5adqsq0pmcj4r04z6miwa2hpgy3k52vxcc9ffxzwn"))))
+    (build-system gnu-build-system)
+    (native-inputs (list unzip))
+    (arguments
+     (list
+      #:tests? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "unzip" "-q" source)))
+          (delete 'configure)
+          (delete 'build)
+          (delete 'check)
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (dest (string-append out "/share/isaac-sim/assets/materials_and_props")))
+                (mkdir-p dest)
+                (copy-recursively "." dest)))))))
+    (home-page "https://developer.nvidia.com/isaac-sim")
+    (synopsis "Isaac Sim asset pack: Materials and Props")
+    (description
+     "Materials and Props asset pack for NVIDIA Isaac Sim.")
+    (license (license:nonfree
+              "https://developer.nvidia.com/omniverse/eula"))))
