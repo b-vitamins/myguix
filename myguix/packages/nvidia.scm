@@ -2217,3 +2217,43 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
      "Materials and Props asset pack for NVIDIA Isaac Sim.")
     (license (license:nonfree
               "https://developer.nvidia.com/omniverse/eula"))))
+
+(define-public isaac-sim-assets-environments
+  (package
+    (name "isaac-sim-assets-environments")
+    (version "5.0.0")
+    (supported-systems '("x86_64-linux"))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://download.isaacsim.omniverse.nvidia.com/"
+             "isaac-sim-assets-environments-" version ".zip"))
+       (sha256 (base32 "0mwn9bawkri0rvm6w4nkbpnzzagzb3b7q1dssfhza8yk7rrcp40p"))))
+    (build-system gnu-build-system)
+    (native-inputs (list unzip))
+    (arguments
+     (list
+      #:tests? #f
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'unpack
+            (lambda* (#:key source #:allow-other-keys)
+              (invoke "unzip" "-q" source)))
+          (delete 'configure)
+          (delete 'build)
+          (delete 'check)
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (dest (string-append out "/share/isaac-sim/assets/environments")))
+                (mkdir-p dest)
+                (copy-recursively "." dest)))))))
+    (home-page "https://developer.nvidia.com/isaac-sim")
+    (synopsis "Isaac Sim asset pack: Environments")
+    (description
+     "Environments asset pack for NVIDIA Isaac Sim.")
+    (license (license:nonfree
+              "https://developer.nvidia.com/omniverse/eula"))))
