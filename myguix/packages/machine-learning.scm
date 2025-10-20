@@ -50,7 +50,7 @@
   #:use-module ((gnu packages python-web)
                 #:hide (python-jose))
   #:use-module ((gnu packages python-xyz)
-                #:hide (python-pillow-simd python-future))
+                #:hide (python-future))
   #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
