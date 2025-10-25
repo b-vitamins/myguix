@@ -1,0 +1,14 @@
+diff --git c/bazel/ray_deps_build_all.bzl w/bazel/ray_deps_build_all.bzl
+index 8d59beab32..774ec67a10 100644
+--- c/bazel/ray_deps_build_all.bzl
++++ w/bazel/ray_deps_build_all.bzl
+@@ -20,5 +20,8 @@ def ray_deps_build_all():
+   grpc_deps()
+   rules_proto_grpc_toolchains()
+   jar_jar_repositories()
+-  rules_foreign_cc_dependencies()
++  rules_foreign_cc_dependencies(
++      register_default_tools = False,
++      register_built_tools = False,
++  )
+   openssl_setup()

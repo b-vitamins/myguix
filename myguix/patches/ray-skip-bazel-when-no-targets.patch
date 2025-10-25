@@ -1,0 +1,17 @@
+diff --git i/python/setup.py w/python/setup.py
+index 82a08fda81..b9590fa4e0 100644
+--- i/python/setup.py
++++ w/python/setup.py
+@@ -525,6 +525,12 @@ def replace_symlinks_with_junctions():
+ 
+ 
+ def build(build_python, build_java, build_cpp):
++    # If no components are requested, do not initialize or touch Bazel.
++    # This avoids network access during WORKSPACE evaluation in hermetic builds.
++    if not (build_python or build_java or build_cpp):
++        logger.info("No build targets requested; skipping Bazel invocation.")
++        return
++
+     if tuple(sys.version_info[:2]) not in SUPPORTED_PYTHONS:
+         msg = (
+             "Detected Python version {}, which is not supported. "

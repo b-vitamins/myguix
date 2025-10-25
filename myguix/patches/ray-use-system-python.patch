@@ -1,0 +1,78 @@
+diff --git c/BUILD.bazel w/BUILD.bazel
+index 804a9591b9..804a9591b9 100644
+--- c/BUILD.bazel
++++ w/BUILD.bazel
+@@ -10,7 +10,7 @@ load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+ load("@com_github_grpc_grpc//bazel:cc_grpc_library.bzl", "cc_grpc_library")
+ load("@com_github_grpc_grpc//bazel:cython_library.bzl", "pyx_library")
+ load("@hedron_compile_commands//:refresh_compile_commands.bzl", "refresh_compile_commands")
+-load("@python3_9//:defs.bzl", python39 = "interpreter")
++load("@python3_9//:defs.bzl", python39 = "interpreter")
+ load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+ load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
+ load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
+@@ -26,7 +26,7 @@ package(
+ 
+ py_runtime(
+     name = "python3_runtime",
+-    interpreter = python39,
++    interpreter = python39,
+     python_version = "PY3",
+     visibility = ["//visibility:private"],
+ )
+diff --git c/WORKSPACE w/WORKSPACE
+index e56c6a109b..e56c6a109b 100644
+--- c/WORKSPACE
++++ w/WORKSPACE
+@@ -66,22 +66,22 @@ python_register_toolchains(
+     register_toolchains = False,
+ )
+ 
+-load("@python3_9//:defs.bzl", python39 = "interpreter")
++load("@python3_9//:defs.bzl", python39 = "interpreter")
+ load("@rules_python//python/pip_install:repositories.bzl", "pip_install_dependencies")
+ 
+ pip_install_dependencies()
+ 
+ load("@rules_python//python:pip.bzl", "pip_parse")
+ 
+-pip_parse(
+-    name = "py_deps_buildkite",
+-    python_interpreter_target = python39,
+-    requirements_lock = "//release:requirements_buildkite.txt",
+-)
+-
+-load("@py_deps_buildkite//:requirements.bzl", install_py_deps_buildkite = "install_deps")
+-
+-install_py_deps_buildkite()
++# pip_parse(
++#     name = "py_deps_buildkite",
++#     python_interpreter_target = python39,
++#     requirements_lock = "//release:requirements_buildkite.txt",
++# )
++# 
++# load("@py_deps_buildkite//:requirements.bzl", install_py_deps_buildkite = "install_deps")
++# 
++# install_py_deps_buildkite()
+ 
+ register_toolchains("//:python_toolchain")
+ 
+diff --git c/bazel/BUILD.bazel w/bazel/BUILD.bazel
+index 2e4ce8f51b..a9653f1420 100644
+--- c/bazel/BUILD.bazel
++++ w/bazel/BUILD.bazel
+@@ -1,4 +1,4 @@
+-load("@py_deps_buildkite//:requirements.bzl", ci_require = "requirement")
++# load("@py_deps_buildkite//:requirements.bzl", ci_require = "requirement")
+ load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+ 
+ exports_files([
+@@ -16,7 +16,7 @@ py_library(
+     name = "gen_extract",
+     srcs = ["gen_extract.py"],
+     deps = [
+-        ci_require("bazel-runfiles"),
++        # ci_require("bazel-runfiles"),
+     ],
+     visibility = ["//visibility:public"],
+ )

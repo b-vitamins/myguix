@@ -1,0 +1,21 @@
+diff --git i/python/setup.py w/python/setup.py
+index 82a08fda81..abcd1234ef 100644
+--- i/python/setup.py
++++ w/python/setup.py
+@@
+ def pip_run(build_ext):
+     if SKIP_BAZEL_BUILD:
+         build(False, False, False)
+     else:
+         build(True, BUILD_JAVA, True)
+
+-    if setup_spec.type == SetupType.RAY:
+-        setup_spec.files_to_include += ray_files
++    if setup_spec.type == SetupType.RAY:
++        # Only include files that actually exist in the source tree. In
++        # hermetic builds we may skip certain Bazel actions and rely on
++        # pre-extracted artifacts. Avoid failing if some optional files
++        # (e.g. compiled extensions) are not present.
++        setup_spec.files_to_include += [
++            f for f in ray_files if os.path.exists(os.path.join(ROOT_DIR, f))
++        ]
