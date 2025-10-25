@@ -26,6 +26,7 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages cpp)
   #:use-module (gnu packages java)
   #:use-module (gnu packages java-compression)
   #:use-module (gnu packages linux)
@@ -95,7 +96,7 @@
             (lambda _
               (setenv "EXTRA_BAZEL_ARGS"
                       (string-append
-                       "--tool_java_runtime_version=local_jdk --noremote_accept_cached --verbose_failures --subcommands --action_env=PATH --action_env=LIBRARY_PATH --action_env=C_INCLUDE_PATH --action_env=CPLUS_INCLUDE_PATH --action_env=GUIX_LOCPATH --host_action_env=PATH --host_action_env=LIBRARY_PATH --host_action_env=C_INCLUDE_PATH --host_action_env=CPLUS_INCLUDE_PATH --host_action_env=GUIX_LOCPATH --define=distribution=debian
+                       "--tool_java_runtime_version=local_jdk --noremote_accept_cached --verbose_failures --subcommands --action_env=PATH --action_env=LIBRARY_PATH --action_env=C_INCLUDE_PATH --action_env=CPLUS_INCLUDE_PATH --action_env=GUIX_LOCPATH --host_action_env=PATH --host_action_env=LIBRARY_PATH --host_action_env=C_INCLUDE_PATH --host_action_env=CPLUS_INCLUDE_PATH --host_action_env=GUIX_LOCPATH --define=distribution=debian --linkopt=-labsl_synchronization --linkopt=-labsl_time --linkopt=-labsl_strings --linkopt=-labsl_base --linkopt=-labsl_int128 --host_linkopt=-labsl_synchronization --host_linkopt=-labsl_time --host_linkopt=-labsl_strings --host_linkopt=-labsl_base --host_linkopt=-labsl_int128
 --override_repository=com_google_protobuf="
                        (getcwd)
                        "/tools/distributions/debian/protobuf --override_repository=remote_java_tools_linux="
