@@ -39,6 +39,7 @@
   #:use-module (gnu packages xorg)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages video)
+  #:use-module (gnu packages build-tools)
   #:use-module (gnu packages game-development)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages elf)
@@ -3115,3 +3116,38 @@ Python stubs contained in the complete @code{typeshed} collection.")
     (description
      "Extra array functions built on top of the array API standard.")
     (license license:expat)))
+
+
+(define-public python-ninja
+  (package
+    (name "python-ninja")
+    (version "1.13.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ninja" version))
+       (sha256
+        (base32 "0y7rfrg089bydq9cgxj7nn9d2apn7gzkgspq4kfdjm7dbncwwh2a"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; Provide a CLI 'ninja' script by linking to the system Ninja
+          ;; binary. The upstream Python package also installs a script,
+          ;; and tests expect one to be present.
+          (add-after 'install 'install-ninja-script
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (bindir (string-append out "/bin"))
+                     (sys-ninja (search-input-file inputs "/bin/ninja")))
+                (mkdir-p bindir)
+                (symlink sys-ninja (string-append bindir "/ninja"))
+                #t))))))
+    (inputs (list ninja))
+    (native-inputs (list python-scikit-build-core python-setuptools python-setuptools-scm python-wheel python-hatchling python-hatch-fancy-pypi-readme
+                         python-hatch-vcs cmake googletest python-pytest))
+    (home-page #f)
+    (synopsis "Ninja is a small build system with a focus on speed")
+    (description "Ninja is a small build system with a focus on speed.")
+    (license #f)))
