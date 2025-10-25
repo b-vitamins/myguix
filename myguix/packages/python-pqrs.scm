@@ -20,7 +20,8 @@
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
-  #:use-module (gnu packages python-xyz)
+  #:use-module ((gnu packages python-xyz)
+                #:hide (python-diff-cover))
   #:use-module ((gnu packages python-web)
                 #:hide (python-huggingface-hub))
   #:use-module (gnu packages python-build)
@@ -44,6 +45,8 @@
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages audio)
+  #:use-module (gnu packages statistics)
+  #:use-module (gnu packages textutils)
   #:use-module (guix build-system trivial)
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system node)
@@ -3148,4 +3151,160 @@ Python stubs contained in the complete @code{typeshed} collection.")
     (home-page "https://github.com/scikit-build/ninja-python-distributions")
     (synopsis "Ninja is a small build system with a focus on speed")
     (description "Ninja is a small build system with a focus on speed.")
+    (license license:asl2.0)))
+
+(define-public python-hglib
+  (package
+    (name "python-hglib")
+    (version "2.6.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "python-hglib" version))
+       (sha256
+        (base32 "0256inr8ph4j121skv2a1n9lxdkjpgb6mmhlaxyya3n9agnx32xi"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://www.mercurial-scm.org/wiki/PythonHglibs")
+    (synopsis "Mercurial Python library")
+    (description "Mercurial Python library.")
+    (license license:expat)))
+
+(define-public python-asv-runner
+  (package
+    (name "python-asv-runner")
+    (version "0.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "asv_runner" version))
+       (sha256
+        (base32 "0vdn1pz7fmbz936wim4n6y3csplg0kfrs7hv48pi1abgl00x6pcl"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-importlib-metadata))
+    (native-inputs (list python-pdm-backend))
+    (home-page "https://asv.readthedocs.io/projects/asv-runner/en/latest/")
+    (synopsis "Core Python benchmark code for ASV")
+    (description "Core Python benchmark code for ASV.")
+    (license #f)))
+
+(define-public python-asv
+  (package
+    (name "python-asv")
+    (version "0.6.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "asv" version))
+       (sha256
+        (base32 "0ffgl0yxdm8cxdlycdigsva3h90k0drd49ypdca8rmvw0g2vgvm8"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-asv-runner
+                             python-build
+                             python-colorama
+                             python-importlib-metadata
+                             python-json5
+                             python-packaging
+                             python-pympler
+                             python-pyyaml
+                             python-tabulate
+                             python-tomli
+                             python-virtualenv))
+    (native-inputs (list python-feedparser
+                         python-filelock
+                         python-flaky
+                         python-numpy
+                         python-pytest
+                         python-pytest-rerunfailures
+                         python-pytest-timeout
+                         python-pytest-xdist
+                         python-hglib
+                         python-rpy2
+                         python-ruff
+                         python-scipy
+                         python-setuptools
+                         python-setuptools-scm
+                         python-wheel))
+    (home-page #f)
+    (synopsis "Airspeed Velocity: A simple Python history benchmarking tool")
+    (description
+     "Airspeed Velocity: A simple Python history benchmarking tool.")
+    (license #f)))
+
+(define-public python-diff-cover
+  (package
+    (name "python-diff-cover")
+    (version "9.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "diff_cover" version))
+       (sha256
+        (base32 "0dms5f3axwkjpcck4mlglfn0pga5nmskyc7ahyg8yrxvxd9v7845"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs
+     (list python-pycodestyle
+           python-poetry-core
+           python-pyflakes
+           python-pylint
+           python-pytest
+           python-pytest-datadir
+           python-pytest-mock))
+    (propagated-inputs
+     (list python-chardet
+           python-jinja2
+           python-pluggy
+           python-pygments
+           python-setuptools ; For pkg_resources.
+           python-tomli))
+    (home-page "https://github.com/Bachmann1234/diff-cover")
+    (synopsis "Run coverage and linting reports on diffs")
+    (description
+     "Automatically find diff lines that need test coverage.  It also finds
+diff lines that have violations (according to tools such as pycodestyle,
+pyflakes, flake8, or pylint).  This is used as a code quality metric during
+code reviews.")
+    (license license:asl2.0)))
+
+(define-public python-outlines-core
+  (package
+    (name "python-outlines-core")
+    (version "0.2.13")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "outlines_core" version))
+       (sha256
+        (base32 "07xml42lx5www030n4ab3kqh04pry8rifdppcx4viqkfi2yic7gx"))
+       (modules '((guix build utils)))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system) #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'install)
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases 'build))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases 'install)))))
+    (inputs (append (list oniguruma)
+                    (cons* maturin (myguix-cargo-inputs 'outlines-core))))
+    (native-inputs (list python-wrapper pkg-config))
+    (home-page "https://github.com/dottxt-ai/outlines-core")
+    (synopsis "Structured Text Generation in Rust")
+    (description "Structured Text Generation in Rust.")
     (license license:asl2.0)))
