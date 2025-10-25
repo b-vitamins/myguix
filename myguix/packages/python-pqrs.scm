@@ -2922,6 +2922,44 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (description "The official Python library for the openai API.")
     (license license:expat)))
 
+(define-public python-openai-harmony
+  (package
+    (name "python-openai-harmony")
+    (version "0.0.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "openai_harmony" version))
+       (sha256
+        (base32 "0v0h4z28597j12hxl523lbfgqgi7n3dw6msgnsvny8s9ydnsqrsw"))
+       (modules '((guix build utils)))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system) #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; Build and install the Python wheel via maturin after cargo build.
+          (delete 'install)
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases 'build))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases 'install)))))
+    (inputs (cons* maturin
+                   (myguix-cargo-inputs 'openai-harmony)))
+    (propagated-inputs (list python-pydantic))
+    (native-inputs (list python-wrapper))
+    (home-page "https://github.com/openai/harmony")
+    (synopsis
+     "OpenAI's response format for its open-weight model series gpt-oss")
+    (description
+     "OpenAI's response format for its open-weight model series gpt-oss.")
+    (license license:asl2.0)))
+
 (define-public python-ruff-lsp
   (package
     (name "python-ruff-lsp")
