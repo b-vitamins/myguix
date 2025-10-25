@@ -14,6 +14,7 @@
   #:use-module (gnu packages image)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages monitoring)
+  #:use-module (gnu packages ninja)
   #:use-module (gnu packages time)
   #:use-module (gnu packages xml)
   #:use-module (gnu packages pkg-config)
@@ -3115,3 +3116,36 @@ Python stubs contained in the complete @code{typeshed} collection.")
     (description
      "Extra array functions built on top of the array API standard.")
     (license license:expat)))
+
+(define-public python-ninja
+  (package
+    (name "python-ninja")
+    (version "1.13.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ninja" version))
+       (sha256
+        (base32 "0y7rfrg089bydq9cgxj7nn9d2apn7gzkgspq4kfdjm7dbncwwh2a"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'check
+            (lambda _
+              (invoke "pytest" "-vv" "-k" "not test_ninja_script"))))))
+    (native-inputs (list python-scikit-build-core
+                         python-setuptools
+                         python-setuptools-scm
+                         python-wheel
+                         python-hatchling
+                         python-hatch-fancy-pypi-readme
+                         python-hatch-vcs
+                         cmake
+                         googletest
+                         python-pytest))
+    (home-page "https://github.com/scikit-build/ninja-python-distributions")
+    (synopsis "Ninja is a small build system with a focus on speed")
+    (description "Ninja is a small build system with a focus on speed.")
+    (license license:asl2.0)))
