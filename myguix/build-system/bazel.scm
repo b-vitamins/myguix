@@ -117,12 +117,12 @@
                                             (setenv "SOURCE_DATE_EPOCH" "1")
                                             (setenv "HOME" %build-directory)
                                             (setenv "USER" "homeless-shelter")
-                                            (let ((cert-bundle (string-append #+nss-certs
-                                                                "/etc/ssl/certs/ca-bundle.crt")))
-                                              (setenv "GIT_SSL_CAINFO"
-                                                      cert-bundle)
-                                              (setenv "SSL_CERT_FILE"
-                                                      cert-bundle))
+                                            (let ((cert-dir (string-append #+nss-certs
+                                                              "/etc/ssl/certs")))
+                                              (setenv "GIT_SSL_CAPATH"
+                                                      cert-dir)
+                                              (setenv "SSL_CERT_DIR"
+                                                      cert-dir))
 
                                             (mkdir-p %bazel-out)
                                             #$bazel-configuration
