@@ -42,6 +42,8 @@
   #:use-module (myguix packages bazel)
   #:use-module (myguix packages huggingface)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages machine-learning)
+  #:use-module (myguix packages nvidia)
   #:use-module (srfi srfi-26))
 
 ;; TODO: Packages that need to be packaged for vLLM:
@@ -661,3 +663,84 @@ reinforcement learning, and production serving.")
      "This package provides a high-throughput and memory-efficient inference and
 serving engine for LLMs.")
     (license license:asl2.0)))
+
+(define-public python-vllm-cuda
+  (package
+    (inherit python-vllm)
+    (name "python-vllm-cuda")
+    (arguments
+     (substitute-keyword-arguments (package-arguments python-vllm)
+       ((#:modules m)
+        #~(append #$m '((guix build union))))
+       ((#:imported-modules im)
+        #~(append #$im '((guix build union))))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-before 'build 'configure-cuda
+              (lambda* (#:key inputs #:allow-other-keys)
+                ;; Ensure CUDA toolchain is visible and point vLLM to local CUTLASS
+                (let* ((cuda (assoc-ref inputs "cuda-toolkit"))
+                       (bin  (string-append cuda "/bin")))
+                  (setenv "CUDA_HOME" cuda)
+                  (setenv "PATH" (string-append bin ":" (getenv "PATH"))))
+                ;; Provide a local CUTLASS source tree by unioning headers + tools
+                (use-modules (guix build union))
+                (let* ((cutlass-root (string-append (getenv "NIX_BUILD_TOP") "/cutlass-src"))
+                       (hdr (assoc-ref inputs "cutlass-headers"))
+                       (tools (assoc-ref inputs "cutlass-tools")))
+                  (union-build cutlass-root (list hdr tools))
+                  (setenv "VLLM_CUTLASS_SRC_DIR" cutlass-root))))
+            (replace 'fix-vllm-rpath
+              (lambda* (#:key outputs inputs #:allow-other-keys)
+                (let* ((out (assoc-ref outputs "out"))
+                       ;; Find vLLM shared objects under installed site-packages
+                       (so-files (find-files out
+                                             (lambda (file stat)
+                                               (and (eq? 'regular (stat:type stat))
+                                                    (regexp-exec (make-regexp ".*/site-packages/vllm/_C.*\\.so$")
+                                                                 file)))))
+                       ;; Torch lib dir
+                       (py (open-pipe* OPEN_READ "python3" "-c"
+                                        "import os, torch; print(os.path.join(os.path.dirname(torch.__file__), 'lib'))"))
+                       (py-out (read-line py))
+                       (py-status (close-pipe py))
+                       (torch-lib (let ((cand (and (zero? py-status) py-out)))
+                                    (if (and cand (file-exists? cand))
+                                        cand
+                                        (let* ((tor (assoc-ref inputs "python-pytorch")))
+                                          (and tor
+                                               (let ((c (find-files (string-append tor "/lib")
+                                                                   ".*/site-packages/torch/lib$"
+                                                                   #:directories? #t)))
+                                                 (and (pair? c) (car c))))))))
+                       ;; CUDA/NVIDIA libs
+                       (cuda (assoc-ref inputs "cuda-toolkit"))
+                       (cudnn (assoc-ref inputs "cudnn"))
+                       (nccl (assoc-ref inputs "nccl"))
+                       (cuda-lib (and cuda (string-append cuda "/lib64")))
+                       (cudnn-lib (and cudnn (string-append cudnn "/lib")))
+                       (nccl-lib (and nccl (string-append nccl "/lib"))))
+                  (unless (pair? so-files)
+                    (error "vLLM shared object not found for RPATH patching (CUDA)" out))
+                  (unless torch-lib
+                    (error "PyTorch lib directory not found under input" (assoc-ref inputs "python-pytorch")))
+                  (for-each
+                   (lambda (file)
+                     (let* ((p (open-pipe* OPEN_READ "patchelf" "--print-rpath" file))
+                            (line (read-line p))
+                            (status (close-pipe p))
+                            (existing (if (and (zero? status) line) line ""))
+                            (prefix (string-join (filter identity
+                                                         (list torch-lib cuda-lib cudnn-lib nccl-lib))
+                                                 ":"))
+                            (new-rpath (if (string=? existing "")
+                                           prefix
+                                           (string-append prefix ":" existing))))
+                       (invoke "patchelf" "--set-rpath" new-rpath file)))
+                   so-files))))))
+    (inputs
+     (modify-inputs (package-inputs python-vllm)
+       (replace "python-pytorch" python-pytorch-cuda)
+       (append cuda-toolkit cudnn nccl cutlass-headers cutlass-tools)))
+    (synopsis "vLLM with CUDA support")))
+))
