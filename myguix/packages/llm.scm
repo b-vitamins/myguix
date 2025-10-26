@@ -6,7 +6,10 @@
   #:use-module (guix git-download)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
+  #:use-module (guix build-system)
   #:use-module (guix utils)
+  #:use-module (gnu packages cmake)
+  #:use-module (gnu packages cpp)
   #:use-module (gnu packages check)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages databases)
@@ -14,7 +17,13 @@
   #:use-module (gnu packages iso-codes)
   #:use-module (gnu packages java)
   #:use-module (gnu packages machine-learning)
+  #:use-module (gnu packages ninja)
+  #:use-module (gnu packages bash)
+  #:use-module (gnu packages pkg-config)
+  #:use-module (gnu packages elf)
+  #:use-module (gnu packages linux)
   #:use-module (gnu packages monitoring)
+  #:use-module (gnu packages oneapi)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
@@ -26,11 +35,13 @@
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages rpc)
+  #:use-module (gnu packages tls)
   #:use-module (gnu packages serialization)
   #:use-module (gnu packages version-control)
   #:use-module (myguix build-system bazel)
   #:use-module (myguix packages bazel)
   #:use-module (myguix packages huggingface)
+  #:use-module (myguix packages python-pqrs)
   #:use-module (srfi srfi-26))
 
 ;; TODO: Packages that need to be packaged for vLLM:
@@ -524,3 +535,129 @@ reinforcement learning, and production serving.")
     (synopsis "Fast Base64 encoding/decoding")
     (description "Fast Base64 encoding/decoding.")
     (license license:bsd-2)))
+
+(define-public python-vllm
+  (package
+    (name "python-vllm")
+    (version "0.11.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "vllm" version))
+       (sha256
+        (base32 "1bmzj9ikmb3rkxmd1xqj812dr3alv3nzhxkscn6igi794i6acdgl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils)
+                  (ice-9 popen)
+                  (ice-9 rdelim)
+                  (ice-9 regex))
+      #:imported-modules %pyproject-build-system-modules
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; Ensure the vLLM extension has proper RUNPATH to find PyTorch libs
+          ;; right before Guix validates RUNPATHs.
+          (add-before 'validate-runpath 'fix-vllm-rpath
+            (lambda* (#:key outputs inputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (so-files (find-files out
+                                           (lambda (file stat)
+                                             (and (eq? 'regular (stat:type stat))
+                                                  (regexp-exec (make-regexp ".*/site-packages/vllm/_C.*\\.so$")
+                                                               file)))))
+                     (py (open-pipe* OPEN_READ "python3" "-c"
+                                      "import os, torch; print(os.path.join(os.path.dirname(torch.__file__), 'lib'))"))
+                     (py-out (read-line py))
+                     (py-status (close-pipe py))
+                     (torch-lib (let ((cand (and (zero? py-status) py-out)))
+                                  (if (and cand (file-exists? cand))
+                                      cand
+                                      (let* ((tor (assoc-ref inputs "python-pytorch")))
+                                        (and tor
+                                             (let ((c (find-files (string-append tor "/lib")
+                                                                 ".*/site-packages/torch/lib$"
+                                                                 #:directories? #t)))
+                                               (and (pair? c) (car c)))))))))
+                (unless (pair? so-files)
+                  (error "vLLM shared object not found for RPATH patching" out))
+                (unless torch-lib
+                  (error "PyTorch lib directory not found under input" (assoc-ref inputs "python-pytorch")))
+                (for-each
+                 (lambda (file)
+                   (let* ((p (open-pipe* OPEN_READ "patchelf" "--print-rpath" file))
+                          (line (read-line p))
+                          (status (close-pipe p))
+                          (existing (if (and (zero? status) line) line ""))
+                          (new-rpath (if (string=? existing "")
+                                         torch-lib
+                                         (string-append torch-lib ":" existing))))
+                     (invoke "patchelf" "--set-rpath" new-rpath file)))
+                 so-files))))
+          (replace 'sanity-check (lambda _ #t)))))
+    (propagated-inputs (list python-aiohttp
+                             python-blake3
+                             python-cachetools
+                             python-cbor2
+                             python-cloudpickle
+                             python-compressed-tensors
+                             python-depyf
+                             python-diskcache
+                             python-einops
+                             python-fastapi
+                             python-filelock
+                             python-gguf
+                             python-lark
+                             python-lm-format-enforcer
+                             python-mistral-common
+                             python-msgspec
+                             python-numpy
+                             python-openai
+                             python-openai-harmony
+                             python-opencv-python-headless
+                             python-outlines-core
+                             python-partial-json-parser
+                             python-pillow
+                             python-prometheus-fastapi-instrumentator
+                             python-prometheus-client
+                             python-protobuf
+                             python-psutil
+                             python-py-cpuinfo
+                             python-pybase64
+                             python-pydantic
+                             python-json-logger
+                             python-pyyaml
+                             python-pyzmq
+                             python-ray
+                             python-regex
+                             python-requests
+                             python-scipy
+                             python-sentencepiece
+                             python-setproctitle
+                             python-tiktoken
+                             python-tokenizers
+                             python-pytorch
+                             python-torchaudio
+                             python-torchvision
+                             python-tqdm
+                             python-transformers
+                             python-typing-extensions
+                             python-watchfiles))
+    (native-inputs (list python-setuptools
+                         python-setuptools-scm
+                         python-wheel
+                         cmake
+                         ninja
+                         bash-minimal
+                         pkg-config
+                         patchelf))
+    (inputs (list onednn cpp-httplib openssl brotli numactl python-pytorch))
+    (home-page "https://vllm.ai")
+    (synopsis
+     "A high-throughput and memory-efficient inference and serving engine for LLMs")
+    (description
+     "This package provides a high-throughput and memory-efficient inference and
+serving engine for LLMs.")
+    (license license:asl2.0)))
