@@ -9248,13 +9248,13 @@
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.45.0")
+    (version "0.50.0")
     (source
      (origin
        (method url-fetch)
-       (uri "https://registry.npmjs.org/@openai/codex/-/codex-0.45.0.tgz")
+       (uri "https://registry.npmjs.org/@openai/codex/-/codex-0.50.0.tgz")
        (sha256
-        (base32 "0iy9prkyllvnv4k0xbbbc1q8184kfj4lh7vvfmyxqch389sacb61"))))
+        (base32 "1jk9rg8yg5shn1lygx1wzbbdm913kqrhi81b9h1jbkbsbdxz3qfx"))))
     (build-system node-build-system)
     (arguments
       (list #:tests?
@@ -9355,4 +9355,3 @@
     (description
       "Use Claude, Anthropic's AI assistant, right from your terminal. Claude can understand your codebase, edit files, run terminal commands, and handle entire workflows for you.")
     (license #f)))
-
