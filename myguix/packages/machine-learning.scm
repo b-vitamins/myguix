@@ -3980,6 +3980,13 @@ package tracks the upstream Ultralytics fork used widely by Ultralytics
 library.")
     (license license:expat)))
 
+(define-public python-recbole-cuda
+  (package
+    (inherit python-recbole)
+    (name "python-recbole-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-recbole)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
@@ -3990,6 +3997,5 @@ library.")
 ;; - python-fiftyone: Dataset visualization and debugging tool
 ;; - python-dvc: Data version control for ML
 ;; - python-optuna: Hyperparameter optimization framework
-;; - python-ray: Distributed computing for ML
 ;; - python-aim: Lightweight experiment tracking
 ;; - python-lightning-bolts: Pre-built PyTorch Lightning models
