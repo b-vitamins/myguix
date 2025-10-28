@@ -51,6 +51,7 @@
   #:use-module (gnu packages nfs)
   #:use-module (gnu packages nicotine)
   #:use-module (gnu packages ocaml)
+  #:use-module (gnu packages package-management)
   #:use-module (gnu packages parallel)
   #:use-module (gnu packages password-utils)
   #:use-module (gnu packages pciutils)
@@ -361,9 +362,7 @@
   (list strace gdb valgrind))
 
 (define %performance-profiling
-  (list perf
-        flamegraph
-        sysprof))
+  (list perf flamegraph sysprof))
 
 (define %benchmark-tools
   (list hyperfine))
@@ -468,7 +467,8 @@
         `(,rust "cargo")))
 
 (define %python-development
-  (list python
+  (list poetry
+        python
         python-flake8
         python-black
         python-ruff
