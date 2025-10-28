@@ -1,6 +1,7 @@
 (define-module (myguix packages base)
   #:use-module (gnu packages admin)
   #:use-module (gnu packages algebra)
+  #:use-module (gnu packages antivirus)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages autotools)
   #:use-module (gnu packages backup)
@@ -203,7 +204,7 @@
   (list neovim))
 
 (define %security-essentials
-  (list gnupg pinentry-gnome3 password-store))
+  (list clamav gnupg pinentry-gnome3 password-store))
 
 (define %ai-assistants
   (list node-openai-codex node-anthropic-ai-claude-code))
