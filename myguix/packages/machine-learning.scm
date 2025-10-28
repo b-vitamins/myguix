@@ -79,6 +79,7 @@
   #:use-module (guix utils)
   #:use-module (myguix build-system bazel)
   #:use-module (myguix packages compression)
+  #:use-module (myguix packages llm)
   #:use-module (myguix packages llvm-pqrs)
   #:use-module (myguix packages maths)
   #:use-module (myguix packages python-pqrs)
@@ -3898,7 +3899,21 @@ set of reference environments (formerly Gym).")
          (sha256
           (base32 "1ghdcgfnnjskl9z7c5q5k3q9062nhcfspwind1n5q3mknr4p1czd"))))
     (build-system pyproject-build-system)
-    (arguments (list #:tests? #f))
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'rename-dist-to-thop
+            (lambda _
+              ;; Upstream publishes as "ultralytics-thop" on PyPI, but
+              ;; RecBole requires the distribution name "thop".
+              ;; Rename the project for packaging so pkg_resources can
+              ;; resolve the requirement "thop>=0.1.1" during sanity-check.
+              (when (file-exists? "pyproject.toml")
+                (substitute* "pyproject.toml"
+                  (("name = \"ultralytics-thop\"")
+                   "name = \"thop\""))))))))
     (propagated-inputs (list python-numpy python-pytorch))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/ultralytics/thop")
@@ -3907,8 +3922,56 @@ set of reference environments (formerly Gym).")
      "THOP provides utilities to profile PyTorch models, including fast
 computation of floating-point operations (FLOPs) and parameter counts.  This
 package tracks the upstream Ultralytics fork used widely by Ultralytics
-projects.")
+<projects.")
     (license license:agpl3+)))
+
+(define-public python-recbole
+  (package
+    (name "python-recbole")
+    (version "1.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "recbole" version))
+       (sha256
+        (base32 "1a6hm6lzy3qi5xjmvq5p3sdljnimqvbvslmcnmy2vipigfz982ph"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'relax-dependencies
+            (lambda _
+              (when (file-exists? "setup.py")
+                (substitute* "setup.py"
+                  ;; Relax Ray upper bound to allow newer Ray.
+                  (("ray>=1\\.13\\.0, <=2\\.6\\.3") "ray>=1.13.0")
+                  (("colorama==0\\.4\\.4") "colorama>=0.4.4")
+                  (("colorlog==4\\.7\\.2") "colorlog>=4.7.2"))))))))
+    (propagated-inputs (list python-colorama
+                             python-colorlog
+                             python-numpy
+                             python-pandas
+                             python-plotly
+                             python-psutil
+                             python-pyyaml
+                             python-ray
+                             python-scikit-learn
+                             python-scipy
+                             python-tabulate
+                             python-tensorboard
+                             python-texttable
+                             python-thop
+                             python-pytorch
+                             python-tqdm))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/RUCAIBox/RecBole")
+    (synopsis "A unified, comprehensive and efficient recommendation library")
+    (description
+     "This package provides a unified, comprehensive and efficient recommendation
+library.")
+    (license license:expat)))
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
