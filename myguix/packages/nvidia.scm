@@ -1593,6 +1593,53 @@ implement cuBLAS and cuDNN.")
        (sha256
         (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))))
 
+;; Python helpers from CUTLASS needed by vLLM's CUTLASS codegen (machete).
+;; Package the "python/" subtree of CUTLASS so that the module
+;; `cutlass_library` is importable at build time.
+(define-public cutlass-python
+  (package
+    (name "cutlass-python")
+    (version "4.1.0")
+    (home-page "https://github.com/NVIDIA/cutlass")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cutlass")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0yxss2jxbgjija8c7cryjq75irrnj17f5yjfppmaf2y21x7bm3v5"))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:substitutable? #t
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:install-plan ''(("python" "python")
+                        ("LICENSE.txt" "LICENSE"))))
+    (synopsis "CUTLASS Python utilities (cutlass_library)")
+    (description
+     "This package provides the Python helpers from CUTLASS used for code
+generation (the @code{cutlass_library} module).  It is useful for projects
+like vLLM that import CUTLASS' Python tooling during their build.")
+    (license license-gnu:bsd-3)))
+
+(define-public cutlass-python-3.4
+  (package
+    (inherit cutlass-python)
+    (name "cutlass-python")
+    (version "3.4.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/cutlass")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))))
+
 (define-public nccl
   (package
     (name "nccl")
