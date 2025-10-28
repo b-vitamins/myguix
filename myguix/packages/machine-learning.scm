@@ -13,6 +13,7 @@
   #:use-module ((gnu packages compression)
                 #:hide (miniz-for-pytorch))
   #:use-module (gnu packages curl)
+  #:use-module (gnu packages databases)
   #:use-module (gnu packages docker)
   #:use-module (gnu packages documentation)
   #:use-module (gnu packages elf)
@@ -3890,14 +3891,14 @@ set of reference environments (formerly Gym).")
     (name "python-thop")
     (version "2.0.17")
     (source
-       (origin
-         (method git-fetch)
-         (uri (git-reference
-               (url "https://github.com/ultralytics/thop")
-               (commit (string-append "v" version))))
-         (file-name (git-file-name name version))
-         (sha256
-          (base32 "1ghdcgfnnjskl9z7c5q5k3q9062nhcfspwind1n5q3mknr4p1czd"))))
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/ultralytics/thop")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ghdcgfnnjskl9z7c5q5k3q9062nhcfspwind1n5q3mknr4p1czd"))))
     (build-system pyproject-build-system)
     (arguments
      (list
@@ -3953,9 +3954,12 @@ package tracks the upstream Ultralytics fork used widely by Ultralytics
               (when (file-exists? "setup.py")
                 (substitute* "setup.py"
                   ;; Relax Ray upper bound to allow newer Ray.
-                  (("ray>=1\\.13\\.0, <=2\\.6\\.3") "ray>=1.13.0")
-                  (("colorama==0\\.4\\.4") "colorama>=0.4.4")
-                  (("colorlog==4\\.7\\.2") "colorlog>=4.7.2"))))))))
+                  (("ray>=1\\.13\\.0, <=2\\.6\\.3")
+                   "ray>=1.13.0")
+                  (("colorama==0\\.4\\.4")
+                   "colorama>=0.4.4")
+                  (("colorlog==4\\.7\\.2")
+                   "colorlog>=4.7.2"))))))))
     (propagated-inputs (list python-colorama
                              python-colorlog
                              python-numpy
@@ -3984,8 +3988,147 @@ library.")
   (package
     (inherit python-recbole)
     (name "python-recbole-cuda")
-    (propagated-inputs (modify-inputs (package-propagated-inputs python-recbole)
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-recbole)
                          (replace "python-pytorch" python-pytorch-cuda)))))
+
+(define-public python-setuptools-git-versioning
+  (package
+    (name "python-setuptools-git-versioning")
+    (version "2.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "setuptools_git_versioning" version))
+       (sha256
+        (base32 "08cr0lm0949mvphc48zflbr6rnb1qnzprlj3nfv57ffgn65mpvva"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-packaging python-setuptools))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://setuptools-git-versioning.readthedocs.io")
+    (synopsis
+     "Use git repo data for building a version number according PEP-440")
+    (description
+     "Use git repo data for building a version number according PEP-440.")
+    (license license:expat)))
+
+(define-public python-logistro
+  (package
+    (name "python-logistro")
+    (version "2.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "logistro" version))
+       (sha256
+        (base32 "058z3qvnwss9vq3ahb3kwq8jl516imdm3iv70yg69kj2b269mv4a"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-setuptools-git-versioning
+                         python-wheel))
+    (home-page #f)
+    (synopsis "Simple wrapper over logging for a couple basic features")
+    (description "Simple wrapper over logging for a couple basic features.")
+    (license #f)))
+
+(define-public python-choreographer
+  (package
+    (name "python-choreographer")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "choreographer" version))
+       (sha256
+        (base32 "0inkg58d3269wn81kbpwj172y1wykvk3jqa7w5l1vj6vndpaykn9"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-logistro python-simplejson))
+    (native-inputs (list python-setuptools python-setuptools-git-versioning
+                         python-wheel))
+    (home-page #f)
+    (synopsis "Devtools Protocol implementation for chrome.")
+    (description "Devtools Protocol implementation for chrome.")
+    (license #f)))
+
+(define-public python-kaleido
+  (package
+    (name "python-kaleido")
+    (version "1.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "kaleido" version))
+       (sha256
+        (base32 "1djjmfqb6raw93nf0j58dd8yzs5zqals9glslvpk9h6laqx70isp"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'sanity-check)
+          (add-after 'unpack 'relax-dependencies
+            (lambda _
+              (when (file-exists? "pyproject.toml")
+                (substitute* "pyproject.toml"
+                  (("pytest-timeout>=2\\.4\\.0")
+                   "pytest-timeout>=2.3.1")
+                  (("orjson>=3\\.10\\.15")
+                   "orjson>=3.9.7"))))))))
+    (propagated-inputs (list python-choreographer python-logistro
+                             python-orjson python-packaging
+                             python-pytest-timeout))
+    (native-inputs (list python-setuptools
+                         python-setuptools-git-versioning
+                         python-wheel
+                         python-pytest
+                         python-pytest-asyncio
+                         python-plotly))
+    (home-page #f)
+    (synopsis "Plotly graph export library")
+    (description "Plotly graph export library.")
+    (license #f)))
+
+(define-public python-optuna
+  (package
+    (name "python-optuna")
+    (version "4.5.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "optuna" version))
+       (sha256
+        (base32 "1fj2k7wxj0d26lndarvmqhln2r0qqa5ps1cmlbg49mys2vd48j16"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-alembic
+                             python-colorlog
+                             python-numpy
+                             python-packaging
+                             python-pyyaml
+                             python-sqlalchemy
+                             python-tqdm))
+    (native-inputs (list python-coverage
+                         python-fakeredis
+                         python-grpcio
+                         python-kaleido
+                         python-moto
+                         python-protobuf
+                         python-pytest
+                         python-pytest-xdist
+                         python-scipy
+                         python-setuptools
+                         python-pytorch
+                         python-wheel))
+    (home-page #f)
+    (synopsis "A hyperparameter optimization framework")
+    (description
+     "This package provides a hyperparameter optimization framework.")
+    (license #f)))
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
@@ -3996,6 +4139,5 @@ library.")
 ;; - python-pytorch-ignite: High-level training abstractions
 ;; - python-fiftyone: Dataset visualization and debugging tool
 ;; - python-dvc: Data version control for ML
-;; - python-optuna: Hyperparameter optimization framework
 ;; - python-aim: Lightweight experiment tracking
 ;; - python-lightning-bolts: Pre-built PyTorch Lightning models
