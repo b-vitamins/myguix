@@ -3884,6 +3884,32 @@ set of reference environments (formerly Gym).")
      "This package provides a Library for Deep Reinforcement Learning.")
     (license license:expat)))
 
+(define-public python-thop
+  (package
+    (name "python-thop")
+    (version "2.0.17")
+    (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/ultralytics/thop")
+               (commit (string-append "v" version))))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "1ghdcgfnnjskl9z7c5q5k3q9062nhcfspwind1n5q3mknr4p1czd"))))
+    (build-system pyproject-build-system)
+    (arguments (list #:tests? #f))
+    (propagated-inputs (list python-numpy python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/ultralytics/thop")
+    (synopsis "Compute FLOPs and parameter counts of PyTorch models")
+    (description
+     "THOP provides utilities to profile PyTorch models, including fast
+computation of floating-point operations (FLOPs) and parameter counts.  This
+package tracks the upstream Ultralytics fork used widely by Ultralytics
+projects.")
+    (license license:agpl3+)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
