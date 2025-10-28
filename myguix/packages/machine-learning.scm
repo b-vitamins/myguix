@@ -3925,6 +3925,13 @@ package tracks the upstream Ultralytics fork used widely by Ultralytics
 <projects.")
     (license license:agpl3+)))
 
+(define-public python-thop-cuda
+  (package
+    (inherit python-thop)
+    (name "python-thop-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-thop)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-recbole
   (package
     (name "python-recbole")
