@@ -86,8 +86,6 @@
             inputs
             ;; Inputs needed by the Electron.
             (add-input-labels alsa-lib
-                              atk
-                              at-spi2-atk
                               at-spi2-core
                               bash-minimal
                               cairo
