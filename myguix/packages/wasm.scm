@@ -70,9 +70,9 @@ other APIs.")
 
 (define-public wasm32-wasi-clang-runtime
   (package
-    (inherit clang-runtime-15)
-    (native-inputs (list clang-15 wasi-libc))
-    (inputs (list llvm-15))
+    (inherit clang-runtime-17)
+    (native-inputs (list clang-17 wasi-libc))
+    (inputs (list llvm-17))
     (arguments
      (list
       #:build-type "Release"
@@ -87,6 +87,9 @@ other APIs.")
                              #$wasi-libc "/wasm32-wasi")
               (string-append "-DCMAKE_C_FLAGS=-I "
                              #$wasi-libc "/wasm32-wasi/include")
+
+              ;; https://github.com/llvm/llvm-project/issues/63799
+              "-DCMAKE_SYSTEM_NAME=Generic"
 
               "-DCOMPILER_RT_OS_DIR=wasi"
 
