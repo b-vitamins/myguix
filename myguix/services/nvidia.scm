@@ -34,7 +34,6 @@
                              "Prepare system environment for NVIDIA driver.")
                             (provision '(nvidia))
                             (requirement '(udev))
-                            (one-shot? #t)
                             (modules '(((guix build utils)
                                         #:select (invoke/quiet))
                                        ((rnrs io ports)
@@ -49,7 +48,8 @@
                                                                   modprobe
                                                                   "--"
                                                                   "nvidia_uvm")
-                                                                 (invoke/quiet #$nvidia-smi)))))))))))
+                                                                 (invoke/quiet #$nvidia-smi)))))))
+                            (stop #~(const #f))))))
 
 (define nvidia-service-type
   (service-type (name 'nvidia)
