@@ -131,7 +131,7 @@ other APIs.")
 (define-public wasm32-wasi-libcxx
   (package
     (name "wasm32-wasi-libcxx")
-    (version (package-version llvm-15))
+    (version (package-version llvm-17))
     (source
      (llvm-monorepo version))
     (build-system cmake-build-system)
@@ -159,6 +159,9 @@ other APIs.")
               "-DCMAKE_CXX_COMPILER_TARGET=wasm32-wasi"
 
               "-DLIBCXX_LIBDIR_SUFFIX=/wasm32-wasi"
+
+              ;; https://reviews.llvm.org/D151740
+              "-DLIBCXX_HAS_MUSL_LIBC:BOOL=ON"
 
               "-DLIBCXX_ENABLE_EXCEPTIONS=OFF"
               "-DLIBCXX_ENABLE_SHARED=OFF"
