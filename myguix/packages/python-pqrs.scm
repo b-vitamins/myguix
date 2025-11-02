@@ -3852,3 +3852,22 @@ the latest PEP standards.")
      "Fixes mojibake and other problems with Unicode, after the fact.")
     (license license:asl2.0)))
 
+(define-public python-progressbar
+  (package
+    (name "python-progressbar")
+    (version "2.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "progressbar" version))
+       (sha256
+        (base32 "0qvckfpkdk7a35r9lc201rkwc18grb4ddbv276sj7qm2km9cp0ax"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "http://code.google.com/p/python-progressbar")
+    (synopsis "Text progress bar library for Python.")
+    (description "Text progress bar library for Python.")
+    (license license:bsd-3)))
