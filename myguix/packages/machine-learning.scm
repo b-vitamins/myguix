@@ -4197,6 +4197,15 @@ library.")
      "High performance storage and I/O for deep learning and data processing.")
     (license #f)))
 
+(define-public python-webdataset-cuda
+  (package
+    (inherit python-webdataset)
+    (name "python-webdataset-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-recbole)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchvision" python-torchvision-cuda)))))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
