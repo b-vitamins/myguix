@@ -4326,6 +4326,36 @@ library.")
                          (replace "python-torchvision" python-torchvision-cuda)
                          (replace "python-webdataset" python-webdataset-cuda)))))
 
+(define-public python-open-clip-torch
+  (package
+    (name "python-open-clip-torch")
+    (version "3.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "open_clip_torch" version))
+       (sha256
+        (base32 "01i59jbw4n5yp8rwfnjqfkfi62ms5xvgl6a8qsvhzi6c28q79dv2"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-ftfy
+                             python-huggingface-hub
+                             python-regex
+                             python-safetensors
+                             python-timm
+                             python-pytorch
+                             python-torchvision
+                             python-tqdm))
+    (native-inputs (list python-pdm-backend python-pytest))
+    (home-page "https://github.com/mlfoundations/open_clip")
+    (synopsis
+     "Open reproduction of consastive language-image pretraining (CLIP) and related.")
+    (description
+     "Open reproduction of consastive language-image pretraining (CLIP) and related.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
