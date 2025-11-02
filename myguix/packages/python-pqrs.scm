@@ -36,6 +36,7 @@
   #:use-module (gnu packages image-processing)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages version-control)
+  #:use-module (gnu packages jupyter)
   #:use-module (gnu packages java)
   #:use-module (gnu packages gtk)
   #:use-module (gnu packages xorg)
@@ -164,6 +165,26 @@
 
 @code{Decord} is also able to decode audio from both video and audio files. One can slice video and audio together to get a synchronized result; hence providing a one-stop solution for both video and audio decoding.")
     (license license:asl2.0)))
+
+(define-public python-jupyterlab
+  (package
+    (name "python-jupyterlab")
+    (version "4.4.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "jupyterlab" version))
+       (sha256
+        (base32 "05d680jy97a88a1igck3mnbi3ihigbs917cakmniskmg11sh272j"))))
+    (build-system pyproject-build-system)
+    (arguments (list #:tests? #f))
+    (native-inputs (list python-hatchling
+                         python-hatch-jupyter-builder
+                         node))
+    (home-page "https://jupyterlab.readthedocs.io")
+    (synopsis "JupyterLab computational environment")
+    (description "@code{JupyterLab} computational environment.")
+    (license license:bsd-3)))
 
 (define-public python-lsprotocol
   (package
