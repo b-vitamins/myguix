@@ -4314,6 +4314,18 @@ library.")
     (description "Contrastive Language-Audio Pretraining Model from LAION.")
     (license license:cc0)))
 
+(define-public python-laion-clap-cuda
+  (package
+    (inherit python-laion-clap)
+    (name "python-laion-clap-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-laion-clap)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchlibrosa"
+                                  python-torchlibrosa-cuda)
+                         (replace "python-torchvision" python-torchvision-cuda)
+                         (replace "python-webdataset" python-webdataset-cuda)))))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
