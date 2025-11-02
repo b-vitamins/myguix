@@ -4235,6 +4235,85 @@ library.")
                                        python-torchlibrosa)
                          (replace "python-pytorch" python-pytorch-cuda)))))
 
+(define-public python-laion-clap
+  (package
+    (name "python-laion-clap")
+    (version "1.1.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "laion_clap" version))
+       (sha256
+        (base32 "15s3c1bbpa87zv3n5n602fylx08lkhmfz1b6gpv482cydciwbfcs"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; Avoid network access during import triggered by data.py creating a
+      ;; BertTokenizer at module import time. This breaks Guix's offline build
+      ;; sanity-check phase. Patch it to try local cache only and fall back to
+      ;; a harmless None when unavailable.
+      #:phases '(modify-phases %standard-phases
+                  (add-after 'unpack 'avoid-online-downloads-on-import
+                    (lambda _
+                      (let* ((data-target "src/laion_clap/training/data.py")
+                             (init-target "src/laion_clap/__init__.py"))
+                        (when (file-exists? data-target)
+                          (substitute* data-target
+                            (("bert_tokenizer\\s*=\\s*BertTokenizer\\.from_pretrained\\(\\\"bert-base-uncased\\\"\\)"
+                              all)
+                             (string-append "import warnings\n"
+                              "try:\n"
+                              "    bert_tokenizer = BertTokenizer.from_pretrained(\"bert-base-uncased\", local_files_only=True)
+"
+                              "except Exception as e:\n"
+                              "    warnings.warn(f\"Skipping online pretrained model load during import: {e}\")
+"
+                              "    bert_tokenizer = None\n"))
+                            (("roberta_tokenizer\\s*=\\s*RobertaTokenizer\\.from_pretrained\\(\\\"roberta-base\\\"\\)"
+                              all)
+                             (string-append "import warnings\n"
+                              "try:\n"
+                              "    roberta_tokenizer = RobertaTokenizer.from_pretrained(\"roberta-base\", local_files_only=True)
+"
+                              "except Exception as e:\n"
+                              "    warnings.warn(f\"Skipping online pretrained model load during import: {e}\")
+"
+                              "    roberta_tokenizer = None\n"))))
+                        (when (file-exists? init-target)
+                          (substitute* init-target
+                            (("^from \\.hook import CLAP_Module" all)
+                             (string-append "import warnings\n"
+                              "try:\n"
+                              "    from .hook import CLAP_Module\n"
+                              "except Exception as e:\n"
+                              "    warnings.warn(f\"Skipping optional import during init: {e}\")
+"
+                              "    CLAP_Module = None\n"))))))))))
+    (propagated-inputs (list python-braceexpand
+                             python-ftfy
+                             python-h5py
+                             python-librosa
+                             python-llvmlite
+                             python-numpy
+                             python-pandas
+                             python-progressbar
+                             python-regex
+                             python-scikit-learn
+                             python-scipy
+                             python-soundfile
+                             python-torchlibrosa
+                             python-torchvision
+                             python-tqdm
+                             python-transformers
+                             python-wandb
+                             python-webdataset
+                             python-wget))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/LAION-AI/CLAP")
+    (synopsis "Contrastive Language-Audio Pretraining Model from LAION")
+    (description "Contrastive Language-Audio Pretraining Model from LAION.")
+    (license license:cc0)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
