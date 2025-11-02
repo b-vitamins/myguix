@@ -166,9 +166,9 @@
 @code{Decord} is also able to decode audio from both video and audio files. One can slice video and audio together to get a synchronized result; hence providing a one-stop solution for both video and audio decoding.")
     (license license:asl2.0)))
 
-(define-public python-jupyterlab
-  (package
-    (name "python-jupyterlab")
+  (define-public python-jupyterlab
+    (package
+      (name "python-jupyterlab")
     (version "4.4.10")
     (source
      (origin
@@ -184,7 +184,37 @@
     (home-page "https://jupyterlab.readthedocs.io")
     (synopsis "JupyterLab computational environment")
     (description "@code{JupyterLab} computational environment.")
-    (license license:bsd-3)))
+      (license license:bsd-3)))
+
+  (define-public python-jupyter
+    (package
+      (name "python-jupyter")
+      (version "1.1.1")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (pypi-uri "jupyter" version))
+         (sha256
+          (base32 "0yny67bvwmy93873afpdagzpzhsr7pizfjk2wgblksmxxay6fm6m"))))
+      (build-system pyproject-build-system)
+      (arguments (list #:tests? #f))
+      (propagated-inputs (list python-ipykernel
+                               python-ipywidgets
+                               python-jupyter-console
+                               python-jupyterlab
+                               python-jupyterlab-server
+                               python-jupyter-lsp
+                               python-httpx
+                               python-async-lru
+                               python-nbconvert
+                               python-notebook))
+      (native-inputs (list python-setuptools python-wheel))
+      (home-page "https://jupyter.org")
+      (synopsis
+       "Jupyter metapackage. Install all the Jupyter components in one go.")
+      (description
+       "Jupyter metapackage.  Install all the Jupyter components in one go.")
+      (license license:bsd-3)))
 
 (define-public python-lsprotocol
   (package
