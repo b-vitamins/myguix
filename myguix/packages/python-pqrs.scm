@@ -186,9 +186,9 @@
     (description "@code{JupyterLab} computational environment.")
     (license license:bsd-3)))
 
-  (define-public python-mkdocs-get-deps-next
-    (package
-      (name "python-mkdocs-get-deps")
+(define-public python-mkdocs-get-deps-next
+  (package
+    (name "python-mkdocs-get-deps")
     (version "0.2.0")
     (source
      (origin
@@ -240,38 +240,153 @@ lists the plugin and theme dependencies.")
      "Jupyter metapackage. Install all the Jupyter components in one go.")
     (description
      "Jupyter metapackage.  Install all the Jupyter components in one go.")
-      (license license:bsd-3)))
+    (license license:bsd-3)))
 
-  (define-public python-mkdocs-next
-    (package
-      (name "python-mkdocs")
-      (version "1.6.1")
-      (source
-       (origin
-         (method url-fetch)
-         (uri (pypi-uri "mkdocs" version))
-         (sha256
-          (base32 "1wl6xwidij0ygjznmpavcqv23y995wl5g75k78sq9h18v40jyhvv"))))
-      (build-system pyproject-build-system)
-      (arguments (list #:tests? #f))
-      (propagated-inputs (list python-click
-                               python-jinja2
-                               python-markdown
-                               python-markupsafe
-                               python-pyyaml
-                               python-watchdog
-                               python-ghp-import
-                               python-pyyaml-env-tag
-                               python-packaging
-                               python-mergedeep
-                               python-pathspec
-                               python-mkdocs-get-deps-next))
-      (native-inputs (list python-hatchling python-babel))
-      (home-page "https://www.mkdocs.org/")
-      (synopsis "Project documentation with Markdown")
-      (description "MkDocs is a fast, simple static site generator geared towards
+(define-public python-mkdocs-next
+  (package
+    (name "python-mkdocs")
+    (version "1.6.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocs" version))
+       (sha256
+        (base32 "1wl6xwidij0ygjznmpavcqv23y995wl5g75k78sq9h18v40jyhvv"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-click
+                             python-jinja2
+                             python-markdown
+                             python-markupsafe
+                             python-pyyaml
+                             python-watchdog
+                             python-ghp-import
+                             python-pyyaml-env-tag
+                             python-packaging
+                             python-mergedeep
+                             python-pathspec
+                             python-mkdocs-get-deps-next))
+    (native-inputs (list python-hatchling python-babel))
+    (home-page "https://www.mkdocs.org/")
+    (synopsis "Project documentation with Markdown")
+    (description
+     "MkDocs is a fast, simple static site generator geared towards
 building project documentation with Markdown and a single YAML configuration file.")
-      (license license:bsd-2)))
+    (license license:bsd-2)))
+
+(define-public python-mkdocs-material-extensions-next
+  (package
+    (name "python-mkdocs-material-extensions")
+    (version "1.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocs_material_extensions" version))
+       (sha256
+        (base32 "0hw4jaqwlj5vn9ghwb3v3w79fayicyj5h0wngwjnixc8x8f53j8h"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/facelessuser/mkdocs-material-extensions")
+    (synopsis "Extensions for MkDocs Material")
+    (description "Additional Markdown extensions for MkDocs Material theme.")
+    (license license:expat)))
+
+(define-public python-paginate
+  (package
+    (name "python-paginate")
+    (version "0.5.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "paginate" version))
+       (sha256
+        (base32 "0iariq6cdxl3yji0z8v3k9f5xhk05kxllm4h6r7qn6hynhx0ig92"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/Signum/paginate")
+    (synopsis "Divides large lists into pages")
+    (description "Simple pagination module for Python.")
+    (license license:expat)))
+
+(define-public python-mkdocs-material-next
+  (package
+    (name "python-mkdocs-material")
+    (version "9.5.49")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocs_material" version))
+       (sha256
+        (base32 "07b2m6agz00z0lq2afgdbzw9h6j8s82bxb885v3s2lsg5clbnw9n"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:imported-modules (append %pyproject-build-system-modules
+                                 '((guix build utils)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'patch-hatch-nodejs
+            (lambda _
+              (substitute* "pyproject.toml"
+                (("source = \\\"nodejs\\\"")
+                 "version = \"9.5.49\"")
+                (("hatch-nodejs-version>=0\\.3\\.0\\,?")
+                 "")
+                (("\\[tool\\.hatch\\.metadata\\.hooks\\.nodejs\\]")
+                 "# hooks nodejs disabled")) #t)))))
+    (propagated-inputs (list python-babel
+                             python-colorama
+                             python-jinja2
+                             python-markdown
+                             python-mkdocs-next
+                             python-mkdocs-material-extensions-next
+                             python-paginate
+                             python-pygments
+                             python-pymdown-extensions
+                             python-regex
+                             python-requests))
+    (native-inputs (list python-hatchling python-hatch-requirements-txt))
+    (home-page "https://squidfunk.github.io/mkdocs-material/")
+    (synopsis "Material Design theme for MkDocs")
+    (description
+     "MkDocs theme implementing Material Design with many features.")
+    (license license:expat)))
+
+(define-public python-mkdocs-jupyter
+  (package
+    (name "python-mkdocs-jupyter")
+    (version "0.25.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocs_jupyter" version))
+       (sha256
+        (base32 "1zksiz62szi7p1m1maq3q5vn98j2zd5klhlj7ilfrq2797zp54hf"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-ipykernel
+                             python-jupytext
+                             python-mkdocs-next
+                             python-mkdocs-material-next
+                             python-nbconvert
+                             python-pygments))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/danielfrg/mkdocs-jupyter")
+    (synopsis "Use Jupyter in MkDocs websites")
+    (description
+     "Use Jupyter notebooks in MkDocs websites via mkdocs-jupyter plugin.")
+    (license license:asl2.0)))
 
 (define-public python-mkdocs-autorefs
   (package
@@ -287,7 +402,8 @@ building project documentation with Markdown and a single YAML configuration fil
     (arguments
      (list
       #:tests? #f))
-      (propagated-inputs (list python-markdown python-markupsafe python-mkdocs-next))
+    (propagated-inputs (list python-markdown python-markupsafe
+                             python-mkdocs-next))
     (native-inputs (list python-pdm-backend))
     (home-page "https://mkdocstrings.github.io/autorefs")
     (synopsis "Automatically link across pages in MkDocs.")
