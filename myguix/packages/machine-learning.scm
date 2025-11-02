@@ -4202,7 +4202,7 @@ library.")
     (inherit python-webdataset)
     (name "python-webdataset-cuda")
     (propagated-inputs (modify-inputs (package-propagated-inputs
-                                       python-recbole)
+                                       python-webdataset)
                          (replace "python-pytorch" python-pytorch-cuda)
                          (replace "python-torchvision" python-torchvision-cuda)))))
 
@@ -4226,6 +4226,14 @@ library.")
     (synopsis "PyTorch implemention of part of librosa functions.")
     (description "@code{PyTorch} implemention of part of librosa functions.")
     (license license:expat)))
+
+(define-public python-torchlibrosa-cuda
+  (package
+    (inherit python-torchlibrosa)
+    (name "python-torchlibrosa-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchlibrosa)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
