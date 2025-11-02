@@ -4356,6 +4356,15 @@ library.")
      "Open reproduction of consastive language-image pretraining (CLIP) and related.")
     (license license:expat)))
 
+(define-public python-open-clip-torch-cuda
+  (package
+    (inherit python-open-clip-torch)
+    (name "python-open-clip-torch-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-open-clip-torch)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchvision" python-torchvision-cuda)))))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
