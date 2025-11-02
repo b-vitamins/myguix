@@ -3658,3 +3658,160 @@ code reviews.")
     (synopsis "Structured Text Generation in Rust")
     (description "Structured Text Generation in Rust.")
     (license license:asl2.0)))
+
+(define-public python-pdm-build-locked
+  (package
+    (name "python-pdm-build-locked")
+    (version "0.3.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pdm_build_locked" version))
+       (sha256
+        (base32 "00a2hkvbgbd63iavzqhxjpxbjf2h4sf91rp2dga4366p00g3hbxb"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-tomli))
+    (native-inputs (list python-pdm-backend))
+    (home-page #f)
+    (synopsis
+     "pdm-build-locked is a pdm plugin to add locked packages as additional optional dependency groups to the distribution metadata")
+    (description
+     "pdm-build-locked is a pdm plugin to add locked packages as additional optional
+dependency groups to the distribution metadata.")
+    (license #f)))
+
+(define-public python-unearth
+  (package
+    (name "python-unearth")
+    (version "0.18.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "unearth" version))
+       (sha256
+        (base32 "0ggprj9v3i9w73hvv0i62yyx7ki566s9qh9nd9awgnph7gvk5cg8"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-httpx python-packaging))
+    (native-inputs (list python-pdm-backend python-pytest python-flask))
+    (home-page #f)
+    (synopsis "A utility to fetch and download python packages")
+    (description
+     "This package provides a utility to fetch and download python packages.")
+    (license #f)))
+
+(define-public python-truststore
+  (package
+    (name "python-truststore")
+    (version "0.10.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "truststore" version))
+       (sha256
+        (base32 "00f3xc7720rkddsn291yrw871kfnimi6d9xbwi75xbb3ci1vv4cx"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-flit-core
+                         python-requests
+                         python-pytest
+                         python-pytest-asyncio
+                         python-aiohttp
+                         python-httpx
+                         python-pytest-httpserver))
+    (home-page #f)
+    (synopsis "Verify certificates using native system trust stores")
+    (description "Verify certificates using native system trust stores.")
+    (license #f)))
+
+(define-public python-hishel
+  (package
+    (name "python-hishel")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hishel" version))
+       (sha256
+        (base32 "0m1j4fkjwqllkadibd5zp19bxp8ymi2jd268rv1xaik8n6glgj5r"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-msgpack python-typing-extensions))
+    (native-inputs (list python-hatch-fancy-pypi-readme python-hatchling))
+    (home-page #f)
+    (synopsis "Elegant HTTP Caching for Python")
+    (description "Elegant HTTP Caching for Python.")
+    (license #f)))
+
+(define-public python-dep-logic
+  (package
+    (name "python-dep-logic")
+    (version "0.5.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "dep_logic" version))
+       (sha256
+        (base32 "0qp5qzp4kj2llgr8gpl45rf4nlynyln5fdn28mdd7l5ss5s4mp7q"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-packaging))
+    (native-inputs (list python-pdm-backend))
+    (home-page #f)
+    (synopsis "Python dependency specifications supporting logical operations")
+    (description
+     "Python dependency specifications supporting logical operations.")
+    (license #f)))
+
+(define-public python-pdm
+  (package
+    (name "python-pdm")
+    (version "2.26.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pdm" version))
+       (sha256
+        (base32 "11z7yb57zc509f8f1igda9dnjfbf8ipfsvqzcqxik9r42hh6i9b0"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-blinker
+                             python-certifi
+                             python-dep-logic
+                             python-filelock
+                             python-findpython
+                             python-hishel
+                             python-httpcore
+                             python-httpx
+                             python-id
+                             python-importlib-metadata
+                             python-installer
+                             python-packaging
+                             python-pbs-installer
+                             python-platformdirs
+                             python-pyproject-hooks
+                             python-dotenv
+                             python-resolvelib
+                             python-rich
+                             python-shellingham
+                             python-tomli
+                             python-tomlkit
+                             python-truststore
+                             python-unearth
+                             python-virtualenv))
+    (native-inputs (list python-pdm-backend python-pdm-build-locked
+                         python-pytest python-pytest-mock))
+    (home-page #f)
+    (synopsis
+     "A modern Python package and dependency manager supporting the latest PEP standards")
+    (description
+     "This package provides a modern Python package and dependency manager supporting
+the latest PEP standards.")
+    (license #f)))
