@@ -166,9 +166,9 @@
 @code{Decord} is also able to decode audio from both video and audio files. One can slice video and audio together to get a synchronized result; hence providing a one-stop solution for both video and audio decoding.")
     (license license:asl2.0)))
 
-  (define-public python-jupyterlab
-    (package
-      (name "python-jupyterlab")
+(define-public python-jupyterlab
+  (package
+    (name "python-jupyterlab")
     (version "4.4.10")
     (source
      (origin
@@ -177,63 +177,122 @@
        (sha256
         (base32 "05d680jy97a88a1igck3mnbi3ihigbs917cakmniskmg11sh272j"))))
     (build-system pyproject-build-system)
-    (arguments (list #:tests? #f))
-    (native-inputs (list python-hatchling
-                         python-hatch-jupyter-builder
-                         node))
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-hatchling python-hatch-jupyter-builder node))
     (home-page "https://jupyterlab.readthedocs.io")
     (synopsis "JupyterLab computational environment")
     (description "@code{JupyterLab} computational environment.")
+    (license license:bsd-3)))
+
+  (define-public python-mkdocs-get-deps-next
+    (package
+      (name "python-mkdocs-get-deps")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocs_get_deps" version))
+       (sha256
+        (base32 "0366c4qgp447qs565shx9f764ld6b0a9rjzxmccrpbbzkh93saqn"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-mergedeep python-platformdirs
+                             python-pyyaml))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/mkdocs/get-deps")
+    (synopsis "List MkDocs plugin/theme dependencies for a config")
+    (description
+     "MkDocs extension that inspects a @code{mkdocs.yml} configuration and
+lists the plugin and theme dependencies.")
+    (license license:expat)))
+
+(define-public python-jupyter
+  (package
+    (name "python-jupyter")
+    (version "1.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "jupyter" version))
+       (sha256
+        (base32 "0yny67bvwmy93873afpdagzpzhsr7pizfjk2wgblksmxxay6fm6m"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-ipykernel
+                             python-ipywidgets
+                             python-jupyter-console
+                             python-jupyterlab
+                             python-jupyterlab-server
+                             python-jupyter-lsp
+                             python-httpx
+                             python-async-lru
+                             python-nbconvert
+                             python-notebook))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://jupyter.org")
+    (synopsis
+     "Jupyter metapackage. Install all the Jupyter components in one go.")
+    (description
+     "Jupyter metapackage.  Install all the Jupyter components in one go.")
       (license license:bsd-3)))
 
-  (define-public python-jupyter
+  (define-public python-mkdocs-next
     (package
-      (name "python-jupyter")
-      (version "1.1.1")
+      (name "python-mkdocs")
+      (version "1.6.1")
       (source
        (origin
          (method url-fetch)
-         (uri (pypi-uri "jupyter" version))
+         (uri (pypi-uri "mkdocs" version))
          (sha256
-          (base32 "0yny67bvwmy93873afpdagzpzhsr7pizfjk2wgblksmxxay6fm6m"))))
+          (base32 "1wl6xwidij0ygjznmpavcqv23y995wl5g75k78sq9h18v40jyhvv"))))
       (build-system pyproject-build-system)
       (arguments (list #:tests? #f))
-      (propagated-inputs (list python-ipykernel
-                               python-ipywidgets
-                               python-jupyter-console
-                               python-jupyterlab
-                               python-jupyterlab-server
-                               python-jupyter-lsp
-                               python-httpx
-                               python-async-lru
-                               python-nbconvert
-                               python-notebook))
-      (native-inputs (list python-setuptools python-wheel))
-      (home-page "https://jupyter.org")
-      (synopsis
-       "Jupyter metapackage. Install all the Jupyter components in one go.")
-      (description
-       "Jupyter metapackage.  Install all the Jupyter components in one go.")
-      (license license:bsd-3)))
+      (propagated-inputs (list python-click
+                               python-jinja2
+                               python-markdown
+                               python-markupsafe
+                               python-pyyaml
+                               python-watchdog
+                               python-ghp-import
+                               python-pyyaml-env-tag
+                               python-packaging
+                               python-mergedeep
+                               python-pathspec
+                               python-mkdocs-get-deps-next))
+      (native-inputs (list python-hatchling python-babel))
+      (home-page "https://www.mkdocs.org/")
+      (synopsis "Project documentation with Markdown")
+      (description "MkDocs is a fast, simple static site generator geared towards
+building project documentation with Markdown and a single YAML configuration file.")
+      (license license:bsd-2)))
 
-  (define-public python-mkdocs-autorefs
-    (package
-      (name "python-mkdocs-autorefs")
-      (version "1.4.3")
-      (source
-       (origin
-         (method url-fetch)
-         (uri (pypi-uri "mkdocs_autorefs" version))
-         (sha256
-          (base32 "0xgwy4zmfhlkgldw9715jah9qfcwaxkkrvxnjfmc8ma44mdp3vmy"))))
-      (build-system pyproject-build-system)
-      (arguments (list #:tests? #f))
-      (propagated-inputs (list python-markdown python-markupsafe python-mkdocs))
-      (native-inputs (list python-pdm-backend))
-      (home-page "https://mkdocstrings.github.io/autorefs")
-      (synopsis "Automatically link across pages in MkDocs.")
-      (description "Automatically link across pages in @code{MkDocs}.")
-      (license license:isc)))
+(define-public python-mkdocs-autorefs
+  (package
+    (name "python-mkdocs-autorefs")
+    (version "1.4.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocs_autorefs" version))
+       (sha256
+        (base32 "0xgwy4zmfhlkgldw9715jah9qfcwaxkkrvxnjfmc8ma44mdp3vmy"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+      (propagated-inputs (list python-markdown python-markupsafe python-mkdocs-next))
+    (native-inputs (list python-pdm-backend))
+    (home-page "https://mkdocstrings.github.io/autorefs")
+    (synopsis "Automatically link across pages in MkDocs.")
+    (description "Automatically link across pages in @code{MkDocs}.")
+    (license license:isc)))
 
 (define-public python-lsprotocol
   (package
@@ -3009,16 +3068,19 @@ limiting, circuit breaker for resilience, and in-memory caching.")
       #:tests? #f
       #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
       #:modules '((guix build cargo-build-system)
-                  ((guix build pyproject-build-system) #:prefix py:)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
                   (guix build utils))
       #:phases
       #~(modify-phases %standard-phases
           ;; Build and install the Python wheel via maturin after cargo build.
           (delete 'install)
           (add-after 'build 'build-python-module
-            (assoc-ref py:%standard-phases 'build))
+            (assoc-ref py:%standard-phases
+                       'build))
           (add-after 'build-python-module 'install-python-module
-            (assoc-ref py:%standard-phases 'install)))))
+            (assoc-ref py:%standard-phases
+                       'install)))))
     (inputs (cons* maturin
                    (myguix-cargo-inputs 'openai-harmony)))
     (propagated-inputs (list python-pydantic))
@@ -3359,21 +3421,19 @@ Python stubs contained in the complete @code{typeshed} collection.")
     (arguments
      (list
       #:tests? #f))
-    (native-inputs
-     (list python-pycodestyle
-           python-poetry-core
-           python-pyflakes
-           python-pylint
-           python-pytest
-           python-pytest-datadir
-           python-pytest-mock))
-    (propagated-inputs
-     (list python-chardet
-           python-jinja2
-           python-pluggy
-           python-pygments
-           python-setuptools ; For pkg_resources.
-           python-tomli))
+    (native-inputs (list python-pycodestyle
+                         python-poetry-core
+                         python-pyflakes
+                         python-pylint
+                         python-pytest
+                         python-pytest-datadir
+                         python-pytest-mock))
+    (propagated-inputs (list python-chardet
+                             python-jinja2
+                             python-pluggy
+                             python-pygments
+                             python-setuptools ;For pkg_resources.
+                             python-tomli))
     (home-page "https://github.com/Bachmann1234/diff-cover")
     (synopsis "Run coverage and linting reports on diffs")
     (description
@@ -3400,17 +3460,21 @@ code reviews.")
       #:tests? #f
       #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
       #:modules '((guix build cargo-build-system)
-                  ((guix build pyproject-build-system) #:prefix py:)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
                   (guix build utils))
       #:phases
       #~(modify-phases %standard-phases
           (delete 'install)
           (add-after 'build 'build-python-module
-            (assoc-ref py:%standard-phases 'build))
+            (assoc-ref py:%standard-phases
+                       'build))
           (add-after 'build-python-module 'install-python-module
-            (assoc-ref py:%standard-phases 'install)))))
+            (assoc-ref py:%standard-phases
+                       'install)))))
     (inputs (append (list oniguruma)
-                    (cons* maturin (myguix-cargo-inputs 'outlines-core))))
+                    (cons* maturin
+                           (myguix-cargo-inputs 'outlines-core))))
     (native-inputs (list python-wrapper pkg-config))
     (home-page "https://github.com/dottxt-ai/outlines-core")
     (synopsis "Structured Text Generation in Rust")
