@@ -3832,3 +3832,23 @@ the latest PEP standards.")
     (synopsis "Bash-style brace expansion for Python")
     (description "Bash-style brace expansion for Python.")
     (license license:expat)))
+
+(define-public python-ftfy
+  (package
+    (name "python-ftfy")
+    (version "6.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ftfy" version))
+       (sha256
+        (base32 "1v06jn0y20xa6khrl046rwbxh4l9gxxs0xfkckz6gcjgz283sg4v"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-wcwidth))
+    (native-inputs (list python-hatchling python-pytest))
+    (home-page "https://github.com/rspeer/python-ftfy")
+    (synopsis "Fixes mojibake and other problems with Unicode, after the fact")
+    (description
+     "Fixes mojibake and other problems with Unicode, after the fact.")
+    (license license:asl2.0)))
+
