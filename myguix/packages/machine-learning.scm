@@ -4206,6 +4206,27 @@ library.")
                          (replace "python-pytorch" python-pytorch-cuda)
                          (replace "python-torchvision" python-torchvision-cuda)))))
 
+(define-public python-torchlibrosa
+  (package
+    (name "python-torchlibrosa")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "torchlibrosa" version))
+       (sha256
+        (base32 "0a200kpw97j80bpcqy3nws3bmxr90bqz6k930qd19d69z7nvxa32"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-librosa python-numpy python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/qiuqiangkong/torchlibrosa")
+    (synopsis "PyTorch implemention of part of librosa functions.")
+    (description "@code{PyTorch} implemention of part of librosa functions.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
