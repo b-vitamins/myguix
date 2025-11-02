@@ -423,6 +423,33 @@ building project documentation with Markdown and a single YAML configuration fil
 writing them to disk during site builds.")
     (license license:expat)))
 
+(define-public python-mkdocstrings
+  (package
+    (name "python-mkdocstrings")
+    (version "0.30.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocstrings" version))
+       (sha256
+        (base32 "0kvl375q1i4ybqrnxd9fasmwjvxjnhys57gwxc5gn1xpx6m0g844"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-importlib-metadata
+                             python-jinja2
+                             python-markdown
+                             python-markupsafe
+                             python-mkdocs-next
+                             python-mkdocs-autorefs
+                             python-pymdown-extensions))
+    (native-inputs (list python-pdm-backend))
+    (home-page "https://mkdocstrings.github.io")
+    (synopsis "Automatic documentation from sources, for MkDocs.")
+    (description "Automatic documentation from sources, for MkDocs.")
+    (license license:expat)))
+
 (define-public python-mkdocs-autorefs
   (package
     (name "python-mkdocs-autorefs")
