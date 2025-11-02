@@ -3815,3 +3815,20 @@ dependency groups to the distribution metadata.")
      "This package provides a modern Python package and dependency manager supporting
 the latest PEP standards.")
     (license #f)))
+
+(define-public python-braceexpand
+  (package
+    (name "python-braceexpand")
+    (version "0.1.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "braceexpand" version))
+       (sha256
+        (base32 "01gpcnksnqv6np28i4x8s3wkngawzgs99zvjfia57spa42ykkrg6"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/trendels/braceexpand")
+    (synopsis "Bash-style brace expansion for Python")
+    (description "Bash-style brace expansion for Python.")
+    (license license:expat)))
