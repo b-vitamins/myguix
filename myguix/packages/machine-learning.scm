@@ -87,6 +87,7 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages video)
   #:use-module (myguix packages bazel)
+  #:use-module (myguix packages huggingface)
   #:use-module (ice-9 match)
   #:use-module (srfi srfi-26))
 
@@ -4130,12 +4131,77 @@ library.")
      "This package provides a hyperparameter optimization framework.")
     (license #f)))
 
+(define-public python-webdataset
+  (package
+    (name "python-webdataset")
+    (version "1.0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "webdataset" version))
+       (sha256
+        (base32 "1d5azlddclwghghip9kn0r0nlb2fl9l8g99hak64dykwhaz9h13z"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-braceexpand python-numpy python-pyyaml))
+    (native-inputs (list python-autoflake
+                         python-bandit
+                         python-black
+                         python-bump2version
+                         python-diffusers
+                         python-flake8
+                         python-icecream
+                         python-imageio
+                         python-isort
+                         python-jupyter
+                         python-jupyterlab
+                         python-lmdb
+                         python-matplotlib
+                         python-mkdocs-next
+                         python-mkdocs-autorefs
+                         python-mkdocs-jupyter
+                         python-mkdocs-material
+                         python-mkdocs-material-extensions-next
+                         python-mkdocs-minify-plugin
+                         python-mkdocstrings
+                         python-mkdocstrings
+                         python-msgpack
+                         python-mypy
+                         python-nbconvert
+                         python-notebook
+                         python-papermill
+                         python-pdm
+                         python-pillow
+                         python-pre-commit
+                         python-pydocstyle
+                         python-pytest
+                         python-pytest-cov
+                         python-pytorch-lightning
+                         python-ray
+                         python-ruff
+                         python-scipy
+                         python-setuptools
+                         python-pytorch
+                         python-torchvision
+                         python-transformers
+                         python-twine
+                         python-typer
+                         python-types-pyyaml
+                         python-wheel))
+    (home-page #f)
+    (synopsis
+     "High performance storage and I/O for deep learning and data processing.")
+    (description
+     "High performance storage and I/O for deep learning and data processing.")
+    (license #f)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
 ;; - python-monai: Medical imaging deep learning framework
 ;; - python-imgaug: Advanced image augmentation library
-;; - python-webdataset: Efficient dataset format for large-scale training
 ;; - python-pytorch-ignite: High-level training abstractions
 ;; - python-fiftyone: Dataset visualization and debugging tool
 ;; - python-dvc: Data version control for ML
