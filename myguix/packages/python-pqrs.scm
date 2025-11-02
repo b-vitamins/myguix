@@ -388,6 +388,41 @@ building project documentation with Markdown and a single YAML configuration fil
      "Use Jupyter notebooks in MkDocs websites via mkdocs-jupyter plugin.")
     (license license:asl2.0)))
 
+(define-public python-mkdocs-minify-plugin
+  (package
+    (name "python-mkdocs-minify-plugin")
+    (version "0.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mkdocs-minify-plugin" version))
+       (sha256
+        (base32 "0gbm5vjpcgrr3s1xyqzb8lad546p74av3qh8ff0rxmr0h65vf4dw"))))
+    (build-system python-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:imported-modules (append %python-build-system-modules
+                                 '((guix build utils)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'patch-requires
+            (lambda _
+              (substitute* "setup.py"
+                (("htmlmin2")
+                 "htmlmin")
+                (("htmlmin>=0.1.13")
+                 "htmlmin>=0.1.12")) #t)))))
+    (propagated-inputs (list python-csscompressor python-htmlmin python-jsmin
+                             python-mkdocs-next))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/byrnereese/mkdocs-minify-plugin")
+    (synopsis "Minify HTML, JS or CSS for MkDocs builds")
+    (description
+     "MkDocs plugin that minifies HTML, JavaScript, and CSS assets before
+writing them to disk during site builds.")
+    (license license:expat)))
+
 (define-public python-mkdocs-autorefs
   (package
     (name "python-mkdocs-autorefs")
