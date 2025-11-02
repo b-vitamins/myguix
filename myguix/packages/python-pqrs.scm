@@ -216,6 +216,25 @@
        "Jupyter metapackage.  Install all the Jupyter components in one go.")
       (license license:bsd-3)))
 
+  (define-public python-mkdocs-autorefs
+    (package
+      (name "python-mkdocs-autorefs")
+      (version "1.4.3")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (pypi-uri "mkdocs_autorefs" version))
+         (sha256
+          (base32 "0xgwy4zmfhlkgldw9715jah9qfcwaxkkrvxnjfmc8ma44mdp3vmy"))))
+      (build-system pyproject-build-system)
+      (arguments (list #:tests? #f))
+      (propagated-inputs (list python-markdown python-markupsafe python-mkdocs))
+      (native-inputs (list python-pdm-backend))
+      (home-page "https://mkdocstrings.github.io/autorefs")
+      (synopsis "Automatically link across pages in MkDocs.")
+      (description "Automatically link across pages in @code{MkDocs}.")
+      (license license:isc)))
+
 (define-public python-lsprotocol
   (package
     (name "python-lsprotocol")
