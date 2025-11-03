@@ -33,6 +33,7 @@
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages ninja)
+  #:use-module (gnu packages oneapi)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages xorg)
   #:use-module (gnu packages xdisorg)
@@ -3162,6 +3163,139 @@ module.")
     (propagated-inputs (modify-inputs (package-propagated-inputs
                                        python-ema-pytorch)
                          (replace "python-pytorch" python-pytorch-cuda)))))
+
+(define-public python-torchcodec
+  (package
+    (name "python-torchcodec")
+    (version "0.8.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/meta-pytorch/torchcodec")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "191pn3ajbkkwvd6pzyykhbpyw5ngz1g4nnbn5j8djj2gqki15dmn"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils)
+                  (ice-9 popen)
+                  (ice-9 rdelim)
+                  (ice-9 regex))
+      #:imported-modules %pyproject-build-system-modules
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; Ensure setup.py allows wheel builds without fetching FFmpeg
+          ;; binaries and avoid treating warnings as errors.
+          (add-before 'build 'configure-environment
+            (lambda _
+              (setenv "I_CONFIRM_THIS_IS_NOT_A_LICENSE_VIOLATION" "1")
+              (setenv "TORCHCODEC_DISABLE_COMPILE_WARNING_AS_ERROR" "ON")
+              (setenv "CMAKE_BUILD_TYPE" "Release")
+              ;; Help Torch's CMake find oneDNN (DNNL) provided by Guix.
+              (let* ((prefix (getenv "CMAKE_PREFIX_PATH"))
+                     (dnnl (string-append #$(this-package-input "onednn")))
+                     (httplib (string-append #$(this-package-input
+                                                "cpp-httplib")))
+                     (openssl (string-append #$(this-package-input "openssl")))
+                     (brotli (string-append #$(this-package-input "brotli")))
+                     (numactl (string-append #$(this-package-input "numactl")))
+                     (zlib (string-append #$(this-package-input "zlib")))
+                     (merged (string-join (filter (lambda (s)
+                                                    (and s
+                                                         (not (string-null? s))))
+                                                  (list dnnl
+                                                        httplib
+                                                        openssl
+                                                        brotli
+                                                        numactl
+                                                        zlib
+                                                        prefix)) ":")))
+                (setenv "CMAKE_PREFIX_PATH" merged)
+                (setenv "DNNL_DIR"
+                        (string-append dnnl "/lib/cmake/dnnl"))
+                ;; Some packages also honor *_ROOT
+                (setenv "HTTPLIB_ROOT" httplib)
+                (setenv "OPENSSL_ROOT_DIR" openssl)
+                (setenv "BROTLI_ROOT" brotli)
+                (setenv "NUMACTL_ROOT" numactl)
+                (setenv "ZLIB_ROOT" zlib))))
+          ;; Patch RPATH of built shared objects to include $ORIGIN and torch lib dir,
+          ;; so the loader finds libtorchcodec_coreN.so and libtorch at runtime.
+          (add-before 'validate-runpath 'fix-rpath
+            (lambda* (#:key outputs inputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (so-files (find-files out
+                                           (lambda (file stat)
+                                             (and (eq? 'regular
+                                                       (stat:type stat))
+                                                  (string-match
+                                                   ".*/site-packages/torchcodec/libtorchcodec.*\\.so$"
+                                                   file)))))
+                     (py (open-pipe* OPEN_READ "python3" "-c"
+                          "import os, torch; print(os.path.join(os.path.dirname(torch.__file__), 'lib'))"))
+                     (py-out (read-line py))
+                     (py-status (close-pipe py))
+                     (torch-lib (let ((cand (and (zero? py-status) py-out)))
+                                  (if (and cand
+                                           (file-exists? cand)) cand
+                                      (let* ((tor (assoc-ref inputs
+                                                             "python-pytorch")))
+                                        (and tor
+                                             (let ((c (find-files (string-append
+                                                                   tor "/lib")
+                                                       ".*/site-packages/torch/lib$"
+                                                       #:directories? #t)))
+                                               (and (pair? c)
+                                                    (car c)))))))))
+                (unless (pair? so-files)
+                  (error
+                   "torchcodec shared objects not found for RPATH patching"
+                   out))
+                (unless torch-lib
+                  (error "PyTorch lib directory not found under input"
+                         (assoc-ref inputs "python-pytorch")))
+                (for-each (lambda (file)
+                            (let* ((p (open-pipe* OPEN_READ "patchelf"
+                                                  "--print-rpath" file))
+                                   (line (read-line p))
+                                   (status (close-pipe p))
+                                   (existing (if (and (zero? status) line)
+                                                 line ""))
+                                   (base-rpath (string-append "$ORIGIN:"
+                                                              torch-lib))
+                                   (new-rpath (if (string=? existing "")
+                                                  base-rpath
+                                                  (string-append base-rpath
+                                                                 ":" existing))))
+                              (invoke "patchelf" "--set-rpath" new-rpath file)))
+                          so-files)))))))
+    (inputs (list ffmpeg
+                  onednn
+                  cpp-httplib
+                  openssl
+                  brotli
+                  numactl
+                  zlib
+                  python-pytorch))
+    (propagated-inputs (list python-pytorch))
+    (native-inputs (list cmake
+                         pkg-config
+                         pybind11
+                         python-setuptools
+                         python-wheel
+                         patchelf))
+    (home-page "https://github.com/meta-pytorch/torchcodec")
+    (synopsis "A video decoder for PyTorch")
+    (description
+     "TorchCodec provides high-performance video and audio decoding and encoding
+primitives for PyTorch. It builds C++ extensions that link against FFmpeg and
+optionally CUDA, and exposes Python APIs for efficient media processing.")
+    (license license:bsd-3)))
 
 (define-public python-pesq
   (package
