@@ -4477,6 +4477,83 @@ library.")
                               "    warnings.warn(f\"Skipping online pretrained model load during import: {e}\")
 "
                               "    roberta_tokenizer = None\n"))))
+                        ;; Inject lazy loader and remove warnings in data.py
+                        (when (file-exists? data-target)
+                          (substitute* data-target
+                            (("^[[:space:]]*warnings\\.warn\\(.*\\)$" all)
+                             "")))
+                        (when (file-exists? data-target)
+                          (substitute* data-target
+                            (("^bert_tokenizer = None$" all)
+                             (string-append "bert_tokenizer = None\n"
+                              "try:\n"
+                              "    _LazyLoad\n"
+                              "except NameError:\n"
+                              "    class _LazyLoad:\n"
+                              "        def __init__(self, local_loader, remote_loader=None):
+"
+                              "            self._local_loader = local_loader
+"
+                              "            self._remote_loader = remote_loader
+"
+                              "            self._obj = None\n"
+                              "        def _load(self):\n"
+                              "            if self._obj is None:\n"
+                              "                try:\n"
+                              "                    self._obj = self._local_loader()
+"
+                              "                except Exception:\n"
+                              "                    if self._remote_loader is None:
+"
+                              "                        raise\n"
+                              "                    self._obj = self._remote_loader()
+"
+                              "            return self._obj\n"
+                              "        def __getattr__(self, name):\n"
+                              "            return getattr(self._load(), name)
+"
+                              "\n"
+                              "bert_tokenizer = _LazyLoad(\n"
+                              "    lambda: BertTokenizer.from_pretrained(\"bert-base-uncased\", local_files_only=True),
+"
+                              "    lambda: BertTokenizer.from_pretrained(\"bert-base-uncased\")
+"
+                              ")\n"))
+                            (("^roberta_tokenizer = None$" all)
+                             (string-append "roberta_tokenizer = None\n"
+                              "try:\n"
+                              "    _LazyLoad\n"
+                              "except NameError:\n"
+                              "    class _LazyLoad:\n"
+                              "        def __init__(self, local_loader, remote_loader=None):
+"
+                              "            self._local_loader = local_loader
+"
+                              "            self._remote_loader = remote_loader
+"
+                              "            self._obj = None\n"
+                              "        def _load(self):\n"
+                              "            if self._obj is None:\n"
+                              "                try:\n"
+                              "                    self._obj = self._local_loader()
+"
+                              "                except Exception:\n"
+                              "                    if self._remote_loader is None:
+"
+                              "                        raise\n"
+                              "                    self._obj = self._remote_loader()
+"
+                              "            return self._obj\n"
+                              "        def __getattr__(self, name):\n"
+                              "            return getattr(self._load(), name)
+"
+                              "\n"
+                              "roberta_tokenizer = _LazyLoad(\n"
+                              "    lambda: RobertaTokenizer.from_pretrained(\"roberta-base\", local_files_only=True),
+"
+                              "    lambda: RobertaTokenizer.from_pretrained(\"roberta-base\")
+"
+                              ")\n"))))
                         (when (file-exists? init-target)
                           (substitute* init-target
                             (("^from \\.hook import CLAP_Module" all)
@@ -4486,7 +4563,12 @@ library.")
                               "except Exception as e:\n"
                               "    warnings.warn(f\"Skipping optional import during init: {e}\")
 "
-                              "    CLAP_Module = None\n"))))))))))
+                              "    CLAP_Module = None\n"))))
+                        ;; Remove warnings from __init__.py too.
+                        (when (file-exists? init-target)
+                          (substitute* init-target
+                            (("^[[:space:]]*warnings\\.warn\\(.*\\)$" all)
+                             "")))))))))
     (propagated-inputs (list python-braceexpand
                              python-ftfy
                              python-h5py
