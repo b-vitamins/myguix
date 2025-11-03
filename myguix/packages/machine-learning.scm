@@ -3321,6 +3321,70 @@ wide band modes for speech quality assessment according to ITU-T P.862
 recommendations.")
     (license license:expat)))
 
+(define-public python-torchcodec-cuda
+  (package
+    (inherit python-torchcodec)
+    (name "python-torchcodec-cuda")
+    (arguments
+     (substitute-keyword-arguments (package-arguments python-torchcodec)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-before 'configure-environment 'configure-cuda
+              (lambda _
+                (setenv "ENABLE_CUDA" "1")
+                ;; Set minimal arch list; adjust as needed for target GPU(s).
+                (setenv "TORCH_CUDA_ARCH_LIST" "8.6")
+                (let* ((cuda #$(this-package-input "cuda-toolkit"))
+                       (lib64 (string-append cuda "/lib64"))
+                       (prefix (or (getenv "CMAKE_PREFIX_PATH") ""))
+                       (merged (if (string-null? prefix) cuda
+                                   (string-append cuda ":" prefix))))
+                  ;; Help CMake discovery for CUDA/NPP
+                  (setenv "CMAKE_PREFIX_PATH" merged)
+                  (setenv "CMAKE_LIBRARY_PATH"
+                          (let ((prev (or (getenv "CMAKE_LIBRARY_PATH") "")))
+                            (if (string-null? prev) lib64
+                                (string-append lib64 ":" prev))))
+                  (setenv "CUDA_HOME" cuda)
+                  (setenv "CUDA_TOOLKIT_ROOT_DIR" cuda)
+                  (setenv "CUDA_PATH" cuda))))
+            (add-after 'fix-rpath 'add-cuda-rpath
+              (lambda* (#:key outputs inputs #:allow-other-keys)
+                (let* ((out (assoc-ref outputs "out"))
+                       (cuda (assoc-ref inputs "cuda-toolkit"))
+                       (cuda-lib (string-append cuda "/lib64"))
+                       (so-files (find-files out
+                                             (lambda (file stat)
+                                               (and (eq? 'regular
+                                                         (stat:type stat))
+                                                    (string-match
+                                                     ".*/site-packages/torchcodec/libtorchcodec.*\\.so$"
+                                                     file))))))
+                  (for-each (lambda (file)
+                              (let* ((p (open-pipe* OPEN_READ "patchelf"
+                                                    "--print-rpath" file))
+                                     (line (read-line p))
+                                     (status (close-pipe p))
+                                     (existing (if (and (zero? status) line)
+                                                   line ""))
+                                     (extra cuda-lib)
+                                     (new-rpath (if (string=? existing "")
+                                                    extra
+                                                    (string-append existing
+                                                                   ":" extra))))
+                                (invoke "patchelf" "--set-rpath" new-rpath
+                                        file))) so-files))))))))
+    (inputs (modify-inputs (package-inputs python-torchcodec)
+              (append cuda-toolkit)
+              (replace "python-pytorch" python-pytorch-cuda)))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchcodec)
+                         (replace "python-pytorch" python-pytorch-cuda)))
+    (synopsis "A video decoder for PyTorch (CUDA-enabled)")
+    (description
+     "CUDA-enabled build of TorchCodec that links against NVIDIA's NPP libraries
+from the CUDA toolkit and enables GPU acceleration for decoding/processing.")))
+
 (define-public python-pycocotools
   (package
     (name "python-pycocotools")
