@@ -381,7 +381,13 @@
         cutlass-headers
         cutlass-tools
         cutensor
+        isaac-sim
+        isaac-sim-webrtc-client
+        isaac-sim-assets-robots-sensors
+        isaac-sim-assets-materials-props
+        isaac-sim-assets-environments
         libfabric-cuda
+        nvtx
         psm2-cuda
         ffmpeg-nvidia
         mpv-cuda))
