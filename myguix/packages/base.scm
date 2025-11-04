@@ -291,7 +291,7 @@
         nfs-utils))
 
 (define %cloud-sync
-  (list rclone s3cmd))
+  (list rclone))
 
 (define %backup-tools
   (list borg restic))
