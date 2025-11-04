@@ -392,7 +392,10 @@
         python-torchvision-cuda
         python-lion-pytorch-cuda
         python-torchaudio-cuda
-        python-chatterbox-tts-cuda))
+        python-chatterbox-tts-cuda
+        python-torchcodec-cuda
+        python-torchmetrics-cuda
+        mujoco))
 
 ;; Tree-sitter Bundles
 (define %tree-sitter-core
