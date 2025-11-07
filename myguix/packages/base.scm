@@ -92,6 +92,7 @@
   #:use-module (myguix packages maths)
   #:use-module (myguix packages mozilla)
   #:use-module (myguix packages nlp)
+  #:use-module (myguix packages llm)
   #:use-module (myguix packages node-pqrs)
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
