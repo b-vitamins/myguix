@@ -401,6 +401,7 @@
         python-chatterbox-tts-cuda
         python-torchcodec-cuda
         python-torchmetrics-cuda
+        python-ray
         mujoco))
 
 ;; Tree-sitter Bundles
