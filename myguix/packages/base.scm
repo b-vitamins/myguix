@@ -301,7 +301,6 @@
 
 (define %document-conversion-packages
   (list pandoc
-        img2pdf
         pdfgrep
         pdf2svg
         pdf2djvu
