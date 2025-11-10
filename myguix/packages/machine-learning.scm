@@ -2295,7 +2295,7 @@ as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
 
 (define %python-pytorch-version
-  "2.8.0")
+  "2.9.0")
 
 (define %python-pytorch-cuda-src
   (origin
@@ -2304,7 +2304,7 @@ as common bridge to reuse tensor and ops across frameworks.")
                         (commit (string-append "v" %python-pytorch-version))
                         (recursive? #t)))
     (file-name (git-file-name "python-pytorch" %python-pytorch-version))
-    (sha256 (base32 "0vyrhvzf3j6p8x0cp39iqid0xqg4pwcxqy1x1yyv1sayh0bdi474"))
+    (sha256 (base32 "123wvixy0bbpaim2w89w8s6m8rci90si5m26ds9fidf5mrxy3k16"))
     (patches (map (lambda (patch)
                     (search-path (map (cut string-append <> "/myguix/patches")
                                       %load-path) patch))
