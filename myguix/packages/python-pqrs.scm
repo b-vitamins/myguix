@@ -3871,3 +3871,25 @@ the latest PEP standards.")
     (synopsis "Text progress bar library for Python.")
     (description "Text progress bar library for Python.")
     (license license:bsd-3)))
+
+(define-public python-wget
+  (package
+    (name "python-wget")
+    (version "3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "wget" version ".zip"))
+       (sha256
+        (base32 "0qb0y7ipby42m4m7h0ipazpdyc3bn9xi46lvifcwwl5albn31rim"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools unzip))
+    (home-page "https://bitbucket.org/techtonik/python-wget/")
+    (synopsis "Pure Python download utility")
+    (description
+     "The python-wget library provides an API to download files with features
+similar to the `wget` utility.")
+    (license license:unlicense)))
