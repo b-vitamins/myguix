@@ -135,6 +135,7 @@
             %tree-sitter-extended
             %documentation-tools
             %cuda-packages
+            %isaac-sim-packages
             %ml-packages
             ;; Networking
             %network-core
@@ -381,16 +382,18 @@
         cutlass-headers
         cutlass-tools
         cutensor
-        isaac-sim
-        isaac-sim-webrtc-client
-        isaac-sim-assets-robots-sensors
-        isaac-sim-assets-materials-props
-        isaac-sim-assets-environments
         libfabric-cuda
         nvtx
         psm2-cuda
         ffmpeg-nvidia
         mpv-cuda))
+
+(define %isaac-sim-packages
+  (list isaac-sim
+        isaac-sim-webrtc-client
+        isaac-sim-assets-robots-sensors
+        isaac-sim-assets-materials-props
+        isaac-sim-assets-environments))
 
 (define %ml-packages
   (list nccl
