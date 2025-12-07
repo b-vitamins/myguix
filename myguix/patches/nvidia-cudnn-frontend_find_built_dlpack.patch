@@ -1,58 +1,12 @@
-diff --git i/python/CMakeLists.txt w/python/CMakeLists.txt
-index ff8118d..237e478 100644
---- i/python/CMakeLists.txt
-+++ w/python/CMakeLists.txt
-@@ -7,22 +7,14 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+diff --git a/python/CMakeLists.txt b/python/CMakeLists.txt
+--- a/python/CMakeLists.txt
++++ b/python/CMakeLists.txt
+@@ -7,7 +7,7 @@
  set(CMAKE_POLICY_VERSION_MINIMUM 3.18)
  set(BUILD_MOCK OFF)
  
 -option(CUDNN_FRONTEND_USE_SYSTEM_DLPACK "Whether dlpack should use the system version or fetched." OFF)
 +option(CUDNN_FRONTEND_USE_SYSTEM_DLPACK "Whether dlpack should use the system version or fetched." ON)
  
--IF(CUDNN_FRONTEND_USE_SYSTEM_DLPACK)
--  find_package(dlpack REQUIRED)
--  if(dlpack_FOUND)
--    message(STATUS "Found system dlpack")
--  else()
--    message(FATAL_ERROR "dlpack not found")
--  endif()
-+# Always use system dlpack
-+find_package(dlpack REQUIRED)
-+if(dlpack_FOUND)
-+  message(STATUS "Found system dlpack")
- else()
--  FetchContent_Declare(
--    dlpack
--    GIT_REPOSITORY https://github.com/dmlc/dlpack
--    GIT_TAG        v1.1
--  )
--  FetchContent_MakeAvailable(dlpack)
-+  message(FATAL_ERROR "dlpack not found")
- endif()
- 
- # Find python
-@@ -74,19 +66,11 @@ target_include_directories(
- 
- target_compile_definitions(_compiled_module PRIVATE NV_CUDNN_FRONTEND_USE_DYNAMIC_LOADING)
- 
--if(CUDNN_FRONTEND_USE_SYSTEM_DLPACK)
--    target_link_libraries(
--        _compiled_module
--
--        PRIVATE dlpack::dlpack
--    )
--else()
--    target_link_libraries(
--        _compiled_module
--
--        PRIVATE dlpack
--    )
--endif()
-+target_link_libraries(
-+    _compiled_module
-+    
-+    PRIVATE dlpack::dlpack
-+)
- 
- if(MSVC)
-     target_compile_options(_compiled_module PRIVATE /wd4127)
+ IF(CUDNN_FRONTEND_USE_SYSTEM_DLPACK)
+   find_package(dlpack REQUIRED)

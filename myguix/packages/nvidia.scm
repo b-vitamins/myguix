@@ -1478,7 +1478,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
 (define-public cudnn-frontend
   (package
     (name "cudnn-frontend")
-    (version "1.14.0")
+    (version "1.16.1")
     (source
      (origin
        (method git-fetch)
@@ -1487,7 +1487,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0mzm2w9616pbypk9qp4nsr8baxq4nxzqzfq3x5mlqbimp01jfk9x"))
+        (base32 "01bpfcr12xlg5wmg0bdgaic2an71mqvpnp60nplzhk8djmb725sb"))
        (modules '((guix build utils)))
        (snippet #~(begin
                     (delete-file-recursively
