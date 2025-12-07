@@ -33,6 +33,7 @@
   #:use-module (gnu packages linux)
   #:use-module (gnu packages multiprecision)
   #:use-module (gnu packages m4)
+  #:use-module (gnu packages nss)
   #:use-module (gnu packages onc-rpc)
   #:use-module (gnu packages lsof)
   #:use-module (gnu packages perl)
@@ -1132,14 +1133,14 @@ NVIDIA Management Library")
 (define-public cuda-toolkit
   (package
     (name "cuda-toolkit")
-    (version "12.9.0")
+    (version "13.0.0")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run")
+        "https://developer.download.nvidia.com/compute/cuda/13.0.0/local_installers/cuda_13.0.0_580.65.06_linux.run")
        (sha256
-        (base32 "0hzf0yg0m6sfrig7bcnpmlciaz1ppw1rwwkgr2hnq2g21xv2pkmv"))))
+        (base32 "19jvnslh11kpafl1dk3sl1n0q5am4g9f7f5cx3wz76yrbbrnjjf6"))))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
     (outputs '("out"))
@@ -1148,7 +1149,9 @@ NVIDIA Management Library")
       #:modules '((guix build utils)
                   (guix build gnu-build-system)
                   (ice-9 match)
-                  (ice-9 ftw))
+                  (ice-9 ftw)
+                  (ice-9 rdelim)
+                  (ice-9 regex))
       #:substitutable? #t
       #:strip-binaries? #f
       #:validate-runpath? #f
@@ -1198,33 +1201,147 @@ NVIDIA Management Library")
                                            (stat:type stat)))))))
           (replace 'install
             (lambda _
-              (define (copy-from-directory directory)
-                (for-each (lambda (entry)
-                            (define sub-directory
-                              (string-append directory "/" entry))
+              (let ((nsight-compute-version #f)
+                    (nsight-systems-version #f))
+                (define (copy-from-directory directory)
+                  (for-each (lambda (entry)
+                              (define sub-directory
+                                (string-append directory "/" entry))
 
-                            (define target
-                              (string-append #$output "/"
-                                             (basename entry)))
+                              (define target
+                                (string-append #$output "/"
+                                               (basename entry)))
 
-                            (when (file-exists? sub-directory)
-                              (copy-recursively sub-directory target)))
-                          '("bin" "targets/x86_64-linux/lib"
-                            "targets/x86_64-linux/include" "nvvm/bin"
-                            "nvvm/include" "nvvm/lib64")))
+                              (when (file-exists? sub-directory)
+                                (copy-recursively sub-directory target)))
+                            '("bin" "targets/x86_64-linux/lib"
+                              "targets/x86_64-linux/include" "nvvm/bin"
+                              "nvvm/include" "nvvm/lib64")))
 
-              (setenv "COLUMNS" "200")
-              (with-directory-excursion "builds"
-                (for-each copy-from-directory
-                          (scandir "."
-                                   (match-lambda
-                                     ((or "." "..")
-                                      #f)
-                                     (_ #t))))
-                (copy-recursively "cuda_nvcc/nvvm"
-                                  (string-append #$output "/nvvm")))
-              (symlink (string-append #$output "/lib/stubs")
-                       (string-append #$output "/lib64/stubs"))))
+                (setenv "COLUMNS" "200")
+                (with-directory-excursion "builds"
+                  (for-each copy-from-directory
+                            (scandir "."
+                                     (match-lambda
+                                       ((or "." "..")
+                                        #f)
+                                       (_ #t))))
+                  (copy-recursively "cuda_nvcc/nvvm"
+                                    (string-append #$output "/nvvm"))
+                  (define (extract-version file pattern)
+                    (and (file-exists? file)
+                         (let ((rx (make-regexp pattern regexp/extended)))
+                           (call-with-input-file file
+                             (lambda (port)
+                               (let loop ((line (read-line port)))
+                                 (cond
+                                  ((eof-object? line) #f)
+                                  ((regexp-exec rx line) =>
+                                   (lambda (m)
+                                     (string-trim-both
+                                      (match:substring m 1))))
+                                  (else (loop (read-line port))))))))))
+                  (let ((nsight-compute-dir "nsight_compute")
+                        (nsight-systems-dir "nsight_systems"))
+                    (set! nsight-compute-version
+                      (or (extract-version
+                           (string-append nsight-compute-dir
+                                          "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui")
+                           "([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)")
+                          (extract-version
+                           (string-append nsight-compute-dir
+                                          "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui")
+                           "([0-9]+\\.[0-9]+\\.[0-9]+)")
+                          (extract-version
+                           (string-append nsight-compute-dir "/docs/index.html")
+                           "v([0-9.]+)")
+                          #f))
+                    (set! nsight-systems-version
+                      (or (extract-version "integration/nsight-systems/nsys"
+                                           "nsight-systems-([0-9.]+)/target")
+                          (extract-version
+                           (string-append nsight-systems-dir
+                                          "/host-linux-x64/nsys-ui.desktop.template")
+                           "Nsight Systems ([0-9.]+)")
+                          #f))
+                    (when nsight-compute-version
+                      (copy-recursively nsight-compute-dir
+                                        (string-append #$output "/nsight-compute-"
+                                                       nsight-compute-version)))
+                    (when nsight-systems-version
+                      (copy-recursively nsight-systems-dir
+                                        (string-append #$output "/nsight-systems-"
+                                                       nsight-systems-version)))))
+                (let ((bin (string-append #$output "/bin")))
+                  (mkdir-p bin)
+                  (define (maybe-link target name)
+                    (let ((link (string-append bin "/" name)))
+                      (when (and target (file-exists? target))
+                        (false-if-exception (delete-file link))
+                        (symlink target link))))
+                  (when nsight-compute-version
+                    (let ((prefix (string-append #$output "/nsight-compute-"
+                                                 nsight-compute-version)))
+                      (maybe-link (string-append prefix "/ncu") "ncu")
+                      (maybe-link (string-append prefix "/ncu-ui") "ncu-ui")))
+                  (when nsight-systems-version
+                    (let ((prefix (string-append #$output "/nsight-systems-"
+                                                 nsight-systems-version)))
+                      (maybe-link (string-append prefix "/target-linux-x64/nsys")
+                                  "nsys")
+                      (maybe-link (string-append prefix "/host-linux-x64/nsys-ui")
+                                  "nsys-ui")
+                      (maybe-link (string-append prefix "/target-linux-x64/nsys")
+                                  "nsight-sys"))))
+                (let ((applications (string-append #$output "/share/applications"))
+                      (icons (string-append #$output
+                                            "/share/icons/hicolor/256x256/apps")))
+                  (mkdir-p applications)
+                  (mkdir-p icons)
+                  (define (install-icon source name)
+                    (let ((target (string-append icons "/" name ".png")))
+                      (when (file-exists? source)
+                        (false-if-exception (delete-file target))
+                        (copy-file source target))))
+                  (define (install-desktop-entry file name exec icon comment wm-class)
+                    (make-desktop-entry-file file
+                                             #:name name
+                                             #:type "Application"
+                                             #:exec exec
+                                             #:icon icon
+                                             #:categories '("Development")
+                                             #:comment comment
+                                             #:startup-w-m-class wm-class
+                                             #:terminal #f
+                                             #:startup-notify #t))
+                  (when nsight-compute-version
+                    (let* ((prefix (string-append #$output "/nsight-compute-"
+                                                  nsight-compute-version))
+                           (icon-source (string-append prefix
+                                                       "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui.png")))
+                      (install-icon icon-source "nsight-compute")
+                      (install-desktop-entry
+                       (string-append applications "/nsight-compute.desktop")
+                       "NVIDIA Nsight Compute"
+                       (string-append #$output "/bin/ncu-ui")
+                       "nsight-compute"
+                       "CUDA kernel profiler"
+                       "ncu-ui")))
+                  (when nsight-systems-version
+                    (let* ((prefix (string-append #$output "/nsight-systems-"
+                                                  nsight-systems-version))
+                           (icon-source (string-append prefix
+                                                       "/host-linux-x64/nsys-ui.png")))
+                      (install-icon icon-source "nsight-systems")
+                      (install-desktop-entry
+                       (string-append applications "/nsight-systems.desktop")
+                       "NVIDIA Nsight Systems"
+                       (string-append #$output "/bin/nsys-ui")
+                       "nsight-systems"
+                       "System-wide CUDA profiler"
+                       "nsys-ui"))))
+                (symlink (string-append #$output "/lib/stubs")
+                         (string-append #$output "/lib64/stubs")))))
           (add-after 'install 'symlink-libcuda
             (lambda _
               (with-directory-excursion (string-append #$output "/lib/stubs")
@@ -1239,6 +1356,7 @@ NVIDIA Management Library")
               (delete-file (string-append #$output "/include/include")))))))
     (native-inputs (list which patchelf-0.16 perl python-2))
     (inputs `(("gcc:lib" ,gcc "lib")))
+    (propagated-inputs (list mesa nss))
     (home-page "https://developer.nvidia.com/cuda-toolkit")
     (synopsis "Compiler for the CUDA language and associated run-time support")
     (description
