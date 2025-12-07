@@ -1342,6 +1342,17 @@ NVIDIA Management Library")
                        "nsys-ui"))))
                 (symlink (string-append #$output "/lib/stubs")
                          (string-append #$output "/lib64/stubs")))))
+          (add-after 'install 'symlink-cicc
+            (lambda _
+              (let* ((bin (string-append #$output "/bin"))
+                     (cicc (string-append bin "/cicc"))
+                     (nvvm-bin (string-append #$output "/nvvm/bin"))
+                     (nvvm-cicc (string-append nvvm-bin "/cicc")))
+                (when (file-exists? cicc)
+                  (mkdir-p nvvm-bin)
+                  (false-if-exception (delete-file nvvm-cicc))
+                  (symlink cicc nvvm-cicc)))))
+
           (add-after 'install 'symlink-libcuda
             (lambda _
               (with-directory-excursion (string-append #$output "/lib/stubs")
@@ -1761,7 +1772,7 @@ like vLLM that import CUTLASS' Python tooling during their build.")
 (define-public nccl
   (package
     (name "nccl")
-    (version "2.28.1-1")
+    (version "2.28.9-1")
     (source
      (origin
        (method git-fetch)
@@ -1770,7 +1781,7 @@ like vLLM that import CUTLASS' Python tooling during their build.")
              (url "https://github.com/NVIDIA/nccl")
              (commit (string-append "v" version))))
        (sha256
-        (base32 "0cmkvmr728nwb9f8vq4l39dbgjfwppq9jzdcha3cv7npssw0g31s"))))
+        (base32 "0s4plrdik6xslkhvlwnqblimbrjzrfsdpxw7dl37pl655xqlnwyn"))))
     (build-system gnu-build-system)
     (arguments
      (list
