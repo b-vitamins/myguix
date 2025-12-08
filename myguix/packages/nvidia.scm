@@ -2003,16 +2003,16 @@ See also
 (define-public nvtx
   (package
     (name "nvtx")
-    (version "3.3.0")
+    (version "3.4.0")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/NVIDIA/NVTX")
              (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0xlxjr7s12n9q83mbi1pk7jd73npd9fr8pn8b2a4xc5labbc6m0p"))))
+      (file-name (git-file-name name version))
+      (sha256
+        (base32 "06rg63i21d9zybjz0nf2nlxmkr335v0ldyiz2w6xk77nhw4bq5sf"))))
     (build-system copy-build-system)
     (arguments
      (list
