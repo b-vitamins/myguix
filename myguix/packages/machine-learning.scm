@@ -2225,8 +2225,8 @@ Note: This package provides NVIDIA GPU support.")
       (license license:bsd-3))))
 
 (define-public tensorpipe-cuda
-  (let ((commit "52791a2fd214b2a9dc5759d36725909c1daa7f2e")
-        (revision "20211227"))
+  (let ((commit "af0118d13e52f5a08841464a768e01a0bf3e3075")
+        (revision "20250815"))
     (package
       (name "tensorpipe-cuda")
       (version (git-version "0" revision commit))
@@ -2238,7 +2238,7 @@ Note: This package provides NVIDIA GPU support.")
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "04jkiiba2pykkw70vbi81anl7cihwgzx6kzw132lq3ags66avq4b"))
+          (base32 "0p3zvyplvrfdci0qaxxldi9qpgs956w7y55gv0i6vi6ay1hiyrjz"))
          (modules '((guix build utils)))
          (snippet '(delete-file-recursively "third_party"))))
       (build-system cmake-build-system)
