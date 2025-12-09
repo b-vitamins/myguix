@@ -2419,7 +2419,9 @@ as common bridge to reuse tensor and ops across frameworks.")
                 (setenv "USE_GLOO" "0")
                 (setenv "USE_SYSTEM_NCCL" "1")
                 (setenv "USE_OPENMP" "1")
-                (setenv "USE_FLASH_ATTENTION" "1")
+                ;; FlashAttention currently fails to compile with CUDA 13, so
+                ;; keep it disabled until upstream gains support.
+                (setenv "USE_FLASH_ATTENTION" "0")
                 (setenv "USE_MEM_EFF_ATTENTION" "1")
                 (setenv "TORCH_CUDA_ARCH_LIST" "8.6")
                 (setenv "USE_ROCM" "0")
