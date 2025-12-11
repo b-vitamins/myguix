@@ -9,6 +9,7 @@
   #:use-module (gnu packages digest)
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages jemalloc)
+  #:use-module (gnu packages geo)
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
   #:use-module (gnu packages image)
@@ -2482,6 +2483,49 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "A wrapper around httpx that enforces timeouts and provides safe defaults.")
     (license license:expat)))
+
+(define-public python-seisbench
+  (package
+    (name "python-seisbench")
+    (version "0.10.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "seisbench" version))
+       (sha256
+        (base32 "0gpjypkwmkm58ad4f8cpg3sw2gsslq8fc3ayiz7jy2clnnx1yp6i"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests require write access to $HOME/.seisbench
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'set-home
+            (lambda _
+              (let ((home (string-append (getcwd) "/tmp-home")))
+                (unless (file-exists? home)
+                  (mkdir home))
+                (setenv "HOME" home)
+                (setenv "SEISBENCH_HOME" home)))))))
+    (propagated-inputs (list python-bottleneck
+                             python-h5py
+                             python-nest-asyncio
+                             python-numpy
+                             python-obspy
+                             python-pandas
+                             python-scipy
+                             python-pytorch
+                             python-tqdm))
+    (native-inputs (list python-pre-commit
+                         python-pytest
+                         python-ruff
+                         python-setuptools
+                         python-setuptools-scm
+                         python-wheel))
+    (home-page "https://github.com/seisbench/seisbench")
+    (synopsis "The seismological machine learning benchmark collection")
+    (description "The seismological machine learning benchmark collection.")
+    (license license:gpl3)))
 
 (define-public python-hatch-requirements-txt
   (package
