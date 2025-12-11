@@ -9248,14 +9248,14 @@
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.69.0")
+    (version "0.71.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
                            version ".tgz"))
        (sha256
-        (base32 "13pf8p5zirwh8zpk1spkkahqsndxdnz9pi791jy9qqb3n2cjgmkw"))))
+        (base32 "1klyzxsdmyzyc8g9p79dwidh72lvpw8x1hhd6zx03q2h061nv4hl"))))
     (build-system node-build-system)
     (arguments
       (list #:tests?
