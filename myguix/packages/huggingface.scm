@@ -400,8 +400,7 @@ and interface with their specific functionality.")
      '(#:tests? #f
        #:phases (modify-phases %standard-phases
                   (delete 'sanity-check))))
-    (propagated-inputs (list python-accelerate
-                             python-huggingface-hub
+    (propagated-inputs (list python-huggingface-hub
                              python-numpy
                              python-packaging
                              python-psutil
