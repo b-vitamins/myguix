@@ -94,6 +94,13 @@
     "^NVPRESENT_"
     ;; NVIDIA VDPAU settings.
     "^VDPAU_NVIDIA_"
+    ;; CUDA runtime selection/tuning (useful in containers).
+    "^CUDA_"
+    "^NVIDIA_"
+    "^CUPTI_"
+    ;; Nsight tools.
+    "^NCU_"
+    "^NSYS_"
     ;; GSYNC control for Vulkan direct-to-display applications.
     "^VKDirectGSYNC(Compatible)?Allowed$"))
 
@@ -266,7 +273,24 @@ its unpacked checkout."
                                                                 "/dev/nvidia"
                                                                 minor)
                                                                "nvidia" minor))
-                                                   %nvidia-driver-device-minors)))))
+                                                            %nvidia-driver-device-minors))))
+                                             (let ((caps-major (assoc-ref %nvidia-character-devices
+                                                                          "nvidia-caps")))
+                                               (when caps-major
+                                                 (let ((caps-dir "/dev/nvidia-caps"))
+                                                   (mkdir-p caps-dir)
+                                                   (let ((cap1 (string-append caps-dir "/nvidia-cap1"))
+                                                         (cap2 (string-append caps-dir "/nvidia-cap2")))
+                                                     (false-if-exception
+                                                      (begin
+                                                        (unless (file-exists? cap1)
+                                                          (create-device-node cap1 "nvidia-caps" "1"))
+                                                        (chmod cap1 #o666)))
+                                                     (false-if-exception
+                                                      (begin
+                                                        (unless (file-exists? cap2)
+                                                          (create-device-node cap2 "nvidia-caps" "2"))
+                                                        (chmod cap2 #o666))))))))
 
                                            (main (cdr (command-line)))))))
 
@@ -283,6 +307,9 @@ KERNEL==\"nvidia_modeset\", RUN+=\""
 KERNEL==\"nvidia_uvm\", RUN+=\""
    %nvidia-script-create-device-nodes
    " nvidia_uvm\"
+
+# Allow non-root access to NVIDIA profiling capabilities devices (needed for Nsight Compute metrics).
+KERNEL==\"nvidia-cap[0-9]*\", MODE=\"0666\"
 
 # Enable runtime PM for NVIDIA VGA/3D controller devices
 ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x03[0-9]*\", TEST==\"power/control\", ATTR{power/control}=\"auto\"
@@ -518,6 +545,11 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                                           (list soname base))))))
                         (find-files #$output "\\.so\\.")))))))
     (supported-systems '("i686-linux" "x86_64-linux"))
+    (native-search-paths
+     (list
+      (search-path-specification
+       (variable "LD_LIBRARY_PATH")
+       (files '("lib")))))
     (native-inputs (list patchelf-0.16))
     (inputs (list egl-gbm
                   egl-wayland
@@ -887,6 +919,10 @@ configuration, creating application profiles, gpu monitoring and more.")
       (search-path-specification
        (variable "__EGL_VENDOR_LIBRARY_DIRS")
        (files '("share/glvnd/egl_vendor.d")))
+      ;; Needed for dlopen("libcuda.so.1") on Guix (there is no global ld.so cache).
+      (search-path-specification
+       (variable "LD_LIBRARY_PATH")
+       (files '("lib")))
       ;; See also: ‘src/gbm/main/backend.c’ in mesa source.
       (search-path-specification
        (variable "GBM_BACKENDS_PATH")

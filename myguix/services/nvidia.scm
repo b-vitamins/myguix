@@ -24,8 +24,17 @@
   (firmware nvidia-configuration-firmware
             (default nvidia-firmware)) ;file-like
   (module nvidia-configuration-module
-          (default nvidia-module)))
-; file-like
+          (default nvidia-module)) ;file-like
+  (non-admin-profiling? nvidia-configuration-non-admin-profiling?
+                        (default #t)))
+
+(define (nvidia-modprobe-configuration config)
+  (if (nvidia-configuration-non-admin-profiling? config)
+      (list `("modprobe.d/nvidia.conf"
+              ,(plain-file
+                "nvidia.conf"
+                "options nvidia NVreg_RestrictProfilingToAdminUsers=0\n")))
+      '()))
 
 (define (nvidia-shepherd-service config)
   (let* ((nvidia-driver (nvidia-configuration-driver config))
@@ -65,6 +74,8 @@
                                   (service-extension firmware-service-type
                                                      (compose list
                                                       nvidia-configuration-firmware))
+                                  (service-extension etc-service-type
+                                                     nvidia-modprobe-configuration)
                                   (service-extension
                                    linux-loadable-module-service-type
                                    (compose list nvidia-configuration-module))
