@@ -4036,3 +4036,53 @@ similar to the `wget` utility.")
     (synopsis "Open World Holidays Framework")
     (description "Open World Holidays Framework.")
     (license #f)))
+
+(define-public python-toolz-for-gluonts
+  (package
+    (name "python-toolz")
+    (version "0.10.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "toolz" version))
+       (sha256
+        (base32 "0q25pbz41dcrj8jsasbgk5cj7lxc47g75m0j3k8hlj4ngkpxbz88"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page #f)
+    (synopsis "List processing tools and functional utilities")
+    (description "List processing tools and functional utilities.")
+    (license #f)))
+
+
+(define-public python-gluonts
+  (package
+    (name "python-gluonts")
+    (version "0.16.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/awslabs/gluonts/")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "05mc9xnayak64nf004mpcqqxikdk8wid1j3aq97f5hfwrniqigx3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
+    (propagated-inputs (list python-numpy
+                             python-pandas
+                             python-pydantic
+                             python-toolz-for-gluonts                             
+                             python-tqdm
+                             python-typing-extensions))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/awslabs/gluonts/")
+    (synopsis "Probabilistic time series modeling in Python.")
+    (description "Probabilistic time series modeling in Python.")
+    (license #f)))
