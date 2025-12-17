@@ -71,6 +71,74 @@
                 #:select (myguix-cargo-inputs))
   #:use-module (myguix build-system binary))
 
+(define-public python-bencode-py
+  (package
+    (name "python-bencode-py")
+    (version "2.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/fuzeman/bencode.py")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0l7gzplblh61i8jjr0bwx36wjn38k9wzn09acaya5vx7ia00mnsp"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'build 'set-pbr-version
+            (lambda _
+              (setenv "PBR_VERSION" #$version))))))
+    (native-inputs (list python-pbr python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/fuzeman/bencode.py")
+    (synopsis "Simple bencode parser (for Python 2, Python 3 and PyPy)")
+    (description
+     "Simple bencode parser (for Python 2, Python 3 and @code{PyPy}).")
+    (license #f)))
+
+(define-public python-academictorrents
+  (package
+    (name "python-academictorrents")
+    (version "2.3.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "academictorrents" version))
+       (sha256
+        (base32 "0r79h11q516ks3dckfqpmi068sdh4qfmbs4z84wx7cvk0nw04plz"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:imported-modules (append %pyproject-build-system-modules
+                                 '((guix build utils)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'patch-hatch-nodejs
+            (lambda _
+              (substitute* "setup.py"
+                (("bitstring==3.1.5")
+                 "bitstring>=3.1.5")
+                (("PyPubSub==3.3.0")
+                 "PyPubSub>=3.3.0")
+                (("future==0.16.0")
+                 "future>=0.16.0"))
+              #t)))))
+    (propagated-inputs (list python-bencode-py
+                             python-bitstring
+                             python-future
+                             python-pypubsub
+                             python-requests
+                             python-tqdm))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/AcademicTorrents/at-python")
+    (synopsis "Academic Torrents Python API")
+    (description "Academic Torrents Python API.")
+    (license license:expat)))
+
 (define-public python-grobid-client-python
   (package
     (name "python-grobid-client-python")
