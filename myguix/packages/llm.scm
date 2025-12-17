@@ -99,7 +99,7 @@
                              "//cpp:gen_ray_cpp_pkg")
       #:bazel-arguments '(list "--cxxopt=-Wno-dangling-reference")
       #:vendored-inputs-hash
-      "1ziw50m1sh9pbqchm8jbdlyph8jqg46rzxm62sh8437vli90jijs"
+      "0yqbdj2917rfkwzgu3aciym66r0c856k7qrimvql3pqyslfdinfy"
       #:modules '((myguix build bazel-build-system)
                   ((guix build python-build-system)
                    #:prefix python:)
