@@ -4086,3 +4086,29 @@ similar to the `wget` utility.")
     (synopsis "Probabilistic time series modeling in Python.")
     (description "Probabilistic time series modeling in Python.")
     (license #f)))
+
+(define-public python-mne
+  (package
+    (name "python-mne")
+    (version "1.11.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mne" version))
+       (sha256
+        (base32 "1266ci4f172v6sdj8dji4qpaxy6h9akwpk9mi8hq2fqk8kybi28a"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-decorator
+                             python-jinja2
+                             python-lazy-loader
+                             python-matplotlib
+                             python-numpy
+                             python-packaging
+                             python-pooch
+                             python-scipy
+                             python-tqdm))
+    (native-inputs (list python-hatch-vcs python-hatchling python-scikit-learn))
+    (home-page "https://mne.tools/")
+    (synopsis "MNE-Python project for MEG and EEG data analysis.")
+    (description "MNE-Python project for MEG and EEG data analysis.")
+    (license #f)))
