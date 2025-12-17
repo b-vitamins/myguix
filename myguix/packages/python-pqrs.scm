@@ -4005,3 +4005,34 @@ the latest PEP standards.")
      "The python-wget library provides an API to download files with features
 similar to the `wget` utility.")
     (license license:unlicense)))
+
+(define-public python-holidays
+  (package
+    (name "python-holidays")
+    (version "0.87")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "holidays" version))
+       (sha256
+        (base32 "1cxkv03072nn4fl6158wf16qp8r6437pz3y13hrzwylwdff4wzg4"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:imported-modules (append %pyproject-build-system-modules
+                                 '((guix build utils)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'patch-hatch-nodejs
+            (lambda _
+              (substitute* "pyproject.toml"
+                ((">=2.9.0.post0")
+                 ">=2.9.0"))
+              #t)))))    
+    (propagated-inputs (list python-dateutil))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page #f)
+    (synopsis "Open World Holidays Framework")
+    (description "Open World Holidays Framework.")
+    (license #f)))
