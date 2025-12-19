@@ -5052,6 +5052,120 @@ computer vision team.")
      "This package provides a video understanding deep learning library.")
     (license license:asl2.0)))
 
+(define-public python-pyriemann
+  (package
+    (name "python-pyriemann")
+    (version "0.9")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyriemann" version))
+       (sha256
+        (base32 "00wqb6av50p4010hbvdmxmzcx00v606q8nzfgp5ppz0gyvsm4z4l"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f
+       #:phases (modify-phases %standard-phases
+                  (delete 'sanity-check)))) ;Skip because matplotlib requires numpy<2,>=1.21
+    (propagated-inputs (list python-joblib python-matplotlib python-numpy-2
+                             python-scikit-learn python-scipy))
+    (native-inputs (list python-flake8 python-pytest python-seaborn
+                         python-setuptools python-wheel))
+    (home-page "https://pyriemann.readthedocs.io")
+    (synopsis
+     "Machine learning for multivariate data with Riemannian geometry")
+    (description
+     "Machine learning for multivariate data with Riemannian geometry.")
+    (license license:bsd-3)))
+
+(define-public python-edflib
+  (package
+    (name "python-edflib")
+    (version "1.0.8")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "EDFlib-Python" version))
+       (sha256
+        (base32 "069f7ypzm7qzvlsi7a1pp5lpn8x36z4dsg2fqky3g7w0h1wkppj2"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://www.teuniz.net/edflib_python/")
+    (synopsis
+     "Library to read/write EDF+/BDF+ files written in pure Python by the same author as the original EDFlib.")
+    (description
+     "Library to read/write EDF+/BDF+ files written in pure Python by the same author
+as the original EDFlib.")
+    (license license:bsd-3)))
+
+(define-public python-edfio
+  (package
+    (name "python-edfio")
+    (version "0.4.11")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "edfio" version))
+       (sha256
+        (base32 "1g3lgf71nx1l01jqjggxadpjv8k7svhsdb2sr6pzx8jq60fs1bqf"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-numpy python-typing-extensions))
+    (native-inputs (list python-hatch-vcs python-hatchling))
+    (home-page "https://github.com/the-siesta-group/edfio")
+    (synopsis "Read and write EDF/EDF+C/BDF/BDF+C files.")
+    (description "Read and write EDF/EDF+C/BDF/BDF+C files.")
+    (license license:asl2.0)))
+
+(define-public python-moabb
+  (package
+    (name "python-moabb")
+    (version "1.4.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "moabb" version))
+       (sha256
+        (base32 "1n1qwpiq0anbmmcvygg0kidcps9gds8hpd7y48lhbgvh08xxfhdp"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f
+       #:phases (modify-phases %standard-phases
+                  (delete 'sanity-check)))) ;Skip because matplotlib requires numpy<2,>=1.21
+    (propagated-inputs (list python-coverage
+                             python-edfio
+                             python-edflib
+                             python-h5py
+                             python-matplotlib
+                             python-memory-profiler
+                             python-mne
+                             python-mne-bids
+                             python-numpy-2
+                             python-pandas
+                             python-pooch
+                             python-pyriemann
+                             python-pytest
+                             python-pyyaml
+                             python-requests
+                             python-scikit-learn
+                             python-scipy
+                             python-seaborn
+                             python-tqdm
+                             python-urllib3))
+    (native-inputs (list python-codecov
+                         python-pytest
+                         python-pytest-cov
+                         python-pytest-xdist
+                         python-pytest-cases
+                         python-setuptools
+                         python-wheel
+                         python-filelock
+                         python-optuna))
+    (home-page "https://github.com/NeuroTechX/moabb")
+    (synopsis "Mother of All BCI Benchmarks")
+    (description "Mother of All BCI Benchmarks.")
+    (license license:bsd-3)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
