@@ -4730,6 +4730,31 @@ library.")
     (description "Linformer implementation in Pytorch.")
     (license license:expat)))
 
+(define-public python-colt5-attention
+  (package
+    (name "python-colt5-attention")
+    (version "0.11.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/lucidrains/CoLT5-attention")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0sfi7xlqysl1yk2hl4fq4jsz7j074k2v204ipz0wmfwqklynng41"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
+    (propagated-inputs (list python-einops python-local-attention
+                             python-packaging python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/lucidrains/CoLT5-attention")
+    (synopsis "Conditionally Routed Attention")
+    (description "Conditionally Routed Attention.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
