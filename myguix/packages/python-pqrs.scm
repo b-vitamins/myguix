@@ -91,8 +91,10 @@
       #~(modify-phases %standard-phases
           (add-before 'build 'set-pbr-version
             (lambda _
-              (setenv "PBR_VERSION" #$version))))))
-    (native-inputs (list python-pbr python-setuptools python-wheel python-pytest))
+              (setenv "PBR_VERSION"
+                      #$version))))))
+    (native-inputs (list python-pbr python-setuptools python-wheel
+                         python-pytest))
     (home-page "https://github.com/fuzeman/bencode.py")
     (synopsis "Simple bencode parser (for Python 2, Python 3 and PyPy)")
     (description
@@ -125,8 +127,7 @@
                 (("PyPubSub==3.3.0")
                  "PyPubSub>=3.3.0")
                 (("future==0.16.0")
-                 "future>=0.16.0"))
-              #t)))))
+                 "future>=0.16.0")) #t)))))
     (propagated-inputs (list python-bencode-py
                              python-bitstring
                              python-future
@@ -988,7 +989,7 @@ information in various formats.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (native-inputs (list python-setuptools python-wheel python-pytest))
     (home-page "https://github.com/pybind/pybind11")
     (synopsis "Seamless operability between C++11 and Python")
@@ -4031,8 +4032,7 @@ similar to the `wget` utility.")
             (lambda _
               (substitute* "pyproject.toml"
                 ((">=2.9.0.post0")
-                 ">=2.9.0"))
-              #t)))))    
+                 ">=2.9.0")) #t)))))
     (propagated-inputs (list python-dateutil))
     (native-inputs (list python-setuptools python-wheel))
     (home-page #f)
@@ -4060,7 +4060,6 @@ similar to the `wget` utility.")
     (description "List processing tools and functional utilities.")
     (license #f)))
 
-
 (define-public python-gluonts
   (package
     (name "python-gluonts")
@@ -4077,11 +4076,11 @@ similar to the `wget` utility.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (propagated-inputs (list python-numpy
                              python-pandas
                              python-pydantic
-                             python-toolz-for-gluonts                             
+                             python-toolz-for-gluonts
                              python-tqdm
                              python-typing-extensions))
     (native-inputs (list python-setuptools python-wheel python-pytest))
@@ -4129,7 +4128,7 @@ similar to the `wget` utility.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (propagated-inputs (list python-typing-extensions))
     (native-inputs (list python-setuptools python-setuptools-scm python-wheel))
     (home-page "https://github.com/AntoineD/docstring-inheritance")
@@ -4150,10 +4149,9 @@ similar to the `wget` utility.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (propagated-inputs (list python-mne python-numpy python-scipy))
-    (native-inputs (list python-hatch-vcs
-                         python-hatchling))
+    (native-inputs (list python-hatch-vcs python-hatchling))
     (home-page "https://mne.tools/mne-bids")
     (synopsis
      "MNE-BIDS: Organizing MEG, EEG, and iEEG data according to the BIDS specification and facilitating their analysis with MNE-Python")
