@@ -4133,3 +4133,28 @@ similar to the `wget` utility.")
     (synopsis "Avoid writing and maintaining duplicated docstrings.")
     (description "Avoid writing and maintaining duplicated docstrings.")
     (license license:expat)))
+
+(define-public python-mne-bids
+  (package
+    (name "python-mne-bids")
+    (version "0.17.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "mne_bids" version))
+       (sha256
+        (base32 "1fxl79aqj2l6va1cfhqz11slpjq9jckap3jz2zmj2rsxj375nhg6"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
+    (propagated-inputs (list python-mne python-numpy python-scipy))
+    (native-inputs (list python-hatch-vcs
+                         python-hatchling))
+    (home-page "https://mne.tools/mne-bids")
+    (synopsis
+     "MNE-BIDS: Organizing MEG, EEG, and iEEG data according to the BIDS specification and facilitating their analysis with MNE-Python")
+    (description
+     "MNE-BIDS: Organizing MEG, EEG, and @code{iEEG} data according to the BIDS
+specification and facilitating their analysis with MNE-Python.")
+    (license #f)))
