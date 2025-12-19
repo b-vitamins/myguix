@@ -4802,6 +4802,37 @@ library.")
     (description "Linear Attention Transformer.")
     (license license:expat)))
 
+(define-public python-skorch
+  (package
+    (name "python-skorch")
+    (version "1.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "skorch" version))
+       (sha256
+        (base32 "001yv7hzyfk5h1fn33idhlq3d5fhpncmknid31gn0h1xzmgy9ylq"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))          
+    (propagated-inputs (list python-numpy python-scikit-learn python-scipy
+                             python-tabulate python-tqdm))
+    (native-inputs (list python-flake8
+                         python-flaky
+                         python-future
+                         python-pylint
+                         python-pytest
+                         python-pytest-cov
+                         python-pytorch
+                         python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/skorch-dev/skorch")
+    (synopsis "scikit-learn compatible neural network library for pytorch")
+    (description "scikit-learn compatible neural network library for pytorch.")
+    (license license:bsd-3)))
+
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
