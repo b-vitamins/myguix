@@ -4746,7 +4746,7 @@ library.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (propagated-inputs (list python-einops python-local-attention
                              python-packaging python-pytorch))
     (native-inputs (list python-setuptools python-wheel))
@@ -4766,7 +4766,8 @@ library.")
        (sha256
         (base32 "0ajs0vppvhl4hqy26j8h7r8g887gzs9sdz0bfkk2aam63pkix5p4"))))
     (build-system pyproject-build-system)
-    (propagated-inputs (list python-colt5-attention python-einops python-pytorch))
+    (propagated-inputs (list python-colt5-attention python-einops
+                             python-pytorch))
     (native-inputs (list python-hatchling))
     (home-page "https://github.com/lucidrains/product-key-memory")
     (synopsis "Product Key Memory")
@@ -4789,7 +4790,7 @@ library.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))        
+      #:tests? #f))
     (propagated-inputs (list python-axial-positional-embedding
                              python-einops
                              python-linformer
@@ -4815,7 +4816,7 @@ library.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))          
+      #:tests? #f))
     (propagated-inputs (list python-numpy python-scikit-learn python-scipy
                              python-tabulate python-tqdm))
     (native-inputs (list python-flake8
@@ -4848,7 +4849,7 @@ library.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (propagated-inputs (list python-pytorch))
     (native-inputs (list python-setuptools python-wheel python-pytest))
     (home-page "https://github.com/VainF/pytorch-msssim")
@@ -4872,7 +4873,7 @@ library.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (propagated-inputs (list python-einops
                              python-matplotlib
                              python-numpy
@@ -4926,8 +4927,14 @@ end-to-end compression research.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
-    (native-inputs (list python-setuptools python-wheel python-pytest python-numpy python-pytorch python-torchvision python-compressai))
+      #:tests? #f))
+    (native-inputs (list python-setuptools
+                         python-wheel
+                         python-pytest
+                         python-numpy
+                         python-pytorch
+                         python-torchvision
+                         python-compressai))
     (home-page "https://github.com/tyleryep/torchinfo")
     (synopsis
      "Model summary in PyTorch, based off of the original torchsummary.")
@@ -4935,6 +4942,47 @@ end-to-end compression research.")
      "Model summary in @code{PyTorch}, based off of the original torchsummary.")
     (license license:expat)))
 
+(define-public python-braindecode
+  (package
+    (name "python-braindecode")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "braindecode" version))
+       (sha256
+        (base32 "0jpq5axp96yk4wmfsc2750jimv45zsxdka06rv05s4h43za62ldj"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-docstring-inheritance
+                             python-einops
+                             python-h5py
+                             python-joblib
+                             python-linear-attention-transformer
+                             python-matplotlib
+                             python-mne
+                             python-mne-bids
+                             python-numpy
+                             python-pandas
+                             python-scipy-next
+                             python-skorch
+                             python-pytorch
+                             python-torchaudio
+                             python-torchinfo
+                             python-wfdb))
+    (native-inputs (list python-codecov
+                         python-mypy
+                         python-pytest
+                         python-pytest-cov
+                         python-pytest-cases
+                         python-setuptools
+                         python-wheel))
+    (home-page "https://github.com/braindecode/braindecode")
+    (synopsis "Deep learning software to decode EEG, ECG or MEG signals")
+    (description "Deep learning software to decode EEG, ECG or MEG signals.")
+    (license license:bsd-3)))
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
