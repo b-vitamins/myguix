@@ -4773,6 +4773,35 @@ library.")
     (description "Product Key Memory.")
     (license license:expat)))
 
+(define-public python-linear-attention-transformer
+  (package
+    (name "python-linear-attention-transformer")
+    (version "0.19.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/lucidrains/linear-attention-transformer")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "07llz3613lkm03zk891cs6vx0884jf46ns7mv99cblhrmamv4zg8"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))        
+    (propagated-inputs (list python-axial-positional-embedding
+                             python-einops
+                             python-linformer
+                             python-local-attention
+                             python-product-key-memory
+                             python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/lucidrains/linear-attention-transformer")
+    (synopsis "Linear Attention Transformer")
+    (description "Linear Attention Transformer.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
