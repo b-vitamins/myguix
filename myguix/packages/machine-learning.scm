@@ -4984,6 +4984,74 @@ end-to-end compression research.")
     (description "Deep learning software to decode EEG, ECG or MEG signals.")
     (license license:bsd-3)))
 
+(define-public python-fvcore
+  (package
+    (name "python-fvcore")
+    (version "0.1.5.post20221221")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "fvcore" version))
+       (sha256
+        (base32 "0q3q0gfpps3d5nxlnzhaam0256yi7r4j13n724f6bbkj0nwhpyzj"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-iopath
+                             python-numpy
+                             python-pillow
+                             python-pyyaml
+                             python-tabulate
+                             python-termcolor
+                             python-tqdm
+                             python-yacs))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/facebookresearch/fvcore")
+    (synopsis
+     "Collection of common code shared among different research projects in FAIR computer vision team")
+    (description
+     "Collection of common code shared among different research projects in FAIR
+computer vision team.")
+    (license license:asl2.0)))
+
+(define-public python-pytorchvideo
+  (package
+    (name "python-pytorchvideo")
+    (version "0.1.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pytorchvideo" version))
+       (sha256
+        (base32 "06rlys6352nhr9w5v3dss15rhmv6nlbyq34xllnl4w7bgx6458v9"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-av python-fvcore python-iopath
+                             python-networkx python-parameterized))
+    (native-inputs (list python-autoflake
+                         python-black
+                         python-bs4
+                         python-coverage
+                         python-decord
+                         python-flake8
+                         python-flake8-bugbear
+                         python-flake8-comprehensions
+                         python-isort
+                         python-nbconvert
+                         python-pre-commit
+                         python-pytest
+                         python-setuptools
+                         python-sphinx
+                         python-wheel))
+    (home-page "https://github.com/facebookresearch/pytorchvideo")
+    (synopsis "A video understanding deep learning library.")
+    (description
+     "This package provides a video understanding deep learning library.")
+    (license license:asl2.0)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform

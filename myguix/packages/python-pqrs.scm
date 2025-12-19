@@ -4187,3 +4187,71 @@ specification and facilitating their analysis with MNE-Python.")
      "The WFDB Python package: tools for reading, writing, and processing physiologic
 signals and annotations.")
     (license license:expat)))
+
+(define-public python-bs4
+  (package
+    (name "python-bs4")
+    (version "0.0.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "bs4" version))
+       (sha256
+        (base32 "099rcncbfhzykzizfmabsl0gbbbbzs1swys149vi5zjhiz2qb1m4"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-beautifulsoup4))
+    (native-inputs (list python-hatchling))
+    (home-page #f)
+    (synopsis "Dummy package for Beautiful Soup (beautifulsoup4)")
+    (description "Dummy package for Beautiful Soup (beautifulsoup4).")
+    (license license:expat)))
+
+(define-public python-yacs
+  (package
+    (name "python-yacs")
+    (version "0.1.8")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/rbgirshick/yacs")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "17ah2k8hpwgsqp1l1wzvz718a9rfj5rwa5vnhpnz94akicphbvww"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-pyyaml))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/rbgirshick/yacs")
+    (synopsis "Yet Another Configuration System")
+    (description "Yet Another Configuration System.")
+    (license #f)))
+
+(define-public python-iopath
+  (package
+    (name "python-iopath")
+    (version "0.1.10")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/facebookresearch/iopath")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1n7b8zzl5aal5l6kjqkp3i7gc13g0fgji8bn70qfs522wxrp95dw"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-portalocker python-tqdm
+                             python-typing-extensions))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/facebookresearch/iopath")
+    (synopsis "A library for providing I/O abstraction.")
+    (description
+     "This package provides a library for providing I/O abstraction.")
+    (license #f)))
