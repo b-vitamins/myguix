@@ -4755,6 +4755,24 @@ library.")
     (description "Conditionally Routed Attention.")
     (license license:expat)))
 
+(define-public python-product-key-memory
+  (package
+    (name "python-product-key-memory")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "product_key_memory" version))
+       (sha256
+        (base32 "0ajs0vppvhl4hqy26j8h7r8g887gzs9sdz0bfkk2aam63pkix5p4"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-colt5-attention python-einops python-pytorch))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/lucidrains/product-key-memory")
+    (synopsis "Product Key Memory")
+    (description "Product Key Memory.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
