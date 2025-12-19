@@ -4112,3 +4112,24 @@ similar to the `wget` utility.")
     (synopsis "MNE-Python project for MEG and EEG data analysis.")
     (description "MNE-Python project for MEG and EEG data analysis.")
     (license #f)))
+
+(define-public python-docstring-inheritance
+  (package
+    (name "python-docstring-inheritance")
+    (version "3.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "docstring_inheritance" version))
+       (sha256
+        (base32 "0d29hwglw8iy6zjy51bpwsd8apmjspj6ck8q7shafycjahsrpq9y"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
+    (propagated-inputs (list python-typing-extensions))
+    (native-inputs (list python-setuptools python-setuptools-scm python-wheel))
+    (home-page "https://github.com/AntoineD/docstring-inheritance")
+    (synopsis "Avoid writing and maintaining duplicated docstrings.")
+    (description "Avoid writing and maintaining duplicated docstrings.")
+    (license license:expat)))
