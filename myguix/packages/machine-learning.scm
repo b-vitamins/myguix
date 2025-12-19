@@ -4706,6 +4706,30 @@ library.")
      "Local attention, window with lookback, for language modeling.")
     (license license:expat)))
 
+(define-public python-linformer
+  (package
+    (name "python-linformer")
+    (version "0.2.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/lucidrains/linformer")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1c94zssa97jsv1sirrh6qg7wsk7plaxlhmsphb8fy50z0hzxbpnw"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/lucidrains/linformer")
+    (synopsis "Linformer implementation in Pytorch")
+    (description "Linformer implementation in Pytorch.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
