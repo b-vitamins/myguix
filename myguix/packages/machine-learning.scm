@@ -4665,6 +4665,24 @@ library.")
     (description "Axial Positional Embedding.")
     (license license:expat)))
 
+(define-public python-hyper-connections
+  (package
+    (name "python-hyper-connections")
+    (version "0.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hyper_connections" version))
+       (sha256
+        (base32 "081fmidcwc0mml6lkp7mah083wg2wn85fal5p14xclkdxjh50y79"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-einops python-pytorch))
+    (native-inputs (list python-hatchling))
+    (home-page "https://pypi.org/project/hyper-connections/")
+    (synopsis "Hyper-Connections")
+    (description "Hyper-Connections.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
