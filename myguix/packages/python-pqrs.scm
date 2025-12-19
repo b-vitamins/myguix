@@ -4161,3 +4161,31 @@ similar to the `wget` utility.")
      "MNE-BIDS: Organizing MEG, EEG, and @code{iEEG} data according to the BIDS
 specification and facilitating their analysis with MNE-Python.")
     (license #f)))
+
+(define-public python-wfdb
+  (package
+    (name "python-wfdb")
+    (version "4.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "wfdb" version))
+       (sha256
+        (base32 "1f9bv50i27apr30hwwzz62kl079hv4c844fi60csk1libjy8dpv0"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-aiohttp
+                             python-fsspec
+                             python-matplotlib
+                             python-numpy
+                             python-pandas
+                             python-requests
+                             python-scipy
+                             python-soundfile))
+    (native-inputs (list python-hatchling))
+    (home-page #f)
+    (synopsis
+     "The WFDB Python package: tools for reading, writing, and processing physiologic signals and annotations.")
+    (description
+     "The WFDB Python package: tools for reading, writing, and processing physiologic
+signals and annotations.")
+    (license license:expat)))
