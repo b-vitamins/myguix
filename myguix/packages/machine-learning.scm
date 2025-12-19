@@ -4683,6 +4683,29 @@ library.")
     (description "Hyper-Connections.")
     (license license:expat)))
 
+(define-public python-local-attention
+  (package
+    (name "python-local-attention")
+    (version "1.11.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/lucidrains/local-attention")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0ib2dd46w7mvf2kk6ahfy9rcg1y3rl4yf2wgxpgm4zj0n804y06s"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-einops python-hyper-connections
+                             python-pytorch))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/lucidrains/local-attention")
+    (synopsis "Local attention, window with lookback, for language modeling")
+    (description
+     "Local attention, window with lookback, for language modeling.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
