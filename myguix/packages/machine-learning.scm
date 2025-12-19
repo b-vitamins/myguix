@@ -4832,6 +4832,109 @@ library.")
     (description "scikit-learn compatible neural network library for pytorch.")
     (license license:bsd-3)))
 
+(define-public python-pytorch-msssim
+  (package
+    (name "python-pytorch-msssim")
+    (version "1.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/VainF/pytorch-msssim")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0zqlj9lsmqs3c15r7rw5s9wpmysa4vr0x6qsxj11r0110jbn023f"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
+    (propagated-inputs (list python-pytorch))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/VainF/pytorch-msssim")
+    (synopsis "Fast and differentiable MS-SSIM and SSIM for pytorch.")
+    (description "Fast and differentiable MS-SSIM and SSIM for pytorch.")
+    (license license:expat)))
+
+(define-public python-compressai
+  (package
+    (name "python-compressai")
+    (version "1.2.8")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/InterDigitalInc/CompressAI")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0mc2lkn1l32vmbzdnlbaapap1797l4szsgasafdhfl371n5apbim"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
+    (propagated-inputs (list python-einops
+                             python-matplotlib
+                             python-numpy
+                             python-pandas
+                             python-pybind11
+                             python-pytorch-msssim
+                             python-scipy
+                             python-setuptools
+                             python-tomli
+                             python-pytorch
+                             python-pytorch-geometric
+                             python-torchvision
+                             python-tqdm
+                             python-typing-extensions
+                             python-wheel))
+    (native-inputs (list python-black
+                         python-flake8
+                         python-flake8-bugbear
+                         python-flake8-comprehensions
+                         python-isort
+                         python-mypy
+                         python-plotly
+                         python-pybind11
+                         python-pytest
+                         python-pytest-cov
+                         python-ruff
+                         python-setuptools
+                         python-tomli
+                         python-wheel))
+    (home-page "https://github.com/InterDigitalInc/CompressAI")
+    (synopsis
+     "A PyTorch library and evaluation platform for end-to-end compression research")
+    (description
+     "This package provides a @code{PyTorch} library and evaluation platform for
+end-to-end compression research.")
+    (license #f)))
+
+(define-public python-torchinfo
+  (package
+    (name "python-torchinfo")
+    (version "1.8.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/tyleryep/torchinfo")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0m77krkzw4i7x6xfzmpljmnsib64f4rj6slbdywcqkqsvziy1y54"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
+    (native-inputs (list python-setuptools python-wheel python-pytest python-numpy python-pytorch python-torchvision python-compressai))
+    (home-page "https://github.com/tyleryep/torchinfo")
+    (synopsis
+     "Model summary in PyTorch, based off of the original torchsummary.")
+    (description
+     "Model summary in @code{PyTorch}, based off of the original torchsummary.")
+    (license license:expat)))
+
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
