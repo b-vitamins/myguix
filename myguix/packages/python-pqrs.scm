@@ -4255,3 +4255,26 @@ signals and annotations.")
     (description
      "This package provides a library for providing I/O abstraction.")
     (license #f)))
+
+(define-public python-pptree
+  (package
+    (name "python-pptree")
+    (version "3.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/clemtoy/pptree")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1w0vzv2i2jl2na2xrplghwh0ccncav5zsrbn77b07hdfz1sszckr"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools python-wheel python-pytest))
+    (home-page "https://github.com/clemtoy/pptree")
+    (synopsis "Pretty print trees")
+    (description "Pretty print trees.")
+    (license license:expat)))
