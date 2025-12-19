@@ -4647,6 +4647,24 @@ library.")
                          (replace "python-pytorch" python-pytorch-cuda)
                          (replace "python-torchvision" python-torchvision-cuda)))))
 
+(define-public python-axial-positional-embedding
+  (package
+    (name "python-axial-positional-embedding")
+    (version "0.3.12")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "axial_positional_embedding" version))
+       (sha256
+        (base32 "05xw61hrvg07bqbbj0l274fkzihgzckysdhbsb9x984g5ws8zn8h"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-einops python-pytorch))
+    (native-inputs (list python-hatchling))
+    (home-page "https://pypi.org/project/axial_positional_embedding/")
+    (synopsis "Axial Positional Embedding")
+    (description "Axial Positional Embedding.")
+    (license license:expat)))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
