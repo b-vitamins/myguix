@@ -4691,6 +4691,14 @@ library.")
     (description "Hyper-Connections.")
     (license license:expat)))
 
+(define-public python-hyper-connections-cuda
+  (package
+    (inherit python-hyper-connections)
+    (name "python-hyper-connections-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-hyper-connections)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-local-attention
   (package
     (name "python-local-attention")
