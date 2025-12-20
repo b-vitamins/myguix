@@ -4788,6 +4788,15 @@ library.")
     (description "Conditionally Routed Attention.")
     (license license:expat)))
 
+(define-public python-colt5-attention-cuda
+  (package
+    (inherit python-colt5-attention)
+    (name "python-colt5-attention-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-colt5-attention)
+       (replace "python-local-attention" python-local-attention-cuda)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-product-key-memory
   (package
     (name "python-product-key-memory")
