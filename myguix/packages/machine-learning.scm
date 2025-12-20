@@ -4755,6 +4755,14 @@ library.")
     (description "Linformer implementation in Pytorch.")
     (license license:expat)))
 
+(define-public python-linformer-cuda
+  (package
+    (inherit python-linformer)
+    (name "python-linformer-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-linformer)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-colt5-attention
   (package
     (name "python-colt5-attention")
