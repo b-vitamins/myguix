@@ -4722,6 +4722,15 @@ library.")
      "Local attention, window with lookback, for language modeling.")
     (license license:expat)))
 
+(define-public python-local-attention-cuda
+  (package
+    (inherit python-local-attention)
+    (name "python-local-attention-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-local-attention)
+       (replace "python-hyper-connections" python-hyper-connections-cuda)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-linformer
   (package
     (name "python-linformer")
