@@ -5048,6 +5048,17 @@ end-to-end compression research.")
     (description "Deep learning software to decode EEG, ECG or MEG signals.")
     (license license:bsd-3)))
 
+(define-public python-braindecode-cuda
+  (package
+    (inherit python-braindecode)
+    (name "python-braindecode-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-braindecode)
+       (replace "python-linear-attention-transformer"
+                python-linear-attention-transformer-cuda)
+       (replace "python-pytorch" python-pytorch-cuda)
+       (replace "python-torchaudio" python-torchaudio-cuda)))))
+
 (define-public python-fvcore
   (package
     (name "python-fvcore")
