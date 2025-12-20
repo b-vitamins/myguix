@@ -4854,6 +4854,19 @@ library.")
     (description "Linear Attention Transformer.")
     (license license:expat)))
 
+(define-public python-linear-attention-transformer-cuda
+  (package
+    (inherit python-linear-attention-transformer)
+    (name "python-linear-attention-transformer-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-linear-attention-transformer)
+       (replace "python-axial-positional-embedding"
+                python-axial-positional-embedding-cuda)
+       (replace "python-linformer" python-linformer-cuda)
+       (replace "python-local-attention" python-local-attention-cuda)
+       (replace "python-product-key-memory" python-product-key-memory-cuda)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-skorch
   (package
     (name "python-skorch")
