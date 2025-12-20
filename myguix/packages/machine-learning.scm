@@ -4665,6 +4665,14 @@ library.")
     (description "Axial Positional Embedding.")
     (license license:expat)))
 
+(define-public python-axial-positional-embedding-cuda
+  (package
+    (inherit python-axial-positional-embedding)
+    (name "python-axial-positional-embedding-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-axial-positional-embedding)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-hyper-connections
   (package
     (name "python-hyper-connections")
