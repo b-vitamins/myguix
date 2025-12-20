@@ -4816,6 +4816,15 @@ library.")
     (description "Product Key Memory.")
     (license license:expat)))
 
+(define-public python-product-key-memory-cuda
+  (package
+    (inherit python-product-key-memory)
+    (name "python-product-key-memory-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-product-key-memory)
+       (replace "python-colt5-attention" python-colt5-attention-cuda)
+       (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-linear-attention-transformer
   (package
     (name "python-linear-attention-transformer")
