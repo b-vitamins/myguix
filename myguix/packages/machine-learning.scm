@@ -5273,6 +5273,78 @@ as the original EDFlib.")
 differential equations, implicit models and related numerical methods.")
     (license license:asl2.0)))
 
+(define-public python-poethepoet
+  (package
+    (name "python-poethepoet")
+    (version "0.10.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "poethepoet" version))
+       (sha256
+        (base32 "17713bbnm51mn6zkhjmqhbgwsippws2kwybh9i3dqy5rjjqprfbh"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-pastel python-pyyaml python-tomli))
+    (native-inputs (list poetry python-setuptools python-pytest))
+    (home-page "https://poethepoet.natn.io/")
+    (synopsis "A task runner that works well with poetry and uv.")
+    (description
+     "This package provides a task runner that works well with poetry and uv.")
+    (license license:expat)))
+
+(define-public python-torchcfm
+  (package
+    (name "python-torchcfm")
+    (version "1.0.7")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/atong01/conditional-flow-matching")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1yz1s4imi1hp9qmf8ly574mz3siihjwf1r2hjy07blha92zwnml5"))))
+    (build-system pyproject-build-system)
+    (propagated-inputs (list python-absl-py
+                             python-ipywidgets
+                             python-ipykernel
+                             python-matplotlib
+                             python-numpy
+                             python-pandas
+                             python-poethepoet
+                             python-pot
+                             python-scikit-learn
+                             python-scipy
+                             python-pytorch
+                             python-tomlkit
+                             python-torchsde
+                             python-torchcde
+                             python-torchdiffeq
+                             python-torchdyn))
+    (native-inputs (list python-pytest))
+    (home-page "https://github.com/atong01/conditional-flow-matching")
+    (synopsis
+     "Conditional Flow Matching for Fast Continuous Normalizing Flow Training.")
+    (description
+     "Conditional Flow Matching for Fast Continuous Normalizing Flow Training.")
+    (license license:expat)))
+
+(define-public python-torchcfm-cuda
+  (package
+    (inherit python-torchdyn)
+    (name "python-torchcfm-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-torchcfm)
+                         (replace "python-torchcde" python-torchcde-cuda)
+                         (replace "python-torchsde" python-torchsde-cuda)
+                         (replace "python-torch-diffeq"
+                                  python-torch-diffeq-cuda)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
 ;; - python-detectron2: Facebook's detection/segmentation platform
