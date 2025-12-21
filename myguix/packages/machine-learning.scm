@@ -37,6 +37,7 @@
   #:use-module (gnu packages gl)
   #:use-module (gnu packages xorg)
   #:use-module (gnu packages xdisorg)
+  #:use-module (gnu packages package-management)
   #:use-module (gnu packages parallel)
   #:use-module (gnu packages perl)
   #:use-module (gnu packages pkg-config)
@@ -4669,9 +4670,9 @@ library.")
   (package
     (inherit python-axial-positional-embedding)
     (name "python-axial-positional-embedding-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-axial-positional-embedding)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-axial-positional-embedding)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-hyper-connections
   (package
@@ -4695,9 +4696,9 @@ library.")
   (package
     (inherit python-hyper-connections)
     (name "python-hyper-connections-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-hyper-connections)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-hyper-connections)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-local-attention
   (package
@@ -4726,10 +4727,11 @@ library.")
   (package
     (inherit python-local-attention)
     (name "python-local-attention-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-local-attention)
-       (replace "python-hyper-connections" python-hyper-connections-cuda)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-local-attention)
+                         (replace "python-hyper-connections"
+                                  python-hyper-connections-cuda)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-linformer
   (package
@@ -4759,9 +4761,9 @@ library.")
   (package
     (inherit python-linformer)
     (name "python-linformer-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-linformer)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-linformer)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-colt5-attention
   (package
@@ -4792,10 +4794,11 @@ library.")
   (package
     (inherit python-colt5-attention)
     (name "python-colt5-attention-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-colt5-attention)
-       (replace "python-local-attention" python-local-attention-cuda)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-colt5-attention)
+                         (replace "python-local-attention"
+                                  python-local-attention-cuda)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-product-key-memory
   (package
@@ -4820,10 +4823,11 @@ library.")
   (package
     (inherit python-product-key-memory)
     (name "python-product-key-memory-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-product-key-memory)
-       (replace "python-colt5-attention" python-colt5-attention-cuda)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-product-key-memory)
+                         (replace "python-colt5-attention"
+                                  python-colt5-attention-cuda)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-linear-attention-transformer
   (package
@@ -4858,14 +4862,16 @@ library.")
   (package
     (inherit python-linear-attention-transformer)
     (name "python-linear-attention-transformer-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-linear-attention-transformer)
-       (replace "python-axial-positional-embedding"
-                python-axial-positional-embedding-cuda)
-       (replace "python-linformer" python-linformer-cuda)
-       (replace "python-local-attention" python-local-attention-cuda)
-       (replace "python-product-key-memory" python-product-key-memory-cuda)
-       (replace "python-pytorch" python-pytorch-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-linear-attention-transformer)
+                         (replace "python-axial-positional-embedding"
+                                  python-axial-positional-embedding-cuda)
+                         (replace "python-linformer" python-linformer-cuda)
+                         (replace "python-local-attention"
+                                  python-local-attention-cuda)
+                         (replace "python-product-key-memory"
+                                  python-product-key-memory-cuda)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-skorch
   (package
@@ -5052,12 +5058,12 @@ end-to-end compression research.")
   (package
     (inherit python-braindecode)
     (name "python-braindecode-cuda")
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-braindecode)
-       (replace "python-linear-attention-transformer"
-                python-linear-attention-transformer-cuda)
-       (replace "python-pytorch" python-pytorch-cuda)
-       (replace "python-torchaudio" python-torchaudio-cuda)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-braindecode)
+                         (replace "python-linear-attention-transformer"
+                                  python-linear-attention-transformer-cuda)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchaudio" python-torchaudio-cuda)))))
 
 (define-public python-fvcore
   (package
@@ -5240,6 +5246,32 @@ as the original EDFlib.")
     (synopsis "Mother of All BCI Benchmarks")
     (description "Mother of All BCI Benchmarks.")
     (license license:bsd-3)))
+
+(define-public python-torchdyn
+  (package
+    (name "python-torchdyn")
+    (version "1.0.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "torchdyn" version))
+       (sha256
+        (base32 "1gyd910k3jbpy0r3v9qca0v21yrr3pqil1nwclma9j6rwf2xfx1v"))))
+    (build-system pyproject-build-system)
+    (native-inputs (list poetry
+                         python-setuptools-cpp
+                         python-wheel
+                         python-pytorch
+                         python-torchcde
+                         python-pytorch-lightning
+                         python-scikit-learn))
+    (home-page "https://github.com/DiffEqML/torchdyn")
+    (synopsis
+     "A PyTorch library entirely dedicated to neural differential equations, implicit models and related numerical methods.")
+    (description
+     "This package provides a @code{PyTorch} library entirely dedicated to neural
+differential equations, implicit models and related numerical methods.")
+    (license license:asl2.0)))
 
 ;; TODO: Lab-level R&D essential packages to add:
 ;; - python-pytorch3d: 3D deep learning with differentiable rendering
