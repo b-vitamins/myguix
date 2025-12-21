@@ -4278,3 +4278,24 @@ signals and annotations.")
     (synopsis "Pretty print trees")
     (description "Pretty print trees.")
     (license license:expat)))
+
+(define-public python-setuptools-cpp
+  (package
+    (name "python-setuptools-cpp")
+    (version "0.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "setuptools_cpp" version))
+       (sha256
+        (base32 "0kb7aii1wjz41dk2yl1yvqz54yw4v69dbvr8dp87hx930f3f1mag"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list pybind11))
+    (native-inputs (list python-setuptools))
+    (home-page "https://setuptools-cpp.davidmontague.xyz")
+    (synopsis "Simplified packaging for pybind11-based C++ extensions")
+    (description "Simplified packaging for pybind11-based C++ extensions.")
+    (license license:expat)))
