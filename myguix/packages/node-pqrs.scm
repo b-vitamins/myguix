@@ -9245,21 +9245,21 @@
     (description "Package manager detector")
     (license license:expat)))
 
-(define-public node-openai-codex
-  (package
-    (name "node-openai-codex")
-    (version "0.75.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
-                           version ".tgz"))
-       (sha256
-        (base32 "1bhg16q7d2fycqnrw1hci2c5psfy2azp23j70a1khzkchdpfcwm4"))))
-    (build-system node-build-system)
-    (arguments
-      (list #:tests?
-            #f
+	(define-public node-openai-codex
+	  (package
+	    (name "node-openai-codex")
+	    (version "0.77.0")
+	    (source
+	     (origin
+	       (method url-fetch)
+	       (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
+	                           version ".tgz"))
+	       (sha256
+	        (base32 "0sh0477zbfnl20jasrlw6qn7aj7j8xfp2888s3q8sanr2yxnh3vv"))))
+	    (build-system node-build-system)
+	    (arguments
+	      (list #:tests?
+	            #f
             #:phases
             (gexp (modify-phases
                     %standard-phases
