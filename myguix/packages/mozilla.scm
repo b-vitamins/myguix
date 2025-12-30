@@ -91,6 +91,7 @@
 (define-public rust-cbindgen-0.29
   (package
     (inherit rust-cbindgen-0.28)
+    (name "rust-cbindgen")
     (version "0.29.2")
     (inputs
      (modify-inputs (package-inputs rust-cbindgen-0.28)
