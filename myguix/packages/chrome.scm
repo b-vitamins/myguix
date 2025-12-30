@@ -102,12 +102,6 @@
                                 "/gnome-control-center/default-apps/google-"
                                 #$appname ".xml")
                     ((old-exe)
-                     exe))
-                  (substitute* (string-append usr/share "/menu/google-"
-                                              #$appname ".menu")
-                    (("/opt")
-                     share)
-                    ((old-exe)
                      exe)))))
             (add-after 'install 'install-icons
               (lambda _
