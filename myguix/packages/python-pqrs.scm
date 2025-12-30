@@ -1807,7 +1807,7 @@ parallelism.")))
                 (prepend pybind11)))
       (native-inputs (modify-inputs (package-native-inputs python-scipy)
                        (delete "python-cython-0.29.35")
-                       (prepend python-cython-3))))))
+                       (prepend python-cython))))))
 
 (define-public python-mutmut
   (package
@@ -2588,7 +2588,7 @@ and YAML-based configuration files with dot-accessible dictionaries.")
                              python-scipy
                              python-pytorch
                              python-tqdm))
-    (native-inputs (list python-pre-commit
+    (native-inputs (list pre-commit
                          python-pytest
                          python-ruff
                          python-setuptools
@@ -3427,7 +3427,7 @@ limiting, circuit breaker for resilience, and in-memory caching.")
     (build-system pyproject-build-system)
     (propagated-inputs (list python-cattrs python-lsprotocol python-lsp-server
                              python-ruff python-tomli))
-    (native-inputs (list python-pre-commit python-pytest python-setuptools
+    (native-inputs (list pre-commit python-pytest python-setuptools
                          python-wheel))
     (home-page "https://github.com/python-lsp/python-lsp-ruff")
     (synopsis "Ruff linting plugin for pylsp")

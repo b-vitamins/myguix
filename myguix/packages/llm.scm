@@ -393,7 +393,7 @@
                          git-minimal
                          perl
                          python
-                         python-cython-3
+                         python-cython
                          python-setuptools
                          python-wheel
                          unzip))

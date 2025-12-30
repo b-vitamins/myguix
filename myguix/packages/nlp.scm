@@ -934,7 +934,7 @@ tools, especially for domain-specific texts.")
     (propagated-inputs (list python-einops
                              python-numpy
                              onnx
-                             python-pre-commit
+                             pre-commit
                              python-pytorch
                              python-torchaudio
                              python-tqdm))

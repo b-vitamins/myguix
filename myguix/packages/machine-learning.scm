@@ -3518,7 +3518,7 @@ easily get the perfect configuration for each run.")
     (native-inputs (list python-coverage
                          python-numpy
                          python-pandas
-                         python-pre-commit
+                         pre-commit
                          python-pytest
                          python-pytest-cov
                          python-safety
@@ -3590,7 +3590,7 @@ both CPU and GPU.")
                          python-botocore
                          python-httpx
                          python-moto
-                         python-pre-commit
+                         pre-commit
                          python-pytest
                          python-pytest-randomly
                          python-pytest-timeout
@@ -4375,7 +4375,7 @@ library.")
                          python-papermill
                          python-pdm
                          python-pillow
-                         python-pre-commit
+                         pre-commit
                          python-pydocstyle
                          python-pytest
                          python-pytest-cov
@@ -5122,7 +5122,7 @@ computer vision team.")
                          python-flake8-comprehensions
                          python-isort
                          python-nbconvert
-                         python-pre-commit
+                         pre-commit
                          python-pytest
                          python-setuptools
                          python-sphinx
