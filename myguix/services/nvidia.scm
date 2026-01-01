@@ -36,6 +36,34 @@
                 "options nvidia NVreg_RestrictProfilingToAdminUsers=0\n")))
       '()))
 
+(define %nvidia-non-admin-profiling-udev-rules
+  ;; On Guix, eudev loads kernel modules via libkmod, which does not consult
+  ;; /etc/modprobe.d by default. As a result, NVIDIA can be auto-loaded without
+  ;; NVreg_RestrictProfilingToAdminUsers=0, and Nsight Compute will fail with
+  ;; ERR_NVGPUCTRPERM for non-root users.
+  ;;
+  ;; Work around this by preventing eudev's generic 80-drivers.rules from
+  ;; auto-loading the module for NVIDIA display controllers, and instead load
+  ;; it explicitly with the desired module parameter.
+  (udev-rule
+   "79-nvidia-non-admin-profiling.rules"
+   (string-append
+    "# Enable NVIDIA GPU performance counters for all users (Nsight/CUPTI).\n"
+    "# This overrides the default security restriction (Rendered Insecure).\n"
+    "ACTION==\"add\", SUBSYSTEM==\"pci\", "
+    "ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x03[0-9]*\", "
+    "ENV{LINUX_MODULE_DIRECTORY}=\"/run/booted-system/kernel/lib/modules\", "
+    "ENV{MODPROBE_OPTIONS}=\"-C /etc/modprobe.d\", "
+    "ENV{MODALIAS}=\"\", "
+    "RUN+=\"/run/booted-system/profile/bin/modprobe "
+    "nvidia NVreg_RestrictProfilingToAdminUsers=0\"\n")))
+
+(define (nvidia-udev-rules config)
+  (let ((driver (nvidia-configuration-driver config)))
+    (if (nvidia-configuration-non-admin-profiling? config)
+        (list driver %nvidia-non-admin-profiling-udev-rules)
+        (list driver))))
+
 (define (nvidia-shepherd-service config)
   (let* ((nvidia-driver (nvidia-configuration-driver config))
          (nvidia-smi (file-append nvidia-driver "/bin/nvidia-smi")))
@@ -69,8 +97,7 @@
                                                      (compose list
                                                       nvidia-configuration-driver))
                                   (service-extension udev-service-type
-                                                     (compose list
-                                                      nvidia-configuration-driver))
+                                                     nvidia-udev-rules)
                                   (service-extension firmware-service-type
                                                      (compose list
                                                       nvidia-configuration-firmware))

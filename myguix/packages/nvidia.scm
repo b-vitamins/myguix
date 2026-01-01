@@ -1416,6 +1416,57 @@ NVIDIA Management Library")
               (with-directory-excursion (string-append #$output "/lib/stubs")
                 (symlink "libcuda.so" "libcuda.so.1"))))
 
+          (add-after 'install 'fix-nsight-compute-driver-library-path
+            (lambda _
+              ;; Nsight Compute loads libcuda.so.1 at runtime.  On Guix, there is
+              ;; no global ld.so cache and the NVIDIA driver libraries live in a
+              ;; profile (typically /run/booted-system/profile/lib).  When
+              ;; running under a sanitized environment (e.g., via sudo), the
+              ;; LD_LIBRARY_PATH set by profiles is not present and Nsight
+              ;; Compute falls back to the stub libcuda shipped with the CUDA
+              ;; toolkit, failing with:
+              ;;   "failed to connect to the CUDA driver (stub libcuda.so[.1])"
+              ;;
+              ;; Patch the launcher scripts to always include the system profile
+              ;; driver library directory when present.
+              (define (string-prefix? prefix str)
+                (and (<= (string-length prefix) (string-length str))
+                     (string=? prefix
+                               (substring str 0 (string-length prefix)))))
+
+              (define (patch-nsight-script script)
+                (substitute* script
+                  (("ARCH=\"\\$\\(uname -m\\)\"")
+                   (string-append
+                    "ARCH=\"$(uname -m)\"\n\n"
+                    "# Ensure the NVIDIA driver libcuda is visible even when\n"
+                    "# LD_LIBRARY_PATH is sanitized (e.g., under sudo).\n"
+                    "for _guix_drv in /run/booted-system/profile/lib /run/current-system/profile/lib; do\n"
+                    "    if [ -e \"${_guix_drv}/libcuda.so.1\" ]; then\n"
+                    "        case \":${LD_LIBRARY_PATH-}:\" in\n"
+                    "            *\":${_guix_drv}:\"*) ;;\n"
+                    "            *) export LD_LIBRARY_PATH=\"${_guix_drv}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}\" ;;\n"
+                    "        esac\n"
+                    "        break\n"
+                    "    fi\n"
+                    "done\n"
+                    "unset _guix_drv\n"))))
+
+              (for-each
+               (lambda (entry)
+                 (when (string-prefix? "nsight-compute-" entry)
+                   (let ((prefix (string-append #$output "/" entry)))
+                     (for-each
+                      (lambda (name)
+                        (let ((script (string-append prefix "/" name)))
+                          (when (file-exists? script)
+                            (patch-nsight-script script))))
+                      '("ncu" "ncu-ui")))))
+               (scandir #$output
+                        (match-lambda
+                          ((or "." "..") #f)
+                          (_ #t))))))
+
           (add-after 'install 'install-cupti
             (lambda _
               (copy-recursively "builds/cuda_cupti/extras/CUPTI"
