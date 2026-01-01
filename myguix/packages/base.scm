@@ -19,6 +19,7 @@
   #:use-module (gnu packages display-managers)
   #:use-module (gnu packages djvu)
   #:use-module (gnu packages file-systems)
+  #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages fonts)
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages gdb)
@@ -85,6 +86,7 @@
   #:use-module (gnu packages vim)
   #:use-module (gnu packages web)
   #:use-module (gnu packages wget)
+  #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xiph)
   #:use-module (myguix packages chrome)
   #:use-module (myguix packages linux)
@@ -102,6 +104,7 @@
              %core-minimal
             %core-extended
             %shell-modern
+            %shell-zsh
             %terminal-essentials
             %text-editors
             %security-essentials
@@ -189,7 +192,8 @@
         ripgrep
         fd
         mumi
-        parallel))
+        parallel
+        xdg-utils))
 
 (define %shell-modern
   (list fzf
@@ -199,6 +203,16 @@
         zoxide
         jq
         du-dust))
+
+(define %shell-zsh
+  (list fzf
+        bat
+        eza
+        ripgrep
+        fd
+        zoxide
+        direnv
+        wl-clipboard))
 
 (define %terminal-essentials
   (list alacritty tmux))
