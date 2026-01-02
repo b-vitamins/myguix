@@ -426,6 +426,8 @@
   (list tree-sitter
         tree-sitter-cli
         tree-sitter-c
+        tree-sitter-cpp
+        tree-sitter-cuda
         tree-sitter-python
         tree-sitter-javascript
         tree-sitter-typescript
@@ -433,6 +435,8 @@
         tree-sitter-go
         tree-sitter-java
         tree-sitter-json
+        tree-sitter-toml
+        tree-sitter-yaml
         tree-sitter-html
         tree-sitter-css
         tree-sitter-markdown
