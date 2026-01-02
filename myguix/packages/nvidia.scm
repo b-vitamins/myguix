@@ -1437,20 +1437,31 @@ NVIDIA Management Library")
               (define (patch-nsight-script script)
                 (substitute* script
                   (("ARCH=\"\\$\\(uname -m\\)\"")
-                   (string-append
-                    "ARCH=\"$(uname -m)\"\n\n"
-                    "# Ensure the NVIDIA driver libcuda is visible even when\n"
-                    "# LD_LIBRARY_PATH is sanitized (e.g., under sudo).\n"
-                    "for _guix_drv in /run/booted-system/profile/lib /run/current-system/profile/lib; do\n"
-                    "    if [ -e \"${_guix_drv}/libcuda.so.1\" ]; then\n"
-                    "        case \":${LD_LIBRARY_PATH-}:\" in\n"
-                    "            *\":${_guix_drv}:\"*) ;;\n"
-                    "            *) export LD_LIBRARY_PATH=\"${_guix_drv}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}\" ;;\n"
-                    "        esac\n"
-                    "        break\n"
-                    "    fi\n"
-                    "done\n"
-                    "unset _guix_drv\n"))))
+	                   (string-append
+	                    "ARCH=\"$(uname -m)\"\n\n"
+	                    "# Ensure the NVIDIA driver libcuda is visible even when\n"
+	                    "# LD_LIBRARY_PATH is sanitized (e.g., under sudo).\n"
+	                    "for _guix_drv in /run/booted-system/profile/lib /run/current-system/profile/lib; do\n"
+	                    "    if [ -e \"${_guix_drv}/libcuda.so.1\" ]; then\n"
+	                    "        case \":${LD_LIBRARY_PATH-}:\" in\n"
+	                    "            *\":${_guix_drv}:\"*) ;;\n"
+	                    "            *) export LD_LIBRARY_PATH=\"${_guix_drv}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}\" ;;\n"
+	                    "        esac\n"
+	                    "        break\n"
+	                    "    fi\n"
+	                    "done\n"
+	                    "unset _guix_drv\n\n"
+	                    "# Ensure Guix Python packages remain visible even when\n"
+	                    "# GUIX_PYTHONPATH is sanitized (e.g., under sudo).\n"
+	                    "for _guix_py in /run/booted-system/profile/lib/python*/site-packages /run/current-system/profile/lib/python*/site-packages; do\n"
+	                    "    if [ -d \"${_guix_py}\" ]; then\n"
+	                    "        case \":${GUIX_PYTHONPATH-}:\" in\n"
+	                    "            *\":${_guix_py}:\"*) ;;\n"
+	                    "            *) export GUIX_PYTHONPATH=\"${_guix_py}${GUIX_PYTHONPATH:+:${GUIX_PYTHONPATH}}\" ;;\n"
+	                    "        esac\n"
+	                    "    fi\n"
+	                    "done\n"
+	                    "unset _guix_py\n"))))
 
               (for-each
                (lambda (entry)
