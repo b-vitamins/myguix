@@ -273,24 +273,42 @@ its unpacked checkout."
                                                                 "/dev/nvidia"
                                                                 minor)
                                                                "nvidia" minor))
-                                                            %nvidia-driver-device-minors))))
-                                             (let ((caps-major (assoc-ref %nvidia-character-devices
-                                                                          "nvidia-caps")))
+                                                   %nvidia-driver-device-minors))))
+                                             (let ((caps-major (assoc-ref
+                                                                %nvidia-character-devices
+                                                                "nvidia-caps")))
                                                (when caps-major
-                                                 (let ((caps-dir "/dev/nvidia-caps"))
+                                                 (let ((caps-dir
+                                                        "/dev/nvidia-caps"))
                                                    (mkdir-p caps-dir)
-                                                   (let ((cap1 (string-append caps-dir "/nvidia-cap1"))
-                                                         (cap2 (string-append caps-dir "/nvidia-cap2")))
-                                                     (false-if-exception
-                                                      (begin
-                                                        (unless (file-exists? cap1)
-                                                          (create-device-node cap1 "nvidia-caps" "1"))
-                                                        (chmod cap1 #o666)))
-                                                     (false-if-exception
-                                                      (begin
-                                                        (unless (file-exists? cap2)
-                                                          (create-device-node cap2 "nvidia-caps" "2"))
-                                                        (chmod cap2 #o666))))))))
+                                                   (let ((cap1 (string-append
+                                                                caps-dir
+                                                                "/nvidia-cap1"))
+                                                         (cap2 (string-append
+                                                                caps-dir
+                                                                "/nvidia-cap2")))
+                                                     (false-if-exception (begin
+                                                                           (unless 
+                                                                                   (file-exists?
+                                                                                    cap1)
+                                                                             (create-device-node
+                                                                              cap1
+                                                                              "nvidia-caps"
+                                                                              "1"))
+                                                                           (chmod
+                                                                            cap1
+                                                                            #o666)))
+                                                     (false-if-exception (begin
+                                                                           (unless 
+                                                                                   (file-exists?
+                                                                                    cap2)
+                                                                             (create-device-node
+                                                                              cap2
+                                                                              "nvidia-caps"
+                                                                              "2"))
+                                                                           (chmod
+                                                                            cap2
+                                                                            #o666))))))))
 
                                            (main (cdr (command-line)))))))
 
@@ -546,10 +564,9 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                         (find-files #$output "\\.so\\.")))))))
     (supported-systems '("i686-linux" "x86_64-linux"))
     (native-search-paths
-     (list
-      (search-path-specification
-       (variable "LD_LIBRARY_PATH")
-       (files '("lib")))))
+     (list (search-path-specification
+            (variable "LD_LIBRARY_PATH")
+            (files '("lib")))))
     (native-inputs (list patchelf-0.16))
     (inputs (list egl-gbm
                   egl-wayland
@@ -1050,7 +1067,7 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
     (build-system python-build-system)
     (arguments
      (list
-      #:tests? #f      
+      #:tests? #f
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'unpack 'fix-libnvidia
@@ -1124,7 +1141,7 @@ nvidia-smi.")
     (build-system python-build-system)
     (arguments
      (list
-      #:tests? #f      
+      #:tests? #f
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'unpack 'fix-libnvidia
@@ -1154,7 +1171,7 @@ Management Library")
     (build-system python-build-system)
     (arguments
      (list
-      #:tests? #f            
+      #:tests? #f
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'unpack 'fix-libnvidia
@@ -1217,7 +1234,8 @@ NVIDIA Management Library")
                 (search-input-file inputs
                                    #$(glibc-dynamic-linker)))
               (define rpath
-                (let ((lib (lambda (input) (string-append input "/lib"))))
+                (let ((lib (lambda (input)
+                             (string-append input "/lib"))))
                   (string-join (list "$ORIGIN"
                                      (string-append #$output "/lib")
                                      (string-append #$output "/nvvm/lib64")
@@ -1230,7 +1248,8 @@ NVIDIA Management Library")
                                      (lib (assoc-ref inputs "xcb-util-cursor"))
                                      (lib (assoc-ref inputs "xcb-util-image"))
                                      (lib (assoc-ref inputs "xcb-util-keysyms"))
-                                     (lib (assoc-ref inputs "xcb-util-renderutil"))
+                                     (lib (assoc-ref inputs
+                                                     "xcb-util-renderutil"))
                                      (lib (assoc-ref inputs "xcb-util-wm"))
                                      (lib (assoc-ref inputs "libxkbcommon"))
                                      (lib (assoc-ref inputs "fontconfig"))
@@ -1238,8 +1257,7 @@ NVIDIA Management Library")
                                      (lib (assoc-ref inputs "dbus"))
                                      (lib (assoc-ref inputs "zstd"))
                                      (string-append libc "/lib")
-                                     (string-append gcc-lib "/lib"))
-                               ":")))
+                                     (string-append gcc-lib "/lib")) ":")))
               (define (patch-elf file)
                 (make-file-writable file)
                 (format #t "Setting RPATH on '~a'...~%" file)
@@ -1291,50 +1309,55 @@ NVIDIA Management Library")
                          (let ((rx (make-regexp pattern regexp/extended)))
                            (call-with-input-file file
                              (lambda (port)
-                               (let loop ((line (read-line port)))
+                               (let loop
+                                 ((line (read-line port)))
                                  (cond
-                                  ((eof-object? line) #f)
-                                  ((regexp-exec rx line) =>
-                                   (lambda (m)
-                                     (string-trim-both
-                                      (match:substring m 1))))
-                                  (else (loop (read-line port))))))))))
+                                   ((eof-object? line)
+                                    #f)
+                                   ((regexp-exec rx line)
+                                    =>
+                                    (lambda (m)
+                                      (string-trim-both (match:substring m 1))))
+                                   (else (loop (read-line port))))))))))
                   (let ((nsight-compute-dir "nsight_compute")
                         (nsight-systems-dir "nsight_systems"))
                     (set! nsight-compute-version
-                      (or (extract-version
-                           (string-append nsight-compute-dir
-                                          "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui")
-                           "([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)")
-                          (extract-version
-                           (string-append nsight-compute-dir
-                                          "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui")
-                           "([0-9]+\\.[0-9]+\\.[0-9]+)")
-                          (extract-version
-                           (string-append nsight-compute-dir "/docs/index.html")
-                           "v([0-9.]+)")
-                          #f))
+                          (or (extract-version (string-append
+                                                nsight-compute-dir
+                                                "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui")
+                               "([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)")
+                              (extract-version (string-append
+                                                nsight-compute-dir
+                                                "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui")
+                                               "([0-9]+\\.[0-9]+\\.[0-9]+)")
+                              (extract-version (string-append
+                                                nsight-compute-dir
+                                                "/docs/index.html")
+                                               "v([0-9.]+)") #f))
                     (set! nsight-systems-version
-                      (or (extract-version "integration/nsight-systems/nsys"
-                                           "nsight-systems-([0-9.]+)/target")
-                          (extract-version
-                           (string-append nsight-systems-dir
-                                          "/host-linux-x64/nsys-ui.desktop.template")
-                           "Nsight Systems ([0-9.]+)")
-                          #f))
+                          (or (extract-version
+                               "integration/nsight-systems/nsys"
+                               "nsight-systems-([0-9.]+)/target")
+                              (extract-version (string-append
+                                                nsight-systems-dir
+                                                "/host-linux-x64/nsys-ui.desktop.template")
+                                               "Nsight Systems ([0-9.]+)") #f))
                     (when nsight-compute-version
                       (copy-recursively nsight-compute-dir
-                                        (string-append #$output "/nsight-compute-"
+                                        (string-append #$output
+                                                       "/nsight-compute-"
                                                        nsight-compute-version)))
                     (when nsight-systems-version
                       (copy-recursively nsight-systems-dir
-                                        (string-append #$output "/nsight-systems-"
+                                        (string-append #$output
+                                                       "/nsight-systems-"
                                                        nsight-systems-version)))))
                 (let ((bin (string-append #$output "/bin")))
                   (mkdir-p bin)
                   (define (maybe-link target name)
                     (let ((link (string-append bin "/" name)))
-                      (when (and target (file-exists? target))
+                      (when (and target
+                                 (file-exists? target))
                         (false-if-exception (delete-file link))
                         (symlink target link))))
                   (when nsight-compute-version
@@ -1345,15 +1368,19 @@ NVIDIA Management Library")
                   (when nsight-systems-version
                     (let ((prefix (string-append #$output "/nsight-systems-"
                                                  nsight-systems-version)))
-                      (maybe-link (string-append prefix "/target-linux-x64/nsys")
+                      (maybe-link (string-append prefix
+                                                 "/target-linux-x64/nsys")
                                   "nsys")
-                      (maybe-link (string-append prefix "/host-linux-x64/nsys-ui")
+                      (maybe-link (string-append prefix
+                                                 "/host-linux-x64/nsys-ui")
                                   "nsys-ui")
-                      (maybe-link (string-append prefix "/target-linux-x64/nsys")
+                      (maybe-link (string-append prefix
+                                                 "/target-linux-x64/nsys")
                                   "nsight-sys"))))
-                (let ((applications (string-append #$output "/share/applications"))
+                (let ((applications (string-append #$output
+                                                   "/share/applications"))
                       (icons (string-append #$output
-                                            "/share/icons/hicolor/256x256/apps")))
+                              "/share/icons/hicolor/256x256/apps")))
                   (mkdir-p applications)
                   (mkdir-p icons)
                   (define (install-icon source name)
@@ -1361,7 +1388,12 @@ NVIDIA Management Library")
                       (when (file-exists? source)
                         (false-if-exception (delete-file target))
                         (copy-file source target))))
-                  (define (install-desktop-entry file name exec icon comment wm-class)
+                  (define (install-desktop-entry file
+                                                 name
+                                                 exec
+                                                 icon
+                                                 comment
+                                                 wm-class)
                     (make-desktop-entry-file file
                                              #:name name
                                              #:type "Application"
@@ -1376,28 +1408,30 @@ NVIDIA Management Library")
                     (let* ((prefix (string-append #$output "/nsight-compute-"
                                                   nsight-compute-version))
                            (icon-source (string-append prefix
-                                                       "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui.png")))
+                                         "/host/linux-desktop-glibc_2_11_3-x64/ncu-ui.png")))
                       (install-icon icon-source "nsight-compute")
-                      (install-desktop-entry
-                       (string-append applications "/nsight-compute.desktop")
-                       "NVIDIA Nsight Compute"
-                       (string-append #$output "/bin/ncu-ui")
-                       "nsight-compute"
-                       "CUDA kernel profiler"
-                       "ncu-ui")))
+                      (install-desktop-entry (string-append applications
+                                              "/nsight-compute.desktop")
+                                             "NVIDIA Nsight Compute"
+                                             (string-append #$output
+                                                            "/bin/ncu-ui")
+                                             "nsight-compute"
+                                             "CUDA kernel profiler"
+                                             "ncu-ui")))
                   (when nsight-systems-version
                     (let* ((prefix (string-append #$output "/nsight-systems-"
                                                   nsight-systems-version))
                            (icon-source (string-append prefix
-                                                       "/host-linux-x64/nsys-ui.png")))
+                                         "/host-linux-x64/nsys-ui.png")))
                       (install-icon icon-source "nsight-systems")
-                      (install-desktop-entry
-                       (string-append applications "/nsight-systems.desktop")
-                       "NVIDIA Nsight Systems"
-                       (string-append #$output "/bin/nsys-ui")
-                       "nsight-systems"
-                       "System-wide CUDA profiler"
-                       "nsys-ui"))))
+                      (install-desktop-entry (string-append applications
+                                              "/nsight-systems.desktop")
+                                             "NVIDIA Nsight Systems"
+                                             (string-append #$output
+                                                            "/bin/nsys-ui")
+                                             "nsight-systems"
+                                             "System-wide CUDA profiler"
+                                             "nsys-ui"))))
                 (symlink (string-append #$output "/lib/stubs")
                          (string-append #$output "/lib64/stubs")))))
           (add-after 'install 'symlink-cicc
@@ -1425,58 +1459,69 @@ NVIDIA Management Library")
               ;; LD_LIBRARY_PATH set by profiles is not present and Nsight
               ;; Compute falls back to the stub libcuda shipped with the CUDA
               ;; toolkit, failing with:
-              ;;   "failed to connect to the CUDA driver (stub libcuda.so[.1])"
+              ;; "failed to connect to the CUDA driver (stub libcuda.so[.1])"
               ;;
               ;; Patch the launcher scripts to always include the system profile
               ;; driver library directory when present.
               (define (string-prefix? prefix str)
-                (and (<= (string-length prefix) (string-length str))
+                (and (<= (string-length prefix)
+                         (string-length str))
                      (string=? prefix
-                               (substring str 0 (string-length prefix)))))
+                               (substring str 0
+                                          (string-length prefix)))))
 
               (define (patch-nsight-script script)
                 (substitute* script
                   (("ARCH=\"\\$\\(uname -m\\)\"")
-	                   (string-append
-	                    "ARCH=\"$(uname -m)\"\n\n"
-	                    "# Ensure the NVIDIA driver libcuda is visible even when\n"
-	                    "# LD_LIBRARY_PATH is sanitized (e.g., under sudo).\n"
-	                    "for _guix_drv in /run/booted-system/profile/lib /run/current-system/profile/lib; do\n"
-	                    "    if [ -e \"${_guix_drv}/libcuda.so.1\" ]; then\n"
-	                    "        case \":${LD_LIBRARY_PATH-}:\" in\n"
-	                    "            *\":${_guix_drv}:\"*) ;;\n"
-	                    "            *) export LD_LIBRARY_PATH=\"${_guix_drv}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}\" ;;\n"
-	                    "        esac\n"
-	                    "        break\n"
-	                    "    fi\n"
-	                    "done\n"
-	                    "unset _guix_drv\n\n"
-	                    "# Ensure Guix Python packages remain visible even when\n"
-	                    "# GUIX_PYTHONPATH is sanitized (e.g., under sudo).\n"
-	                    "for _guix_py in /run/booted-system/profile/lib/python*/site-packages /run/current-system/profile/lib/python*/site-packages; do\n"
-	                    "    if [ -d \"${_guix_py}\" ]; then\n"
-	                    "        case \":${GUIX_PYTHONPATH-}:\" in\n"
-	                    "            *\":${_guix_py}:\"*) ;;\n"
-	                    "            *) export GUIX_PYTHONPATH=\"${_guix_py}${GUIX_PYTHONPATH:+:${GUIX_PYTHONPATH}}\" ;;\n"
-	                    "        esac\n"
-	                    "    fi\n"
-	                    "done\n"
-	                    "unset _guix_py\n"))))
+                   (string-append "ARCH=\"$(uname -m)\"\n\n"
+                    "# Ensure the NVIDIA driver libcuda is visible even when
+"
+                    "# LD_LIBRARY_PATH is sanitized (e.g., under sudo).
+"
+                    "for _guix_drv in /run/booted-system/profile/lib /run/current-system/profile/lib; do
+"
+                    "    if [ -e \"${_guix_drv}/libcuda.so.1\" ]; then
+"
+                    "        case \":${LD_LIBRARY_PATH-}:\" in\n"
+                    "            *\":${_guix_drv}:\"*) ;;\n"
+                    "            *) export LD_LIBRARY_PATH=\"${_guix_drv}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}\" ;;
+"
+                    "        esac\n"
+                    "        break\n"
+                    "    fi\n"
+                    "done\n"
+                    "unset _guix_drv\n\n"
+                    "# Ensure Guix Python packages remain visible even when
+"
+                    "# GUIX_PYTHONPATH is sanitized (e.g., under sudo).
+"
+                    "for _guix_py in /run/booted-system/profile/lib/python*/site-packages /run/current-system/profile/lib/python*/site-packages; do
+"
+                    "    if [ -d \"${_guix_py}\" ]; then\n"
+                    "        case \":${GUIX_PYTHONPATH-}:\" in\n"
+                    "            *\":${_guix_py}:\"*) ;;\n"
+                    "            *) export GUIX_PYTHONPATH=\"${_guix_py}${GUIX_PYTHONPATH:+:${GUIX_PYTHONPATH}}\" ;;
+"
+                    "        esac\n"
+                    "    fi\n"
+                    "done\n"
+                    "unset _guix_py\n"))))
 
-              (for-each
-               (lambda (entry)
-                 (when (string-prefix? "nsight-compute-" entry)
-                   (let ((prefix (string-append #$output "/" entry)))
-                     (for-each
-                      (lambda (name)
-                        (let ((script (string-append prefix "/" name)))
-                          (when (file-exists? script)
-                            (patch-nsight-script script))))
-                      '("ncu" "ncu-ui")))))
-               (scandir #$output
-                        (match-lambda
-                          ((or "." "..") #f)
-                          (_ #t))))))
+              (for-each (lambda (entry)
+                          (when (string-prefix? "nsight-compute-" entry)
+                            (let ((prefix (string-append #$output "/" entry)))
+                              (for-each (lambda (name)
+                                          (let ((script (string-append prefix
+                                                                       "/"
+                                                                       name)))
+                                            (when (file-exists? script)
+                                              (patch-nsight-script script))))
+                                        '("ncu" "ncu-ui")))))
+                        (scandir #$output
+                                 (match-lambda
+                                   ((or "." "..")
+                                    #f)
+                                   (_ #t))))))
 
           (add-after 'install 'install-cupti
             (lambda _
@@ -1652,7 +1697,7 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f ; No tests defined
+      #:tests? #f ;No tests defined
       #:modules '((guix build pyproject-build-system)
                   (guix build union)
                   (guix build utils))
@@ -1905,6 +1950,121 @@ like vLLM that import CUTLASS' Python tooling during their build.")
        (sha256
         (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))))
 
+(define-public python-cuda-python
+  (package
+    (name "python-cuda-python")
+    (version "12.6.2.post1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/4e/f4/9badcb1f59263365a2ce49b09b4a0bfa95c1c102a367c5601bcfe118cd96/cuda_python-12.6.2.post1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl")
+       (sha256
+        (base32 "186kfpwy32yg4c8ldzmbs0b8qb8zwz2xla8rdmd0546q9x3a6yyl"))
+       (file-name (string-append "cuda-python-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (rpath (string-append "$ORIGIN:"
+                                           (dirname ld.so) ":" gcc-lib "/lib")))
+                (for-each (lambda (file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (inputs (list (list "gcc:lib" gcc "lib")))
+    (native-inputs (list patchelf-0.16))
+    (home-page "https://github.com/NVIDIA/cuda-python")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "CUDA Python bindings")
+    (description
+     "This package provides the NVIDIA CUDA Python bindings, packaged from
+the pre-built wheels.")
+    (license (license:nonfree "https://docs.nvidia.com/cuda/cuda-python/"))))
+
+(define-public python-nvidia-cutlass-dsl
+  (package
+    (name "python-nvidia-cutlass-dsl")
+    (version "4.2.1")
+    (home-page "https://github.com/NVIDIA/cutlass")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/be/f3/20eacdf9876abd892668c191003edc5d7100e45fabfa027d9f3f99d21871/nvidia_cutlass_dsl-4.2.1-cp311-cp311-manylinux_2_28_x86_64.whl")
+       (sha256
+        (base32 "11l7fyghr7i5jas2jsb5p2c7jblgnyiny8pji9cwcg9x1dia6jl7"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (dsl-root (string-append site "/nvidia_cutlass_dsl"))
+                     (lib-dir (string-append dsl-root "/lib"))
+                     (mlir-dir (string-append dsl-root
+                                "/python_packages/cutlass/_mlir" "/_mlir_libs"))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (nvda (assoc-ref inputs "nvidia-driver"))
+                     (nvda-lib (and nvda
+                                    (string-append nvda "/lib")))
+                     (rpath-common (if nvda-lib
+                                       (string-append (dirname ld.so) ":"
+                                                      nvda-lib)
+                                       (dirname ld.so)))
+                     (lib-rpath (string-append "$ORIGIN:" rpath-common))
+                     (mlir-rpath (string-append
+                                  "$ORIGIN:$ORIGIN/../../../../lib:"
+                                  rpath-common)))
+                (define (patch dir rpath)
+                  (when (file-exists? dir)
+                    (for-each (lambda (file)
+                                (invoke "patchelf" "--set-rpath" rpath file))
+                              (find-files dir "\\.so$"))))
+                (patch lib-dir lib-rpath)
+                (patch mlir-dir mlir-rpath)))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list nvidia-driver))
+    (propagated-inputs (list python-cuda-python python-numpy))
+    (supported-systems '("x86_64-linux"))
+    (synopsis "NVIDIA CUTLASS Python DSL")
+    (description
+     "This package provides the NVIDIA CUTLASS Python DSL (CuTe DSL).
+It is installed from the pre-built PyPI wheel and includes proprietary
+runtime artifacts.")
+    (license (license:nonfree
+              "https://docs.nvidia.com/cutlass/index.html#license"))))
+
 (define-public nccl
   (package
     (name "nccl")
@@ -2092,8 +2252,8 @@ See also
        (uri (git-reference
              (url "https://github.com/NVIDIA/nvidia-modprobe")
              (commit version)))
-      (file-name (git-file-name name version))
-      (sha256
+       (file-name (git-file-name name version))
+       (sha256
         (base32 "0pmrj9m1jcl7bzj0r4pv1g59h0fdgg6nrc1rynawqqypprbr62ys"))))
     (build-system gnu-build-system)
     (arguments
@@ -2146,8 +2306,8 @@ See also
        (uri (git-reference
              (url "https://github.com/NVIDIA/NVTX")
              (commit (string-append "v" version))))
-      (file-name (git-file-name name version))
-      (sha256
+       (file-name (git-file-name name version))
+       (sha256
         (base32 "06rg63i21d9zybjz0nf2nlxmkr335v0ldyiz2w6xk77nhw4bq5sf"))))
     (build-system copy-build-system)
     (arguments
@@ -2167,7 +2327,6 @@ debugging CUDA applications with tools like NVIDIA Nsight Systems and NVIDIA
 Nsight Compute.")
     (license license-gnu:asl2.0)))
 
-
 ;;;
 ;;; Isaac Sim: Main Application (Standalone)
 ;;;
@@ -2180,10 +2339,10 @@ Nsight Compute.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://download.isaacsim.omniverse.nvidia.com/"
-             "isaac-sim-standalone-" version "-linux-x86_64.zip"))
-       (sha256 (base32 "17x8plwv2jm209zpimnxvxby5wim50f319fcphjz6wbf7d8wmr9x"))))
+       (uri (string-append "https://download.isaacsim.omniverse.nvidia.com/"
+                           "isaac-sim-standalone-" version "-linux-x86_64.zip"))
+       (sha256
+        (base32 "17x8plwv2jm209zpimnxvxby5wim50f319fcphjz6wbf7d8wmr9x"))))
     (build-system gnu-build-system)
     (native-inputs (list unzip which bash-minimal patchelf-0.16))
     (inputs (list nvda nvidia-driver egl-gbm egl-x11))
@@ -2207,7 +2366,7 @@ Nsight Compute.")
             (lambda* (#:key outputs inputs #:allow-other-keys)
               (let* ((out (assoc-ref outputs "out"))
                      (root (string-append out "/opt/isaac-sim"))
-                     (bin  (string-append out "/bin"))
+                     (bin (string-append out "/bin"))
                      (nvda (assoc-ref inputs "nvda"))
                      (nvda-lib (string-append nvda "/lib"))
                      (nvda-share (string-append nvda "/share")))
@@ -2215,20 +2374,44 @@ Nsight Compute.")
                 (define (write-wrapper target script)
                   (call-with-output-file target
                     (lambda (port)
-                      (display (string-append
-                                "#!" #$(file-append bash-minimal "/bin/bash") "\n"
+                      (display (string-append "#!"
+                                #$(file-append bash-minimal "/bin/bash")
+                                "\n"
                                 "set -euo pipefail\n"
-                                "export PATH=\"" #$(file-append nvidia-driver "/bin") ":$PATH\"\n"
-                                "export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=\"" nvda-share "/egl/egl_external_platform.d\"\n"
-                                "export __EGL_VENDOR_LIBRARY_DIRS=\"" nvda-share "/glvnd/egl_vendor.d\"\n"
-                                "export GBM_BACKENDS_PATH=\"" nvda-lib "/gbm\"\n"
-                                "export LIBVA_DRIVERS_PATH=\"" nvda-lib "/dri\"\n"
-                                "export VDPAU_DRIVER_PATH=\"" nvda-lib "/vdpau\"\n"
-                                "export XDG_DATA_DIRS=\"" nvda-share ":${XDG_DATA_DIRS:-}\"\n"
-                                "export LD_LIBRARY_PATH=\"" root "/kit/lib:" root "/kit/lib64:" nvda-lib ":${LD_LIBRARY_PATH:-}\"\n"
-                                "cd \"" root "\"\n"
-                                "exec ./" script " \"$@\"\n")
-                               port)))
+                                "export PATH=\""
+                                #$(file-append nvidia-driver "/bin")
+                                ":$PATH\"\n"
+                                "export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=\""
+                                nvda-share
+                                "/egl/egl_external_platform.d\"\n"
+                                "export __EGL_VENDOR_LIBRARY_DIRS=\""
+                                nvda-share
+                                "/glvnd/egl_vendor.d\"\n"
+                                "export GBM_BACKENDS_PATH=\""
+                                nvda-lib
+                                "/gbm\"\n"
+                                "export LIBVA_DRIVERS_PATH=\""
+                                nvda-lib
+                                "/dri\"\n"
+                                "export VDPAU_DRIVER_PATH=\""
+                                nvda-lib
+                                "/vdpau\"\n"
+                                "export XDG_DATA_DIRS=\""
+                                nvda-share
+                                ":${XDG_DATA_DIRS:-}\"\n"
+                                "export LD_LIBRARY_PATH=\""
+                                root
+                                "/kit/lib:"
+                                root
+                                "/kit/lib64:"
+                                nvda-lib
+                                ":${LD_LIBRARY_PATH:-}\"\n"
+                                "cd \""
+                                root
+                                "\"\n"
+                                "exec ./"
+                                script
+                                " \"$@\"\n") port)))
                   (chmod target #o755))
 
                 (mkdir-p root)
@@ -2240,40 +2423,42 @@ Nsight Compute.")
                               (when (file-exists? p)
                                 (make-file-writable p)
                                 (chmod p #o755))))
-                          '("isaac-sim.sh"
-                            "isaac-sim.selector.sh"
+                          '("isaac-sim.sh" "isaac-sim.selector.sh"
                             "isaac-sim.streaming.sh"))
 
                 (write-wrapper (string-append bin "/isaac-sim") "isaac-sim.sh")
-                (write-wrapper (string-append bin "/isaac-sim.selector") "isaac-sim.selector.sh")
-                (write-wrapper (string-append bin "/isaac-sim.streaming") "isaac-sim.streaming.sh"))))
+                (write-wrapper (string-append bin "/isaac-sim.selector")
+                               "isaac-sim.selector.sh")
+                (write-wrapper (string-append bin "/isaac-sim.streaming")
+                               "isaac-sim.streaming.sh"))))
           (add-after 'install 'patch-elf
             (lambda* (#:key outputs inputs #:allow-other-keys)
               (let* ((out (assoc-ref outputs "out"))
                      (root (string-append out "/opt/isaac-sim"))
-                     (ld.so (search-input-file inputs #$(glibc-dynamic-linker)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
                      (nvda (assoc-ref inputs "nvda"))
                      (nvda-lib (string-append nvda "/lib"))
                      (rpath (string-join (list (dirname ld.so)
                                                (string-append root "/kit/lib")
-                                               (string-append root "/kit/lib64")
-                                               nvda-lib)
-                                          ":")))
+                                               (string-append root
+                                                              "/kit/lib64")
+                                               nvda-lib) ":")))
                 (define (patch file)
                   (when (elf-file? file)
                     (format #t "Patching ~a ..." file)
                     (make-file-writable file)
                     ;; Set interpreter only for dynamically linked executables.
                     (when (and (not (string-contains file ".so"))
-                               (zero? (system* "patchelf" "--print-interpreter" file)))
+                               (zero? (system* "patchelf"
+                                               "--print-interpreter" file)))
                       (invoke "patchelf" "--set-interpreter" ld.so file))
                     ;; Set RPATH only when patchelf can query RPATH (dynamic binaries).
                     (when (zero? (system* "patchelf" "--print-rpath" file))
                       (invoke "patchelf" "--set-rpath" rpath file))
                     (display " done\n")))
-                (for-each patch (find-files root)))))
-          )
-      ))
+                (for-each patch
+                          (find-files root))))))))
     (home-page "https://developer.nvidia.com/isaac-sim")
     (synopsis "NVIDIA Isaac Sim (Standalone Workstation Build)")
     (description
@@ -2281,8 +2466,7 @@ Nsight Compute.")
 generation environment built on Omniverse Kit. This package installs the
 standalone workstation build and provides launch wrappers that integrate with
 the NVIDIA driver stack packaged in this channel (nvda).")
-    (license (license:nonfree
-              "https://developer.nvidia.com/omniverse/eula"))))
+    (license (license:nonfree "https://developer.nvidia.com/omniverse/eula"))))
 
 ;;;
 ;;; Isaac Sim: WebRTC Streaming Client (AppImage)
@@ -2296,10 +2480,11 @@ the NVIDIA driver stack packaged in this channel (nvda).")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://download.isaacsim.omniverse.nvidia.com/"
-             "isaacsim-webrtc-streaming-client-" version "-linux-x64.AppImage"))
-       (sha256 (base32 "0hdbf233f956afykw47gma3gjcqhkb4sw3xc40as8z1fyqjy0vx5"))))
+       (uri (string-append "https://download.isaacsim.omniverse.nvidia.com/"
+                           "isaacsim-webrtc-streaming-client-" version
+                           "-linux-x64.AppImage"))
+       (sha256
+        (base32 "0hdbf233f956afykw47gma3gjcqhkb4sw3xc40as8z1fyqjy0vx5"))))
     (build-system gnu-build-system)
     (native-inputs (list bash-minimal patchelf-0.16))
     (inputs `(("zlib" ,zlib)
@@ -2319,11 +2504,13 @@ the NVIDIA driver stack packaged in this channel (nvda).")
           (delete 'configure)
           (replace 'build
             (lambda* (#:key inputs #:allow-other-keys)
-              (let* ((ld.so (search-input-file inputs #$(glibc-dynamic-linker)))
+              (let* ((ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
                      (zlib (assoc-ref inputs "zlib"))
                      (gcc-lib (assoc-ref inputs "gcc:lib"))
                      (ldpath (string-join (list (string-append zlib "/lib")
-                                               (string-append gcc-lib "/lib")) ":")))
+                                                (string-append gcc-lib "/lib"))
+                                          ":")))
                 (chmod "client.AppImage" #o755)
                 (invoke "patchelf" "--set-interpreter" ld.so "client.AppImage")
                 (setenv "LD_LIBRARY_PATH" ldpath)
@@ -2336,26 +2523,33 @@ the NVIDIA driver stack packaged in this channel (nvda).")
                 (mkdir-p opt)
                 (mkdir-p bin)
                 (copy-recursively "squashfs-root" opt)
-                (call-with-output-file (string-append bin "/isaac-sim-webrtc-client")
+                (call-with-output-file (string-append bin
+                                        "/isaac-sim-webrtc-client")
                   (lambda (port)
-                    (display (string-append
-                              "#!" #$(file-append bash-minimal "/bin/bash") "\n"
-                              "set -euo pipefail\n"
-                              "cd \"" opt "\"\n"
-                              "exec ./AppRun \"$@\"\n") port)))
+                    (display (string-append "#!"
+                                            #$(file-append bash-minimal
+                                                           "/bin/bash")
+                                            "\n"
+                                            "set -euo pipefail\n"
+                                            "cd \""
+                                            opt
+                                            "\"\n"
+                                            "exec ./AppRun \"$@\"\n") port)))
                 (chmod (string-append bin "/isaac-sim-webrtc-client") #o755))))
           (add-after 'install 'patch-elf
             (lambda* (#:key outputs inputs #:allow-other-keys)
               (let* ((out (assoc-ref outputs "out"))
                      (root (string-append out "/opt/isaac-sim-webrtc-client"))
-                     (ld.so (search-input-file inputs #$(glibc-dynamic-linker)))
-                     (rpath (string-join
-                             '("$ORIGIN"
-                               "$ORIGIN/lib" "$ORIGIN/lib64"
-                               "$ORIGIN/../lib" "$ORIGIN/../lib64"
-                               "$ORIGIN/usr/lib" "$ORIGIN/usr/lib64"
-                               "$ORIGIN/../usr/lib" "$ORIGIN/../usr/lib64")
-                             ":")))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (rpath (string-join '("$ORIGIN" "$ORIGIN/lib"
+                                           "$ORIGIN/lib64"
+                                           "$ORIGIN/../lib"
+                                           "$ORIGIN/../lib64"
+                                           "$ORIGIN/usr/lib"
+                                           "$ORIGIN/usr/lib64"
+                                           "$ORIGIN/../usr/lib"
+                                           "$ORIGIN/../usr/lib64") ":")))
                 (define (patch file)
                   (when (elf-file? file)
                     (format #t "Patching ~a ..." file)
@@ -2363,17 +2557,15 @@ the NVIDIA driver stack packaged in this channel (nvda).")
                       (invoke "patchelf" "--set-interpreter" ld.so file))
                     (invoke "patchelf" "--set-rpath" rpath file)
                     (display " done\n")))
-                (for-each patch (find-files root)))))
-          )
-      ))
+                (for-each patch
+                          (find-files root))))))))
     (home-page "https://developer.nvidia.com/isaac-sim")
     (synopsis "NVIDIA Isaac Sim WebRTC Streaming Client")
     (description
      "A desktop client to view Isaac Sim remotely over WebRTC without requiring
 local high-end GPU resources. This package extracts the AppImage at build time
 and provides a wrapper executable.")
-    (license (license:nonfree
-              "https://developer.nvidia.com/omniverse/eula"))))
+    (license (license:nonfree "https://developer.nvidia.com/omniverse/eula"))))
 
 ;;;
 ;;; Isaac Sim: Compatibility Checker
@@ -2387,9 +2579,8 @@ and provides a wrapper executable.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://download.isaacsim.omniverse.nvidia.com/"
-             "isaac-sim-comp-check-" version "-linux-x86_64.zip"))
+       (uri (string-append "https://download.isaacsim.omniverse.nvidia.com/"
+                           "isaac-sim-comp-check-" version "-linux-x86_64.zip"))
        (sha256
         (base32 "1w7v7d9yhv93n2l3lfqbhfrjdyzaxfz2vrfjpqysxz28lvw61l8s"))))
     (build-system gnu-build-system)
@@ -2418,8 +2609,8 @@ and provides a wrapper executable.")
                 (mkdir-p opt)
                 (copy-recursively "." opt)
                 (let* ((script (car (or (find-files opt
-                                                    "omni\\.isaac\\.sim\\.compatibility_check\\.sh$")
-                                         '()))))
+                                         "omni\\.isaac\\.sim\\.compatibility_check\\.sh$")
+                                        '()))))
                   (when script
                     (make-file-writable script)
                     (chmod script #o755)
@@ -2427,24 +2618,32 @@ and provides a wrapper executable.")
                            (sdir (dirname script))
                            (sbase (basename script)))
                       (mkdir-p bin)
-                      (call-with-output-file (string-append bin 
-                                                            "/isaac-sim-compat-check")
+                      (call-with-output-file (string-append bin
+                                              "/isaac-sim-compat-check")
                         (lambda (port)
-                          (display (string-append
-                                    "#!" #$(file-append bash-minimal "/bin/bash") "\n"
-                                    "set -euo pipefail\n"
-                                    "export PATH=\"" #$(file-append nvidia-driver "/bin") ":$PATH\"\n"
-                                    "cd \"" sdir "\"\n"
-                                    "exec ./" sbase " \"$@\"\n")
-                                   port)))
-                      (chmod (string-append bin "/isaac-sim-compat-check") #o755))))))))))
+                          (display (string-append "#!"
+                                                  #$(file-append bash-minimal
+                                                                 "/bin/bash")
+                                                  "\n"
+                                                  "set -euo pipefail\n"
+                                                  "export PATH=\""
+                                                  #$(file-append nvidia-driver
+                                                     "/bin")
+                                                  ":$PATH\"\n"
+                                                  "cd \""
+                                                  sdir
+                                                  "\"\n"
+                                                  "exec ./"
+                                                  sbase
+                                                  " \"$@\"\n") port)))
+                      (chmod (string-append bin "/isaac-sim-compat-check")
+                             #o755))))))))))
     (home-page "https://developer.nvidia.com/isaac-sim")
     (synopsis "NVIDIA Isaac Sim Compatibility Checker")
     (description
      "Lightweight tool to validate system requirements for running NVIDIA Isaac
 Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
-    (license (license:nonfree
-              "https://developer.nvidia.com/omniverse/eula"))))
+    (license (license:nonfree "https://developer.nvidia.com/omniverse/eula"))))
 
 ;;;
 ;;; Isaac Sim: Asset Packs
@@ -2458,10 +2657,11 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://download.isaacsim.omniverse.nvidia.com/"
-             "isaac-sim-assets-robots_and_sensors-" version ".zip"))
-       (sha256 (base32 "0ah0dld58zkpawnilsgjgqblym60d02nf3vc19xa2nzmd4d1xrpl"))))
+       (uri (string-append "https://download.isaacsim.omniverse.nvidia.com/"
+                           "isaac-sim-assets-robots_and_sensors-" version
+                           ".zip"))
+       (sha256
+        (base32 "0ah0dld58zkpawnilsgjgqblym60d02nf3vc19xa2nzmd4d1xrpl"))))
     (build-system gnu-build-system)
     (native-inputs (list unzip))
     (arguments
@@ -2480,15 +2680,14 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
           (replace 'install
             (lambda* (#:key outputs #:allow-other-keys)
               (let* ((out (assoc-ref outputs "out"))
-                     (dest (string-append out "/share/isaac-sim/assets/robots_and_sensors")))
+                     (dest (string-append out
+                            "/share/isaac-sim/assets/robots_and_sensors")))
                 (mkdir-p dest)
                 (copy-recursively "." dest)))))))
     (home-page "https://developer.nvidia.com/isaac-sim")
     (synopsis "Isaac Sim asset pack: Robots and Sensors")
-    (description
-     "Robots and Sensors asset pack for NVIDIA Isaac Sim.")
-    (license (license:nonfree
-              "https://developer.nvidia.com/omniverse/eula"))))
+    (description "Robots and Sensors asset pack for NVIDIA Isaac Sim.")
+    (license (license:nonfree "https://developer.nvidia.com/omniverse/eula"))))
 
 (define-public isaac-sim-assets-materials-props
   (package
@@ -2498,10 +2697,11 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://download.isaacsim.omniverse.nvidia.com/"
-             "isaac-sim-assets-materials_and_props-" version ".zip"))
-       (sha256 (base32 "0qrq598cdiv5adqsq0pmcj4r04z6miwa2hpgy3k52vxcc9ffxzwn"))))
+       (uri (string-append "https://download.isaacsim.omniverse.nvidia.com/"
+                           "isaac-sim-assets-materials_and_props-" version
+                           ".zip"))
+       (sha256
+        (base32 "0qrq598cdiv5adqsq0pmcj4r04z6miwa2hpgy3k52vxcc9ffxzwn"))))
     (build-system gnu-build-system)
     (native-inputs (list unzip))
     (arguments
@@ -2520,15 +2720,14 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
           (replace 'install
             (lambda* (#:key outputs #:allow-other-keys)
               (let* ((out (assoc-ref outputs "out"))
-                     (dest (string-append out "/share/isaac-sim/assets/materials_and_props")))
+                     (dest (string-append out
+                            "/share/isaac-sim/assets/materials_and_props")))
                 (mkdir-p dest)
                 (copy-recursively "." dest)))))))
     (home-page "https://developer.nvidia.com/isaac-sim")
     (synopsis "Isaac Sim asset pack: Materials and Props")
-    (description
-     "Materials and Props asset pack for NVIDIA Isaac Sim.")
-    (license (license:nonfree
-              "https://developer.nvidia.com/omniverse/eula"))))
+    (description "Materials and Props asset pack for NVIDIA Isaac Sim.")
+    (license (license:nonfree "https://developer.nvidia.com/omniverse/eula"))))
 
 (define-public isaac-sim-assets-environments
   (package
@@ -2538,10 +2737,10 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://download.isaacsim.omniverse.nvidia.com/"
-             "isaac-sim-assets-environments-" version ".zip"))
-       (sha256 (base32 "0mwn9bawkri0rvm6w4nkbpnzzagzb3b7q1dssfhza8yk7rrcp40p"))))
+       (uri (string-append "https://download.isaacsim.omniverse.nvidia.com/"
+                           "isaac-sim-assets-environments-" version ".zip"))
+       (sha256
+        (base32 "0mwn9bawkri0rvm6w4nkbpnzzagzb3b7q1dssfhza8yk7rrcp40p"))))
     (build-system gnu-build-system)
     (native-inputs (list unzip))
     (arguments
@@ -2560,12 +2759,11 @@ Sim, including GPU/driver, CPU, RAM, storage, OS and a minimal Kit test.")
           (replace 'install
             (lambda* (#:key outputs #:allow-other-keys)
               (let* ((out (assoc-ref outputs "out"))
-                     (dest (string-append out "/share/isaac-sim/assets/environments")))
+                     (dest (string-append out
+                            "/share/isaac-sim/assets/environments")))
                 (mkdir-p dest)
                 (copy-recursively "." dest)))))))
     (home-page "https://developer.nvidia.com/isaac-sim")
     (synopsis "Isaac Sim asset pack: Environments")
-    (description
-     "Environments asset pack for NVIDIA Isaac Sim.")
-    (license (license:nonfree
-              "https://developer.nvidia.com/omniverse/eula"))))
+    (description "Environments asset pack for NVIDIA Isaac Sim.")
+    (license (license:nonfree "https://developer.nvidia.com/omniverse/eula"))))
