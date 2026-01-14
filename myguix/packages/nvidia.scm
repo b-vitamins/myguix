@@ -2001,15 +2001,15 @@ the pre-built wheels.")
 (define-public python-nvidia-cutlass-dsl
   (package
     (name "python-nvidia-cutlass-dsl")
-    (version "4.2.1")
+    (version "4.3.5")
     (home-page "https://github.com/NVIDIA/cutlass")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/be/f3/20eacdf9876abd892668c191003edc5d7100e45fabfa027d9f3f99d21871/nvidia_cutlass_dsl-4.2.1-cp311-cp311-manylinux_2_28_x86_64.whl")
+        "https://files.pythonhosted.org/packages/54/b5/d2f08919a9aa9052d45b2c8adfc310a724e9474e39c612358b1b24282c54/nvidia_cutlass_dsl-4.3.5-cp311-cp311-manylinux_2_28_x86_64.whl")
        (sha256
-        (base32 "11l7fyghr7i5jas2jsb5p2c7jblgnyiny8pji9cwcg9x1dia6jl7"))
+        (base32 "1xnslqjhniymd36zjzvcrg6c2kmcnk6sf4zk7ld333slrq12yybs"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
