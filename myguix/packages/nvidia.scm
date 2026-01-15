@@ -2109,6 +2109,39 @@ wheel.")
 Tile programming model, installed from the pre-built wheel.")
     (license license-gnu:asl2.0)))
 
+(define-public python-nvtx
+  (package
+    (name "python-nvtx")
+    (version "0.2.14")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/94/06/3ab72e5a463af1b95934638cb8377e99f58e5ef21a47cbf69b92267d6602/nvtx-0.2.14-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl")
+       (sha256
+        (base32 "0zq1qv5r6bfwhnf2i5115xjj18f8x54jr98gvnmx0ajfn9sslr06"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist"))))))
+    (home-page "https://github.com/NVIDIA/NVTX")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Python bindings for NVTX")
+    (description
+     "This package provides the @code{nvtx} Python bindings, installed from the
+pre-built wheel.")
+    (license license-gnu:asl2.0)))
+
 (define-public python-cuda-pathfinder
   (package
     (name "python-cuda-pathfinder")
