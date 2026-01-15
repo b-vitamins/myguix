@@ -1950,6 +1950,40 @@ like vLLM that import CUTLASS' Python tooling during their build.")
        (sha256
         (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))))
 
+(define-public python-cuda-pathfinder
+  (package
+    (name "python-cuda-pathfinder")
+    (version "1.3.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/0b/02/4dbe7568a42e46582248942f54dc64ad094769532adbe21e525e4edf7bc4/cuda_pathfinder-1.3.3-py3-none-any.whl")
+       (sha256
+        (base32 "1cdvv42vxm1pb95fy6hyxa063zaxfzl1nxsajlsc3xq4wijbd14r"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; The wheel is the source; just place it where the installer expects it.
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist"))))))
+    (home-page "https://github.com/NVIDIA/cuda-python")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Pathfinder for CUDA Python components")
+    (description
+     "This package provides @code{cuda.pathfinder}, utilities for locating CUDA
+components installed in the user's Python environment.")
+    (license license-gnu:asl2.0)))
+
 (define-public python-cuda-python
   (package
     (name "python-cuda-python")
