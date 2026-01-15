@@ -1950,6 +1950,76 @@ like vLLM that import CUTLASS' Python tooling during their build.")
        (sha256
         (base32 "0i8h7hfa7ixlhk58p7cyam6l7zzbsir6jm6zv3vfjc6cbp8bqlzk"))))))
 
+(define-public python-cuda-core
+  (package
+    (name "python-cuda-core")
+    ;; Keep this version aligned with the consumers currently packaged in this
+    ;; channel (e.g. nvmath-python requires cuda-core < 0.4).
+    (version "0.3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/f0/dd/026e79e69f5e6ec2f9f06bc66cc7519f4014bd06e9454e5d0718d646d863/cuda_core-0.3.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
+       (sha256
+        (base32 "0jk3r90rnnpifjvjskxwsiiax7dagv7mcvam6vf0vq05963rqcwx"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; The wheel is the source; just place it where the installer expects it.
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (cuda (assoc-ref inputs "cuda-toolkit"))
+                     (cuda-lib64 (string-append cuda "/lib64"))
+                     (nvda (assoc-ref inputs "nvidia-driver"))
+                     (nvda-lib (and nvda
+                                    (string-append nvda "/lib")))
+                     (rpath-common (string-append (dirname ld.so)
+                                                  ":"
+                                                  cuda-lib64
+                                                  ":"
+                                                  nvda-lib
+                                                  ":"
+                                                  gcc-lib
+                                                  "/lib"))
+                     (rpath (string-append
+                             "$ORIGIN:$ORIGIN/..:$ORIGIN/_internal:$ORIGIN/../_internal:"
+                             rpath-common)))
+                (for-each (lambda (file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list (list "cuda-toolkit" cuda-toolkit)
+                  (list "nvidia-driver" nvidia-driver)
+                  (list "gcc:lib" gcc "lib")))
+    (propagated-inputs (list python-cuda-bindings python-cuda-pathfinder
+                             python-numpy))
+    (home-page "https://github.com/NVIDIA/cuda-python")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Pythonic access to core CUDA functionality")
+    (description
+     "This package provides @code{cuda.core}, a Pythonic interface to the CUDA
+Driver, Runtime and related core functionality, packaged from the pre-built
+wheel.")
+    (license license-gnu:asl2.0)))
+
 (define-public python-cuda-pathfinder
   (package
     (name "python-cuda-pathfinder")
