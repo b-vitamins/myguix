@@ -1984,6 +1984,73 @@ like vLLM that import CUTLASS' Python tooling during their build.")
 components installed in the user's Python environment.")
     (license license-gnu:asl2.0)))
 
+(define-public python-cuda-bindings
+  (package
+    (name "python-cuda-bindings")
+    (version "13.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/17/af/710403f76f2d608d483d87089465e1f666351641dbd73d19bd025e652bad/cuda_bindings-13.1.1-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
+       (sha256
+        (base32 "10pxbrhpg3vbdz39c7nq5cn74fg12nb8ck6xb5qz0mxj0fdzcj4k"))
+       (file-name (string-append "cuda-bindings-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; The wheel is the source; just place it where the installer expects it.
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (nvda (assoc-ref inputs "nvidia-driver"))
+                     (nvda-lib (and nvda
+                                    (string-append nvda "/lib")))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     ;; NOTE: cuda-bindings resolves CUDA libraries at runtime via
+                     ;; dlopen, so include CUDA driver libs in RUNPATH when present.
+                     (rpath-common (if nvda-lib
+                                       (string-append (dirname ld.so)
+                                                      ":"
+                                                      nvda-lib
+                                                      ":"
+                                                      gcc-lib
+                                                      "/lib")
+                                       (string-append (dirname ld.so) ":"
+                                                      gcc-lib "/lib")))
+                     (rpath (string-append
+                             "$ORIGIN:$ORIGIN/..:$ORIGIN/_internal:$ORIGIN/_bindings:"
+                             "$ORIGIN/../_internal:$ORIGIN/../_bindings:"
+                             rpath-common)))
+                (for-each (lambda (file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list (list "nvidia-driver" nvidia-driver)
+                  (list "gcc:lib" gcc "lib")))
+    (propagated-inputs (list python-cuda-pathfinder))
+    (home-page "https://github.com/NVIDIA/cuda-python")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Low-level CUDA C API bindings for Python")
+    (description
+     "This package provides @code{cuda.bindings}, low-level Python bindings to
+the CUDA Driver, Runtime, NVRTC, nvJitLink, NVVM and other CUDA APIs.")
+    (license (license:nonfree "https://docs.nvidia.com/cuda/cuda-python/"))))
+
 (define-public python-cuda-python
   (package
     (name "python-cuda-python")
