@@ -2262,6 +2262,69 @@ wheel.")
 kernel profiling and performance analysis across multiple configurations.")
     (license license-gnu:asl2.0)))
 
+(define-public python-cupti-python
+  (package
+    (name "python-cupti-python")
+    (version "13.0.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/78/39/fc8bcd90dce4e6d3e228df1914d640dfe2ffa3559078d6beb0f9b4c23e5e/cupti_python-13.0.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl")
+       (sha256
+        (base32 "0wmfw5yn9idfypsibsx0avn8qbmc4xg747j14sscz0cg3x957z8k"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (cuda (assoc-ref inputs "cuda-toolkit"))
+                     (cuda-lib64 (string-append cuda "/lib64"))
+                     (nvda (assoc-ref inputs "nvidia-driver"))
+                     (nvda-lib (and nvda
+                                    (string-append nvda "/lib")))
+                     (rpath (string-append "$ORIGIN:$ORIGIN/..:"
+                                           (dirname ld.so)
+                                           ":"
+                                           cuda-lib64
+                                           ":"
+                                           nvda-lib
+                                           ":"
+                                           gcc-lib
+                                           "/lib")))
+                (for-each (lambda (file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list (list "cuda-toolkit" cuda-toolkit)
+                  (list "nvidia-driver" nvidia-driver)
+                  (list "gcc:lib" gcc "lib")))
+    (propagated-inputs (list python-cuda-bindings python-numpy))
+    (home-page "https://docs.nvidia.com/cupti-python/")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Python bindings for the CUDA Profiling Tools Interface")
+    (description
+     "This package provides Python APIs for NVIDIA CUPTI (CUDA Profiling Tools
+Interface), installed from the pre-built wheel.")
+    (license (license:nonfree "https://docs.nvidia.com/cupti-python/"))))
+
 (define-public python-cuda-pathfinder
   (package
     (name "python-cuda-pathfinder")
