@@ -1953,14 +1953,14 @@ like vLLM that import CUTLASS' Python tooling during their build.")
 (define-public python-cuda-python
   (package
     (name "python-cuda-python")
-    (version "12.6.2.post1")
+    (version "13.1.1")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/4e/f4/9badcb1f59263365a2ce49b09b4a0bfa95c1c102a367c5601bcfe118cd96/cuda_python-12.6.2.post1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl")
+        "https://files.pythonhosted.org/packages/cd/08/b5e3b9822662d72d540d830531e3ab6a7cabbda3dd56175696aabccfeb76/cuda_python-13.1.1-py3-none-any.whl")
        (sha256
-        (base32 "186kfpwy32yg4c8ldzmbs0b8qb8zwz2xla8rdmd0546q9x3a6yyl"))
+        (base32 "1nahf17vxsfi5bx2i4vkd0b5m520i2i9fmslvll3srw2ckzc8k4l"))
        (file-name (string-append "cuda-python-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
