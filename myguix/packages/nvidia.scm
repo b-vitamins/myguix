@@ -2222,6 +2222,46 @@ and processing NVIDIA Nsight Compute reports, installed from the pre-built
 wheel.")
     (license (license:nonfree "https://developer.nvidia.com/nsight-compute"))))
 
+(define-public python-nsight-python
+  (package
+    (name "python-nsight-python")
+    (version "0.9.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/83/ad/7fc6b4d3f0e9f66e2f4f674fbfc723065e871ae11d3b62517ace5a6db659/nsight_python-0.9.5-py3-none-any.whl")
+       (sha256
+        (base32 "0a2py7rjhalm38c962m8sg957rzczsygx2b3wn24nqzp9d2a3jn2"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist"))))))
+    (propagated-inputs (list python-cuda-core
+                             python-matplotlib
+                             python-ncu-report
+                             python-numpy
+                             python-nvidia-ml-py
+                             python-nvtx
+                             python-pandas))
+    (home-page "https://docs.nvidia.com/nsight-python/index.html")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Python kernel profiling interface for NVIDIA Nsight tools")
+    (description
+     "This package provides NVIDIA's Nsight Python interface, which automates
+kernel profiling and performance analysis across multiple configurations.")
+    (license license-gnu:asl2.0)))
+
 (define-public python-cuda-pathfinder
   (package
     (name "python-cuda-pathfinder")
