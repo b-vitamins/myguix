@@ -2020,6 +2020,95 @@ Driver, Runtime and related core functionality, packaged from the pre-built
 wheel.")
     (license license-gnu:asl2.0)))
 
+(define-public python-cuda-tile
+  (package
+    (name "python-cuda-tile")
+    (version "1.0.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/a0/f2/60433698e461f226772bbb39769cbb30803dc2d640009b8d4be92c1393ff/cuda_tile-1.0.1-cp311-cp311-manylinux2014_x86_64.whl")
+       (sha256
+        (base32 "1w95lf38iqj241i83bpinhksdi1gqxx07xaihrd69j8ah6qwh4vi"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-libcuda-loader
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (loader (string-append site "/cuda/tile/_load_libcuda.py"))
+                     (nvda (assoc-ref inputs "nvidia-driver"))
+                     (libcuda (string-append nvda "/lib/libcuda.so.1")))
+                ;; cuda.tile eagerly loads libcuda via ctypes.  Under sanitized
+                ;; environments (e.g. `guix shell --pure`), libcuda is not
+                ;; discoverable by name unless the driver package is in the
+                ;; profile.  Prefer the system search path, but fall back to
+                ;; the libcuda shipped with the driver input.
+                (when (file-exists? loader)
+                  (substitute* loader
+                    (("^    _dll = CDLL\\(\"libcuda\\.so\\.1\"\\)$")
+                     (string-append "    try:\n"
+                                    "        _dll = CDLL(\"libcuda.so.1\")\n"
+                                    "    except OSError:\n"
+                                    "        _dll = CDLL(\""
+                                    libcuda
+                                    "\")")))))))
+          (add-after 'patch-libcuda-loader 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (python (assoc-ref inputs "python:lib"))
+                     (python-lib (string-append python "/lib"))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (cuda (assoc-ref inputs "cuda-toolkit"))
+                     (cuda-lib64 (string-append cuda "/lib64"))
+                     (nvda (assoc-ref inputs "nvidia-driver"))
+                     (nvda-lib (and nvda
+                                    (string-append nvda "/lib")))
+                     (rpath-common (string-append (dirname ld.so)
+                                                  ":"
+                                                  python-lib
+                                                  ":"
+                                                  cuda-lib64
+                                                  ":"
+                                                  nvda-lib
+                                                  ":"
+                                                  gcc-lib
+                                                  "/lib"))
+                     (rpath (string-append "$ORIGIN:$ORIGIN/..:" rpath-common)))
+                (for-each (lambda (file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list (list "python:lib" python)
+                  (list "cuda-toolkit" cuda-toolkit)
+                  (list "gcc:lib" gcc "lib")))
+    (propagated-inputs (list python-typing-extensions nvidia-driver))
+    (home-page "https://docs.nvidia.com/cuda/cutile-python/")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "CUDA Tile programming model for Python")
+    (description
+     "This package provides @code{cuda.tile}, a Python DSL exposing the CUDA
+Tile programming model, installed from the pre-built wheel.")
+    (license license-gnu:asl2.0)))
+
 (define-public python-cuda-pathfinder
   (package
     (name "python-cuda-pathfinder")
