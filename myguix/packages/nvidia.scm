@@ -2142,6 +2142,86 @@ Tile programming model, installed from the pre-built wheel.")
 pre-built wheel.")
     (license license-gnu:asl2.0)))
 
+(define-public python-ncu-report
+  (package
+    (name "python-ncu-report")
+    (version "2025.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/ab/cc/c6c6962ef799168571ef816e46662a31f0d39b4db4f79ab52d375dd975ac/ncu_report-2025.3.1-cp37-abi3-manylinux_2_25_x86_64.whl")
+       (sha256
+        (base32 "0yjr488c696z4aba0pzywa9pndlinn10rz5yrm38wrajhxi9hm3n"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let ((site-dir (site-packages inputs outputs)))
+                (define (extract file)
+                  (invoke "python"
+                          "-m"
+                          "zipfile"
+                          "-e"
+                          file
+                          site-dir))
+
+                (let* ((wheel-dir (or (assoc-ref outputs "wheel") "dist"))
+                       (wheels (find-files wheel-dir "\\.whl$")))
+                  (when (null? wheels)
+                    (error "no wheels found in" wheel-dir))
+                  (when (> (length wheels) 1)
+                    (error "multiple wheels are not supported" wheels))
+                  (for-each extract wheels))
+
+                (for-each (lambda (directory)
+                            (let ((purelib (string-append directory "/purelib"))
+                                  (platlib (string-append directory "/platlib")))
+                              (when (file-exists? purelib)
+                                (copy-recursively purelib site-dir)
+                                (delete-file-recursively purelib))
+                              (when (file-exists? platlib)
+                                (copy-recursively platlib site-dir)
+                                (delete-file-recursively platlib))
+                              (delete-file-recursively directory)))
+                          (find-files site-dir "\\.data$"
+                                      #:directories? #t)))))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (rpath (string-append "$ORIGIN:"
+                                           (dirname ld.so) ":" gcc-lib "/lib")))
+                (for-each (lambda (file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list (list "gcc:lib" gcc "lib")))
+    (home-page "https://developer.nvidia.com/nsight-compute")
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Nsight Compute report parsing library")
+    (description
+     "This package provides @code{ncu_report}, a Python interface for reading
+and processing NVIDIA Nsight Compute reports, installed from the pre-built
+wheel.")
+    (license (license:nonfree "https://developer.nvidia.com/nsight-compute"))))
+
 (define-public python-cuda-pathfinder
   (package
     (name "python-cuda-pathfinder")
