@@ -1060,22 +1060,28 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
     (version "1.2.0")
     (source
      (origin
-       (method url-fetch)
-       (uri (pypi-uri "nvidia-htop" version))
+       (method git-fetch)
+       (uri (git-reference
+              (url "https://github.com/peci1/nvidia-htop")
+              (commit version)))
+       (file-name (git-file-name name version))
        (sha256
-        (base32 "1a70gwapcmkpln279rmhb2y2f7j7y8z9ax3y1yx8bjaahh75svhh"))))
-    (build-system python-build-system)
+        (base32 "1d5cd4cp7swq5np8b9ryibhg2zpfwzh2dzbsvsrp0gx33krxjvyj"))))
+    (build-system pyproject-build-system)
     (arguments
-     (list
-      #:tests? #f
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'unpack 'fix-libnvidia
-            (lambda _
-              (substitute* "nvidia-htop.py"
-                (("nvidia-smi")
-                 (string-append #$(this-package-input "nvidia-driver")
-                                "/bin/nvidia-smi"))))))))
+     (list #:phases #~(modify-phases %standard-phases
+                        (replace 'check
+                          (lambda args
+                            (with-directory-excursion "test"
+                              (apply (assoc-ref %standard-phases 'check) args))))
+                        (add-after 'unpack 'fix-libnvidia
+                          (lambda _
+                            (substitute* "nvidia-htop.py"
+                              (("nvidia-smi")
+                               (string-append #$(this-package-input
+                                                 "nvidia-driver")
+                                              "/bin/nvidia-smi"))))))))
+    (native-inputs (list python-pytest python-setuptools))
     (inputs (list nvidia-driver))
     (propagated-inputs (list python-termcolor))
     (home-page "https://github.com/peci1/nvidia-htop")
