@@ -1128,6 +1128,41 @@ nvidia-smi.")
      "This package provides a task manager for Nvidia graphics cards.")
     (license license-gnu:expat)))
 
+(define-public gpustat
+  (package
+    (name "gpustat")
+    (version "1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+              (url "https://github.com/wookayin/gpustat")
+              (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0d1ln9wrb4ij0yl3fz03vyby598y5hwlxbvcjw33pnndg8hvwi2v"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list #:phases
+           #~(modify-phases %standard-phases
+               (add-after 'unpack 'set-version
+                 (lambda _
+                   (setenv "SETUPTOOLS_SCM_PRETEND_VERSION"
+                           #$(package-version this-package)))))))
+    (propagated-inputs
+     (list python-blessed python-nvidia-ml-py python-psutil))
+    (native-inputs
+     (list python-mockito
+           python-pytest
+           python-setuptools
+           python-setuptools-scm))
+    (home-page "https://github.com/wookayin/gpustat")
+    (synopsis "Utility to monitor NVIDIA GPU status and usage")
+    (description
+     "This package provides a command-line utility for reporting NVIDIA GPU
+status and usage.")
+    (license license-gnu:expat)))
+
 (define-public python-nvidia-ml-py
   (package
     (name "python-nvidia-ml-py")
