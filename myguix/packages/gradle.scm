@@ -43,7 +43,7 @@
                         ,(dirname
                           (search-input-file inputs "bin/uname"))
                         ,(dirname
-                          (search-input-file inputs "/bin/xargs")))))))))))
+                          (search-input-file inputs "/bin/xargs"))))))))))
     (native-inputs (list unzip))
     (inputs (list coreutils findutils `(,openjdk "jdk") sed))
     (home-page "https://gradle.org/")
