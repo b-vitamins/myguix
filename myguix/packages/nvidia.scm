@@ -1138,10 +1138,10 @@ nvidia-smi.")
        (uri (pypi-uri "nvidia_ml_py" version))
        (sha256
         (base32 "1jd3yqa6542a1ad3arcy8g73cnqmqb3g1x8w04kqfrfkqw1qpwbv"))))
-    (build-system python-build-system)
+    (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f
+      #:tests? #f                  ;No tests in PyPi archive.
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'unpack 'fix-libnvidia
@@ -1150,6 +1150,7 @@ nvidia-smi.")
                 (("libnvidia-ml.so.1")
                  (string-append #$(this-package-input "nvidia-driver")
                                 "/lib/libnvidia-ml.so.1"))))))))
+    (native-inputs (list python-setuptools))
     (inputs (list nvidia-driver))
     (home-page "https://forums.developer.nvidia.com")
     (synopsis "Python Bindings for the NVIDIA Management Library")
