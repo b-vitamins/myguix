@@ -930,7 +930,7 @@ network adapters.")
                                `("-j" ,(number->string
                                         (parallel-job-count)))
                                '())
-                         ,@make-flags))))))))
+                         ,@make-flags)))))))
       (home-page "https://github.com/tomaspinho/rtl8821ce")
       (synopsis "Linux driver for Realtek RTL8821CE wireless network adapters")
       (description "This is Realtek's RTL8821CE Linux driver for wireless
