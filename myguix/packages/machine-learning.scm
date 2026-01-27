@@ -736,7 +736,7 @@ Interchange Format (SARIF)} file format.")
                     snappy
                     xz
                     `(,zstd "lib")))
-      (native-inputs `(("pybind11" ,pybind11-2.10)
+      (native-inputs `(("pybind11" ,pybind11)
                        ("python-pytest" ,python-pytest)
                        ("python-setuptools" ,python-setuptools)
                        ("python-setuptools-scm" ,python-setuptools-scm)
