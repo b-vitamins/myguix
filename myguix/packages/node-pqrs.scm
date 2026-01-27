@@ -7603,14 +7603,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.89.0")
+    (version "0.92.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "13nww8bi6ww56nsgccq0ri31p1dz95wkr9dvchdwbqb96zkz53s5"))))
+        (base32 "1imnsdbqjac444fxjjwr46qcniw3zaad86znmzba5wjaxs2521vz"))))
     (build-system node-build-system)
     (arguments
      (list
