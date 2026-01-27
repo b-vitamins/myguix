@@ -4299,3 +4299,24 @@ signals and annotations.")
     (synopsis "Simplified packaging for pybind11-based C++ extensions")
     (description "Simplified packaging for pybind11-based C++ extensions.")
     (license license:expat)))
+
+(define-public python-semanticscholar
+  (package
+    (name "python-semanticscholar")
+    (version "0.11.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "semanticscholar" version))
+       (sha256
+        (base32 "05qcgahb1pcrzn4fxb9kx27vfvba79xgqml5mw6jk3mzxlx27qci"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-httpx python-nest-asyncio python-tenacity))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://danielnsilva.com/semanticscholar")
+    (synopsis "Unofficial Python client library for Semantic Scholar APIs.")
+    (description "Unofficial Python client library for Semantic Scholar APIs.")
+    (license license:expat)))
