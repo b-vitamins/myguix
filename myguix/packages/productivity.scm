@@ -140,27 +140,33 @@ synchronization.")
     (source
      (origin
        (method url-fetch)
-       (uri
-        (string-append "https://github.com/obsidianmd/obsidian-releases/releases/download/"
-                       "v" version "/obsidian-" version
-                       (match (or (%current-target-system) (%current-system))
-                         ("x86_64-linux" "") ; x86_64 does not have any special indication
-                         ("aarch64-linux" "-arm64")
-                         ;; We should provide a default case.
-                         (_ "unsupported"))
-                       ".tar.gz"))
+       (uri (string-append
+             "https://github.com/obsidianmd/obsidian-releases/releases/download/"
+             "v"
+             version
+             "/obsidian-"
+             version
+             (match (or (%current-target-system)
+                        (%current-system))
+               ("x86_64-linux" "") ;x86_64 does not have any special indication
+               ("aarch64-linux" "-arm64")
+               ;; We should provide a default case.
+               (_ "unsupported"))
+             ".tar.gz"))
        (file-name (string-append "obsidian-" version ".tar.gz"))
        (sha256
-        (base32
-         (match (or (%current-target-system) (%current-system))
-           ("x86_64-linux" "1kwhi5c56l97brp590f4qbi1z45ljm7g03wl3wdbz64mfn8zgqxl")
-           ("aarch64-linux" "0gk34q3bjbxyihmji9qkpypzby2jy607iz2jdwk14sp9riz31zr5")
-           ;; We need a valid base case for base32
-           (_ "0000000000000000000000000000000000000000000000000000"))))))
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1kwhi5c56l97brp590f4qbi1z45ljm7g03wl3wdbz64mfn8zgqxl")
+                  ("aarch64-linux"
+                   "0gk34q3bjbxyihmji9qkpypzby2jy607iz2jdwk14sp9riz31zr5")
+                  ;; We need a valid base case for base32
+                  (_ "0000000000000000000000000000000000000000000000000000"))))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
-      #:validate-runpath? #f ; TODO: fails on wrapped binary (.obsidian-real)
+      #:validate-runpath? #f ;TODO: fails on wrapped binary (.obsidian-real)
       #:substitutable? #f
       #:wrapper-plan
       #~(list "obsidian")
@@ -177,53 +183,58 @@ synchronization.")
             (lambda* (#:key inputs outputs #:allow-other-keys)
               (let ((convert (search-input-file inputs "/bin/convert"))
                     (svg (assoc-ref inputs "obsidian-logo-gradient.svg"))
-                    (sizes (list "32x32" "48x48" "64x64" "128x128" "256x256"
+                    (sizes (list "32x32"
+                                 "48x48"
+                                 "64x64"
+                                 "128x128"
+                                 "256x256"
                                  "512x512")))
-                (for-each
-                 (lambda (size)
-                   (mkdir-p (string-append #$output "/share/icons/hicolor/"
-                                           size
-                                           "/apps"))
-                   (invoke convert
-                           "-background" "none"
-                           "-resize" size
-                           svg
-                           (string-append #$output "/share/icons/hicolor/"
-                                          size
-                                          "/apps/obsidian.png")))
-                 sizes))))
+                (for-each (lambda (size)
+                            (mkdir-p (string-append #$output
+                                                    "/share/icons/hicolor/"
+                                                    size "/apps"))
+                            (invoke convert
+                                    "-background"
+                                    "none"
+                                    "-resize"
+                                    size
+                                    svg
+                                    (string-append #$output
+                                                   "/share/icons/hicolor/"
+                                                   size "/apps/obsidian.png")))
+                          sizes))))
           (add-after 'install 'create-desktop-file
             (lambda _
-              (make-desktop-entry-file
-               (string-append #$output "/share/applications/obsidian.desktop")
-               #:name "Obsidian"
-               #:type "Application"
-               #:generic-name "Markdown Editor"
-               #:exec (string-append #$output "/bin/obsidian")
-               #:icon "obsidian"
-               #:keywords '("obsidian")
-               #:categories '("Application" "Office")
-               #:terminal #f
-               #:startup-notify #t
-               #:startup-w-m-class "obsidian"
-               #:mime-type "x-scheme-handler/obsidian"
-               #:comment
-               '(("en" "Knowledge base")
-                 (#f "Knowledge base"))))))))
+              (make-desktop-entry-file (string-append #$output
+                                        "/share/applications/obsidian.desktop")
+                                       #:name "Obsidian"
+                                       #:type "Application"
+                                       #:generic-name "Markdown Editor"
+                                       #:exec (string-append #$output
+                                                             "/bin/obsidian")
+                                       #:icon "obsidian"
+                                       #:keywords '("obsidian")
+                                       #:categories '("Application" "Office")
+                                       #:terminal #f
+                                       #:startup-notify #t
+                                       #:startup-w-m-class "obsidian"
+                                       #:mime-type "x-scheme-handler/obsidian"
+                                       #:comment '(("en" "Knowledge base")
+                                                   (#f "Knowledge base"))))))))
     (native-inputs
      ;; imagemagick & inkscape needed to create desktop icons. We use the
      ;; stable versions because we only need them for generating icons.
      (list imagemagick/stable inkscape/pinned))
-    (inputs
-     (list
-      (origin
-        (method url-fetch)
-        (uri "https://obsidian.md/images/obsidian-logo-gradient.svg")
-        (sha256
-         (base32 "100j8fcrc5q8zv525siapminffri83s2khs2hw4kdxwrdjwh36qi")))))
+    (inputs (list (origin
+                    (method url-fetch)
+                    (uri
+                     "https://obsidian.md/images/obsidian-logo-gradient.svg")
+                    (sha256 (base32
+                             "100j8fcrc5q8zv525siapminffri83s2khs2hw4kdxwrdjwh36qi")))))
     (synopsis "Markdown-based knowledge base")
     (supported-systems '("x86_64-linux" "aarch64-linux"))
-    (description "Obsidian is a powerful knowledge base that works on top of a
+    (description
+     "Obsidian is a powerful knowledge base that works on top of a
 local folder of plain text Markdown files.  Obsidian makes following
 connections frictionless, and with the connections in place, you can explore
 all of your knowledge in the interactive graph view.  Obsidian supports
@@ -233,6 +244,86 @@ diagrams, footnotes, internal links and embedding Obsidian notes or external
 files.  Obsidian also has a plugin system to expand its capabilities.")
     (home-page "https://obsidian.md")
     (license (license:nonfree "https://obsidian.md/license"))))
+
+(define-public google-antigravity
+  (package
+    (name "google-antigravity")
+    (version "1.15.8")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (let* ((system (or (%current-target-system)
+                               (%current-system)))
+                   (deb-version (match system
+                                  ("x86_64-linux" "1.15.8-1769233008")
+                                  ("aarch64-linux" "1.15.8-1769232817")
+                                  (_ "unsupported")))
+                   (arch+hash (match system
+                                ("x86_64-linux"
+                                 "amd64_7d1cef02620eccedced833093ea2a457")
+                                ("aarch64-linux"
+                                 "arm64_fbf15ca5a8ac03ab24a27c5d7a9fe562")
+                                (_ "unsupported"))))
+              (string-append
+               "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/"
+               "pool/antigravity-debian/antigravity_"
+               deb-version
+               "_"
+               arch+hash
+               ".deb")))
+       (file-name (string-append name "-" version ".deb"))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1vgnbigzl5y6bax1nhzfq5q0kqk7d6gkyfphzic1lnpyvxi5v57d")
+                  ("aarch64-linux"
+                   "0nznvb3fla2593n31im3h0705v1sinqg9j8aqcykhj6k728i6rr8")
+                  (_ "0000000000000000000000000000000000000000000000000000"))))))
+    (supported-systems '("x86_64-linux" "aarch64-linux"))
+    (build-system chromium-binary-build-system)
+    (arguments
+     (list
+      #:substitutable? #f
+      #:validate-runpath? #f ;TODO: fails on wrapped binaries and bundled node modules
+      #:wrapper-plan
+      #~(let ((rpath '(("out" "/share/antigravity"))))
+          (map (lambda (file)
+                 (list (string-append "share/antigravity/" file) rpath))
+               '("antigravity" "chrome-sandbox"
+                 "chrome_crashpad_handler"
+                 "libEGL.so"
+                 "libGLESv2.so"
+                 "libffmpeg.so"
+                 "libvk_swiftshader.so"
+                 "libvulkan.so.1")))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'binary-unpack 'setup-cwd
+            (lambda _
+              (copy-recursively "usr/" ".")
+              (delete-file-recursively "usr")
+              (substitute* '("share/applications/antigravity.desktop"
+                             "share/applications/antigravity-url-handler.desktop")
+                (("/usr/share/antigravity/antigravity")
+                 (string-append #$output "/bin/antigravity")))))
+          (add-before 'install-wrapper 'install-entrypoint
+            (lambda _
+              (let* ((bin (string-append #$output "/bin"))
+                     (exe (string-append bin "/antigravity"))
+                     (target (string-append #$output
+                              "/share/antigravity/bin/antigravity")))
+                (mkdir-p bin)
+                (with-output-to-file exe
+                  (lambda _
+                    (display "#!/bin/sh\n")
+                    (display (string-append "exec \"" target "\" \"$@\"\n"))))
+                (chmod exe #o555)))))))
+    (home-page "https://antigravity.google")
+    (synopsis "AI-powered development environment")
+    (description
+     "Google Antigravity is an AI-powered development environment and code editor.")
+    (license (license:nonfree "https://antigravity.google/terms"))))
 
 (define-public zotero
   (package
