@@ -1108,7 +1108,7 @@ ctypes.")
                             (add-before 'check 'extend-test-timeout
                               (lambda _
                                 (setenv "WEBSOCKETS_TESTS_TIMEOUT_FACTOR" "10"))))))
-                      (native-inputs (list python-setuptools python-wheel))
+                      (native-inputs (list python-setuptools python-wheel python-pytest))
                       (home-page "https://github.com/aaugustin/websockets")
                       (synopsis
                        "Python implementation of the WebSocket Protocol (RFC 6455 & 7692)")
