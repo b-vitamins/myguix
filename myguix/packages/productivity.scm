@@ -307,6 +307,32 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                              "share/applications/antigravity-url-handler.desktop")
                 (("/usr/share/antigravity/antigravity")
                  (string-append #$output "/bin/antigravity")))))
+          (add-after 'setup-cwd 'patch-language-server
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((output (assoc-ref outputs "out"))
+                     (wrap-inputs (map cdr inputs))
+                     (lib-directories (search-path-as-list '("lib")
+                                                           wrap-inputs))
+                     (interpreter (car (find-files (assoc-ref inputs "libc")
+                                                   "ld-linux.*\\.so")))
+                     (servers (find-files
+                               "share/antigravity/resources/app/extensions/antigravity/bin"
+                               "^language_server_linux_")))
+                (unless (pair? servers)
+                  (error "No Antigravity language server binaries found"
+                   "share/antigravity/resources/app/extensions/antigravity/bin"))
+                (for-each (lambda (server)
+                            (format #t
+                             "Patching Antigravity language server: ~a~%"
+                             server)
+                            (invoke "patchelf" "--set-interpreter" interpreter
+                                    server)
+                            (invoke "patchelf" "--set-rpath"
+                                    (string-join (append lib-directories
+                                                         (list (string-append
+                                                                output
+                                                                "/share/antigravity")))
+                                                 ":") server)) servers) #t)))
           (add-before 'install-wrapper 'install-entrypoint
             (lambda _
               (let* ((bin (string-append #$output "/bin"))
