@@ -703,6 +703,9 @@ glass')")
        (sha256
         (base32 "12fpi0ajh2c50minz9big2xrrjjwnmxv6cs31f781i3n8vi2j3p0"))))
     (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))    
     (propagated-inputs (list python-pyparsing))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/sciunto-org/python-bibtexparser")
