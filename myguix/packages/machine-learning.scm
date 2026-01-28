@@ -5148,7 +5148,7 @@ computer vision team.")
      '(#:tests? #f
        #:phases (modify-phases %standard-phases
                   (delete 'sanity-check)))) ;Skip because matplotlib requires numpy<2,>=1.21
-    (propagated-inputs (list python-joblib python-matplotlib python-numpy-2
+    (propagated-inputs (list python-joblib python-matplotlib python-numpy
                              python-scikit-learn python-scipy))
     (native-inputs (list python-flake8 python-pytest python-seaborn
                          python-setuptools python-wheel))
@@ -5221,7 +5221,7 @@ as the original EDFlib.")
                              python-memory-profiler
                              python-mne
                              python-mne-bids
-                             python-numpy-2
+                             python-numpy
                              python-pandas
                              python-pooch
                              python-pyriemann
