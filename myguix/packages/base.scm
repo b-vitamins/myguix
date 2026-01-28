@@ -218,7 +218,7 @@
   (list alacritty tmux))
 
 (define %text-editors
-  (list neovim))
+  (list neovim google-antigravity))
 
 (define %security-essentials
   (list clamav gnupg pinentry-gnome3 password-store))
@@ -327,7 +327,7 @@
   (list plantuml graphviz))
 
 (define %latex-core
-  (list texlive))
+  (list texlive-scheme-full))
 
 (define %latex-extended
   (list texlive-latexindent texlive-tools))
@@ -463,7 +463,6 @@
         tree-sitter-kotlin
         tree-sitter-latex
         tree-sitter-lua
-        tree-sitter-markdown-gfm
         tree-sitter-matlab
         tree-sitter-meson
         tree-sitter-nix
@@ -511,7 +510,7 @@
   (list python-memory-profiler python-line-profiler py-spy))
 
 (define %perl-development
-  (list perl perl-critic perltidy))
+  (list perl perl-critic perl-tidy))
 
 (define %haskell-development
   (list ghc cabal-install))
