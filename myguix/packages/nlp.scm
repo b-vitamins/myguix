@@ -8,7 +8,7 @@
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages llvm)
   #:use-module ((gnu packages machine-learning)
-                #:hide (python-transformers))
+                #:hide (python-safetensors python-transformers))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages pdf)
   #:use-module (gnu packages pkg-config)
