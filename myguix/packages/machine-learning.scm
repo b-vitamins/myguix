@@ -2987,7 +2987,7 @@ features.")
                              python-platformdirs
                              python-protobuf
                              python-psutil
-                             python-pydantic-2
+                             python-pydantic
                              python-pyyaml
                              python-requests
                              python-sentry-sdk

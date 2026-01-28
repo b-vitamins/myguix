@@ -1011,7 +1011,7 @@ information in various formats.")
         (base32 "1f8cw4habpfkyz9gjjmj548ipjk18c32yvl57qkgbh9p2aaxz5h8"))))
     (build-system pyproject-build-system)
     (inputs (list python-poetry-core python-pytest python-pytest-cov
-                  python-pydantic-2))
+                  python-pydantic))
     (home-page "https://github.com/sanders41/camel-converter")
     (synopsis
      "Converts a string from snake case to camel case or camel case to snake case")
@@ -1040,7 +1040,7 @@ information in various formats.")
     (inputs (list python-poetry-core python-pytest pre-commit
                   python-pytest-cov))
     (propagated-inputs (list python-camel-converter python-requests
-                             python-pydantic-2))
+                             python-pydantic))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/meilisearch/meilisearch-python")
     (synopsis "The python client for Meilisearch API.")
@@ -1744,7 +1744,7 @@ parallelism.")))
     (build-system pyproject-build-system)
     (propagated-inputs (list python-httpx ;+ http2 extra already handled by PyPI wheel
                              python-numpy
-                             python-pydantic-2
+                             python-pydantic
                              python-grpcio
                              python-protobuf
                              python-urllib3
@@ -2080,7 +2080,7 @@ import"))))))))
     (propagated-inputs (list python-albucore
                              python-numpy
                              python-opencv-python-headless
-                             python-pydantic-2
+                             python-pydantic
                              python-pyyaml
                              python-scipy))
     (native-inputs (list python-setuptools python-wheel))
@@ -2682,7 +2682,7 @@ and YAML-based configuration files with dot-accessible dictionaries.")
                              python-packaging
                              python-pandas
                              python-pillow
-                             python-pydantic-2
+                             python-pydantic
                              python-multipart
                              python-pydub
                              python-pyyaml
@@ -3150,7 +3150,7 @@ dependencies = [\"pymongo>=4.5,<5\"]
     (arguments
      '(#:tests? #f)) ;Tests require network access and test fixtures
     (propagated-inputs (list python-httpx
-                             python-pydantic-2
+                             python-pydantic
                              python-structlog
                              python-rich
                              python-dateutil

@@ -482,7 +482,7 @@ reinforcement learning, and production serving.")
     (arguments
      (list
       #:tests? #f)) ;Tests require pytest
-    (propagated-inputs (list python-pycountry python-pydantic-2
+    (propagated-inputs (list python-pycountry python-pydantic
                              python-typing-extensions))
     (native-inputs (list python-hatchling))
     (home-page "https://github.com/pydantic/pydantic-extra-types")
@@ -508,7 +508,7 @@ reinforcement learning, and production serving.")
                              python-jsonschema
                              python-numpy
                              python-pillow
-                             python-pydantic-2
+                             python-pydantic
                              python-pydantic-extra-types
                              python-requests
                              python-tiktoken
@@ -535,7 +535,7 @@ reinforcement learning, and production serving.")
     (arguments
      (list
       #:tests? #f)) ;Tests require additional dependencies
-    (propagated-inputs (list python-frozendict python-pydantic-2
+    (propagated-inputs (list python-frozendict python-pydantic
                              python-pytorch python-transformers))
     (native-inputs (list python-setuptools python-setuptools-scm python-wheel))
     (home-page "https://github.com/neuralmagic/compressed-tensors")
