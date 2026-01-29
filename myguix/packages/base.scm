@@ -260,6 +260,7 @@
   (list podman
         podman-compose
         docker-compose
+        docker-cli
         buildah
         skopeo
         crun
