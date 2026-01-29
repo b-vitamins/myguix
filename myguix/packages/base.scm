@@ -13,10 +13,12 @@
   #:use-module (gnu packages code)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages containers)
   #:use-module (gnu packages cpp)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages disk)
   #:use-module (gnu packages display-managers)
+  #:use-module (gnu packages docker)
   #:use-module (gnu packages djvu)
   #:use-module (gnu packages file-systems)
   #:use-module (gnu packages freedesktop)
@@ -84,6 +86,7 @@
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages video)
   #:use-module (gnu packages vim)
+  #:use-module (gnu packages virtualization)
   #:use-module (gnu packages web)
   #:use-module (gnu packages wget)
   #:use-module (gnu packages xdisorg)
@@ -121,6 +124,8 @@
             %compiler-toolchains
             %version-control
             %compression-tools
+            ;; Containers
+            %container-tools
             ;; Development - Languages
             %c-cpp-development
             %rust-development
@@ -250,6 +255,20 @@
         xz
         p7zip
         lz4))
+
+(define %container-tools
+  (list podman
+        (list podman "docker")
+        podman-compose
+        docker-compose
+        buildah
+        skopeo
+        crun
+        conmon
+        slirp4netns
+        fuse-overlayfs
+        netavark
+        aardvark-dns))
 
 ;; Networking Bundles
 (define %network-core
