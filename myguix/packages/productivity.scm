@@ -16,6 +16,7 @@
   #:use-module (gnu packages imagemagick)
   #:use-module (gnu packages inkscape)
   #:use-module (gnu packages linux)
+  #:use-module (gnu packages node)
   #:use-module (gnu packages pciutils)
   #:use-module (gnu packages photo)
   #:use-module (gnu packages polkit)
@@ -344,7 +345,20 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                   (lambda _
                     (display "#!/bin/sh\n")
                     (display (string-append "exec \"" target "\" \"$@\"\n"))))
-                (chmod exe #o555)))))))
+                (chmod exe #o555))))
+          (add-after 'install-wrapper 'set-playwright-nodejs-path
+            (lambda _
+              (substitute* (string-append #$output "/bin/antigravity")
+                (("^exec -a")
+                 (string-append
+                  "if [ -z \"${PLAYWRIGHT_NODEJS_PATH:-}\" ] && command -v node >/dev/null 2>&1; then"
+                  "\n"
+                  "  export PLAYWRIGHT_NODEJS_PATH=\"$(command -v node)\""
+                  "\n"
+                  "fi"
+                  "\n"
+                  "exec -a"))) #t)))))
+    (inputs (list node))
     (home-page "https://antigravity.google")
     (synopsis "AI-powered development environment")
     (description
