@@ -308,6 +308,12 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                              "share/applications/antigravity-url-handler.desktop")
                 (("/usr/share/antigravity/antigravity")
                  (string-append #$output "/bin/antigravity")))))
+          (add-after 'setup-cwd 'patch-browser-launcher
+            (lambda _
+              (substitute* "share/antigravity/resources/app/extensions/antigravity-browser-launcher/dist/extension.js"
+                (("\"/opt/google/chrome/chrome\"")
+                 "\"/opt/google/chrome/chrome\",\"/run/current-system/profile/bin/google-chrome\""))
+              #t))
           (add-after 'setup-cwd 'patch-language-server
             (lambda* (#:key inputs outputs #:allow-other-keys)
               (let* ((output (assoc-ref outputs "out"))
