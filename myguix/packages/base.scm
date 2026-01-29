@@ -258,7 +258,6 @@
 
 (define %container-tools
   (list podman
-        (list podman "docker")
         podman-compose
         docker-compose
         buildah
