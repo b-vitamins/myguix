@@ -522,8 +522,7 @@
         python-black
         python-ruff
         python-pytest
-        python-pyclean
-        python-mutmut))
+        python-pyclean))
 
 (define %python-profiling
   (list python-memory-profiler python-line-profiler py-spy))
