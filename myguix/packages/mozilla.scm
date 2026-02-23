@@ -578,20 +578,20 @@ Release (ESR) version.")
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-build-id
-  "20260112140453")
+  "20260216125045")
 
 (define-public firefox
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "147.0")
+    (version "147.0.4")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "1znr9wp4f79b83mv0as9kj0nh09yjxzqv4nbi4bmn7jgfmiqwb92"))
+        (base32 "1xwl5vc7504gx15yj0kvrxn3k250sja22d8j6dyrhxxican441xw"))
        (patches (map (lambda (patch)
                        (search-path (map (cut string-append <>
                                               "/myguix/patches") %load-path)
