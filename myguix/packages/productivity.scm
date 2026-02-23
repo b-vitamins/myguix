@@ -374,15 +374,15 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public zotero
   (package
     (name "zotero")
-    (version "6.0.35")
+    (version "8.0")
     (source
      (origin
        ;; Can switch to git-fetch from Github too!
        (method url-fetch)
        (uri (string-append "https://download.zotero.org/client/release/"
-                           version "/Zotero-" version "_linux-x86_64.tar.bz2"))
+                           version "/Zotero-" version "_linux-x86_64.tar.xz"))
        (sha256
-        (base32 "17f9an43jwnqpcslbvnhg7hrzkvs2whzwg4ysdgy2gl4m6cln18w"))
+        (base32 "06883y5839blg14hdqkym2rf01vw2gbrs8r3c5v8klyjavxy9s8g"))
        (snippet #~(begin
                     (use-modules (guix build utils))
                     ;; Disable Zotero's automatic update feature.
