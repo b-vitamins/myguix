@@ -205,7 +205,7 @@ some freedo package or an output of package-version procedure."
   (corrupt-linux linux-libre-5.4))
 
 (define-public linux
-  linux-6.17)
+  linux-6.18)
 
 ;; linux-lts points to the *newest* released long-term support version.
 (define-public linux-lts
