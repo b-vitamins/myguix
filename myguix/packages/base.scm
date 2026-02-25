@@ -57,6 +57,7 @@
   #:use-module (gnu packages networking)
   #:use-module (gnu packages nfs)
   #:use-module (gnu packages nicotine)
+  #:use-module (gnu packages ocr)
   #:use-module (gnu packages ocaml)
   #:use-module (gnu packages package-management)
   #:use-module (gnu packages parallel)
@@ -344,6 +345,11 @@
 
 (define %document-conversion-packages
   (list pandoc
+        poppler
+        qpdf
+        pdftk
+        mupdf
+        tesseract-ocr
         pdfgrep
         pdf2svg
         pdf2djvu
