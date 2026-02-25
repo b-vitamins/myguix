@@ -20,6 +20,7 @@
   #:use-module (gnu packages display-managers)
   #:use-module (gnu packages docker)
   #:use-module (gnu packages djvu)
+  #:use-module (gnu packages elf)
   #:use-module (gnu packages file)
   #:use-module (gnu packages file-systems)
   #:use-module (gnu packages freedesktop)
@@ -45,9 +46,11 @@
   #:use-module (gnu packages instrumentation)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages llvm)
+  #:use-module (gnu packages lsof)
   #:use-module (gnu packages mail)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mold)
+  #:use-module (gnu packages moreutils)
   #:use-module (gnu packages monitoring)
   #:use-module (gnu packages mp3)
   #:use-module (gnu packages music)
@@ -398,7 +401,7 @@
   (list clang mold))
 
 (define %system-debugging
-  (list strace gdb valgrind))
+  (list strace gdb valgrind patchelf lsof psmisc moreutils))
 
 (define %performance-profiling
   (list perf flamegraph sysprof))
