@@ -249,21 +249,21 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public google-antigravity
   (package
     (name "google-antigravity")
-    (version "1.15.8")
+    (version "1.18.4")
     (source
      (origin
        (method url-fetch)
        (uri (let* ((system (or (%current-target-system)
                                (%current-system)))
                    (deb-version (match system
-                                  ("x86_64-linux" "1.15.8-1769233008")
-                                  ("aarch64-linux" "1.15.8-1769232817")
+                                  ("x86_64-linux" "1.18.4-1771638098")
+                                  ("aarch64-linux" "1.18.4-1771638096")
                                   (_ "unsupported")))
                    (arch+hash (match system
                                 ("x86_64-linux"
-                                 "amd64_7d1cef02620eccedced833093ea2a457")
+                                 "amd64_72f97454beb720380cfbdd654ab03301")
                                 ("aarch64-linux"
-                                 "arm64_fbf15ca5a8ac03ab24a27c5d7a9fe562")
+                                 "arm64_f096532b9c0bc65a62dc53ed2bb5ff66")
                                 (_ "unsupported"))))
               (string-append
                "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/"
@@ -277,9 +277,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "1vgnbigzl5y6bax1nhzfq5q0kqk7d6gkyfphzic1lnpyvxi5v57d")
+                   "0h5i9pgbwnz41a0yfkf3f472vi2b65ya6h6bx13m5d40fiqq1lz0")
                   ("aarch64-linux"
-                   "0nznvb3fla2593n31im3h0705v1sinqg9j8aqcykhj6k728i6rr8")
+                   "0l55n2cfnyj30lvz9f72p65afqw8sbcwhjwz86c46s6467hs1334")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
