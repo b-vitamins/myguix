@@ -2297,7 +2297,7 @@ as common bridge to reuse tensor and ops across frameworks.")
     (license license:asl2.0)))
 
 (define %python-pytorch-version
-  "2.9.0")
+  "2.10.0")
 
 (define %python-pytorch-cuda-src
   (origin
@@ -2306,7 +2306,7 @@ as common bridge to reuse tensor and ops across frameworks.")
                         (commit (string-append "v" %python-pytorch-version))
                         (recursive? #t)))
     (file-name (git-file-name "python-pytorch" %python-pytorch-version))
-    (sha256 (base32 "123wvixy0bbpaim2w89w8s6m8rci90si5m26ds9fidf5mrxy3k16"))
+    (sha256 (base32 "056pq9c4pvn50isivdxyk0kgxbnljr5lqq54chny77a2f0n9ka24"))
     (patches (map (lambda (patch)
                     (search-path (map (cut string-append <> "/myguix/patches")
                                       %load-path) patch))
@@ -2402,12 +2402,15 @@ as common bridge to reuse tensor and ops across frameworks.")
                                   "\"")))))
             (replace 'set-max-jobs
               (lambda _
-                (setenv "MAX_JOBS"
-                        (number->string (parallel-job-count)))))
+                ;; PyTorch C++ compilation is memory-hungry; cap jobs to avoid
+                ;; cc1plus being killed under memory pressure.
+                (let ((jobs (number->string (min 4 (parallel-job-count)))))
+                  (setenv "MAX_JOBS" jobs)
+                  (setenv "CMAKE_BUILD_PARALLEL_LEVEL" jobs))))
             (add-after 'use-system-libraries 'use-cuda-libraries
               (lambda _
                 (setenv "BUILD_TEST" "0")
-                (setenv "PYTORCH_BUILD_VERSION" "2.7.0")
+                (setenv "PYTORCH_BUILD_VERSION" #$%python-pytorch-version)
                 (setenv "PYTORCH_BUILD_NUMBER" "1")
                 (setenv "TORCH_NVCC_FLAGS" "-Xfatbin -compress-all")
                 (setenv "USE_CUDA" "1")
