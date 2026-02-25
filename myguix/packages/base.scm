@@ -531,7 +531,12 @@
 
 (define %python-development
   (list poetry
+        pipx
         python
+        python-ipython
+        python-rich
+        python-pypdf
+        python-pdfminer-six
         python-flake8
         python-black
         python-ruff
