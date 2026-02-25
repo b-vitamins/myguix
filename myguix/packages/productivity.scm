@@ -386,11 +386,32 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
        (snippet #~(begin
                     (use-modules (guix build utils))
                     ;; Disable Zotero's automatic update feature.
-                    (substitute* "defaults/preferences/prefs.js"
-                      (("pref\\(\"app.update.enabled\", true\\)")
-                       "pref(\"app.update.enabled\", false)")
-                      (("pref\\(\"app.update.auto\", true\\)")
-                       "pref(\"app.update.auto\", false)"))))))
+                    (let ((prefs (cond
+                                  ((file-exists? "defaults/preferences/prefs.js")
+                                   "defaults/preferences/prefs.js")
+                                  ((file-exists?
+                                    "Zotero_linux-x86_64/defaults/preferences/prefs.js")
+                                   "Zotero_linux-x86_64/defaults/preferences/prefs.js")
+                                  (else #f))))
+                      (if prefs
+                          (substitute* prefs
+                            (("pref\\(\"app.update.enabled\", true\\)")
+                             "pref(\"app.update.enabled\", false)")
+                            (("pref\\(\"app.update.auto\", true\\)")
+                             "pref(\"app.update.auto\", false)"))
+                          (let* ((root (if (file-exists? "Zotero_linux-x86_64")
+                                           "Zotero_linux-x86_64"
+                                           "."))
+                                 (pref-dir (string-append root "/defaults/pref"))
+                                 (pref-file (string-append pref-dir
+                                                           "/guix-updates.js")))
+                            (mkdir-p pref-dir)
+                            (call-with-output-file pref-file
+                              (lambda (port)
+                                (display "pref(\"app.update.enabled\", false);\n"
+                                         port)
+                                (display "pref(\"app.update.auto\", false);\n"
+                                         port))))))))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
@@ -442,24 +463,40 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                                     "Collect, organize, cite, and share your research sources")))))
           (add-after 'install 'install-icons
             (lambda _
-              (let ((icon-sizes (list 16 32 48 256)))
-                (for-each (lambda (size)
-                            (mkdir-p (string-append #$output
-                                                    "/share/icons/hicolor/"
-                                                    size
-                                                    "x"
-                                                    size
-                                                    "/apps"))
-                            (copy-file (string-append
-                                        "chrome/icons/default/default" size
-                                        ".png")
-                                       (string-append #$output
-                                                      "/share/icons/hicolor/"
-                                                      size
-                                                      "x"
-                                                      size
-                                                      "/apps/zotero.png")))
-                          (map number->string icon-sizes))))))))
+              (let* ((icon-map (if (file-exists?
+                                    "chrome/icons/default/default16.png")
+                                   '(("16" . "chrome/icons/default/default16.png")
+                                     ("32" . "chrome/icons/default/default32.png")
+                                     ("48" . "chrome/icons/default/default48.png")
+                                     ("256" . "chrome/icons/default/default256.png"))
+                                   '(("16" . "icons/icon32.png")
+                                     ("32" . "icons/icon32.png")
+                                     ("48" . "icons/icon64.png")
+                                     ("64" . "icons/icon64.png")
+                                     ("128" . "icons/icon128.png")))))
+                (for-each (lambda (entry)
+                            (let* ((size (car entry))
+                                   (source (cdr entry))
+                                   (destination-directory
+                                    (string-append #$output
+                                                   "/share/icons/hicolor/"
+                                                   size
+                                                   "x"
+                                                   size
+                                                   "/apps")))
+                              (mkdir-p destination-directory)
+                              (copy-file source
+                                         (string-append destination-directory
+                                                        "/zotero.png"))))
+                          icon-map)
+                (when (file-exists? "icons/symbolic.svg")
+                  (let ((destination-directory
+                         (string-append #$output
+                                        "/share/icons/hicolor/scalable/apps")))
+                    (mkdir-p destination-directory)
+                    (copy-file "icons/symbolic.svg"
+                               (string-append destination-directory
+                                              "/zotero-symbolic.svg"))))))))))
     ;; The zotero script that we wrap (which produces .zotero-real), has
     ;; this open file limit step done for us. If that script ever goes
     ;; away, then we can just uncomment this one.
