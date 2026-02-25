@@ -233,7 +233,7 @@
 
 ;; System Management Bundles
 (define %system-monitoring
-  (list atop btop inxi sysstat procps))
+  (list atop inxi sysstat procps))
 
 (define %hardware-monitoring
   (list smartmontools hdparm blktrace lsscsi nvme-cli))
@@ -285,7 +285,7 @@
   (list firefox google-chrome-stable))
 
 (define %desktop-core
-  (list fontconfig network-manager-applet))
+  (list fontconfig))
 
 (define %audio-system
   (list pipewire wireplumber))
