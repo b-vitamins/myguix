@@ -7603,26 +7603,67 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.98.0")
+    (version "0.104.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "19xjnijqsr2m13fk9sbjg048m7m9wjmc8lq10sm7z42wd69d33x2"))))
+        (base32 "08mazbz97sqjz1j9q68asyyc4l5pxs7y8rvd195hbcan52knszhf"))))
     (build-system node-build-system)
+    (native-inputs
+     (list
+      `("platform-source"
+        ,(origin
+           (method url-fetch)
+           (uri
+            (let ((system (or (%current-target-system)
+                              (%current-system))))
+              (cond
+               ((string=? system "x86_64-linux")
+                (string-append
+                 "https://registry.npmjs.org/@openai/codex/-/codex-"
+                 version "-linux-x64.tgz"))
+               ((string=? system "aarch64-linux")
+                (string-append
+                 "https://registry.npmjs.org/@openai/codex/-/codex-"
+                 version "-linux-arm64.tgz"))
+               (else
+                (error "unsupported system for node-openai-codex"
+                       system)))))
+           (sha256
+            (base32
+             (let ((system (or (%current-target-system)
+                               (%current-system))))
+               (cond
+                ((string=? system "x86_64-linux")
+                 "02yyh6prpqlx5606djjx8aj7jzi26pljjycdk6nswqma0y2d423r")
+                ((string=? system "aarch64-linux")
+                 "0rcz9lggb5kszq26hvjry0q3533c36dld69250hl5y81b6j9gzqn")
+                (else
+                 (error "unsupported system for node-openai-codex"
+                        system))))))))))
     (arguments
      (list
       #:tests? #f
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
-          (add-after 'unpack 'remove-precompiled-binaries
+          (add-after 'unpack 'add-platform-vendor
+            (lambda* (#:key inputs #:allow-other-keys)
+              (invoke "tar" "-xf" (assoc-ref inputs "platform-source")
+                      "--strip-components=1" "package/vendor")
+              #t))
+          (add-after 'add-platform-vendor 'remove-precompiled-binaries
             (lambda _
-              (delete-file-recursively
-               "vendor/aarch64-unknown-linux-musl/path/rg") #t)))))
-    (propagated-inputs (list node))
+              ;; Avoid bundled network-fetching ripgrep.
+              (when (file-exists? "bin/rg")
+                (delete-file "bin/rg"))
+              (for-each delete-file (find-files "vendor" "/path/rg$"))
+              #t)))))
+    (propagated-inputs (list node ripgrep))
+    (supported-systems '("x86_64-linux" "aarch64-linux"))
     (home-page "https://github.com/openai/codex")
     (synopsis
      "Codex CLI is a coding agent from OpenAI that runs locally on your computer.")
