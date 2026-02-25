@@ -75,6 +75,7 @@
   #:use-module (gnu packages shellutils)
   #:use-module (gnu packages sync)
   #:use-module (gnu packages terminals)
+  #:use-module (gnu packages textutils)
   #:use-module (gnu packages tex)
   #:use-module (gnu packages texinfo)
   #:use-module (gnu packages texlive)
@@ -210,6 +211,7 @@
         btop
         zoxide
         jq
+        yq
         du-dust))
 
 (define %shell-zsh
