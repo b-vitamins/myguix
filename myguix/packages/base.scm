@@ -20,6 +20,7 @@
   #:use-module (gnu packages display-managers)
   #:use-module (gnu packages docker)
   #:use-module (gnu packages djvu)
+  #:use-module (gnu packages file)
   #:use-module (gnu packages file-systems)
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages fonts)
@@ -196,6 +197,8 @@
         pciutils
         ripgrep
         fd
+        file
+        which
         mumi
         parallel
         xdg-utils))
