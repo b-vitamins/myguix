@@ -850,6 +850,20 @@ glass')")
     (description "Universal encoding detector for Python 3.")
     (license license:lgpl2.1)))
 
+(define-public python-wrapt-1
+  (package
+    (inherit python-wrapt)
+    (name "python-wrapt-1")
+    (version "1.17.3")
+    (arguments
+     (list #:tests? #f))
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "wrapt" version))
+       (sha256
+        (base32 "1l36lvxf02cfm8ypi34zdr3x6iifiqn2lzyixd7gw454xa7v0vpn"))))))
+
 (define-public python-deprecated
   (package
     (name "python-deprecated")
@@ -864,7 +878,7 @@ glass')")
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-wrapt))
+    (propagated-inputs (list python-wrapt-1))
     (native-inputs (list python-bump2version
                          python-pytest
                          python-pytest-cov
