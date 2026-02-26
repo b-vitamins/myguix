@@ -3127,6 +3127,11 @@ types including matrices, vectors, and posterior probabilities.")
                 (setenv "CUSPARSELT_INCLUDE_PATH"
                         #$(file-append (this-package-input "cusparselt")
                                        "/include"))
+                ;; nvcc rejects TORCH_BOX(&compute) when this function has a
+                ;; default argument in rnnt CUDA registration.
+                (substitute* "src/libtorchaudio/rnnt/gpu/compute.cu"
+                  (("bool fused_log_softmax = true")
+                   "bool fused_log_softmax"))
                 ;; Set architecture list for RTX 3060
                 (setenv "TORCH_CUDA_ARCH_LIST" "8.6")))))))
     (inputs (modify-inputs (package-inputs python-torchaudio)
