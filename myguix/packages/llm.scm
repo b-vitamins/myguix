@@ -400,7 +400,7 @@
                          unzip))
     (propagated-inputs (list python-aiohttp
                              python-click
-                             python-colorama
+                             (@ (gnu packages python-build) python-colorama)
                              python-filelock
                              python-jsonschema
                              python-msgpack
