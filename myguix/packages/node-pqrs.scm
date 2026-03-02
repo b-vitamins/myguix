@@ -7603,14 +7603,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.105.0")
+    (version "0.106.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "00ixqaifkw8wm5p0w4qyh9sndb0gaq0rp7shfjx4d1plm485yn7r"))))
+        (base32 "1jbbqn0nqickj1sxmj6khqvgm458s1m4kfsvm72izkm9rjgc8dji"))))
     (build-system node-build-system)
     (native-inputs
      (list
@@ -7638,9 +7638,9 @@ characters using Unicode emoji modifier bases.")
                                (%current-system))))
                (cond
                 ((string=? system "x86_64-linux")
-                 "0dkwxiaidm6pmnwk47pmmqz2ccgd885rpqv8a1dv4mzxjb7qvxvp")
+                 "0z375k5kaji99xmzsq425hcxxcycnc8lsx93r8kaq9byfnvzfw2g")
                 ((string=? system "aarch64-linux")
-                 "1xsq1r1npiydazg84czq8i5jx4iy03805d7kxx2pmx3ymnxl3yj3")
+                 "0qq3bd1qznzqq81d6d4nhahcqxrwqb7p94khxy5cnajssdrvqdhg")
                 (else
                  (error "unsupported system for node-openai-codex"
                         system))))))))))
