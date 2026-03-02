@@ -2967,6 +2967,28 @@ build-backend = \"poetry.core.masonry.api\"
     (description "SSE plugin for Starlette.")
     (license license:bsd-3)))
 
+(define-public python-sphinx-basic-ng
+  (package
+    (name "python-sphinx-basic-ng")
+    (version "1.0.0b2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "sphinx_basic_ng" version))
+       (sha256
+        (base32
+         "1jaihs22d8jfvk1fnv5j7hcza89hxj979ib0b4mh130cr53mmicy"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
+    (propagated-inputs (list python-sphinx))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/pradyunsg/sphinx-basic-ng")
+    (synopsis "Modernised skeleton for Sphinx themes")
+    (description
+     "This package provides a modern skeleton for Sphinx themes.")
+    (license license:expat)))
+
 (define-public python-furo
   (package
     (name "python-furo")
@@ -2989,8 +3011,17 @@ build-backend = \"poetry.core.masonry.api\"
                          "")
                         (("requires = \\[\"sphinx-theme-builder.*\"\\]")
                          "requires = [\"setuptools\", \"wheel\"]")
+                        (("sphinx >= 6\\.0,<8\\.0")
+                         "sphinx >= 6.0,<10.0")
+                        (("sphinx>=6\\.0,<8\\.0")
+                         "sphinx>=6.0,<10.0")
+                        (("sphinx<8\\.0,>=6\\.0")
+                         "sphinx<10.0,>=6.0")
                         (("build-backend = \"sphinx_theme_builder\"")
                          "build-backend = \"setuptools.build_meta\""))
+                      (substitute* "PKG-INFO"
+                        (("Requires-Dist: sphinx<8\\.0,>=6\\.0")
+                         "Requires-Dist: sphinx<10.0,>=6.0"))
                       ;; Create a minimal setup.py
                       (with-output-to-file "setup.py"
                         (lambda ()
@@ -3002,7 +3033,7 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
     include_package_data=True,
-    install_requires=['beautifulsoup4', 'sphinx>=6.0,<8.0', 'sphinx-basic-ng'],
+    install_requires=['beautifulsoup4', 'sphinx>=6.0,<10.0', 'sphinx-basic-ng'],
     python_requires='>=3.8',
     entry_points={
         'sphinx.html_themes': [
