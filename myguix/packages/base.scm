@@ -98,6 +98,7 @@
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xiph)
   #:use-module (myguix packages chrome)
+  #:use-module (myguix packages java-pqrs)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages maths)
@@ -407,7 +408,13 @@
   (list clang mold))
 
 (define %system-debugging
-  (list strace gdb valgrind patchelf lsof psmisc moreutils))
+  (list strace
+        gdb
+        valgrind
+        patchelf
+        lsof
+        psmisc
+        moreutils))
 
 (define %performance-profiling
   (list perf flamegraph sysprof))
@@ -436,11 +443,8 @@
         mpv-cuda))
 
 (define %isaac-sim-packages
-  (list isaac-sim
-        isaac-sim-webrtc-client
-        isaac-sim-assets-robots-sensors
-        isaac-sim-assets-materials-props
-        isaac-sim-assets-environments))
+  (list isaac-sim isaac-sim-webrtc-client isaac-sim-assets-robots-sensors
+        isaac-sim-assets-materials-props isaac-sim-assets-environments))
 
 (define %ml-packages
   (list nccl
@@ -452,6 +456,9 @@
         python-torchcodec-cuda
         python-torchmetrics-cuda
         python-ray
+        python-neo4j
+        python-graphdatascience
+        cypher-shell
         mujoco))
 
 ;; Tree-sitter Bundles
