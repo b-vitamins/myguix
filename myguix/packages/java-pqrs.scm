@@ -20,14 +20,14 @@
 (define-public cypher-shell
   (package
     (name "cypher-shell")
-    (version "5.26.6")
+    (version "2025.03.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://dist.neo4j.org/cypher-shell/cypher-shell-"
              version ".zip"))
        (sha256
-        (base32 "1pf9m9fs0b0z1cdix3ggzhs5hy3lbxbxxjnmyhvpbyssq1n4n4xv"))))
+        (base32 "169smd9cggng7h7g1sbg4acllk7dzhaggiclbggvr0wwbpfg1i1d"))))
     (build-system trivial-build-system)
     (inputs (list openjdk21 unzip bash-minimal))
     (arguments
