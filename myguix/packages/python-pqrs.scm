@@ -1666,13 +1666,13 @@ parallelism.")))
 (define-public python-neo4j
   (package
     (name "python-neo4j")
-    (version "5.28.1")
+    (version "6.1.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "neo4j" version))
        (sha256
-        (base32 "0572k090q657xg86irvvmjx9j876rjr5khsvqxi902cmv2hkg3mf"))))
+        (base32 "110ba39lx26i399jyiaxvkpmngnxj3cnjdbkwdm7n7j8v30fipdm"))))
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f))
