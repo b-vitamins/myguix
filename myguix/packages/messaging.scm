@@ -140,3 +140,52 @@ or iOS.")
     ;; doesn't work?
     (properties '((release-monitoring-url . "https://github.com/signalapp/Signal-Desktop/releases")))
     (license license:agpl3)))
+
+(define-public discord
+  (package
+    (name "discord")
+    (version "0.0.127")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://stable.dl2.discordapp.net/apps/linux/"
+                           version
+                           "/discord-"
+                           version
+                           ".deb"))
+       (sha256
+        (base32 "0vhj4c7slwns3cf6bl9ag30dmwiqsn7r65v9fc7jhwvrf2a7kl29"))))
+    (supported-systems '("x86_64-linux"))
+    (build-system chromium-binary-build-system)
+    (arguments
+     (list
+      #:validate-runpath? #f ;TODO: fails on wrapped binary and included other files
+      #:wrapper-plan
+      #~(let ((rpath '(("out" "/share/discord"))))
+          (map (lambda (file)
+                 (list (string-append "share/discord/" file) rpath))
+               '("Discord"
+                 "chrome-sandbox"
+                 "chrome_crashpad_handler"
+                 "libEGL.so"
+                 "libGLESv2.so"
+                 "libffmpeg.so"
+                 "libvk_swiftshader.so"
+                 "libvulkan.so.1")))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'binary-unpack 'setup-cwd
+            (lambda _
+              (copy-recursively "usr/" ".")
+              ;; Remove unneeded files.
+              (delete-file-recursively "usr")
+              ;; Fix the .desktop file binary location.
+              (substitute* '("share/discord/discord.desktop")
+                (("/usr/share/discord/Discord")
+                 (string-append #$output "/bin/discord"))))))))
+    (home-page "https://discord.com/")
+    (synopsis "Voice, video, and text chat for communities and friends")
+    (description
+     "Discord is an all-in-one voice, video, and text chat application for
+communities and friends.")
+    (license (license:nonfree "https://discord.com/terms"))))
