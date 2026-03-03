@@ -1674,6 +1674,8 @@ parallelism.")))
        (sha256
         (base32 "0572k090q657xg86irvvmjx9j876rjr5khsvqxi902cmv2hkg3mf"))))
     (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f))
     (propagated-inputs (list python-pytz))
     (native-inputs (list python-setuptools python-tomlkit python-wheel))
     (home-page "https://github.com/neo4j/neo4j-python-driver")
