@@ -12,6 +12,7 @@
             emacs-daemon-configuration-extra-options
             emacs-daemon-configuration-environment-variables
             emacs-daemon-configuration-respawn?
+            my-home-emacs-daemon-service-type
             home-emacs-daemon-service-type
             my-home-emacs-daemon-service))
 
@@ -101,7 +102,7 @@
                     '#$environment-variables)))))
       (stop #~(make-kill-destructor))))))
 
-(define home-emacs-daemon-service-type
+(define my-home-emacs-daemon-service-type
   (service-type
    (name 'home-emacs-daemon)
    (description "Run Emacs as a persistent Home daemon.")
@@ -110,6 +111,9 @@
                              emacs-daemon-shepherd-service)))
    (default-value (emacs-daemon-configuration))))
 
+;; Backward-compatible alias.
+(define home-emacs-daemon-service-type my-home-emacs-daemon-service-type)
+
 (define* (my-home-emacs-daemon-service #:key
                                        (package emacs-pgtk)
                                        (server-name "server")
@@ -117,7 +121,7 @@
                                        (environment-variables '())
                                        (respawn? #t))
   "Convenience constructor for `home-emacs-daemon-service-type'."
-  (service home-emacs-daemon-service-type
+  (service my-home-emacs-daemon-service-type
            (emacs-daemon-configuration
             (package package)
             (server-name server-name)
