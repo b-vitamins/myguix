@@ -137,7 +137,7 @@ synchronization.")
 (define-public obsidian
   (package
     (name "obsidian")
-    (version "1.8.7")
+    (version "1.12.4")
     (source
      (origin
        (method url-fetch)
@@ -159,9 +159,9 @@ synchronization.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "1kwhi5c56l97brp590f4qbi1z45ljm7g03wl3wdbz64mfn8zgqxl")
+                   "1pn8hk09q7dribjn9zn13v3h1x25l17zg0w0pq3qwgqjrzgjdsvj")
                   ("aarch64-linux"
-                   "0gk34q3bjbxyihmji9qkpypzby2jy607iz2jdwk14sp9riz31zr5")
+                   "1n7vn74f5vgjnj3gqlz5x63cacn86y206kklyb904kna449qj83w")
                   ;; We need a valid base case for base32
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (build-system chromium-binary-build-system)
