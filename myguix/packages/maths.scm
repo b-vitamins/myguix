@@ -5,6 +5,7 @@
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages guile)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages package-management)
@@ -103,6 +104,57 @@
 numerical work in mechanics and applied mathematics.  This package installs
 the precompiled Scmutils image and provides the @command{mechanics} launcher
 for running it with MIT/GNU Scheme.")
+    (license license-gnu:gpl2+)))
+
+
+;;;
+;;; Guile Scmutils.
+;;;
+
+(define-public guile-scmutils
+  (package
+    (name "guile-scmutils")
+    (version "1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://www.cs.rochester.edu/~gildea/guile-scmutils/guile-scmutils-v1.1.tgz")
+       (sha256
+        (base32 "0nvc7nwvhfhgvr2yqr8piimlvxk18scgmbk8i9kmaj2jjzvxzfsl"))))
+    (build-system gnu-build-system)
+    (inputs (list bash-minimal guile-3.0 gnuplot))
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'build)
+          (replace 'install
+            (lambda _
+              (let* ((out #$output)
+                     (scmutils-dir (string-append out "/share/guile-scmutils"))
+                     (bin-dir (string-append out "/bin")))
+                (copy-recursively "src" scmutils-dir)
+                (mkdir-p bin-dir)
+                (with-output-to-file (string-append bin-dir "/guile-scmutils")
+                  (lambda _
+                    (format #t "#!~a/bin/sh~%"
+                            #$(this-package-input "bash-minimal"))
+                    (format #t "export PATH=\"~a/bin${PATH:+:${PATH}}\"~%"
+                            #$(this-package-input "gnuplot"))
+                    (format #t "exec ~a/bin/guile -l ~a/load.scm \"$@\"~%"
+                            #$(this-package-input "guile-3.0")
+                            scmutils-dir)))
+                (chmod (string-append bin-dir "/guile-scmutils") #o555)))))))
+    (home-page "https://www.cs.rochester.edu/~gildea/guile-scmutils/")
+    (synopsis "Scmutils port for Guile")
+    (description
+     "Guile Scmutils is a Guile port of the Scmutils symbolic mathematics
+system used with the Structure and Interpretation of Classical Mechanics
+materials.  This package installs the source tree and provides a
+@command{guile-scmutils} launcher that preloads the system.")
     (license license-gnu:gpl2+)))
 
 
