@@ -102,6 +102,7 @@
   #:use-module (myguix packages linux)
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages maths)
+  #:use-module (myguix packages messaging)
   #:use-module (myguix packages mozilla)
   #:use-module (myguix packages nlp)
   #:use-module (myguix packages llm)
@@ -374,7 +375,7 @@
   (list hunspell hunspell-dict-en-us hunspell-dict-en-gb-ize))
 
 (define %note-taking
-  (list anytype obsidian zotero))
+  (list anytype obsidian discord zotero))
 
 ;; Media Bundles
 (define %media-players
