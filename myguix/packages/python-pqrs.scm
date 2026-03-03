@@ -1723,13 +1723,13 @@ parallelism.")))
                                                       "1"))))))))))
     (package
       (name "python-graphdatascience")
-      (version "1.15")
+      (version "1.20")
       (source
        (origin
          (method url-fetch)
          (uri (pypi-uri "graphdatascience" version))
          (sha256
-          (base32 "0fbkj1s1scx64w2sqcwm7rgx1852m898wjxj4f0w471m29rz5w3p"))))
+          (base32 "0sg0g2d6wv2l4xzq8906gmviisnyvk78afa6aikwznka34jkp68v"))))
       (build-system pyproject-build-system)
       (arguments
        (list
@@ -1739,6 +1739,7 @@ parallelism.")))
                                python-numpy
                                python-pandas
                                python-pyarrow-flight
+                               python-pydantic
                                python-requests
                                python-tenacity
                                python-textdistance
