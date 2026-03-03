@@ -11,6 +11,7 @@
   #:use-module (gnu packages python)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages perl)
+  #:use-module (gnu packages scheme)
   #:use-module (gnu packages bash)
   #:use-module (guix gexp)
   #:use-module (guix build-system trivial)
@@ -28,6 +29,81 @@
   #:use-module ((gnu packages bootstrap)
                 #:select (glibc-dynamic-linker))
   #:use-module (srfi srfi-26))
+
+
+;;;
+;;; Scmutils.
+;;;
+
+(define-public scmutils
+  (package
+    (name "scmutils")
+    (version "20230902")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://groups.csail.mit.edu/mac/users/gjs/6946/"
+             "mechanics-system-installation/native-code/"
+             "scmutils-20230902.tar.gz"))
+       (sha256
+        (base32 "0npc3i9dy255vb43ypkybix4w3k5ajg6npyjn8286lrgf8714d43"))))
+    (supported-systems '("x86_64-linux"))
+    (build-system gnu-build-system)
+    (inputs (list bash-minimal mit-scheme))
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'build)
+          (replace 'install
+            (lambda _
+              (let* ((out #$output)
+                     (library-dir (string-append out "/lib/mit-scheme"))
+                     (scmutils-dir (string-append library-dir "/scmutils"))
+                     (bin-dir (string-append out "/bin"))
+                     (doc-dir (string-append out "/share/doc/scmutils")))
+                (for-each
+                 (lambda (file)
+                   (let ((target-directory
+                          (string-append scmutils-dir "/" (dirname file))))
+                     (mkdir-p target-directory)
+                     (install-file file target-directory)))
+                 (find-files "." "\\.bci$"))
+                (install-file "mechanics.com" library-dir)
+                (mkdir-p bin-dir)
+                (with-output-to-file (string-append bin-dir "/mechanics")
+                  (lambda _
+                    (format #t "#!~a/bin/sh~%"
+                            #$(this-package-input "bash-minimal"))
+                    (display "export MITSCHEME_HEAP_SIZE=100000\n")
+                    (display "export MITSCHEME_BAND=mechanics.com\n")
+                    (format
+                     #t
+                     (string-append
+                      "export MITSCHEME_LIBRARY_PATH=\"~a"
+                      "${MITSCHEME_LIBRARY_PATH:+:${MITSCHEME_LIBRARY_PATH}}"
+                      "\"~%")
+                     library-dir)
+                    (format #t "exec ~a/bin/mit-scheme \"$@\"~%"
+                            #$(this-package-input "mit-scheme"))))
+                (chmod (string-append bin-dir "/mechanics") #o555)
+                (symlink (string-append bin-dir "/mechanics")
+                         (string-append bin-dir "/mechanics.sh"))
+                (mkdir-p doc-dir)
+                (for-each (lambda (file)
+                            (install-file file doc-dir))
+                          '("README" "INSTALL" "COPYING"))))))))
+    (home-page "https://groups.csail.mit.edu/mac/users/gjs/6946/")
+    (synopsis "MIT Scheme utility library for mechanics and applied math")
+    (description
+     "Scmutils is a collection of MIT Scheme libraries for symbolic and
+numerical work in mechanics and applied mathematics.  This package installs
+the precompiled Scmutils image and provides the @command{mechanics} launcher
+for running it with MIT/GNU Scheme.")
+    (license license-gnu:gpl2+)))
 
 
 ;;;
