@@ -255,7 +255,11 @@
 ;; Development - Core
 (define %version-control
   (list git
-        (list git "send-email") git-crypt pre-commit))
+        (list git "send-email")
+        git-lfs
+        git-tools
+        git-crypt
+        pre-commit))
 
 (define %compression-tools
   (list tar
