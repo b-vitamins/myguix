@@ -20,7 +20,7 @@
     (file-like emacs-pgtk)
     "The Emacs package to run as daemon.")
   (server-name
-    (string "main")
+    (string "server")
     "Name of the Emacs server socket.")
   (extra-options
     (list-of-strings '("--no-splash"))
@@ -112,7 +112,7 @@
 
 (define* (my-home-emacs-daemon-service #:key
                                        (package emacs-pgtk)
-                                       (server-name "main")
+                                       (server-name "server")
                                        (extra-options '("--no-splash"))
                                        (environment-variables '())
                                        (respawn? #t))
