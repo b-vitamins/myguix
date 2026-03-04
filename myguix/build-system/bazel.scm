@@ -69,6 +69,7 @@
                                 search-paths
                                 inputs
                                 fetch-targets
+                                (distdir-inputs '())
                                 (bazel-arguments '())
                                 bazel-configuration)
   (computed-file name
@@ -91,6 +92,25 @@
                                             (define %bazel-user-root
                                               (string-append %build-directory
                                                              "/tmp"))
+                                            (define %bazel-distdir
+                                              (string-append %build-directory
+                                                             "/distdir"))
+                                            (define distdir-input-files
+                                              '#$distdir-inputs)
+                                            (define (distdir-file-name file)
+                                              (let ((name (basename file)))
+                                                ;; Guix store paths are
+                                                ;; <hash>-<name>; Bazel's
+                                                ;; --distdir lookup expects
+                                                ;; the original URL basename.
+                                                (if (and (> (string-length name)
+                                                            33)
+                                                         (char=? #\-
+                                                                 (string-ref
+                                                                  name
+                                                                  32)))
+                                                    (substring name 33)
+                                                    name)))
                                             (setvbuf (current-output-port)
                                                      'line)
                                             (setvbuf (current-error-port)
@@ -125,6 +145,20 @@
                                                       cert-dir))
 
                                             (mkdir-p %bazel-out)
+                                            (when (pair? distdir-input-files)
+                                              (mkdir-p %bazel-distdir)
+                                              (for-each (lambda (file)
+                                                          (let ((target
+                                                                 (string-append
+                                                                  %bazel-distdir
+                                                                  "/"
+                                                                  (distdir-file-name
+                                                                   file))))
+                                                            (unless (file-exists?
+                                                                     target)
+                                                              (symlink file
+                                                                       target))))
+                                                        distdir-input-files))
                                             #$bazel-configuration
                                             (apply invoke
                                              "bazel"
@@ -151,7 +185,12 @@
                                              "--host_action_env=C_INCLUDE_PATH"
                                              "--host_action_env=CPLUS_INCLUDE_PATH"
                                              "--host_action_env=GUIX_LOCPATH"
-                                             (append #$bazel-arguments
+                                             (append (if (pair? distdir-input-files)
+                                                         (list (string-append
+                                                                "--distdir="
+                                                                %bazel-distdir))
+                                                         '())
+                                                     #$bazel-arguments
                                                      #$fetch-targets))
 
                                             (with-directory-excursion %bazel-out
@@ -273,15 +312,17 @@
                 (bazel (default-bazel))
                 (fetch-targets '())
                 (build-targets '())
+                (distdir-inputs '())
                 (bazel-arguments '())
                 (bazel-configuration '())
                 vendored-inputs-hash
                 #:allow-other-keys #:rest arguments)
   "Return a bag for NAME."
   (define private-keywords
-    `(#:inputs #:bazel #:jdk #:native-inputs #:outputs ,@(if target
-                                                             '()
-                                                             '(#:target))))
+    `(#:inputs #:bazel #:jdk #:native-inputs #:outputs
+               ,@(if target
+                     '()
+                     '(#:target))))
 
   (bag (name name)
        (system system)
@@ -316,6 +357,7 @@
                       (tests? #t)
                       (fetch-targets ''())
                       (build-targets ''())
+                      (distdir-inputs '())
                       (bazel-arguments ''())
                       (bazel-configuration ''())
                       (run-command ''())
@@ -352,11 +394,14 @@
                                                            #:inputs inputs
                                                            #:fetch-targets
                                                            fetch-targets
+                                                           #:distdir-inputs
+                                                           distdir-inputs
                                                            #:bazel-arguments
                                                            bazel-arguments
                                                            #:bazel-configuration
                                                            bazel-configuration)
                                                           #:bazel-arguments #$bazel-arguments
+                                                          #:distdir '#$distdir-inputs
                                                           #:system #$system
                                                           #:tests? #$tests?
                                                           #:parallel-build? #$parallel-build?

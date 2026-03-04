@@ -1,0 +1,29 @@
+diff --git c/bazel/ray_deps_setup.bzl w/bazel/ray_deps_setup.bzl
+index 3a2216f575..44ff29cf58 100644
+--- c/bazel/ray_deps_setup.bzl
++++ w/bazel/ray_deps_setup.bzl
+@@ -1,4 +1,3 @@
+-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+ 
+ def urlsplit(url):
+@@ -300,13 +299,13 @@ def ray_deps_setup():
+         url = "https://github.com/bazelbuild/rules_foreign_cc/archive/refs/tags/0.9.0.tar.gz",
+     )
+ 
+-    # Using shallow_since allows the rule to clone down fewer commits.
+-    # Reference:  https://bazel.build/rules/lib/repo/git
+-    git_repository(
++    http_archive(
+         name = "rules_perl",
+-        remote = "https://github.com/bazelbuild/rules_perl.git",
+-        commit = "022b8daf2bb4836ac7a50e4a1d8ea056a3e1e403",
+-        shallow_since = "1663780239 -0700",
++        urls = [
++            "https://github.com/bazelbuild/rules_perl/archive/022b8daf2bb4836ac7a50e4a1d8ea056a3e1e403.tar.gz",
++        ],
++        sha256 = "7d4e17a5850446388ab74a3d884d80731d45931aa6ac93edb9efbd500628fdcb",
++        strip_prefix = "rules_perl-022b8daf2bb4836ac7a50e4a1d8ea056a3e1e403",
+     )
+ 
+     http_archive(

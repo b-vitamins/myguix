@@ -62,14 +62,33 @@
 (define* (build #:key parallel-build?
                 build-targets
                 bazel-arguments
+                (distdir '())
                 (run-command '())
                 #:allow-other-keys)
+  (define (distdir-file-name file)
+    (let ((name (basename file)))
+      ;; Guix store paths are <hash>-<name>; Bazel's --distdir lookup expects
+      ;; the original URL basename.
+      (if (and (> (string-length name) 33)
+               (char=? #\- (string-ref name 32)))
+          (substring name 33)
+          name)))
   (define %build-directory
     (getenv "NIX_BUILD_TOP"))
   (define %bazel-out
     (string-append %build-directory "/output"))
   (define %bazel-user-root
     (string-append %build-directory "/tmp"))
+  (define %bazel-distdir
+    (string-append %build-directory "/distdir"))
+  (when (pair? distdir)
+    (mkdir-p %bazel-distdir)
+    (for-each (lambda (file)
+                (let ((target (string-append %bazel-distdir "/"
+                                             (distdir-file-name file))))
+                  (unless (file-exists? target)
+                    (symlink file target))))
+              distdir))
   (setenv "USER" "homeless-shelter")
   (apply invoke
          "bazel"
@@ -98,7 +117,10 @@
          "--host_action_env=CONFIG_SHELL"
          "-c"
          "opt"
-         (append bazel-arguments
+         (append (if (pair? distdir)
+                     (list (string-append "--distdir=" %bazel-distdir))
+                     '())
+                 bazel-arguments
                  (list "--jobs"
                        (if parallel-build?
                            (number->string (parallel-job-count)) "1"))
