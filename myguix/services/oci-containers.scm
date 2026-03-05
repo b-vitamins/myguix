@@ -151,7 +151,7 @@
 ;; MinIO - object storage
 (define oci-minio-service-type
   (oci-container-configuration (auto-start? #t)
-                               (image "minio/minio")
+                               (image "minio/minio:RELEASE.2025-09-07T16-13-09Z")
                                (network "host")
                                (ports '(("9000" . "9000") ("9001" . "9001"))) ;S3 + console
                                (volumes (list '("/var/lib/minio/data" . "/data")))
