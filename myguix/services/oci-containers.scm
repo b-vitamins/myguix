@@ -232,7 +232,7 @@
                             ("QDRANT__SERVICE__API_KEY" unquote qdrant-api-key)))
          (qdrant-gpu-env '(("CUDA_VISIBLE_DEVICES" . "0") ("QDRANT_GPU" . "1"))))
     (oci-container-configuration (auto-start? #t)
-                                 (image "qdrant/qdrant:latest")
+                                 (image "qdrant/qdrant:v1.17.0")
                                  (network "host")
                                  (ports '(("6333" . "6333") ;REST + gRPC
                                           ("6334" . "6334"))) ;Prometheus metrics
