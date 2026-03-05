@@ -125,7 +125,7 @@
 
 ;; GROBID - machine learning for scholarly document extraction
 (define oci-grobid-service-type
-  (oci-container-configuration (image "grobid/grobid:0.8.2")
+  (oci-container-configuration (image "grobid/grobid:0.8.2.1-full")
                                (network "host")
                                (ports '(("8070" . "8070")))))
 
