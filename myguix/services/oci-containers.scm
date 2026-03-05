@@ -164,7 +164,7 @@
 
 ;; Neo4j - graph database management system
 (define oci-neo4j-service-type
-  (oci-container-configuration (image "neo4j:5.26-community")
+  (oci-container-configuration (image "docker.io/library/neo4j:5.26.21-community")
                                (network "host")
                                (ports '(("7474" . "7474") ;HTTP
                                         ("7687" . "7687") ;Bolt
