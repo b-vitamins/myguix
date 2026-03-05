@@ -140,7 +140,7 @@
 
 ;; Meilisearch - open-source search engine
 (define oci-meilisearch-service-type
-  (oci-container-configuration (image "getmeili/meilisearch:latest")
+  (oci-container-configuration (image "getmeili/meilisearch:v1.37.0")
                                (network "host")
                                (ports '(("7700" . "7700")))
                                (environment `(("MEILI_NO_ANALYTICS" . "true") ("MEILI_MASTER_KEY"
