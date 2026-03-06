@@ -2664,72 +2664,20 @@ NVIDIA CUTLASS Python DSL (CuTe DSL), installed from the pre-built PyPI wheel.")
     (license (license:nonfree
               "https://docs.nvidia.com/cutlass/index.html#license"))))
 
+;; Upstream 4.4.1 split this into a meta wheel plus base and CUDA 13 wheels.
+;; Package the CUDA 13 wheel directly because it is a strict superset of the
+;; base payload on x86_64-linux and fits Guix's Python packaging model.
 (define-public python-nvidia-cutlass-dsl
   (package
+    (inherit python-nvidia-cutlass-dsl-libs-cu13)
     (name "python-nvidia-cutlass-dsl")
-    (version "4.3.5")
-    (home-page "https://github.com/NVIDIA/cutlass")
-    (source
-     (origin
-       (method url-fetch)
-       (uri
-        "https://files.pythonhosted.org/packages/54/b5/d2f08919a9aa9052d45b2c8adfc310a724e9474e39c612358b1b24282c54/nvidia_cutlass_dsl-4.3.5-cp311-cp311-manylinux_2_28_x86_64.whl")
-       (sha256
-        (base32 "1xnslqjhniymd36zjzvcrg6c2kmcnk6sf4zk7ld333slrq12yybs"))
-       (file-name (string-append name "-" version ".whl"))))
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f
-      #:modules '((guix build pyproject-build-system)
-                  (guix build utils))
-      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
-      #:phases
-      #~(modify-phases %standard-phases
-          (replace 'build
-            (lambda* (#:key source #:allow-other-keys)
-              (mkdir-p "dist")
-              (install-file source "dist")))
-          (add-after 'install 'patch-elf
-            (lambda* (#:key inputs outputs #:allow-other-keys)
-              (let* ((out (assoc-ref outputs "out"))
-                     (site (car (find-files out "site-packages$"
-                                            #:directories? #t)))
-                     (dsl-root (string-append site "/nvidia_cutlass_dsl"))
-                     (lib-dir (string-append dsl-root "/lib"))
-                     (mlir-dir (string-append dsl-root
-                                "/python_packages/cutlass/_mlir" "/_mlir_libs"))
-                     (ld.so (search-input-file inputs
-                                               #$(glibc-dynamic-linker)))
-                     (nvda (assoc-ref inputs "nvidia-driver"))
-                     (nvda-lib (and nvda
-                                    (string-append nvda "/lib")))
-                     (rpath-common (if nvda-lib
-                                       (string-append (dirname ld.so) ":"
-                                                      nvda-lib)
-                                       (dirname ld.so)))
-                     (lib-rpath (string-append "$ORIGIN:" rpath-common))
-                     (mlir-rpath (string-append
-                                  "$ORIGIN:$ORIGIN/../../../../lib:"
-                                  rpath-common)))
-                (define (patch dir rpath)
-                  (when (file-exists? dir)
-                    (for-each (lambda (file)
-                                (invoke "patchelf" "--set-rpath" rpath file))
-                              (find-files dir "\\.so$"))))
-                (patch lib-dir lib-rpath)
-                (patch mlir-dir mlir-rpath)))))))
-    (native-inputs (list patchelf-0.16))
-    (inputs (list nvidia-driver))
-    (propagated-inputs (list python-cuda-python python-numpy))
-    (supported-systems '("x86_64-linux"))
     (synopsis "NVIDIA CUTLASS Python DSL")
     (description
      "This package provides the NVIDIA CUTLASS Python DSL (CuTe DSL).
-It is installed from the pre-built PyPI wheel and includes proprietary
-runtime artifacts.")
-    (license (license:nonfree
-              "https://docs.nvidia.com/cutlass/index.html#license"))))
+Upstream split version 4.4.1 into a meta wheel plus base and CUDA 13 wheels; on
+x86_64-linux this package installs the CUDA 13 wheel directly because it is a
+strict superset of the base payload and includes the required runtime
+artifacts.")))
 
 (define-public nccl
   (package
