@@ -2596,6 +2596,74 @@ wheel.")
     (license (license:nonfree
               "https://docs.nvidia.com/cutlass/index.html#license"))))
 
+(define-public python-nvidia-cutlass-dsl-libs-cu13
+  (package
+    (name "python-nvidia-cutlass-dsl-libs-cu13")
+    (version "4.4.1")
+    (home-page "https://github.com/NVIDIA/cutlass")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/52/8c/3a64f59d282f1d8077c5c5dc8691bf33673a66ba4abec78ffbb3224c1472/nvidia_cutlass_dsl_libs_cu13-4.4.1-cp311-cp311-manylinux_2_28_x86_64.whl")
+       (sha256
+        (base32 "0h7ylrwvd0md3xc2d822yh23idxw48fry7ifyiw409x5jag2my2l"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (dsl-root (string-append site "/nvidia_cutlass_dsl"))
+                     (lib-dir (string-append dsl-root "/lib"))
+                     (mlir-dir (string-append dsl-root
+                                "/python_packages/cutlass/_mlir" "/_mlir_libs"))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (nvda (assoc-ref inputs "nvidia-driver"))
+                     (nvda-lib (and nvda
+                                    (string-append nvda "/lib")))
+                     (rpath-common (if nvda-lib
+                                       (string-append (dirname ld.so) ":"
+                                                      nvda-lib)
+                                       (dirname ld.so)))
+                     (lib-rpath (string-append "$ORIGIN:" rpath-common))
+                     (mlir-rpath (string-append
+                                  "$ORIGIN:$ORIGIN/../../../../lib:"
+                                  rpath-common)))
+                (define (patch dir rpath)
+                  (when (file-exists? dir)
+                    (for-each (lambda (file)
+                                (invoke "patchelf" "--set-rpath" rpath file))
+                              (find-files dir "\\.so$"))))
+                (patch lib-dir lib-rpath)
+                (patch mlir-dir mlir-rpath)))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list nvidia-driver))
+    (propagated-inputs (list python-cuda-python
+                             python-numpy
+                             python-typing-extensions))
+    (supported-systems '("x86_64-linux"))
+    (synopsis "CUDA 13 runtime for the NVIDIA CUTLASS Python DSL")
+    (description
+     "This package provides the CUDA 13-specific shared libraries for the
+NVIDIA CUTLASS Python DSL (CuTe DSL), installed from the pre-built PyPI wheel.")
+    (license (license:nonfree
+              "https://docs.nvidia.com/cutlass/index.html#license"))))
+
 (define-public python-nvidia-cutlass-dsl
   (package
     (name "python-nvidia-cutlass-dsl")
