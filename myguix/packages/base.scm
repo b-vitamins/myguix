@@ -104,7 +104,7 @@
   #:use-module (myguix packages maths)
   #:use-module (myguix packages messaging)
   #:use-module (myguix packages mozilla)
-  #:use-module (myguix packages nlp)
+  #:use-module ((myguix packages nlp) #:prefix nlp:)
   #:use-module (myguix packages llm)
   #:use-module (myguix packages node-pqrs)
   #:use-module (myguix packages nvidia)
@@ -457,7 +457,7 @@
         python-torchvision-cuda
         python-lion-pytorch-cuda
         python-torchaudio-cuda
-        python-chatterbox-tts-cuda
+        nlp:python-chatterbox-tts-cuda
         python-torchcodec-cuda
         python-torchmetrics-cuda
         python-ray
@@ -547,6 +547,7 @@
         python
         python-ipython
         python-rich
+        nlp:python-tiktoken
         python-pypdf
         python-pdfminer-six
         python-flake8
