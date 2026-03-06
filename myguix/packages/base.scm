@@ -471,16 +471,9 @@
 (define %ml-packages
   (list gnu-ml:python-pytorch
         gnu-ml:python-torchvision
-        python-lion-pytorch
         gnu-ml:python-torchaudio
-        nlp:python-chatterbox-tts
         python-torchcodec
-        gnu-ml:python-torchmetrics
-        python-ray
-        python-neo4j
-        python-graphdatascience
-        cypher-shell
-        mujoco))
+        gnu-ml:python-torchmetrics))
 
 ;; Tree-sitter Bundles
 (define %tree-sitter-core
