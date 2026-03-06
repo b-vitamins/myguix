@@ -48,6 +48,7 @@
   #:use-module (gnu packages llvm)
   #:use-module (gnu packages lsof)
   #:use-module (gnu packages mail)
+  #:use-module ((gnu packages machine-learning) #:prefix gnu-ml:)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mold)
   #:use-module (gnu packages moreutils)
@@ -152,6 +153,7 @@
             %documentation-tools
             %cuda-packages
             %isaac-sim-packages
+            %ml-packages
             %ml-packages-cuda
             ;; Networking
             %network-core
@@ -460,6 +462,20 @@
         nlp:python-chatterbox-tts-cuda
         python-torchcodec-cuda
         python-torchmetrics-cuda
+        python-ray
+        python-neo4j
+        python-graphdatascience
+        cypher-shell
+        mujoco))
+
+(define %ml-packages
+  (list gnu-ml:python-pytorch
+        gnu-ml:python-torchvision
+        python-lion-pytorch
+        gnu-ml:python-torchaudio
+        nlp:python-chatterbox-tts
+        python-torchcodec
+        gnu-ml:python-torchmetrics
         python-ray
         python-neo4j
         python-graphdatascience
