@@ -69,7 +69,7 @@
                       (log-file (string-append log-dir "/emacs-"
                                                #$server-name ".log")))
                  (mkdir-p log-dir)
-                 ((make-forkexec-constructor
+                 (make-forkexec-constructor
                    (append
                     (list #$(file-append package "/bin/emacs")
                           (string-append "--fg-daemon=" #$server-name))
@@ -99,7 +99,7 @@
                         (list (string-append "XDG_RUNTIME_DIR="
                                              (getenv "XDG_RUNTIME_DIR")))
                         '())
-                    '#$environment-variables)))))
+                    '#$environment-variables))))
       (stop #~(make-kill-destructor))))))
 
 (define my-home-emacs-daemon-service-type
