@@ -11,10 +11,13 @@
   #:use-module (gnu services)
   #:use-module (gnu services configuration)
   #:use-module (guix gexp)
-  #:export (my-home-emacs-service-type))
+  #:export (%my-home-emacs-package
+            my-home-emacs-service-type))
+
+(define %my-home-emacs-package emacs-pgtk)
 
 (define (my-home-emacs-profile-service-type config)
-  (list emacs-pgtk
+  (list %my-home-emacs-package
         emacs-academic-phrases
         emacs-ace-window
         emacs-ag

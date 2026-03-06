@@ -5,12 +5,14 @@
   #:use-module (gnu services)
   #:use-module (gnu services configuration)
   #:use-module (guix gexp)
+  #:use-module (myguix home services emacs)
   #:export (emacs-daemon-configuration
             emacs-daemon-configuration?
             emacs-daemon-configuration-package
             emacs-daemon-configuration-server-name
             emacs-daemon-configuration-extra-options
             emacs-daemon-configuration-environment-variables
+            emacs-daemon-configuration-inherit-display-environment?
             emacs-daemon-configuration-respawn?
             my-home-emacs-daemon-service-type
             home-emacs-daemon-service-type
@@ -18,7 +20,7 @@
 
 (define-configuration/no-serialization emacs-daemon-configuration
   (package
-    (file-like emacs-pgtk)
+    (file-like %my-home-emacs-package)
     "The Emacs package to run as daemon.")
   (server-name
     (string "server")
@@ -29,6 +31,11 @@
   (environment-variables
     (list-of-strings '())
     "Extra environment variables appended to the daemon environment.")
+  (inherit-display-environment?
+    (boolean #f)
+    "Whether to forward display-specific variables to the daemon.
+Disabled by default so PGTK Emacs starts headless and survives display
+disconnects.")
   (respawn?
     (boolean #t)
     "Whether Shepherd should respawn Emacs when it exits unexpectedly."))
@@ -40,6 +47,8 @@
         (extra-options (emacs-daemon-configuration-extra-options config))
         (environment-variables
          (emacs-daemon-configuration-environment-variables config))
+        (inherit-display-environment?
+         (emacs-daemon-configuration-inherit-display-environment? config))
         (respawn? (emacs-daemon-configuration-respawn? config)))
     (list
      (shepherd-service
@@ -88,16 +97,40 @@
                           (string-append "XDG_STATE_HOME=" xdg-state-home)
                           "SSL_CERT_DIR=/etc/ssl/certs"
                           "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt")
-                    (if (getenv "DISPLAY")
-                        (list (string-append "DISPLAY=" (getenv "DISPLAY")))
-                        '())
-                    (if (getenv "WAYLAND_DISPLAY")
-                        (list (string-append "WAYLAND_DISPLAY="
-                                             (getenv "WAYLAND_DISPLAY")))
-                        '())
                     (if (getenv "XDG_RUNTIME_DIR")
                         (list (string-append "XDG_RUNTIME_DIR="
                                              (getenv "XDG_RUNTIME_DIR")))
+                        '())
+                    (if (getenv "DBUS_SESSION_BUS_ADDRESS")
+                        (list (string-append "DBUS_SESSION_BUS_ADDRESS="
+                                             (getenv "DBUS_SESSION_BUS_ADDRESS")))
+                        '())
+                    (if (getenv "SSH_AUTH_SOCK")
+                        (list (string-append "SSH_AUTH_SOCK="
+                                             (getenv "SSH_AUTH_SOCK")))
+                        '())
+                    (if #$inherit-display-environment?
+                        (append
+                         (if (getenv "DISPLAY")
+                             (list (string-append "DISPLAY="
+                                                  (getenv "DISPLAY")))
+                             '())
+                         (if (getenv "WAYLAND_DISPLAY")
+                             (list (string-append "WAYLAND_DISPLAY="
+                                                  (getenv "WAYLAND_DISPLAY")))
+                             '())
+                         (if (getenv "WAYLAND_SOCKET")
+                             (list (string-append "WAYLAND_SOCKET="
+                                                  (getenv "WAYLAND_SOCKET")))
+                             '())
+                         (if (getenv "XAUTHORITY")
+                             (list (string-append "XAUTHORITY="
+                                                  (getenv "XAUTHORITY")))
+                             '())
+                         (if (getenv "GDK_BACKEND")
+                             (list (string-append "GDK_BACKEND="
+                                                  (getenv "GDK_BACKEND")))
+                             '()))
                         '())
                     '#$environment-variables))))
       (stop #~(make-kill-destructor))))))
@@ -115,10 +148,11 @@
 (define home-emacs-daemon-service-type my-home-emacs-daemon-service-type)
 
 (define* (my-home-emacs-daemon-service #:key
-                                       (package emacs-pgtk)
+                                       (package %my-home-emacs-package)
                                        (server-name "server")
                                        (extra-options '("--no-splash"))
                                        (environment-variables '())
+                                       (inherit-display-environment? #f)
                                        (respawn? #t))
   "Convenience constructor for `home-emacs-daemon-service-type'."
   (service my-home-emacs-daemon-service-type
@@ -127,4 +161,6 @@
             (server-name server-name)
             (extra-options extra-options)
             (environment-variables environment-variables)
+            (inherit-display-environment?
+             inherit-display-environment?)
             (respawn? respawn?))))
