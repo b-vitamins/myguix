@@ -152,7 +152,7 @@
             %documentation-tools
             %cuda-packages
             %isaac-sim-packages
-            %ml-packages
+            %ml-packages-cuda
             ;; Networking
             %network-core
             %network-diagnostics
@@ -451,7 +451,7 @@
   (list isaac-sim isaac-sim-webrtc-client isaac-sim-assets-robots-sensors
         isaac-sim-assets-materials-props isaac-sim-assets-environments))
 
-(define %ml-packages
+(define %ml-packages-cuda
   (list nccl
         python-pytorch-cuda
         python-torchvision-cuda
