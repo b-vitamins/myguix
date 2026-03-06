@@ -201,9 +201,6 @@ some freedo package or an output of package-version procedure."
 (define-public linux-5.10
   (corrupt-linux linux-libre-5.10))
 
-(define-public linux-5.4
-  (corrupt-linux linux-libre-5.4))
-
 (define-public linux
   linux-6.18)
 
@@ -213,10 +210,6 @@ some freedo package or an output of package-version procedure."
 
 (define-public linux-arm64-generic-5.10
   (corrupt-linux linux-libre-arm64-generic-5.10
-                 #:name "linux-arm64-generic"))
-
-(define-public linux-arm64-generic-5.4
-  (corrupt-linux linux-libre-arm64-generic-5.4
                  #:name "linux-arm64-generic"))
 
 (define-public linux-arm64-generic
