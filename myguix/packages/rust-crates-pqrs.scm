@@ -1788,6 +1788,10 @@
   (crate-source "pyo3" "0.25.0"
                 "19277ka0xfam1sljmm5129iars41nbqpflpqzqxfgkiv6rbdcfgj"))
 
+(define rust-pyo3-0.26.0
+  (crate-source "pyo3" "0.26.0"
+                "10vkw1a27ymxbi5rrcp71k9q645ybbjdli20akk1w40j89zi383v"))
+
 (define rust-pyo3-build-config-0.20.3
   (crate-source "pyo3-build-config" "0.20.3"
                 "1ms83n1qa81989c6pakpznifalvxv5fiyyji23732lizvr2mgany"))
@@ -1807,6 +1811,10 @@
 (define rust-pyo3-build-config-0.25.0
   (crate-source "pyo3-build-config" "0.25.0"
                 "0v8viwyp3whd39wywfh0lv53kjhrykvalisj2vx48h63l5qscpkm"))
+
+(define rust-pyo3-build-config-0.26.0
+  (crate-source "pyo3-build-config" "0.26.0"
+                "0pyzhzxsn7lhhbhjcm1nyjw53f5i3x1nbb1imali4zcl4jpxvijg"))
 
 (define rust-pyo3-ffi-0.20.3
   (crate-source "pyo3-ffi" "0.20.3"
@@ -1828,6 +1836,10 @@
   (crate-source "pyo3-ffi" "0.25.0"
                 "0vlm6m6q3060g2gzvfpijkrr6lmy8kvhyc7asj8lgr4if3ka55gw"))
 
+(define rust-pyo3-ffi-0.26.0
+  (crate-source "pyo3-ffi" "0.26.0"
+                "01a137mrhpg442g1k5km3j80qh2alx24fvf3iaryyf47jb9p8m02"))
+
 (define rust-pyo3-macros-0.20.3
   (crate-source "pyo3-macros" "0.20.3"
                 "0n61s98qb2qc1wlda3bz4r0wi0vsr9p4lj2yr5g0bf01z8hcf1bk"))
@@ -1848,6 +1860,10 @@
   (crate-source "pyo3-macros" "0.25.0"
                 "0502a6860s62sw7vlw92vg4bd4fp1ryfh59glqlhi4lk3cfn8yd1"))
 
+(define rust-pyo3-macros-0.26.0
+  (crate-source "pyo3-macros" "0.26.0"
+                "1vgx5z2csmznj371rj1g13rijz0yqi6c8xqvj6airzi2kx4fnr1f"))
+
 (define rust-pyo3-macros-backend-0.20.3
   (crate-source "pyo3-macros-backend" "0.20.3"
                 "11b1z7qnbdnd9hy74ds3xcjx3mjkz43mvpnan32ljccwpdl9nzkw"))
@@ -1867,6 +1883,10 @@
 (define rust-pyo3-macros-backend-0.25.0
   (crate-source "pyo3-macros-backend" "0.25.0"
                 "17p8l74mxkrzwd3zcx2yky5fmv33d45f8yiz1qdl935brbmqbzwx"))
+
+(define rust-pyo3-macros-backend-0.26.0
+  (crate-source "pyo3-macros-backend" "0.26.0"
+                "1kqg5q8563i754fq8g4syad5ci1k46lmb10v6isv807lxk04c0hh"))
 
 (define rust-pyproject-toml-0.13.5
   (crate-source "pyproject-toml" "0.13.5"
@@ -3394,20 +3414,20 @@
                                             rust-once-cell-1.21.3
                                             rust-portable-atomic-1.11.1
                                             rust-proc-macro2-1.0.101
-                                            rust-pyo3-0.22.6
-                                            rust-pyo3-build-config-0.22.6
-                                            rust-pyo3-ffi-0.22.6
-                                            rust-pyo3-macros-0.22.6
-                                            rust-pyo3-macros-backend-0.22.6
+                                            rust-pyo3-0.26.0
+                                            rust-pyo3-build-config-0.26.0
+                                            rust-pyo3-ffi-0.26.0
+                                            rust-pyo3-macros-0.26.0
+                                            rust-pyo3-macros-backend-0.26.0
                                             rust-quote-1.0.40
                                             rust-regex-1.11.1
                                             rust-regex-automata-0.4.9
                                             rust-regex-syntax-0.8.5
-                                            rust-rustc-hash-1.1.0
+                                            rust-rustc-hash-2.1.1
                                             rust-serde-1.0.219
                                             rust-serde-derive-1.0.219
                                             rust-syn-2.0.106
-                                            rust-target-lexicon-0.12.16
+                                            rust-target-lexicon-0.13.3
                                             rust-unicode-ident-1.0.18
                                             rust-unindent-0.2.4))
                      (python-tokenizers-for-nougat =>
@@ -4905,4 +4925,3 @@
                                       rust-zune-core-0.4.12
                                       rust-zune-inflate-0.2.54
                                       rust-zune-jpeg-0.4.14)))
-
