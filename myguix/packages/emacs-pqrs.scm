@@ -17,18 +17,22 @@
 (define-public emacs-mjolnir-mode
   (package
     (name "emacs-mjolnir-mode")
-    (version "0.2.0")
+    (version "0.5.0")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
-             (url "https://github.com/b-vitamins/mjolnir-mode")
+             (url "https://github.com/b-vitamins/mjolnir")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "19s6l04kk9sgix23gggx8kmh8rl82lxiany9w9zmmsy96zjii8hq"))))
+        (base32 "1z9pki1x626afdcw5rq4vbzmskaqgqc6j1jd088b851q5dzc27i4"))))
+    (arguments
+     (list
+      #:lisp-directory "lisp"
+      #:test-command #~(list "make" "-C" ".." "check")))
     (build-system emacs-build-system)
-    (home-page "https://github.com/b-vitamins/mjolnir-mode")
+    (home-page "https://github.com/b-vitamins/mjolnir")
     (synopsis
      "Whosoever holds this hammer, if he be worthy, shall possess the power of Thor.")
     (description
