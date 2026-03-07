@@ -59,24 +59,66 @@ disconnects.")
       (modules '((guix build utils)))
       (respawn? respawn?)
       (start #~(let* ((home (or (getenv "HOME") "/tmp"))
-                      (user (or (getenv "USER") "unknown"))
-                      (path (or (getenv "PATH")
-                                "/run/current-system/profile/bin"))
-                      (xdg-config-home
-                       (or (getenv "XDG_CONFIG_HOME")
-                           (string-append home "/.config")))
-                      (xdg-data-home
-                       (or (getenv "XDG_DATA_HOME")
-                           (string-append home "/.local/share")))
-                      (xdg-cache-home
-                       (or (getenv "XDG_CACHE_HOME")
-                           (string-append home "/.cache")))
                       (xdg-state-home
                        (or (getenv "XDG_STATE_HOME")
                            (string-append home "/.local/state")))
                       (log-dir (string-append xdg-state-home "/log"))
                       (log-file (string-append log-dir "/emacs-"
-                                               #$server-name ".log")))
+                                               #$server-name ".log"))
+                      (display-environment-variables
+                       (if #$inherit-display-environment?
+                           (let loop ((names '("DISPLAY"
+                                               "WAYLAND_DISPLAY"
+                                               "WAYLAND_SOCKET"
+                                               "XAUTHORITY"
+                                               "GDK_BACKEND"))
+                                      (result '()))
+                             (if (null? names)
+                                 (reverse result)
+                                 (let* ((name (car names))
+                                        (value (getenv name)))
+                                   (loop (cdr names)
+                                         (if value
+                                             (cons (string-append name "=" value)
+                                                   result)
+                                             result)))))
+                           '()))
+                      (override-environment-variables
+                       (append display-environment-variables
+                               '#$environment-variables))
+                      (environment-variable-name
+                       (lambda (entry)
+                         (let ((separator (string-index entry #\=)))
+                           (and separator
+                                (string-take entry separator)))))
+                      (override-names
+                       (let loop ((entries override-environment-variables)
+                                  (result '()))
+                         (if (null? entries)
+                             (reverse result)
+                             (let ((name
+                                    (environment-variable-name
+                                     (car entries))))
+                               (loop (cdr entries)
+                                     (if name
+                                         (cons name result)
+                                         result))))))
+                      (effective-environment-variables
+                       (append
+                        (let loop ((entries (environ))
+                                   (result '()))
+                          (if (null? entries)
+                              (reverse result)
+                              (let* ((entry (car entries))
+                                     (name
+                                      (environment-variable-name
+                                       entry)))
+                                (loop (cdr entries)
+                                      (if (and name
+                                               (member name override-names))
+                                          result
+                                          (cons entry result))))))
+                        override-environment-variables)))
                  (mkdir-p log-dir)
                  (make-forkexec-constructor
                    (append
@@ -86,53 +128,7 @@ disconnects.")
                    #:directory home
                    #:log-file log-file
                    #:environment-variables
-                   (append
-                    (list (string-append "HOME=" home)
-                          (string-append "USER=" user)
-                          (string-append "LOGNAME=" user)
-                          (string-append "PATH=" path)
-                          (string-append "XDG_CONFIG_HOME=" xdg-config-home)
-                          (string-append "XDG_DATA_HOME=" xdg-data-home)
-                          (string-append "XDG_CACHE_HOME=" xdg-cache-home)
-                          (string-append "XDG_STATE_HOME=" xdg-state-home)
-                          "SSL_CERT_DIR=/etc/ssl/certs"
-                          "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt")
-                    (if (getenv "XDG_RUNTIME_DIR")
-                        (list (string-append "XDG_RUNTIME_DIR="
-                                             (getenv "XDG_RUNTIME_DIR")))
-                        '())
-                    (if (getenv "DBUS_SESSION_BUS_ADDRESS")
-                        (list (string-append "DBUS_SESSION_BUS_ADDRESS="
-                                             (getenv "DBUS_SESSION_BUS_ADDRESS")))
-                        '())
-                    (if (getenv "SSH_AUTH_SOCK")
-                        (list (string-append "SSH_AUTH_SOCK="
-                                             (getenv "SSH_AUTH_SOCK")))
-                        '())
-                    (if #$inherit-display-environment?
-                        (append
-                         (if (getenv "DISPLAY")
-                             (list (string-append "DISPLAY="
-                                                  (getenv "DISPLAY")))
-                             '())
-                         (if (getenv "WAYLAND_DISPLAY")
-                             (list (string-append "WAYLAND_DISPLAY="
-                                                  (getenv "WAYLAND_DISPLAY")))
-                             '())
-                         (if (getenv "WAYLAND_SOCKET")
-                             (list (string-append "WAYLAND_SOCKET="
-                                                  (getenv "WAYLAND_SOCKET")))
-                             '())
-                         (if (getenv "XAUTHORITY")
-                             (list (string-append "XAUTHORITY="
-                                                  (getenv "XAUTHORITY")))
-                             '())
-                         (if (getenv "GDK_BACKEND")
-                             (list (string-append "GDK_BACKEND="
-                                                  (getenv "GDK_BACKEND")))
-                             '()))
-                        '())
-                    '#$environment-variables))))
+                   effective-environment-variables)))
       (stop #~(make-kill-destructor))))))
 
 (define my-home-emacs-daemon-service-type
