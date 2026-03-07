@@ -7,7 +7,8 @@
   #:use-module (gnu packages compression)
   #:use-module (gnu packages cups)
   #:use-module (gnu packages databases)
-  #:use-module (gnu packages fontutils)
+  #:use-module ((gnu packages fontutils)
+                #:hide (python-skia-pathops))
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages gl)
@@ -21,7 +22,8 @@
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages pulseaudio)
   #:use-module (gnu packages python)
-  #:use-module (gnu packages python-xyz)
+  #:use-module ((gnu packages python-xyz)
+                #:hide (python-manimpango))
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-build)
@@ -309,30 +311,30 @@ content.")
 (define-public python-manim
   (package
     (name "python-manim")
-    (version "0.19.0")
+    (version "0.20.1")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "manim" version))
        (sha256
-        (base32 "01a59ydddip5szsw3svl30zdrkhcmvf3wykdzm04k8nyq7zib0bl"))))
+        (base32 "0sz1j8yijdz5zjkjc5w1c55wx4qp2iyxgjwvs25fbgf15zxlg5qy"))))
     (build-system pyproject-build-system)
     (arguments
-     '(#:tests? #f ;Tests require various resources and display
-       #:phases (modify-phases %standard-phases
-                  (add-after 'unpack 'remove-skia-pathops-requirement
-                    (lambda _
-                      ;; Remove skia-pathops as it requires complex Skia library
-                      (substitute* "pyproject.toml"
-                        (("\"skia-pathops.*\",")
-                         ""))
-                      ;; Make boolean_ops optional by wrapping the whole module
-                      (substitute* "manim/__init__.py"
-                        (("from \\.mobject\\.geometry\\.boolean_ops import \\*")
-                         "try:
-    from .mobject.geometry.boolean_ops import *
-except ImportError:
-    pass  # boolean_ops requires skia-pathops")))))))
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'wrap-ffmpeg
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((ffmpeg-bin (string-append (assoc-ref inputs "ffmpeg")
+                                               "/bin")))
+                (for-each
+                 (lambda (program)
+                   (when (file-exists? program)
+                     (wrap-program program
+                       `("PATH" ":" prefix (,ffmpeg-bin)))))
+                 (list (string-append #$output "/bin/manim")
+                       (string-append #$output "/bin/manimce")))))))))
     (propagated-inputs (list python-av
                              python-beautifulsoup4
                              python-click
@@ -352,13 +354,14 @@ except ImportError:
                              python-rich
                              python-scipy
                              python-screeninfo
+                             python-skia-pathops
                              python-srt
                              python-svgelements
                              python-tqdm
                              python-typing-extensions
                              python-watchdog))
     (inputs (list ffmpeg))
-    (native-inputs (list python-poetry-core))
+    (native-inputs (list python-hatchling))
     (home-page "https://www.manim.community/")
     (synopsis "Mathematical animation engine")
     (description

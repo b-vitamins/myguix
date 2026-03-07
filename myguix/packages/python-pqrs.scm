@@ -6,6 +6,7 @@
   #:use-module (gnu packages check)
   #:use-module (gnu packages cmake)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages build-tools)
   #:use-module (gnu packages digest)
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages jemalloc)
@@ -13,6 +14,7 @@
   #:use-module (gnu packages sphinx)
   #:use-module (gnu packages databases)
   #:use-module (gnu packages image)
+  #:use-module (gnu packages graphics)
   #:use-module (gnu packages machine-learning)
   #:use-module (gnu packages monitoring)
   #:use-module (gnu packages ninja)
@@ -1653,6 +1655,9 @@ parallelism.")))
        (sha256
         (base32 "08bfimqq12rvgssd9a4z865sbma1dbfpzqihd2r5b4zacklfnlgs"))))
     (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
     (propagated-inputs (list python-numpy))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/jared-hughes/isosurfaces")
@@ -1661,6 +1666,36 @@ parallelism.")))
     (description
      "Construct isolines/isosurfaces over a 2D/3D scalar field defined by a function
 (not a uniform grid).")
+    (license license:expat)))
+
+(define-public python-manimpango
+  (package
+    (name "python-manimpango")
+    (version "0.6.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "manimpango" version))
+       (sha256
+        (base32 "1gs0pm6ai7gmki12fikjg5p99zh9ws47q2218gwvbnlriszhp82r"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs
+     (list pkg-config
+           python-cython
+           python-setuptools
+           python-wheel))
+    (inputs
+     (list pango))
+    (home-page "https://manimpango.manim.community/")
+    (synopsis "Bindings for Pango for using with Manim")
+    (description
+     "Python bindings for ManimPango which is a C binding for Pango,
+using Cython.
+
+ManimPango is internally used in Manim to render non-LaTeX text.")
     (license license:expat)))
 
 (define-public python-neo4j
@@ -2534,6 +2569,55 @@ and YAML-based configuration files with dot-accessible dictionaries.")
     (description
      "screeninfo is a Python library for programmatically obtaining information about the physical screens connected to the system.")
     (license license:expat)))
+
+(define-public python-skia-pathops
+  (package
+    (name "python-skia-pathops")
+    (version "0.9.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "skia_pathops" version))
+       (sha256
+        (base32 "0683vhg3jam5g5jwrycvib2iqchbpg1a1z16rf1959plyrcq8vab"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'use-system-skia-build-tools
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((gn (search-input-file inputs "/bin/gn")))
+                (substitute* "setup.py"
+                  (("build_cmd = \\[sys\\.executable, build_skia_py, build_dir\\]")
+                   (format #f
+                           "build_cmd = [sys.executable, build_skia_py, build_dir, \"--no-virtualenv\", \"--no-fetch-gn\", \"--gn-path\", ~s]"
+                           gn))))))
+          (add-after 'unpack 'set-skia-toolchain
+            (lambda _
+              (setenv "CC" "gcc")
+              (setenv "CXX" "g++")
+              (setenv "AR" "ar")))
+          (add-after 'unpack 'relax-cython-version
+            (lambda _
+              (substitute* '("pyproject.toml" "setup.py")
+                (("3\\.2\\.0")
+                 "3.1.7")))))))
+    (native-inputs
+     (list gn
+           ninja
+           python-cython
+           python-packaging
+           python-setuptools
+           python-setuptools-scm
+           python-wheel))
+    (home-page "https://github.com/fonttools/skia-pathops")
+    (synopsis "Python access to operations on paths using the Skia library")
+    (description
+     "This package provides Python bindings for the Path Ops module of the
+Skia library, performing boolean operations on paths.")
+    (license license:bsd-3)))
 
 (define-public python-groovy
   (package
