@@ -1,4 +1,5 @@
 (use-modules (gnu services shepherd)
+             (guix build syscalls)
              (guix build utils)
              (guix gexp)
              (ice-9 match)
@@ -17,6 +18,9 @@
 
 (define %project-root
   (dirname (dirname %test-file)))
+
+(define %guile-executable
+  (canonicalize-path "/proc/self/exe"))
 
 (define %backup-module
   (resolve-module '(myguix services backup)))
@@ -54,12 +58,9 @@
                                                     #\newline))))))
 
 (define (mktemp-directory)
-  (call-with-values (lambda ()
-                      (capture "mktemp" "-d"))
-                    (lambda (status output)
-                      (unless (zero? status)
-                        (error "mktemp failed"))
-                      (string-trim-right output))))
+  (mkdtemp! (string-copy (string-append (or (getenv "TMPDIR")
+                                            "/tmp")
+                                        "/myguix-test-XXXXXX"))))
 
 (define (write-text-file file text)
   (call-with-output-file file
@@ -107,36 +108,31 @@
 "
                                    "  (borg-guix (list\n" expression "))\n)\n")))
 
-(define (env-borg-command passphrase . arguments)
-  (append (list "env"
-                (string-append "BORG_PASSPHRASE=" passphrase) "borg")
-          arguments))
-
-(define (archive-names repository passphrase)
+(define (archive-names program repository)
   (call-with-values (lambda ()
-                      (apply capture-lines
-                             (env-borg-command passphrase "list" repository)))
+                      (capture-lines program "borg" "list" repository))
                     (lambda (status lines)
                       (unless (zero? status)
                         (error "borg list failed" repository))
                       (map (lambda (line)
-                             (car (string-tokenize line))) lines))))
+                             (car (string-tokenize line)))
+                           (filter (lambda (line)
+                                     (not (string-prefix? "Running " line)))
+                                   lines)))))
 
-(define (archive-contents repository archive passphrase)
+(define (archive-contents program repository archive)
   (call-with-values (lambda ()
-                      (apply capture
-                             (env-borg-command passphrase "list"
-                                               (string-append repository "::"
-                                                              archive))))
+                      (capture program "borg" "list"
+                               (string-append repository "::"
+                                              archive)))
                     (lambda (status output)
                       (unless (zero? status)
                         (error "borg list archive failed" archive)) output)))
 
-(define (extract-archive repository archive passphrase directory)
+(define (extract-archive program repository archive directory)
   (with-directory-excursion directory
-    (apply system*
-           (env-borg-command passphrase "extract"
-                             (string-append repository "::" archive)))))
+    (system* program "borg" "extract"
+             (string-append repository "::" archive))))
 
 (define (contains-substring? text needle)
   (and (string-contains text needle) #t))
@@ -291,10 +287,10 @@
                                        (contains-substring? output
                                         "init --encryption repokey"))))
 
-                  (let* ((archives (archive-names repository passphrase))
+                  (let* ((archives (archive-names job-program repository))
                          (archive (car archives))
-                         (contents (archive-contents repository archive
-                                                     passphrase)))
+                         (contents (archive-contents job-program repository
+                                                     archive)))
                     (test-equal
                      "initial backup leaves one archive after prune" 1
                      (length archives))
@@ -305,14 +301,14 @@
                                  (not (contains-substring? contents
                                        "source/.cache/skip.txt")))
                     (test-equal "extract succeeds for created archive" 0
-                                (extract-archive repository archive passphrase
+                                (extract-archive job-program repository archive
                                                  extract))
                     (test-equal "restored file contents match source"
                                 "first version\n"
                                 (read-text-file (string-append extract source
                                                                "/keep.txt"))))
 
-                  (system* "sleep" "1")
+                  (sleep 1)
                   (write-text-file (string-append source "/keep.txt")
                                    "second version\n")
 
@@ -327,7 +323,7 @@
                                       (test-assert "second backup ran compact"
                                        (contains-substring? output " compact "))))
 
-                  (let ((archives (archive-names repository passphrase)))
+                  (let ((archives (archive-names job-program repository)))
                     (test-equal
                      "retention policy keeps one archive after second backup"
                      1
@@ -375,8 +371,11 @@
   (verbose? #t))"
                                                 "pcmd"
                                                 repository
-                                                (string-append "cat "
-                                                 passphrase-file)
+                                                (format #f "~a -c ~s"
+                                                        %guile-executable
+                                                        (format #f
+                                                                "(use-modules (ice-9 textual-ports)) (display (call-with-input-file ~s get-string-all))"
+                                                                passphrase-file))
                                                 "repokey"
                                                 "0 1 * * *"
                                                 (list source)))))
