@@ -163,6 +163,7 @@
         emacs-org-appear
         emacs-org-contrib
         emacs-org-download
+        emacs-org-fast-latex-preview
         emacs-org-fragtog
         emacs-org-make-toc
         emacs-org-modern
