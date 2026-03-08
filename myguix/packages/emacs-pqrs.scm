@@ -43,6 +43,33 @@
      "When wielding Mjölnir, nothing shall come in the way of your buffers as they thunder through your windows. Instead of moving over to the window holding the buffer worthy of your attention, summon it into the window you're already in. However, you deem not all buffers as worthy - let be them smitten under the might of Mjölnir - and they shall stay their ground.")
     (license license:gpl3+)))
 
+(define-public emacs-org-fast-latex-preview
+  (package
+    (name "emacs-org-fast-latex-preview")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/org-fast-latex-preview")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "069v8vacp06k8iybma0gr1wykl3s1rhcv1prx5irpdjacfn640wg"))))
+    (build-system emacs-build-system)
+    (arguments
+     (list
+      #:lisp-directory "lisp"
+      #:tests? #f))                    ;Tests require TeX, dvisvgm, and Python.
+    (home-page "https://github.com/b-vitamins/org-fast-latex-preview")
+    (synopsis "Fast asynchronous LaTeX previews for Org buffers")
+    (description
+     "org-fast-latex-preview provides batched asynchronous LaTeX previews for
+Org buffers.  It renders SVG previews via dvisvgm, stores them in a persistent
+cache, refreshes edited fragments after an idle delay, and reuses native Org
+preview configuration by default.")
+    (license license:gpl3+)))
+
 (define-public emacs-nerd-icons-dired
   (package
     (name "emacs-nerd-icons-dired")
