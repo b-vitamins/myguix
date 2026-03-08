@@ -324,7 +324,10 @@
   (list calc openblas lapack))
 
 (define %math-applications
-  (list maxima wxmaxima))
+  (list maxima
+        wxmaxima
+        octave
+        octave-cli))
 
 (define %scientific-computing
   (list gnuplot hdf5 nlopt ipopt nauty))
