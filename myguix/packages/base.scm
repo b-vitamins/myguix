@@ -556,6 +556,7 @@
         python
         python-ipython
         python-rich
+        python-manim
         nlp:python-tiktoken
         python-pypdf
         python-pdfminer-six
