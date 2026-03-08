@@ -57,7 +57,6 @@
   #:use-module (gnu packages music)
   #:use-module (gnu packages networking)
   #:use-module (gnu packages nfs)
-  #:use-module (gnu packages nicotine)
   #:use-module (gnu packages ocr)
   #:use-module (gnu packages ocaml)
   #:use-module (gnu packages package-management)
@@ -349,7 +348,7 @@
   (list borg restic))
 
 (define %download-tools
-  (list aria2 yt-dlp qbittorrent-enhanced nicotine+ miniupnpc))
+  (list aria2 yt-dlp qbittorrent-enhanced miniupnpc))
 
 (define %document-conversion-packages
   (list pandoc
