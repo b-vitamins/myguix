@@ -5,8 +5,7 @@
   #:use-module (rnrs files)
   #:use-module (rnrs io simple)
   #:use-module (srfi srfi-13)
-  #:export (read-secret oci-airflow-service-type
-                        oci-cassandra-service-type
+  #:export (read-secret oci-cassandra-service-type
                         oci-clickhouse-service-type
                         oci-embeddings-service-type
                         oci-grafana-service-type
@@ -151,7 +150,8 @@
 ;; MinIO - object storage
 (define oci-minio-service-type
   (oci-container-configuration (auto-start? #t)
-                               (image "minio/minio:RELEASE.2025-09-07T16-13-09Z")
+                               (image
+                                "minio/minio:RELEASE.2025-09-07T16-13-09Z")
                                (network "host")
                                (ports '(("9000" . "9000") ("9001" . "9001"))) ;S3 + console
                                (volumes (list '("/var/lib/minio/data" . "/data")))
@@ -164,7 +164,8 @@
 
 ;; Neo4j - graph database management system
 (define oci-neo4j-service-type
-  (oci-container-configuration (image "docker.io/library/neo4j:5.26.21-community")
+  (oci-container-configuration (image
+                                "docker.io/library/neo4j:5.26.21-community")
                                (network "host")
                                (ports '(("7474" . "7474") ;HTTP
                                         ("7687" . "7687") ;Bolt
