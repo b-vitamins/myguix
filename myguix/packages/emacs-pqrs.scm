@@ -1,16 +1,20 @@
 (define-module (myguix packages emacs-pqrs)
   #:use-module ((guix licenses)
                 #:prefix license:)
+  #:use-module (guix build-system cargo)
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-build)
   #:use-module (gnu packages emacs-xyz)
+  #:use-module (gnu packages pkg-config)
+  #:use-module (gnu packages sqlite)
   #:use-module (guix build-system glib-or-gtk)
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module (guix build-system emacs)
+  #:use-module (myguix packages rust-crates-pqrs)
   #:use-module (gnu packages llvm-meta)
   #:use-module (gnu packages llvm))
 
@@ -783,4 +787,83 @@ set of templates for rapid LaTeX math input using the tempel template system.
 It includes templates for Greek letters, fractions, integrals, mathematical
 operators, relations, symbols, environments, and more. The templates work in
 both LaTeX and Org modes and support context-aware expansions.")
+    (license license:gpl3+)))
+
+(define-public slipbox
+  (package
+    (name "slipbox")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/org-slipbox")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1mjg80halzxjv4a5laj9ph5hvhbhf6pvfdw4gsrsrdffcj83jjvc"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:install-source? #f
+      #:features '(list "system-sqlite")
+      #:cargo-build-flags '(list "--release" "--no-default-features")
+      #:cargo-test-flags '(list "--no-default-features" "--features=system-sqlite")
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out")))
+                (mkdir-p out)
+                (setenv "CARGO_TARGET_DIR" "./target")
+                (invoke "cargo" "install" "--offline" "--no-track"
+                        "--path" "." "--root" out
+                        "--no-default-features"
+                        "--features" "system-sqlite")))))))
+    (native-inputs
+     (list pkg-config))
+    (inputs
+     (cons sqlite
+           (lookup-cargo-inputs 'slipbox)))
+    (home-page "https://github.com/b-vitamins/org-slipbox")
+    (synopsis "Indexed Org knowledge engine daemon")
+    (description
+     "Slipbox is a companion daemon for org-slipbox.  It indexes Org files
+into a derived SQLite database and serves query and write operations over a
+JSON-RPC stdio interface.")
+    (license license:gpl3+)))
+
+(define-public emacs-org-slipbox
+  (package
+    (name "emacs-org-slipbox")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/org-slipbox")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1mjg80halzxjv4a5laj9ph5hvhbhf6pvfdw4gsrsrdffcj83jjvc"))))
+    (build-system emacs-build-system)
+    (arguments
+     (list
+      #:test-command
+      #~(list "emacs" "-Q" "--batch"
+              "-L" "."
+              "-l" "org-slipbox.el"
+              "-l" "tests/test-org-slipbox.el"
+              "-f" "ert-run-tests-batch-and-exit")))
+    (propagated-inputs
+     (list slipbox))
+    (home-page "https://github.com/b-vitamins/org-slipbox")
+    (synopsis "Personal knowledge management with interconnected Org notes")
+    (description
+     "org-slipbox is an Emacs front-end for working with interconnected Org
+notes.  It provides indexed node finding and insertion, capture templates,
+backlinks, refs and citations, dailies, agenda views, an optional current-node
+context buffer, and optional protocol, export, and graph surfaces.  The package
+uses the companion slipbox daemon for indexing, querying, and structural file
+writes.")
     (license license:gpl3+)))
