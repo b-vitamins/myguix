@@ -174,6 +174,7 @@
         emacs-org-ql
         emacs-org-ref
         emacs-org-recur
+        emacs-org-slipbox
         emacs-org-roam
         emacs-org-roam-bibtex
         emacs-org-roam-ui
