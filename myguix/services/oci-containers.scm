@@ -1,24 +1,24 @@
 (define-module (myguix services oci-containers)
   #:use-module (gnu)
-  #:use-module (gnu services docker)
+  #:use-module (gnu services containers)
   #:use-module (ice-9 rdelim)
   #:use-module (rnrs files)
   #:use-module (rnrs io simple)
   #:use-module (srfi srfi-13)
-  #:export (read-secret oci-cassandra-service-type
-                        oci-clickhouse-service-type
-                        oci-embeddings-service-type
-                        oci-grafana-service-type
-                        oci-grobid-service-type
-                        oci-janusgraph-service-type
-                        oci-meilisearch-service-type
-                        oci-minio-service-type
-                        oci-neo4j-service-type
-                        oci-ollama-service-type
-                        oci-prometheus-service-type
-                        oci-qdrant-service-type
-                        oci-solr-service-type
-                        oci-weaviate-service-type))
+  #:export (read-secret oci-cassandra-container
+                        oci-clickhouse-container
+                        oci-embeddings-container
+                        oci-grafana-container
+                        oci-grobid-container
+                        oci-janusgraph-container
+                        oci-meilisearch-container
+                        oci-minio-container
+                        oci-neo4j-container
+                        oci-ollama-container
+                        oci-prometheus-container
+                        oci-qdrant-container
+                        oci-solr-container
+                        oci-weaviate-container))
 
 ;; Common function to read secrets from files
 (define (read-secret path)
@@ -77,8 +77,9 @@
         `("ENABLE_MODULES" unquote weaviate-modules)))
 
 ;; Apache Cassandra - NoSQL distributed database
-(define oci-cassandra-service-type
+(define oci-cassandra-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-cassandra")
                                (image "cassandra:latest")
                                (network "host")
                                (ports '(("7000" . "7000") ("7001" . "7001")
@@ -89,8 +90,9 @@
                                (environment cassandra-env)))
 
 ;; ClickHouse - column-oriented SQL database for OLAP
-(define oci-clickhouse-service-type
+(define oci-clickhouse-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-clickhouse")
                                (image "clickhouse:latest")
                                (network "host")
                                (ports '(("8123" . "8123") ("9000" . "9000")))
@@ -100,8 +102,9 @@
                                               '("/var/log/clickhouse-server" . "/var/log/clickhouse-server")))))
 
 ;; Embeddings + BM25 sparse inference
-(define oci-embeddings-service-type
+(define oci-embeddings-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-embeddings")
                                (image
                                 "ghcr.io/huggingface/text-embeddings-inference:cpu-0.7.2")
                                (network "host")
@@ -112,8 +115,9 @@
                                (extra-arguments '("--memory=6g"))))
 
 ;; Grafana - analytics and monitoring
-(define oci-grafana-service-type
+(define oci-grafana-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-grafana")
                                (image "grafana/grafana-oss:11.0.0")
                                (network "host")
                                (ports '(("3000" . "3000")))
@@ -123,14 +127,16 @@
                                                    grafana-admin-password)))))
 
 ;; GROBID - machine learning for scholarly document extraction
-(define oci-grobid-service-type
-  (oci-container-configuration (image "grobid/grobid:0.8.2.1-full")
+(define oci-grobid-container
+  (oci-container-configuration (provision "oci-grobid")
+                               (image "grobid/grobid:0.8.2.1-full")
                                (network "host")
                                (ports '(("8070" . "8070")))))
 
 ;; JanusGraph - scalable graph database
-(define oci-janusgraph-service-type
+(define oci-janusgraph-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-janusgraph")
                                (image "janusgraph/janusgraph:latest")
                                (network "host")
                                (ports '(("8182" . "8182") ("8183" . "8183")))
@@ -138,8 +144,9 @@
                                (environment janusgraph-env)))
 
 ;; Meilisearch - open-source search engine
-(define oci-meilisearch-service-type
-  (oci-container-configuration (image "getmeili/meilisearch:v1.37.0")
+(define oci-meilisearch-container
+  (oci-container-configuration (provision "oci-meilisearch")
+                               (image "getmeili/meilisearch:v1.37.0")
                                (network "host")
                                (ports '(("7700" . "7700")))
                                (environment `(("MEILI_NO_ANALYTICS" . "true") ("MEILI_MASTER_KEY"
@@ -148,8 +155,9 @@
                                (volumes (list '("/var/lib/meilisearch/meili_data" . "/meili_data")))))
 
 ;; MinIO - object storage
-(define oci-minio-service-type
+(define oci-minio-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-minio")
                                (image
                                 "minio/minio:RELEASE.2025-09-07T16-13-09Z")
                                (network "host")
@@ -163,8 +171,9 @@
                                           ":9001"))))
 
 ;; Neo4j - graph database management system
-(define oci-neo4j-service-type
-  (oci-container-configuration (image
+(define oci-neo4j-container
+  (oci-container-configuration (provision "oci-neo4j")
+                               (image
                                 "docker.io/library/neo4j:5.26.21-community")
                                (network "host")
                                (ports '(("7474" . "7474") ;HTTP
@@ -198,8 +207,9 @@
                                               ("NEO4J_PLUGINS" . "[\"apoc\",\"graph-data-science\"]")))))
 
 ;; Ollama - LLM inference
-(define oci-ollama-service-type
+(define oci-ollama-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-ollama")
                                (image "ollama/ollama:0.1.28")
                                (network "host")
                                (ports '(("11434" . "11434")))
@@ -208,8 +218,9 @@
                                (command '("serve"))))
 
 ;; Prometheus - monitoring
-(define oci-prometheus-service-type
+(define oci-prometheus-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-prometheus")
                                (image "prom/prometheus:v2.52.0")
                                (network "host")
                                (ports '(("9090" . "9090")))
@@ -217,7 +228,7 @@
                                               '("/etc/prometheus/prometheus.yml" . "/etc/prometheus/prometheus.yml")))))
 
 ;; Qdrant - vector search engine
-(define oci-qdrant-service-type
+(define oci-qdrant-container
   (let* ((qdrant-cache "12G")
          (search-threads "10")
          (write-threads "2")
@@ -233,6 +244,7 @@
                             ("QDRANT__SERVICE__API_KEY" unquote qdrant-api-key)))
          (qdrant-gpu-env '(("CUDA_VISIBLE_DEVICES" . "0") ("QDRANT_GPU" . "1"))))
     (oci-container-configuration (auto-start? #t)
+                                 (provision "oci-qdrant")
                                  (image "qdrant/qdrant:v1.17.0")
                                  (network "host")
                                  (ports '(("6333" . "6333") ;REST + gRPC
@@ -248,8 +260,9 @@
                                                           '()))))))
 
 ;; Solr - search platform based on Lucene
-(define oci-solr-service-type
+(define oci-solr-container
   (oci-container-configuration (auto-start? #t)
+                               (provision "oci-solr")
                                (image "solr:latest")
                                (network "host")
                                (ports '(("8983" . "8983")))
@@ -260,8 +273,9 @@
                                (environment (list '("SOLR_HEAP" . "800m")))))
 
 ;; Weaviate - vector search engine
-(define oci-weaviate-service-type
-  (oci-container-configuration (image
+(define oci-weaviate-container
+  (oci-container-configuration (provision "oci-weaviate")
+                               (image
                                 "cr.weaviate.io/semitechnologies/weaviate:1.28.4")
                                (network "host")
                                (ports '(("50051" . "50051")))
