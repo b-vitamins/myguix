@@ -1,7 +1,9 @@
 (use-modules (gnu services shepherd)
              (guix build syscalls)
              (guix build utils)
+             (guix derivations)
              (guix gexp)
+             (guix store)
              (ice-9 match)
              (ice-9 popen)
              (ice-9 textual-ports)
@@ -15,9 +17,6 @@
 (define %test-file
   (or (current-filename)
       (error "current-filename is unavailable")))
-
-(define %project-root
-  (dirname (dirname %test-file)))
 
 (define %guile-executable
   (canonicalize-path "/proc/self/exe"))
@@ -71,27 +70,26 @@
   (call-with-input-file file
     get-string-all))
 
+(define (evaluate-expression expression)
+  (call-with-input-string expression
+    (lambda (port)
+      (eval (read port) (current-module)))))
+
+(define (build-object object)
+  (let ((store (open-connection)))
+    (dynamic-wind
+      (lambda ()
+        #t)
+      (lambda ()
+        (let ((drv (run-with-store store
+                                   (lower-object object))))
+          (build-derivations store (list drv))
+          (derivation->output-path drv)))
+      (lambda ()
+        (close-connection store)))))
+
 (define (build-expression expression)
-  (let* ((directory (mktemp-directory))
-         (file (string-append directory "/object.scm")))
-    (write-text-file file expression)
-    (call-with-values (lambda ()
-                        (capture "guix"
-                                 "build"
-                                 "-L"
-                                 %project-root
-                                 "-f"
-                                 file))
-                      (lambda (status output)
-                        (unless (zero? status)
-                          (error "guix build failed" file))
-                        (let ((lines (filter (lambda (line)
-                                               (not (string-null? line)))
-                                             (string-split (string-trim-right
-                                                            output) #\newline))))
-                          (if (null? lines)
-                              (error "guix build produced no output" file)
-                              (last lines)))))))
+  (build-object (evaluate-expression expression)))
 
 (define (build-job-program expression)
   (build-expression (string-append "(begin\n"
