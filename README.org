@@ -127,6 +127,57 @@ If the NVIDIA card is not used for display, set the following environment variab
 - =__GLX_VENDOR_LIBRARY_NAME=nvidia=
 - =__NV_PRIME_RENDER_OFFLOAD=1=
 
+* Borg Backups
+
+Borg backup services for Guix System and Guix Home, with Shepherd timers and a
+=borg-guix= helper for manual runs.
+
+For a system service:
+
+#+BEGIN_SRC scheme
+(use-modules (myguix services backup))
+
+(service borg-backup-service-type
+         (borg-backup-configuration
+          (jobs
+           (list
+            (borg-backup-job
+             (name "rootfs")
+             (repository "ssh://backup@example.org/~/borg/rootfs")
+             (passphrase-file "/etc/borg/rootfs-passphrase")
+             (schedule "0 3 * * *")
+             (check-schedule "30 4 * * 0")
+             (paths '("/etc" "/home"))
+             (exclude-patterns '("sh:**/.cache/**"
+                                 "sh:**/node_modules/**"))
+             (prune-keep-daily 7)
+             (prune-keep-weekly 4)
+             (prune-keep-monthly 6))))))
+#+END_SRC
+
+For a home service:
+
+#+BEGIN_SRC scheme
+(use-modules (myguix home services backup))
+
+(service home-borg-backup-service-type
+         (borg-backup-configuration
+          (jobs
+           (list
+            (borg-backup-job
+             (name "documents")
+             (repository "ssh://backup@example.org/~/borg/documents")
+             (passcommand "secret-tool lookup borg documents")
+             (schedule "0 2 * * *")
+             (paths (list #~(string-append (getenv "HOME") "/Documents")
+                          #~(string-append (getenv "HOME") "/Projects")))
+             (prune-keep-daily 14)
+             (prune-keep-monthly 12))))))
+#+END_SRC
+
+Once the service is installed you can manually run =borg-guix backup JOB=,
+=borg-guix check JOB=, or =borg-guix init JOB=.
+
 * Free as in speech
 
 The four essential freedoms that define [[https://www.gnu.org/philosophy/free-sw.html][Free Software]] are foundational principles, not just abstract ideals. These freedoms—freedom to run, study, distribute, and modify software—ensure that users retain control over the software they use, rather than ceding power to developers or corporations. When you opt for nonfree software, you compromise these freedoms, trading them for convenience or compatibility, and in doing so, you reinforce a system that perpetuates user dependency and centralized control.
