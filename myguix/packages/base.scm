@@ -540,7 +540,11 @@
         tree-sitter-vhdl))
 
 (define %guile-development
-  (list guile-3.0 guile-readline guile-colorized guile-lib guile-ares-rs))
+  (list guile-3.0-latest
+        guile-readline
+        guile-colorized
+        guile-lib
+        guile-ares-rs))
 
 ;; Development - Languages
 (define %c-cpp-development
