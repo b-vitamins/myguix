@@ -2,18 +2,145 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (gnu packages)
+  #:use-module (gnu packages icu4c)
+  #:use-module (gnu packages libevent)
   #:use-module (gnu packages node-xyz)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
+  #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages node)
+  #:use-module (guix build-system cmake)
   #:use-module (guix build-system node)
   #:use-module (guix download)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (guix utils))
+
+(define %node-next-version
+  "25.8.0")
+(define %node-next-source-hash
+  "08f5i5b68kn5f93b449f8l068ipdjhgymgq9a4w48dwd7ndv6z5s")
+
+(define-public libuv-for-node-next
+  (package
+    (inherit libuv)
+    (name "libuv")
+    (version "1.51.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://nodejs.org/dist/v" %node-next-version
+                           "/node-v" %node-next-version ".tar.gz"))
+       (sha256
+        (base32 %node-next-source-hash))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:configure-flags
+      #~(list "-DLIBUV_BUILD_SHARED=ON" "-DLIBUV_BUILD_TESTS=OFF"
+              "-DLIBUV_BUILD_BENCH=OFF")
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'enter-libuv-source-directory
+            (lambda _
+              (chdir "deps/uv"))))))
+    (native-inputs (list pkg-config))
+    (properties '((hidden? . #t)))))
+
+(define-public node-next
+  (package
+    (inherit node)
+    (name "node-next")
+    (version %node-next-version)
+    (source
+     (origin
+       (inherit (package-source node))
+       (uri (string-append "https://nodejs.org/dist/v" version "/node-v"
+                           version ".tar.gz"))
+       (sha256
+        (base32 %node-next-source-hash))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments node)
+       ((#:tests? _ #f)
+        #f)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (delete 'replace-llhttp-sources)
+            (add-after 'unpack 'delete-stale-generated-files
+              (lambda _
+                (when (file-exists? "out")
+                  (delete-file-recursively "out"))
+                (when (file-exists? "config.gypi")
+                  (delete-file "config.gypi"))
+                (when (file-exists? "config.mk")
+                  (delete-file "config.mk"))
+                (when (file-exists? "config.status")
+                  (delete-file "config.status"))))
+            (add-after 'unpack 'disable-single-executable-application-and-lief
+              (lambda _
+                (substitute* "configure.py"
+                  (("o\\['variables'\\]\\['single_executable_application'\\] = b\\(not options\\.disable_single_executable_application\\)")
+                   "o['variables']['single_executable_application'] = 'false'")
+                  (("if options\\.disable_single_executable_application:")
+                   "if True:"))))
+            (replace 'ignore-number-of-hardlinks
+              (lambda* (#:key outputs #:allow-other-keys)
+                (let* ((out (assoc-ref outputs "out"))
+                       (files (list (string-append out
+                                     "/lib/node_modules/npm/node_modules/tar/dist/commonjs/write-entry.js")
+                                    (string-append out
+                                     "/lib/node_modules/npm/node_modules/tar/dist/esm/write-entry.js"))))
+                  (for-each (lambda (file)
+                              (when (file-exists? file)
+                                (substitute* file
+                                  (("this\\.stat\\.nlink > 1")
+                                   "false")))) files))))
+            (replace 'configure
+              (lambda* (#:key outputs native-inputs inputs #:allow-other-keys)
+                (let* ((prefix (assoc-ref outputs "out"))
+                       (flags (list (string-append "--prefix=" prefix)
+                                    "--shared-cares"
+                                    "--shared-libuv"
+                                    "--shared-nghttp2"
+                                    "--shared-openssl"
+                                    "--shared-zlib"
+                                    "--shared-brotli"
+                                    "--with-intl=system-icu"
+                                    "--shared-ngtcp2"
+                                    "--shared-nghttp3"
+                                    "--v8-enable-snapshot-compression"
+                                    "--disable-single-executable-application"
+                                    "--without-lief")))
+                  (format #t "build directory: ~s~%"
+                          (getcwd))
+                  (format #t "configure flags: ~s~%" flags)
+                  (setenv "CC_host" "gcc")
+                  (setenv "CXX_host" "g++")
+                  (setenv "CC" "gcc")
+                  (setenv "CXX" "g++")
+                  (setenv "PKG_CONFIG" "pkg-config")
+                  (apply invoke
+                         (let ((inpts (or native-inputs inputs)))
+                           (with-exception-handler (lambda (e)
+                                                     (if (search-error? e)
+                                                         (search-input-file
+                                                          inpts "/bin/python3")
+                                                         (raise-exception e)))
+                                                   (lambda ()
+                                                     (search-input-file inpts
+                                                      "/bin/python"))
+                                                   #:unwind? #t)) "configure"
+                         flags))))))))
+    (inputs (modify-inputs (package-inputs node)
+              (replace "icu4c" icu4c-78)
+              (replace "libuv" libuv-for-node-next)))
+    (native-inputs (modify-inputs (package-native-inputs node)
+                     (replace "icu4c" icu4c-78)
+                     (replace "libuv" libuv-for-node-next)))))
 
 (define-public node-react-reconciler
   (package
@@ -7612,38 +7739,41 @@ characters using Unicode emoji modifier bases.")
        (sha256
         (base32 "1bwrh0nixzxnqrmnqgc1qwvsyjh721ip470q1g53rmrgkkklrd3a"))))
     (build-system node-build-system)
-    (native-inputs
-     (list
-      `("platform-source"
-        ,(origin
-           (method url-fetch)
-           (uri
-            (let ((system (or (%current-target-system)
-                              (%current-system))))
-              (cond
-               ((string=? system "x86_64-linux")
-                (string-append
-                 "https://registry.npmjs.org/@openai/codex/-/codex-"
-                 version "-linux-x64.tgz"))
-               ((string=? system "aarch64-linux")
-                (string-append
-                 "https://registry.npmjs.org/@openai/codex/-/codex-"
-                 version "-linux-arm64.tgz"))
-               (else
-                (error "unsupported system for node-openai-codex"
-                       system)))))
-           (sha256
-            (base32
-             (let ((system (or (%current-target-system)
-                               (%current-system))))
-                (cond
-                 ((string=? system "x86_64-linux")
-                 "0ylwj02mcrd1g8wlv8j6lqp1bkp14cdli8l07l0sbza9wa6gpi4a")
-                 ((string=? system "aarch64-linux")
-                 "0iydg2mz3a4shj6pa7gdb6nkifvfmjvba1ih8m2vapkjfvb3szhk")
-                 (else
-                  (error "unsupported system for node-openai-codex"
-                         system))))))))))
+    (native-inputs (list `("platform-source" ,(origin
+                                                (method url-fetch)
+                                                (uri (let ((system (or (%current-target-system)
+                                                                       (%current-system))))
+                                                       (cond
+                                                         ((string=? system
+                                                           "x86_64-linux")
+                                                          (string-append
+                                                           "https://registry.npmjs.org/@openai/codex/-/codex-"
+                                                           version
+                                                           "-linux-x64.tgz"))
+                                                         ((string=? system
+                                                           "aarch64-linux")
+                                                          (string-append
+                                                           "https://registry.npmjs.org/@openai/codex/-/codex-"
+                                                           version
+                                                           "-linux-arm64.tgz"))
+                                                         (else (error
+                                                                "unsupported system for node-openai-codex"
+                                                                system)))))
+                                                (sha256 (base32 (let ((system (or
+                                                                               (%current-target-system)
+                                                                               (%current-system))))
+                                                                  (cond
+                                                                    ((string=?
+                                                                      system
+                                                                      "x86_64-linux")
+                                                                     "0ylwj02mcrd1g8wlv8j6lqp1bkp14cdli8l07l0sbza9wa6gpi4a")
+                                                                    ((string=?
+                                                                      system
+                                                                      "aarch64-linux")
+                                                                     "0iydg2mz3a4shj6pa7gdb6nkifvfmjvba1ih8m2vapkjfvb3szhk")
+                                                                    (else (error
+                                                                           "unsupported system for node-openai-codex"
+                                                                           system))))))))))
     (arguments
      (list
       #:tests? #f
@@ -7652,16 +7782,16 @@ characters using Unicode emoji modifier bases.")
           (delete 'build)
           (add-after 'unpack 'add-platform-vendor
             (lambda* (#:key inputs #:allow-other-keys)
-              (invoke "tar" "-xf" (assoc-ref inputs "platform-source")
-                      "--strip-components=1" "package/vendor")
-              #t))
+              (invoke "tar" "-xf"
+                      (assoc-ref inputs "platform-source")
+                      "--strip-components=1" "package/vendor") #t))
           (add-after 'add-platform-vendor 'remove-precompiled-binaries
             (lambda _
               ;; Avoid bundled network-fetching ripgrep.
               (when (file-exists? "bin/rg")
                 (delete-file "bin/rg"))
-              (for-each delete-file (find-files "vendor" "/path/rg$"))
-              #t)))))
+              (for-each delete-file
+                        (find-files "vendor" "/path/rg$")) #t)))))
     (propagated-inputs (list node ripgrep))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (home-page "https://github.com/openai/codex")
