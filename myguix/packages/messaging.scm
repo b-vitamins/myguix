@@ -144,7 +144,7 @@ or iOS.")
 (define-public discord
   (package
     (name "discord")
-    (version "0.0.127")
+    (version "0.0.128")
     (source
      (origin
        (method url-fetch)
@@ -154,7 +154,7 @@ or iOS.")
                            version
                            ".deb"))
        (sha256
-        (base32 "0vhj4c7slwns3cf6bl9ag30dmwiqsn7r65v9fc7jhwvrf2a7kl29"))))
+        (base32 "16pm057nzajixccbr5sqgyps30n3nz1kkvh7gdffbiccxd89jnzg"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
