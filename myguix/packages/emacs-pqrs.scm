@@ -819,7 +819,7 @@ both LaTeX and Org modes and support context-aware expansions.")
 (define-public slipbox
   (package
     (name "slipbox")
-    (version "0.1.0")
+    (version "0.2.0")
     (source
      (origin
        (method git-fetch)
@@ -828,7 +828,7 @@ both LaTeX and Org modes and support context-aware expansions.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1mjg80halzxjv4a5laj9ph5hvhbhf6pvfdw4gsrsrdffcj83jjvc"))))
+        (base32 "04imdk636fbc5hwp3dac320wkyml1pak4nx1i7xwyb8zn73c36v2"))))
     (build-system cargo-build-system)
     (arguments
      (list
@@ -863,7 +863,7 @@ JSON-RPC stdio interface.")
 (define-public emacs-org-slipbox
   (package
     (name "emacs-org-slipbox")
-    (version "0.1.0")
+    (version "0.2.0")
     (source
      (origin
        (method git-fetch)
@@ -872,7 +872,7 @@ JSON-RPC stdio interface.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1mjg80halzxjv4a5laj9ph5hvhbhf6pvfdw4gsrsrdffcj83jjvc"))))
+        (base32 "04imdk636fbc5hwp3dac320wkyml1pak4nx1i7xwyb8zn73c36v2"))))
     (build-system emacs-build-system)
     (arguments
      (list
