@@ -894,3 +894,36 @@ context buffer, and optional protocol, export, and graph surfaces.  The package
 uses the companion slipbox daemon for indexing, querying, and structural file
 writes.")
     (license license:gpl3+)))
+
+(define-public emacs-consult-org-slipbox
+  (package
+    (name "emacs-consult-org-slipbox")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/consult-org-slipbox")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "12xz9w0kxlm0mzv205cr1l3n46yws1nmqhim8q88a2blrbfqg6vy"))))
+    (build-system emacs-build-system)
+    (arguments
+     (list
+      #:test-command
+      #~(list "emacs" "-Q" "--batch"
+              "-L" "."
+              "-l" "tests/test-consult-org-slipbox.el"
+              "-f" "ert-run-tests-batch-and-exit")))
+    (propagated-inputs
+     (list emacs-consult emacs-org-slipbox))
+    (home-page "https://github.com/b-vitamins/consult-org-slipbox")
+    (synopsis "Consult integration for org-slipbox")
+    (description
+     "consult-org-slipbox provides Consult-powered interactive commands for
+org-slipbox.  It adds indexed node, file, ref, occurrence, backlink,
+forward-link, reflink, and unlinked-reference workflows, along with an optional
+mode that overrides org-slipbox readers and a consult-buffer source for open
+slipbox note buffers.")
+    (license license:gpl3+)))
