@@ -50,6 +50,7 @@
         emacs-consult-bibtex
         emacs-consult-dir
         emacs-consult-eglot
+        emacs-consult-org-slipbox
         emacs-consult-org-roam
         emacs-consult-projectile
         emacs-corfu
