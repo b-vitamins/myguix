@@ -1548,334 +1548,1329 @@ providing utilities for various projects.")
     (propagated-inputs (modify-inputs (package-propagated-inputs python-etils)
                          (replace "python-pytorch" python-pytorch-cuda)))))
 
+(define python-ml-dtypes-jax
+  (package
+    (inherit python-ml-dtypes)
+    (name "python-ml-dtypes-jax")
+    (version "0.5.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ml_dtypes" version))
+       (sha256
+        (base32 "0lrl0qnf5y1sdhmggkqyyg00lazsfr3gnpgys1nndycvzd86mc4a"))
+       (modules '((guix build utils)))
+       (snippet
+        ;; Do not use bundled eigen.
+        '(delete-file-recursively "third_party/eigen"))))))
+
+(define (jax-bazel-distdir-source url hash)
+  "Return an origin for a Bazel distdir archive used by python-jaxlib."
+  (origin
+    (method url-fetch)
+    (uri url)
+    ;; Bazel matches distdir files by the original URL basename.
+    (file-name (basename url))
+    (sha256 (base32 hash))))
+
+(define jax-bazel-distdir-sources
+  (list
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_python/releases/download/1.6.3/rules_python-1.6.3.tar.gz"
+                             "145mi1acvh4xx1v2k80zbp5cpyh6q0zmglrj4rf091jfpd7jhp1g")
+   (jax-bazel-distdir-source "https://files.pythonhosted.org/packages/88/ef/eb23f262cca3c0c4eb7ab1933c3b1f03d021f2c48f54763065b6f0e321be/packaging-24.2-py3-none-any.whl"
+                             "0nd7a421brjgd4prm8fbs8a6bcv4n1yplgxalgs02p16rnyb3aq9")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/ml-sysroot-testing/xz_x86_64-5.8.1.tar.xz"
+                             "0mfk8w4kgl3vhadl95plb8m8xbkywif8gmh8g6h9b8ra3dlgdfar")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_cc/archive/refs/tags/0.1.0.tar.gz"
+                             "0n8fg3qcpjgsjrp2kr42rr93arwxwc2fkl4gd8qbipqx0jd184jb")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/bazel-skylib/releases/download/1.7.1/bazel-skylib-1.7.1.tar.gz"
+                             "0vvma8bcazc3n16hpccqm3pm51i9pjjcsy8j431m4sjjrpgkqa5w")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazel-contrib/bazel_features/releases/download/v1.25.0/bazel_features-v1.25.0.tar.gz"
+                             "0rjxqrjybz87ic6srdn6rpvlg8gzrhlgmklgzl7q51j68qnr5nag")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz"
+                             "1abbgk05f9flpv35zzw9fjjdvd3g1d8b0vbk0f2z4wfx10ykh02v")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_pkg/releases/download/0.7.1/rules_pkg-0.7.1.tar.gz"
+                             "0zw65gr4zfj4aicmbw6hfv8b2dmq2g46wc7rldpw1249syj0h7j5")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_license/releases/download/0.0.7/rules_license-0.0.7.tar.gz"
+                             "0q63wxgkg17jj37xhxgbvac5d1sx9l2jllf7wlq9qqqkp76dwca5")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_jvm_external/archive/4.3.zip"
+                             "0x3fgkgkpr1xxznzks64kgwy2g6yc3nz38jnkxc3ny65dxznhx32")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz"
+                             "03zzdf9ckfws3hi9fz86ndapmk30d7c08bywk3jva2aq4y3jwx19")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/google/flatbuffers/archive/v23.5.26.tar.gz"
+                             "1wzksc64qv7imi38m8by9pgvhkr5dbilgh1wsyv9dn6xgjqhdkhw")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/wjakob/nanobind/archive/refs/tags/v2.11.0.tar.gz"
+                             "0j848vx7snim8zm1p5gabinaf5yciizsgcka1m8nrir0yzjhbfk2")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/pybind/pybind11/archive/v2.13.6.tar.gz"
+                             "087cy38qf1fsyri3wxymhxnnbg1sfvl5s0szggx9gnkk8xzvi370")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/abseil/abseil-cpp/archive/d38452e1ee03523a208362186fd42248ff2609f6.tar.gz"
+                             "0dx8zscjwpggkdmcdija9wpl4ir0wp9wxc0rfsywprh343dfkayi")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/facebookincubator/gloo/archive/54cbae0d3a67fa890b4c3d9ee162b7860315e341.tar.gz"
+                             "0h29ysi4rrycaszf33dpwsiibxhkkcv4hw99bvvxdjfvvdhr6231")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/Tessil/robin-map/archive/refs/tags/v1.3.0.tar.gz"
+                             "0dkj9k4v257njzs8j87gybhz014nlbcg7w16xmblrzdgn39llhm8")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/grpc/grpc/archive/refs/tags/v1.78.0.tar.gz"
+                             "1nf5lkd5hzlj9l48cbnz6km17c1kda0hlffib4rgil7jln8fgb72")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/llvm/llvm-project/archive/d3081aafc47eccba242ffc3cc43ecfcb545a51bb.tar.gz"
+                             "07n7w52idf9377787hlc34f17bgrgcwckcjbm4j0fz864sb3yngk")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/openxla/stablehlo/archive/bdbe31e8a1a2f4884c29c1c685de36e74ba6a68d.zip"
+                             "0bpf42b3qs1kc9l8117wci125lh799jdl3c80dh24wp0c9pzgf4q")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/openxla/shardy/archive/feb6d40598ed4d777bf83a9ef5c1e4147b94a96c.zip"
+                             "18f0xv2a551lsh1lygwpvyba7pv14d8ysh466hfs6xkk1jbbdysx")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/triton-lang/triton/archive/9cdd0c375eb109e6cb071c4e7af7b090815e8769.tar.gz"
+                             "08ji90z509px15rvzzlzh0nl0977snivs5spgpjnhac3a3bp5bdn")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/grpc-bazel-mirror/github.com/bazelbuild/rules_shell/releases/download/v0.3.0/rules_shell-v0.3.0.tar.gz"
+                             "0lqcd91snq4v1bsy6dv433vhkwfy15gnasvx9j6wc7gwj4x4mkfq")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/bazel-toolchains/archive/8c717f8258cd5f6c7a45b97d974292755852b658.tar.gz"
+                             "1ysmxbxjmacxhaiw3ys6phzni24c8269f0a33l8azz2pks2xsk19")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/grpc-bazel-mirror/github.com/bazelbuild/rules_java/releases/download/8.7.0/rules_java-8.7.0.tar.gz"
+                             "1n3x70bxgd78b9wv72dkhpr4060krlrfbc7lv6fmfs8jsqvfsjal")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/google/benchmark/archive/f7547e29ccaed7b64ef4f7495ecfff1c9f6f3d03.tar.gz"
+                             "0w668r4g145dwp0mmbvb1laj9ahmcc4zg03rj2qywjxgs7aa6b2m")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/apple_support/releases/download/1.24.5/apple_support.1.24.5.tar.gz"
+                             "045gvzdx0spxvpfzs1snlxdjxzzgs0dgjdknf6myvwyghgwzrrhs")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_swift/releases/download/1.18.0/rules_swift.1.18.0.tar.gz"
+                             "1qiq70r5pldps212gb967j1cym86jsqs18a9mpw0f53sgiy0j0dv")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/grpc-bazel-mirror/github.com/bufbuild/protoc-gen-validate/archive/refs/tags/v1.2.1.zip"
+                             "0iax58rj5xiippdmfd8475imixizdx4wcbx1wxmy11vb69wfjldb")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/grpc-bazel-mirror/github.com/bazelbuild/rules_proto/archive/refs/tags/7.0.2.tar.gz"
+                             "1s11xwfif0j4rcw4qlqrw86wq7i35lj64q9xl332cvlsb6i68p0f")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_go/releases/download/v0.34.0/rules_go-v0.34.0.zip"
+                             "0rp34jl2mf6pdxyqg8l92vdqj6k5gfdwryknmps4zgfn7sjzrs8n")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/grpc-bazel-mirror/github.com/envoyproxy/data-plane-api/archive/4de3c74cf21a9958c1cf26d8993c55c6e0d28b49.tar.gz"
+                             "0zrp3v1qp9mwp2zw6apl5xiylkp2d66ykqwhbpa3pd088ihlk2yd")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/google/googletest/archive/28e9d1f26771c6517c3b4be10254887673c940189.zip"
+                             "0x19vv3i5xnms5q1y07wzkfl17lpd0n4p3ijx3yqwbr60wdcllzj")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_apple/releases/download/3.5.1/rules_apple.3.5.1.tar.gz"
+                             "13bc4swy12f3bl6na05kr4q0ix6ivf8v2ahq4683cs28q6791pxl")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/grpc-bazel-mirror/github.com/googleapis/googleapis/archive/fe8ba054ad4f7eca946c2d14a63c3f07c0b586a0.tar.gz"
+                             "1r33jj8yipxjgiarddcxr1yc5kmn98rwrjl9qxfx0fzn1bsg04q5")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/mirror.tensorflow.org/github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.zip"
+                             "124d5vraywhw23nsdq6miryqvbw5s8623002nfkw6q5sa34vn2bf")
+   (jax-bazel-distdir-source "https://storage.googleapis.com/grpc-bazel-mirror/github.com/googleapis/google-cloud-cpp/archive/refs/tags/v2.35.0.tar.gz"
+                             "1akh01n8m314x9shclsvxbw3a40byc4p865hav9k5c2vkv7jisl1")
+   (jax-bazel-distdir-source "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.37.0/bazel-gazelle-v0.37.0.tar.gz"
+                             "1maqvz5sbv6w6pp1hmhnw4lribsfga1s5pwh81251c6q1ykgfsyp")))
+
+(define jax-bazel-host-cpu-constraint
+  (let ((system (or (%current-target-system) (%current-system))))
+    (cond
+     ((or (string=? system "x86_64-linux")
+          (string=? system "i686-linux"))
+      "@platforms//cpu:x86_64")
+     ((string=? system "aarch64-linux")
+      "@platforms//cpu:aarch64")
+     ((string=? system "riscv64-linux")
+      "@platforms//cpu:riscv64")
+     (else
+      "@platforms//cpu:x86_64"))))
+
+(define jax-bazel-llvm-native-arch
+  (let ((system (or (%current-target-system) (%current-system))))
+    (cond
+     ((or (string=? system "x86_64-linux")
+          (string=? system "i686-linux"))
+      "X86")
+     ((string=? system "aarch64-linux")
+      "AArch64")
+     ((string=? system "riscv64-linux")
+      "RISCV")
+     (else
+      "X86"))))
+
+(define jax-bazel-llvm-native-triple
+  (let ((system (or (%current-target-system) (%current-system))))
+    (cond
+     ((or (string=? system "x86_64-linux")
+          (string=? system "i686-linux"))
+      "x86_64-unknown-linux-gnu")
+     ((string=? system "aarch64-linux")
+      "aarch64-unknown-linux-gnu")
+     ((string=? system "riscv64-linux")
+      "riscv64-unknown-linux-gnu")
+     (else
+      "x86_64-unknown-linux-gnu"))))
+
 (define python-jaxlib/wheel
-  (let ((jaxlib-system-libs (list "absl_py"
-                                  "com_github_grpc_grpc"
-                                  "curl"
-                                  "cython"
-                                  "double_conversion"
-                                  "flatbuffers"
-                                  "gast_archive"
-                                  "gif"
-                                  "hwloc"
-                                  "icu"
-                                  "jsoncpp_git"
-                                  "libjpeg_turbo"
-                                  "lmdb"
-                                  "zlib")))
-    (package
-      (name "python-jaxlib")
-      (version "0.4.20")
-      (source
-       (origin
-         (method git-fetch)
-         (uri (git-reference
-               (url "https://github.com/google/jax")
-               (commit (string-append "jaxlib-v" version))))
-         (file-name (git-file-name name version))
-         (sha256
-          (base32 "15dmxmfjybg1289v822cmk9raagl9mcbkjk990xa0f91sx91gdjq"))))
-      (build-system bazel-build-system)
-      (arguments
-       (list
-        #:tests? #f ;there are none
-        #:bazel-configuration
-        #~(setenv "TF_SYSTEM_LIBS"
-                  (string-join '#$jaxlib-system-libs ","))
-        #:fetch-targets '(list "//jaxlib/tools:build_wheel"
-                               "@mkl_dnn_v1//:mkl_dnn")
-        #:build-targets '(list "//jaxlib/tools:build_wheel")
-        #:run-command
-        #~(list (string-append "--output_path="
-                               #$output)
-                (string-append "--cpu="
-                               #$(match (or (%current-target-system)
-                                            (%current-system))
-                                   ("x86_64-linux" "x86_64")
-                                   ("i686-linux" "i686")
-                                   ("mips64el-linux" "mips64")
-                                   ("aarch64-linux" "aarch64"))))
-        #:bazel-arguments
-        #~(list "-c"
-                "opt"
-                ;; We need a more recent version of platforms, because the
-                ;; included cpu package does not define cpu:wasm32.
-                (string-append "--override_repository=platforms="
-                               #$(this-package-native-input "bazel-platforms"))
-                "--config=mkl_open_source_only"
-                (string-append "--define=" "PROTOBUF_INCLUDE_PATH="
-                               #$static-protobuf "/include"))
-        #:vendored-inputs-hash
-        "1fa4f8qx0765zdwmqaz1jnc60nvb3j4qxqy0mxrpqj58qdclycfs"
-        #:phases
-        #~(modify-phases %standard-phases
-            (add-after 'unpack-vendored-inputs 'configure
-              (lambda _
-                ;; XXX: Our version of protobuf leads to "File already
-                ;; exists in database" when loading jax in Python.
-                ;; Using the static library is what Nix does, but it
-                ;; doesn't help us.
-                (let ((bazel-out (string-append (getenv "NIX_BUILD_TOP")
-                                                "/output")))
-                  (setenv "JAXLIB_RELEASE" "1")
-                  (setenv "BAZEL_USE_CPP_ONLY_TOOLCHAIN" "1")
-                  (setenv "TF_SYSTEM_LIBS"
-                          (string-join '#$jaxlib-system-libs ","))
-                  (call-with-output-file ".jax_configure.bazelrc"
+  (package
+    (name "python-jaxlib")
+    (version "0.9.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/jax-ml/jax")
+             (commit (string-append "jax-v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "177il51783ja44gr1q7zp0lz8v39n20knlcq38jy5n3lblg67aj3"))
+       (modules '((guix build utils)
+                  (ice-9 textual-ports)
+                  (srfi srfi-13)))
+       (snippet
+        '(begin
+           (let* ((workspace (call-with-input-file "WORKSPACE" get-string-all))
+                  (cc-toolchain-start
+                   "load(\"@rules_ml_toolchain//cc/deps:cc_toolchain_deps.bzl\", \"cc_toolchain_deps\")")
+                  (python-section-start "# Initialize hermetic Python")
+                  (gpu-bootstrap-start
+                   "load(\n    \"@rules_ml_toolchain//gpu/cuda:cuda_json_init_repository.bzl\",\n    \"cuda_json_init_repository\",\n)\n"))
+             ;; Disable hermetic C/C++ toolchain bootstrap for CPU Guix builds.
+             (let* ((start (string-contains workspace cc-toolchain-start))
+                    (end (and start
+                              (string-contains workspace
+                                               python-section-start
+                                               start))))
+               (when (and start end)
+                 (set! workspace
+                       (string-append (substring workspace 0 start)
+                                      (substring workspace end)))))
+             ;; Drop CUDA/NCCL/NVSHMEM bootstrap block (tail section).
+             (let ((start (string-contains workspace gpu-bootstrap-start)))
+               (when start
+                 (set! workspace
+                       (string-append
+                        (substring workspace 0 start)
+                        "# GPU repository bootstrap disabled for Guix CPU build.\n"))))
+             ;; Bazel 6 compatibility for this repository rule.
+             (chmod "test_shard_count.bzl" #o644)
+             (substitute* "test_shard_count.bzl"
+               (("repository_ctx.getenv\\(")
+                "repository_ctx.os.environ.get("))
+             ;; CPU build: avoid unconditional CUDA redistributable version repo.
+             (chmod "jaxlib/tools/BUILD.bazel" #o644)
+             (substitute* "jaxlib/tools/BUILD.bazel"
+               (("load\\(\"@cuda_cudart//:version\\.bzl\", cuda_major_version = \"VERSION\"\\)\n")
+                "cuda_major_version = \"0\"\n"))
+             ;; Resolve wheel builder binary in target configuration to avoid
+             ;; missing exec-config py_binary wrapper at wheel-packaging time.
+             (chmod "jaxlib/jax.bzl" #o644)
+             (substitute* "jaxlib/jax.bzl"
+               (("cfg = \"exec\",")
+                "cfg = \"target\",")
+               (("full_wheel_version = \\(WHEEL_VERSION \\+ WHEEL_VERSION_SUFFIX\\)")
+                "full_wheel_version = WHEEL_VERSION")
+               (("env\\[\"WHEEL_VERSION_SUFFIX\"\\] = WHEEL_VERSION_SUFFIX")
+                "env[\"WHEEL_VERSION_SUFFIX\"] = \"\"")
+               (("if not WHEEL_VERSION_SUFFIX:")
+                "if True:"))
+             ;; On riscv64 hosts, jaxlib/mosaic/gpu/custom_call.cc initializes
+             ;; native LLVM targets but does not link the native target backend.
+             ;; Ensure RISCV target symbols are available in libjax_common.so.
+             (chmod "jaxlib/mosaic/gpu/BUILD" #o644)
+             (substitute* "jaxlib/mosaic/gpu/BUILD"
+               (("\"@llvm-project//llvm:OrcJIT\",")
+                "\"@llvm-project//llvm:OrcJIT\",\n        \"@llvm-project//llvm:RISCVAsmParser\",\n        \"@llvm-project//llvm:RISCVCodeGen\","))
+             (chmod "WORKSPACE" #o644)
+             (call-with-output-file "WORKSPACE"
+               (lambda (port)
+                 (display workspace port))))))))
+    (build-system bazel-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:bazel bazel
+      #:fetch-targets '(list "//jaxlib/tools:jaxlib_wheel")
+      #:build-targets '(list "//jaxlib/tools:jaxlib_wheel")
+      #:distdir-inputs jax-bazel-distdir-sources
+      #:bazel-arguments
+      #~(list
+         "--config=mkl_open_source_only"
+         "--cxxopt=-Wno-dangling-reference"
+         "--repo_env=HERMETIC_PYTHON_VERSION=3.11"
+         "--repo_env=ML_WHEEL_TYPE=release"
+         (string-append
+          "--override_repository=python_3_11_x86_64-unknown-linux-gnu="
+          (or (getenv "NIX_BUILD_TOP") (getcwd))
+          "/python_3_11_x86_64-unknown-linux-gnu")
+         (string-append
+          "--override_repository=python_3_11_host="
+          (or (getenv "NIX_BUILD_TOP") (getcwd))
+          "/python_3_11_host")
+         (string-append
+          "--override_repository=local_config_cuda="
+          (or (getenv "NIX_BUILD_TOP") (getcwd))
+          "/local_config_cuda")
+         (string-append
+          "--override_repository=local_config_rocm="
+          (or (getenv "NIX_BUILD_TOP") (getcwd))
+          "/local_config_rocm")
+         (string-append
+          "--override_repository=local_config_sycl="
+          (or (getenv "NIX_BUILD_TOP") (getcwd))
+          "/local_config_sycl")
+         (string-append "--override_repository=rules_ml_toolchain="
+                        #$(this-package-native-input "rules-ml-toolchain"))
+         (string-append "--override_repository=host_platform="
+                        (or (getenv "NIX_BUILD_TOP") (getcwd))
+                        "/host_platform")
+         (string-append "--override_repository=llvm-raw="
+                        (or (getenv "NIX_BUILD_TOP") (getcwd))
+                        "/llvm-raw")
+         (string-append "--override_repository=pypi="
+                        (or (getenv "NIX_BUILD_TOP") (getcwd))
+                        "/pypi")
+         (string-append "--override_repository=com_google_googleapis_imports="
+                        (or (getenv "NIX_BUILD_TOP") (getcwd))
+                        "/com_google_googleapis_imports")
+         (string-append "--override_repository=xla="
+                        (or (getenv "NIX_BUILD_TOP") (getcwd))
+                        "/xla"))
+      #:vendored-inputs-hash
+      "1qbvkxpj5l3lhmd8i767r36w6jm123v19a3k0j4zm0dk7hgdnf8m"
+      #:bazel-configuration
+      #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
+               (target-repo (string-append root
+                                           "/python_3_11_x86_64-unknown-linux-gnu"))
+               (host-repo (string-append root "/python_3_11_host"))
+               (cuda-repo (string-append root "/local_config_cuda"))
+               (rocm-repo (string-append root "/local_config_rocm"))
+               (sycl-repo (string-append root "/local_config_sycl"))
+               (python (string-append #$(this-package-input "python")
+                                      "/bin/python3"))
+               (prefix #$(this-package-input "python"))
+               (python-version #$(version-major+minor
+                                  (package-version
+                                   (this-package-input "python"))))
+               (numpy-site-packages
+                (string-append #$(this-package-input "python-numpy")
+                               "/lib/python" python-version
+                               "/site-packages/numpy"))
+               (pypi-repo (string-append root "/pypi"))
+               (googleapis-imports-repo
+                (string-append root "/com_google_googleapis_imports"))
+               (host-platform-repo (string-append root "/host_platform"))
+               (llvm-raw-repo (string-append root "/llvm-raw"))
+               (llvm-raw-archive
+                #$(this-package-native-input "llvm-project-source-archive"))
+               (xla-repo (string-append root "/xla"))
+               (xla-archive #$(this-package-native-input "xla-source-archive")))
+          (let ((prepare-python-repo
+                 (lambda (repo workspace-name)
+                   (mkdir-p (string-append repo "/bin"))
+                   (for-each (lambda (file)
+                               (false-if-exception (delete-file file)))
+                             (list (string-append repo "/python")
+                                   (string-append repo "/bin/python3")
+                                   (string-append repo "/STANDALONE_INTERPRETER")
+                                   (string-append repo "/WORKSPACE")
+                                   (string-append repo "/BUILD.bazel")))
+                   (for-each (lambda (dir)
+                               (let ((target (string-append repo "/" dir)))
+                                 (false-if-exception (delete-file target))
+                                 (symlink (string-append prefix "/" dir)
+                                          target)))
+                             '("lib" "include" "share"))
+                   (copy-file python (string-append repo "/bin/python3"))
+                   (chmod (string-append repo "/bin/python3") #o555)
+                   (copy-file python (string-append repo "/python"))
+                   (chmod (string-append repo "/python") #o555)
+                   (call-with-output-file (string-append repo "/STANDALONE_INTERPRETER")
+                     (lambda (port)
+                       (format port "#!~a~%" (string-append repo "/bin/python3"))))
+                   (chmod (string-append repo "/STANDALONE_INTERPRETER") #o555)
+                   (call-with-output-file (string-append repo "/WORKSPACE")
+                     (lambda (port)
+                       (format port "workspace(name = \"~a\")~%" workspace-name)))
+                   (call-with-output-file (string-append repo "/BUILD.bazel")
+                     (lambda (port)
+                       (display
+                        (string-append
+                         "load(\"@rules_cc//cc:cc_library.bzl\", \"cc_library\")\n"
+                         "load(\"@rules_python//python:py_runtime.bzl\", \"py_runtime\")\n"
+                         "load(\"@rules_python//python:py_runtime_pair.bzl\", \"py_runtime_pair\")\n"
+                         "load(\"@rules_python//python/cc:py_cc_toolchain.bzl\", \"py_cc_toolchain\")\n"
+                         "load(\"@rules_python//python/private:py_exec_tools_toolchain.bzl\", \"py_exec_tools_toolchain\")\n\n"
+                         "package(default_visibility = [\"//visibility:public\"])\n\n"
+                         "exports_files([\"python\", \"STANDALONE_INTERPRETER\"])\n\n"
+                         "cc_library(\n"
+                         "    name = \"_python_headers\",\n"
+                         "    srcs = glob([\"include/**/*.h\"], allow_empty = True),\n"
+                         "    includes = [\"include\", \"include/python3.11\"],\n"
+                         ")\n\n"
+                         "cc_library(\n"
+                         "    name = \"_libpython\",\n"
+                         "    hdrs = [\":_python_headers\"],\n"
+                         "    srcs = glob([\"lib/libpython*.so*\", \"lib/libpython*.a\"], allow_empty = True),\n"
+                         ")\n\n"
+                         "py_runtime(\n"
+                         "    name = \"_py3_runtime\",\n"
+                         "    files = glob([\"bin/**\", \"lib/**\", \"include/**\", \"share/**\"], exclude = [\"lib/python*/site-packages/**\"], allow_empty = True),\n"
+                         "    interpreter = \":python\",\n"
+                         "    stub_shebang = \"#!" repo "/python\",\n"
+                         "    python_version = \"PY3\",\n"
+                         ")\n\n"
+                         "py_runtime_pair(\n"
+                         "    name = \"python_runtimes\",\n"
+                         "    py2_runtime = None,\n"
+                         "    py3_runtime = \":_py3_runtime\",\n"
+                         ")\n\n"
+                         "py_cc_toolchain(\n"
+                         "    name = \"py_cc_toolchain\",\n"
+                         "    headers = \":_python_headers\",\n"
+                         "    libs = \":_libpython\",\n"
+                         "    python_version = \"" python-version "\",\n"
+                         ")\n\n"
+                         "py_exec_tools_toolchain(\n"
+                         "    name = \"py_exec_tools_toolchain\",\n"
+                         "    precompiler = \"@rules_python//tools/precompiler:precompiler\",\n"
+                         ")\n")
+                        port))))))
+            (prepare-python-repo target-repo
+                                 "python_3_11_x86_64-unknown-linux-gnu")
+            (prepare-python-repo host-repo "python_3_11_host"))
+
+          ;; Provide a stub SYCL configuration repository so XLA BUILD files
+          ;; can load symbols without enabling SYCL.
+          (mkdir-p (string-append sycl-repo "/sycl"))
+          (call-with-output-file (string-append sycl-repo "/WORKSPACE")
+            (lambda (port)
+              (display "workspace(name = \"local_config_sycl\")\n" port)))
+          (call-with-output-file (string-append sycl-repo "/BUILD.bazel")
+            (lambda (port)
+              (display "" port)))
+          (call-with-output-file (string-append sycl-repo "/sycl/BUILD.bazel")
+            (lambda (port)
+              (display "" port)))
+          (call-with-output-file (string-append sycl-repo "/sycl/build_defs.bzl")
+            (lambda (port)
+              (display "def if_sycl(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def if_sycl_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def sycl_library(name, **_kwargs):\n    native.cc_library(name = name)\n" port)))
+
+          ;; Provide stub CUDA/ROCm config repositories for CPU-only builds.
+          (mkdir-p (string-append cuda-repo "/cuda"))
+          (call-with-output-file (string-append cuda-repo "/WORKSPACE")
+            (lambda (port)
+              (display "workspace(name = \"local_config_cuda\")\n" port)))
+          (call-with-output-file (string-append cuda-repo "/BUILD.bazel")
+            (lambda (port)
+              (display "load(\"@bazel_skylib//rules:common_settings.bzl\", \"bool_flag\", \"string_flag\")\n" port)
+              (display "package(default_visibility = [\"//visibility:public\"])\n\n" port)
+              (display "bool_flag(name = \"enable_cuda\", build_setting_default = False)\n" port)
+              (display "config_setting(name = \"is_cuda_enabled\", flag_values = {\":enable_cuda\": \"True\"})\n" port)
+              (display "string_flag(name = \"cuda_compiler\", build_setting_default = \"nvcc\", values = [\"clang\", \"nvcc\"])\n" port)
+              (display "config_setting(name = \"is_cuda_compiler_clang\", flag_values = {\":cuda_compiler\": \"clang\"})\n" port)
+              (display "config_setting(name = \"is_cuda_compiler_nvcc\", flag_values = {\":cuda_compiler\": \"nvcc\"})\n" port)))
+          (call-with-output-file (string-append cuda-repo "/cuda/BUILD.bazel")
+            (lambda (port)
+              (display "load(\"@bazel_skylib//rules:common_settings.bzl\", \"bool_flag\")\n" port)
+              (display "package(default_visibility = [\"//visibility:public\"])\n\n" port)
+              (display "config_setting(name = \"using_config_cuda\", flag_values = {\"@local_config_cuda//:enable_cuda\": \"True\"})\n" port)
+              (display "config_setting(name = \"using_clang\", flag_values = {\"@local_config_cuda//:cuda_compiler\": \"clang\"})\n" port)
+              (display "config_setting(name = \"using_clang_opt\", flag_values = {\"compilation_mode\": \"opt\", \"@local_config_cuda//:cuda_compiler\": \"clang\"})\n" port)
+              (display "config_setting(name = \"FALSE\", values = {\"define\": \"never_true=1\"})\n\n" port)
+              (display "bool_flag(name = \"include_cuda_libs\", build_setting_default = False)\n" port)
+              (display "bool_flag(name = \"override_include_cuda_libs\", build_setting_default = False)\n\n" port)
+              (display "filegroup(name = \"build_defs_bzl\", srcs = [\"build_defs.bzl\"])\n" port)
+              (display "cc_library(name = \"cuda\")\n" port)
+              (display "cc_library(name = \"implicit_cuda_headers_dependency\")\n" port)
+              (display "cc_library(name = \"cuda_headers\")\n" port)
+              (display "cc_library(name = \"cudnn_header\")\n" port)
+              (display "cc_library(name = \"cupti_headers\")\n" port)
+              (display "cc_library(name = \"cupti_dsos\")\n" port)
+              (display "cc_library(name = \"cuda_runtime\")\n" port)
+              (display "cc_library(name = \"cuda-nvvm\")\n" port)
+              (display "cc_library(name = \"nvptxcompiler\")\n" port)
+              (display "cc_library(name = \"nvjitlink\")\n" port)
+              (display "cc_library(name = \"cub_headers\")\n" port)
+              (display "cc_library(name = \"runtime_fatbinary\")\n" port)
+              (display "cc_library(name = \"runtime_nvlink\")\n" port)
+              (display "cc_library(name = \"runtime_ptxas\")\n" port)
+              (display "cc_library(name = \"runtime_nvdisasm\")\n" port)
+              (display "cc_library(name = \"cuda_tools\")\n" port)
+              (display "cc_library(name = \"cuda_tools_and_libs\")\n" port)))
+          (call-with-output-file (string-append cuda-repo "/cuda/build_defs.bzl")
+            (lambda (port)
+              (display "load(\"@rules_cc//cc:cc_library.bzl\", \"cc_library\")\n\n" port)
+              (display "def if_cuda(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def if_cuda_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def is_cuda_configured():\n    return False\n\n" port)
+              (display "def if_cuda_newer_than(wanted_ver, if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def cuda_default_copts():\n    return []\n\n" port)
+              (display "def cuda_gpu_architectures():\n    return []\n\n" port)
+              (display "def if_version_equal_or_greater_than(lib_version, dist_version, if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def cuda_library(copts = [], tags = [], deps = [], **kwargs):\n    cc_library(copts = copts, tags = tags + [\"cuda-only\"], deps = deps, **kwargs)\n\n" port)
+              (display "def enable_cuda_flag(name, build_setting_default = False, enable_override = False):\n    native.bool_flag(name = name, build_setting_default = build_setting_default)\n\n" port)))
+
+          (mkdir-p (string-append rocm-repo "/rocm"))
+          (call-with-output-file (string-append rocm-repo "/WORKSPACE")
+            (lambda (port)
+              (display "workspace(name = \"local_config_rocm\")\n" port)))
+          (call-with-output-file (string-append rocm-repo "/BUILD.bazel")
+            (lambda (port)
+              (display "package(default_visibility = [\"//visibility:public\"])\n" port)))
+          (call-with-output-file (string-append rocm-repo "/rocm/BUILD.bazel")
+            (lambda (port)
+              (display "package(default_visibility = [\"//visibility:public\"])\n\n" port)
+              (display "config_setting(name = \"using_hipcc\", values = {\"define\": \"using_rocm_hipcc=true\"})\n" port)
+              (display "filegroup(name = \"build_defs_bzl\", srcs = [\"build_defs.bzl\"])\n" port)
+              (display "cc_library(name = \"all_files\")\n" port)
+              (display "cc_library(name = \"toolchain_data\")\n" port)
+              (display "cc_library(name = \"rocm_headers\")\n" port)
+              (display "cc_library(name = \"rocm_rpath\")\n" port)
+              (display "cc_library(name = \"hip\")\n" port)
+              (display "cc_library(name = \"hip_runtime\")\n" port)
+              (display "cc_library(name = \"hipblas\")\n" port)
+              (display "cc_library(name = \"hipblaslt\")\n" port)
+              (display "cc_library(name = \"hipfft\")\n" port)
+              (display "cc_library(name = \"hiprand\")\n" port)
+              (display "cc_library(name = \"hipsolver\")\n" port)
+              (display "cc_library(name = \"hipsparse\")\n" port)
+              (display "cc_library(name = \"miopen\")\n" port)
+              (display "cc_library(name = \"rccl\")\n" port)
+              (display "cc_library(name = \"rocblas\")\n" port)
+              (display "cc_library(name = \"rocsolver\")\n" port)
+              (display "cc_library(name = \"rocprim\")\n" port)
+              (display "cc_library(name = \"roctracer\")\n" port)
+              (display "cc_library(name = \"rocprofiler-sdk\")\n" port)
+              (display "cc_library(name = \"rocminfo\")\n" port)))
+          (call-with-output-file (string-append rocm-repo "/rocm/build_defs.bzl")
+            (lambda (port)
+              (display "load(\"@rules_cc//cc:cc_library.bzl\", \"cc_library\")\n\n" port)
+              (display "def if_rocm(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def select_threshold(value, above_or_eq, threshold, below):\n    return below if value < threshold else above_or_eq\n\n" port)
+              (display "def if_rocm_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def if_gpu_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def if_cuda_or_rocm(if_true, if_false = []):\n    return if_false\n\n" port)
+              (display "def is_rocm_configured():\n    return False\n\n" port)
+              (display "def rocm_library(copts = [], deps = [], **kwargs):\n    if \"@local_config_rocm//rocm:rocm_headers\" not in deps:\n        deps = deps + [\"@local_config_rocm//rocm:rocm_headers\"]\n    cc_library(copts = copts, deps = deps, **kwargs)\n\n" port)
+              (display "def rocm_version_number():\n    return 0\n\n" port)
+              (display "def get_rbe_amdgpu_pool(is_single_gpu = False):\n    return \"\"\n" port)))
+
+          ;; Provide a local @pypi repository so wheel build-time deps come
+          ;; from Guix inputs instead of network-fetched pip repositories.
+          (mkdir-p pypi-repo)
+          (call-with-output-file (string-append pypi-repo "/WORKSPACE")
+            (lambda (port)
+              (display "workspace(name = \"pypi\")\n" port)))
+          (call-with-output-file (string-append pypi-repo "/requirements.bzl")
+            (lambda (port)
+              (display "def install_deps():\n    pass\n" port)))
+          (call-with-output-file (string-append pypi-repo "/BUILD.bazel")
+            (lambda (port)
+              (display "package(default_visibility = [\"//visibility:public\"])\n"
+                       port)))
+          (for-each
+           (lambda (package)
+             (let ((dir (string-append pypi-repo "/" package)))
+               (mkdir-p dir)
+               (call-with-output-file (string-append dir "/BUILD.bazel")
+                 (lambda (port)
+                   (display
+                    "package(default_visibility = [\"//visibility:public\"])\n"
+                    port)
+                   (format port "py_library(name = \"~a\")\n" package)))))
+           '("absl_py"
+             "build"
+             "cloudpickle"
+             "etils"
+             "filelock"
+             "flatbuffers"
+             "hypothesis"
+             "jaxlib"
+             "libtpu"
+             "matplotlib"
+             "ml_dtypes"
+             "opt_einsum"
+             "pillow"
+             "portpicker"
+             "scipy"
+             "setuptools"
+             "tensorflow"
+             "tensorstore"
+             "wheel"
+             "zstandard"))
+          (let ((numpy-package-dir (string-append pypi-repo "/numpy")))
+            (mkdir-p (string-append numpy-package-dir "/site-packages"))
+            (false-if-exception
+             (delete-file (string-append numpy-package-dir
+                                         "/site-packages/numpy")))
+            (symlink numpy-site-packages
+                     (string-append numpy-package-dir "/site-packages/numpy"))
+            (call-with-output-file (string-append numpy-package-dir "/BUILD.bazel")
+              (lambda (port)
+                (display
+                 "package(default_visibility = [\"//visibility:public\"])\n\n"
+                 port)
+                (display "py_library(name = \"numpy\")\n\n" port)
+                (display
+                 "cc_library(\n    name = \"numpy_headers_2\",\n    hdrs = glob([\"site-packages/numpy/_core/include/**/*.h\"]),\n    strip_include_prefix = \"site-packages/numpy/_core/include\",\n)\n\n"
+                 port)
+                (display
+                 "cc_library(\n    name = \"numpy_headers_1\",\n    hdrs = glob([\"site-packages/numpy/core/include/**/*.h\"]),\n    strip_include_prefix = \"site-packages/numpy/core/include\",\n)\n\n"
+                 port)
+                (display
+                 "cc_library(\n    name = \"numpy_headers\",\n    deps = [\":numpy_headers_2\", \":numpy_headers_1\"],\n    hdrs = glob([\"site-packages/numpy/_core/include/**/*.h\"]) + glob([\"site-packages/numpy/core/include/**/*.h\"]),\n)\n"
+                 port))))
+
+          ;; Stub repository generated by googleapis WORKSPACE for optional
+          ;; language-specific rules; all symbols are defined as no-op macros.
+          (mkdir-p googleapis-imports-repo)
+          (call-with-output-file (string-append googleapis-imports-repo "/WORKSPACE")
+            (lambda (port)
+              (display "workspace(name = \"com_google_googleapis_imports\")\n" port)))
+          (call-with-output-file (string-append googleapis-imports-repo "/BUILD.bazel")
+            (lambda (port)
+              (display "exports_files([\"imports.bzl\"])\n" port)))
+          (call-with-output-file (string-append googleapis-imports-repo "/imports.bzl")
+            (lambda (port)
+              (for-each
+               (lambda (rule)
+                 (format port "def ~a(**kwargs):~%    pass~%~%" rule))
+               '("proto_library_with_info"
+                 "moved_proto_library"
+                 "java_proto_library"
+                 "java_grpc_library"
+                 "java_gapic_library"
+                 "java_gapic_test"
+                 "java_gapic_assembly_gradle_pkg"
+                 "py_proto_library"
+                 "py_grpc_library"
+                 "py_gapic_library"
+                 "py_test"
+                 "py_gapic_assembly_pkg"
+                 "py_import"
+                 "go_proto_library"
+                 "go_grpc_library"
+                 "go_library"
+                 "go_test"
+                 "go_gapic_library"
+                 "go_gapic_assembly_pkg"
+                 "cc_proto_library"
+                 "cc_grpc_library"
+                 "cc_gapic_library"
+                 "php_proto_library"
+                 "php_grpc_library"
+                 "php_gapic_library"
+                 "php_gapic_assembly_pkg"
+                 "nodejs_gapic_library"
+                 "nodejs_gapic_assembly_pkg"
+                 "ruby_proto_library"
+                 "ruby_grpc_library"
+                 "ruby_ads_gapic_library"
+                 "ruby_cloud_gapic_library"
+                 "ruby_gapic_assembly_pkg"
+                 "csharp_proto_library"
+                 "csharp_grpc_library"
+                 "csharp_gapic_library"
+                 "csharp_gapic_assembly_pkg"))))
+
+          ;; Stub host platform repository for rules that expect @host_platform.
+          (mkdir-p host-platform-repo)
+          (call-with-output-file (string-append host-platform-repo "/WORKSPACE")
+            (lambda (port)
+              (display "workspace(name = \"host_platform\")\n" port)))
+          (call-with-output-file (string-append host-platform-repo "/BUILD.bazel")
+            (lambda (port)
+              (display "exports_files([\"constraints.bzl\"])\n" port)))
+          (call-with-output-file (string-append host-platform-repo "/constraints.bzl")
+            (lambda (port)
+              (display "HOST_CONSTRAINTS = [\n" port)
+              (display (string-append "    \"" #$jax-bazel-host-cpu-constraint "\",\n") port)
+              (display "    \"@platforms//os:linux\",\n" port)
+              (display "]\n" port)))
+
+          ;; Override LLVM with a locally patched repo for Bazel 6 compatibility.
+          (unless (file-exists? llvm-raw-repo)
+            (mkdir-p llvm-raw-repo)
+            (invoke "tar" "xf" llvm-raw-archive "-C" llvm-raw-repo "--strip-components=1"))
+          (call-with-output-file (string-append llvm-raw-repo "/WORKSPACE")
+            (lambda (port)
+              (display "workspace(name = \"llvm-raw\")\n" port)))
+          (call-with-output-file (string-append llvm-raw-repo "/BUILD.bazel")
+            (lambda (port)
+              (display "exports_files([\"WORKSPACE\"])\n" port)))
+          (substitute* (string-append llvm-raw-repo "/utils/bazel/configure.bzl")
+            (("if entry\\.is_dir:")
+             "if repository_ctx.execute([\"test\", \"-d\", str(entry)]).return_code == 0:"))
+          ;; Bazel 6.5.0 defines linux_riscv64 with x86_64 constraints.
+          ;; Keep LLVM native target defines aligned with the Guix host.
+          (substitute* (string-append llvm-raw-repo
+                                      "/utils/bazel/llvm-project-overlay/llvm/config.bzl")
+            (("@bazel_tools//src/conditions:linux_riscv64\": native_arch_defines\\([^)]*\\),")
+             (string-append "@bazel_tools//src/conditions:linux_riscv64\": native_arch_defines(\""
+                            #$jax-bazel-llvm-native-arch "\", \""
+                            #$jax-bazel-llvm-native-triple "\"),")))
+          ;; LLVM's Bazel overlay still references the pre-0.1.0 rules_cc
+          ;; compiler flag label.
+          (substitute* (string-append llvm-raw-repo
+                                      "/utils/bazel/llvm-project-overlay/llvm/BUILD.bazel")
+            (("@rules_cc//cc/compiler:compiler")
+             "@rules_cc//cc/private/toolchain:compiler"))
+          (substitute* (string-append llvm-raw-repo
+                                      "/utils/bazel/llvm-project-overlay/third-party/BUILD.bazel")
+            ;; Avoid undeclared external LLVM compression repositories in our
+            ;; offline build and keep optional compression support disabled.
+            (("build_setting_default = True")
+             "build_setting_default = False")
+            (("^[[:space:]]*@llvm_zstd//:zstd,[[:space:]]*$")
+             ""))
+
+          ;; Provide a locally patched XLA repository to avoid optional GPU/SYCL
+          ;; setup and Bazel 6-incompatible repository_ctx.getenv() calls.
+          (unless (file-exists? xla-repo)
+            (mkdir-p xla-repo)
+            (invoke "tar" "xf" xla-archive "-C" xla-repo "--strip-components=1"))
+          ;; XLA's tf_vendored() repository rule defaults _root to //:unused.
+          ;; Ensure this label exists in our overridden checkout.
+          (call-with-output-file (string-append xla-repo "/unused")
+            (lambda (port)
+              (display "" port)))
+          (substitute* (string-append xla-repo "/third_party/remote_config/common.bzl")
+            (("repository_ctx.getenv\\(")
+             "repository_ctx.os.environ.get("))
+          (substitute* (string-append xla-repo "/workspace2.bzl")
+            (("load\\(\"@rules_ml_toolchain//gpu/sycl:sycl_configure\\.bzl\", \"sycl_configure\"\\)\n")
+             "")
+            (("load\\(\"@rules_ml_toolchain//gpu/sycl:sycl_init_repository\\.bzl\", \"sycl_init_repository\"\\)\n")
+             "")
+            (("^[[:space:]]*sycl_init_repository\\(\\)\n")
+             "")
+            (("^[[:space:]]*sycl_configure\\(name = \"local_config_sycl\"\\)\n")
+             ""))
+          ;; Avoid relying on /usr/bin/env in Bazel-generated py_binary wrappers.
+          ;; Execute mpitrampoline generators with our explicitly overridden Python.
+          (substitute* (string-append xla-repo "/third_party/mpitrampoline/mpitrampoline.BUILD")
+            (("cmd = \"\\$\\(location :gen_decl\\)")
+             "cmd = \"$(location @python_3_11_host//:python) $(location :gen_decl)")
+            (("cmd = \"\\$\\(location :gen_defn\\)")
+             "cmd = \"$(location @python_3_11_host//:python) $(location :gen_defn)")
+            (("cmd = \"\\$\\(location :gen_init\\)")
+             "cmd = \"$(location @python_3_11_host//:python) $(location :gen_init)")
+            (("tools = \\[\":gen_decl\"\\],")
+             "tools = [\":gen_decl\", \"@python_3_11_host//:python\"],")
+            (("tools = \\[\":gen_defn\"\\],")
+             "tools = [\":gen_defn\", \"@python_3_11_host//:python\"],")
+            (("tools = \\[\":gen_init\"\\],")
+             "tools = [\":gen_init\", \"@python_3_11_host//:python\"],"))
+          ;; GCC 14 rejects out-of-class member template definitions for this
+          ;; enable_if non-type parameter pattern. Use return-type SFINAE.
+          (substitute* (string-append xla-repo "/xla/tsl/concurrency/future.h")
+            ;; Declarations.
+            (("template <typename U = T, std::enable_if_t<internal::IsFuture<U>::value &&")
+             "template <typename U = T>")
+            (("^[[:space:]]*template <typename U = T,[[:space:]]*$")
+             "template <typename U = T>\n")
+            (("[[:space:]]*!is_move_only>\\* = nullptr>")
+             "  std::enable_if_t<internal::IsFuture<U>::value && !is_move_only,")
+            (("[[:space:]]*std::enable_if_t<internal::IsFuture<U>::value>\\* = nullptr>")
+             "  std::enable_if_t<internal::IsFuture<U>::value,")
+            (("Future<internal::future_type_t<typename U::value_type>> Flatten\\(\\) const&;")
+             "                   Future<internal::future_type_t<typename U::value_type>>>\n  Flatten() const&;")
+            (("Future<internal::future_type_t<typename U::value_type>> Flatten\\(\\) &&;")
+             "                   Future<internal::future_type_t<typename U::value_type>>>\n  Flatten() &&;")
+            ;; Definitions.
+            (("template <typename U, std::enable_if_t<internal::IsFuture<U>::value &&")
+             "template <typename U>")
+            (("[[:space:]]*!Future<T>::is_move_only>\\*>")
+             "[[nodiscard]] std::enable_if_t<internal::IsFuture<U>::value && !Future<T>::is_move_only,")
+            (("template <typename U, std::enable_if_t<internal::IsFuture<U>::value>\\*>")
+             "template <typename U>\n[[nodiscard]] std::enable_if_t<internal::IsFuture<U>::value,")
+            (("\\[\\[nodiscard\\]\\] Future<internal::future_type_t<typename U::value_type>>")
+             "                               Future<internal::future_type_t<typename U::value_type>>>"))
+          ;; Clang-only flag not accepted by GCC.
+          (substitute* (string-append xla-repo "/xla/codegen/intrinsic/cpp/cc_to_llvm_ir.bzl")
+            (("\"-fno-experimental-sanitize-metadata=all\",")
+             "")
+            (("\" --fail_if_no_bitcode\"")
+             "\"\"")
+            (("\"//conditions:default\": \\[\":\" \\+ name \\+ \"_extract_bc\"\\],")
+             "\"//conditions:default\": [\":\" + name + \"_empty_bc\"],")
+            (("\"//conditions:default\": \\[\":\" \\+ out_o\\],")
+             "\"//conditions:default\": [],")
+            (("//xla/tsl:windows\",\\n            \\],")
+             "//xla/tsl:windows\",\n                \"//xla/tsl:linux\",\n            ],"))
+          ;; GCC 14: avoid ambiguous brace-init conversion to mhlo::PowOp::Adaptor.
+          (substitute* (string-append xla-repo "/xla/codegen/emitters/transforms/expand_integer_power.cc")
+            ((", \\{op->getOperands\\(\\)\\},")
+             ", op->getOperands(),"))
+          ;; XNNPACK code generators are py_binary wrappers with /usr/bin/env
+          ;; shebangs. Force explicit Python in generated genrules.
+          (let ((xnnpack-build-defs
+                 (string-append root "/output/external/XNNPACK/ynnpack/build_defs.bzl")))
+            (when (file-exists? xnnpack-build-defs)
+              (substitute* xnnpack-build-defs
+                (("cmd = \"\\$\\(location \" \\+ generator \\+ \"\\) \" \\+ \"\\$\\(location \" \\+ output_src \\+ \"\\) \" \\+ \"\\$\\(location \" \\+ output_hdr \\+ \"\\) \" \\+ \" \"\\.join\\(generator_args\\),")
+                 (string-append
+                  "cmd = \"" python " $(location \" + generator + \") \" + "
+                  "\"$(location \" + output_src + \") \" + "
+                  "\"$(location \" + output_hdr + \") \" + \" \".join(generator_args),")))))
+          (substitute* (string-append xla-repo "/workspace0.bzl")
+            (("load\\(\"@com_github_grpc_grpc//bazel:grpc_extra_deps\\.bzl\", \"grpc_extra_deps\"\\)\n")
+             "load(\"@rules_java//java:rules_java_deps.bzl\", \"rules_java_dependencies\")\nload(\"@com_google_protobuf//:protobuf_deps.bzl\", \"protobuf_deps\")\n")
+            (("^[[:space:]]*grpc_extra_deps\\(\\)\n")
+             "    rules_java_dependencies()\n    protobuf_deps()\n")))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack-vendored-inputs 'prepare-python-repository-override
+            (lambda _
+              (let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
+                     (target-repo (string-append root
+                                                 "/python_3_11_x86_64-unknown-linux-gnu"))
+                     (host-repo (string-append root "/python_3_11_host"))
+                     (cuda-repo (string-append root "/local_config_cuda"))
+                     (rocm-repo (string-append root "/local_config_rocm"))
+                     (sycl-repo (string-append root "/local_config_sycl"))
+                     (python (string-append #$(this-package-input "python")
+                                            "/bin/python3"))
+                     (prefix #$(this-package-input "python"))
+                     (python-version #$(version-major+minor
+                                        (package-version
+                                         (this-package-input "python"))))
+                     (numpy-site-packages
+                      (string-append #$(this-package-input "python-numpy")
+                                     "/lib/python" python-version
+                                     "/site-packages/numpy"))
+                     (pypi-repo (string-append root "/pypi"))
+                     (googleapis-imports-repo
+                      (string-append root "/com_google_googleapis_imports"))
+                     (host-platform-repo (string-append root "/host_platform"))
+                     (llvm-raw-repo (string-append root "/llvm-raw"))
+                     (llvm-raw-archive
+                      #$(this-package-native-input "llvm-project-source-archive"))
+                     (xla-repo (string-append root "/xla"))
+                     (xla-archive #$(this-package-native-input "xla-source-archive")))
+                (let ((prepare-python-repo
+                       (lambda (repo workspace-name)
+                         (mkdir-p (string-append repo "/bin"))
+                         (for-each (lambda (file)
+                                     (false-if-exception (delete-file file)))
+                                   (list (string-append repo "/python")
+                                         (string-append repo "/bin/python3")
+                                         (string-append repo "/STANDALONE_INTERPRETER")
+                                         (string-append repo "/WORKSPACE")
+                                         (string-append repo "/BUILD.bazel")))
+                         (for-each (lambda (dir)
+                                     (let ((target (string-append repo "/" dir)))
+                                       (false-if-exception (delete-file target))
+                                       (symlink (string-append prefix "/" dir)
+                                                target)))
+                                   '("lib" "include" "share"))
+                         (copy-file python (string-append repo "/bin/python3"))
+                         (chmod (string-append repo "/bin/python3") #o555)
+                         (copy-file python (string-append repo "/python"))
+                         (chmod (string-append repo "/python") #o555)
+                         (call-with-output-file (string-append repo "/STANDALONE_INTERPRETER")
+                           (lambda (port)
+                             (format port "#!~a~%" (string-append repo "/bin/python3"))))
+                         (chmod (string-append repo "/STANDALONE_INTERPRETER") #o555)
+                         (call-with-output-file (string-append repo "/WORKSPACE")
+                           (lambda (port)
+                             (format port "workspace(name = \"~a\")~%" workspace-name)))
+                         (call-with-output-file (string-append repo "/BUILD.bazel")
+                           (lambda (port)
+                             (display
+                              (string-append
+                               "load(\"@rules_cc//cc:cc_library.bzl\", \"cc_library\")\n"
+                               "load(\"@rules_python//python:py_runtime.bzl\", \"py_runtime\")\n"
+                               "load(\"@rules_python//python:py_runtime_pair.bzl\", \"py_runtime_pair\")\n"
+                               "load(\"@rules_python//python/cc:py_cc_toolchain.bzl\", \"py_cc_toolchain\")\n"
+                               "load(\"@rules_python//python/private:py_exec_tools_toolchain.bzl\", \"py_exec_tools_toolchain\")\n\n"
+                               "package(default_visibility = [\"//visibility:public\"])\n\n"
+                               "exports_files([\"python\", \"STANDALONE_INTERPRETER\"])\n\n"
+                               "cc_library(\n"
+                               "    name = \"_python_headers\",\n"
+                               "    srcs = glob([\"include/**/*.h\"], allow_empty = True),\n"
+                               "    includes = [\"include\", \"include/python3.11\"],\n"
+                               ")\n\n"
+                               "cc_library(\n"
+                               "    name = \"_libpython\",\n"
+                               "    hdrs = [\":_python_headers\"],\n"
+                               "    srcs = glob([\"lib/libpython*.so*\", \"lib/libpython*.a\"], allow_empty = True),\n"
+                               ")\n\n"
+                               "py_runtime(\n"
+                               "    name = \"_py3_runtime\",\n"
+                               "    files = glob([\"bin/**\", \"lib/**\", \"include/**\", \"share/**\"], exclude = [\"lib/python*/site-packages/**\"], allow_empty = True),\n"
+                               "    interpreter = \":python\",\n"
+                               "    stub_shebang = \"#!" repo "/python\",\n"
+                               "    python_version = \"PY3\",\n"
+                               ")\n\n"
+                               "py_runtime_pair(\n"
+                               "    name = \"python_runtimes\",\n"
+                               "    py2_runtime = None,\n"
+                               "    py3_runtime = \":_py3_runtime\",\n"
+                               ")\n\n"
+                               "py_cc_toolchain(\n"
+                               "    name = \"py_cc_toolchain\",\n"
+                               "    headers = \":_python_headers\",\n"
+                               "    libs = \":_libpython\",\n"
+                               "    python_version = \"" python-version "\",\n"
+                               ")\n\n"
+                               "py_exec_tools_toolchain(\n"
+                               "    name = \"py_exec_tools_toolchain\",\n"
+                               "    precompiler = \"@rules_python//tools/precompiler:precompiler\",\n"
+                               ")\n")
+                              port))))))
+                  (prepare-python-repo target-repo
+                                       "python_3_11_x86_64-unknown-linux-gnu")
+                  (prepare-python-repo host-repo "python_3_11_host"))
+
+                (mkdir-p (string-append sycl-repo "/sycl"))
+                (call-with-output-file (string-append sycl-repo "/WORKSPACE")
+                  (lambda (port)
+                    (display "workspace(name = \"local_config_sycl\")\n" port)))
+                (call-with-output-file (string-append sycl-repo "/BUILD.bazel")
+                  (lambda (port)
+                    (display "" port)))
+                (call-with-output-file (string-append sycl-repo "/sycl/BUILD.bazel")
+                  (lambda (port)
+                    (display "" port)))
+                (call-with-output-file (string-append sycl-repo "/sycl/build_defs.bzl")
+                  (lambda (port)
+                    (display "def if_sycl(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def if_sycl_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def sycl_library(name, **_kwargs):\n    native.cc_library(name = name)\n" port)))
+
+                (mkdir-p (string-append cuda-repo "/cuda"))
+                (call-with-output-file (string-append cuda-repo "/WORKSPACE")
+                  (lambda (port)
+                    (display "workspace(name = \"local_config_cuda\")\n" port)))
+                (call-with-output-file (string-append cuda-repo "/BUILD.bazel")
+                  (lambda (port)
+                    (display "load(\"@bazel_skylib//rules:common_settings.bzl\", \"bool_flag\", \"string_flag\")\n" port)
+                    (display "package(default_visibility = [\"//visibility:public\"])\n\n" port)
+                    (display "bool_flag(name = \"enable_cuda\", build_setting_default = False)\n" port)
+                    (display "config_setting(name = \"is_cuda_enabled\", flag_values = {\":enable_cuda\": \"True\"})\n" port)
+                    (display "string_flag(name = \"cuda_compiler\", build_setting_default = \"nvcc\", values = [\"clang\", \"nvcc\"])\n" port)
+                    (display "config_setting(name = \"is_cuda_compiler_clang\", flag_values = {\":cuda_compiler\": \"clang\"})\n" port)
+                    (display "config_setting(name = \"is_cuda_compiler_nvcc\", flag_values = {\":cuda_compiler\": \"nvcc\"})\n" port)))
+                (call-with-output-file (string-append cuda-repo "/cuda/BUILD.bazel")
+                  (lambda (port)
+                    (display "load(\"@bazel_skylib//rules:common_settings.bzl\", \"bool_flag\")\n" port)
+                    (display "package(default_visibility = [\"//visibility:public\"])\n\n" port)
+                    (display "config_setting(name = \"using_config_cuda\", flag_values = {\"@local_config_cuda//:enable_cuda\": \"True\"})\n" port)
+                    (display "config_setting(name = \"using_clang\", flag_values = {\"@local_config_cuda//:cuda_compiler\": \"clang\"})\n" port)
+                    (display "config_setting(name = \"using_clang_opt\", flag_values = {\"compilation_mode\": \"opt\", \"@local_config_cuda//:cuda_compiler\": \"clang\"})\n" port)
+                    (display "config_setting(name = \"FALSE\", values = {\"define\": \"never_true=1\"})\n\n" port)
+                    (display "bool_flag(name = \"include_cuda_libs\", build_setting_default = False)\n" port)
+                    (display "bool_flag(name = \"override_include_cuda_libs\", build_setting_default = False)\n\n" port)
+                    (display "filegroup(name = \"build_defs_bzl\", srcs = [\"build_defs.bzl\"])\n" port)
+                    (display "cc_library(name = \"cuda\")\n" port)
+                    (display "cc_library(name = \"implicit_cuda_headers_dependency\")\n" port)
+                    (display "cc_library(name = \"cuda_headers\")\n" port)
+                    (display "cc_library(name = \"cudnn_header\")\n" port)
+                    (display "cc_library(name = \"cupti_headers\")\n" port)
+                    (display "cc_library(name = \"cupti_dsos\")\n" port)
+                    (display "cc_library(name = \"cuda_runtime\")\n" port)
+                    (display "cc_library(name = \"cuda-nvvm\")\n" port)
+                    (display "cc_library(name = \"nvptxcompiler\")\n" port)
+                    (display "cc_library(name = \"nvjitlink\")\n" port)
+                    (display "cc_library(name = \"cub_headers\")\n" port)
+                    (display "cc_library(name = \"runtime_fatbinary\")\n" port)
+                    (display "cc_library(name = \"runtime_nvlink\")\n" port)
+                    (display "cc_library(name = \"runtime_ptxas\")\n" port)
+                    (display "cc_library(name = \"runtime_nvdisasm\")\n" port)
+                    (display "cc_library(name = \"cuda_tools\")\n" port)
+                    (display "cc_library(name = \"cuda_tools_and_libs\")\n" port)))
+                (call-with-output-file (string-append cuda-repo "/cuda/build_defs.bzl")
+                  (lambda (port)
+                    (display "load(\"@rules_cc//cc:cc_library.bzl\", \"cc_library\")\n\n" port)
+                    (display "def if_cuda(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def if_cuda_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def is_cuda_configured():\n    return False\n\n" port)
+                    (display "def if_cuda_newer_than(wanted_ver, if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def cuda_default_copts():\n    return []\n\n" port)
+                    (display "def cuda_gpu_architectures():\n    return []\n\n" port)
+                    (display "def if_version_equal_or_greater_than(lib_version, dist_version, if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def cuda_library(copts = [], tags = [], deps = [], **kwargs):\n    cc_library(copts = copts, tags = tags + [\"cuda-only\"], deps = deps, **kwargs)\n\n" port)
+                    (display "def enable_cuda_flag(name, build_setting_default = False, enable_override = False):\n    native.bool_flag(name = name, build_setting_default = build_setting_default)\n\n" port)))
+
+                (mkdir-p (string-append rocm-repo "/rocm"))
+                (call-with-output-file (string-append rocm-repo "/WORKSPACE")
+                  (lambda (port)
+                    (display "workspace(name = \"local_config_rocm\")\n" port)))
+                (call-with-output-file (string-append rocm-repo "/BUILD.bazel")
+                  (lambda (port)
+                    (display "package(default_visibility = [\"//visibility:public\"])\n" port)))
+                (call-with-output-file (string-append rocm-repo "/rocm/BUILD.bazel")
+                  (lambda (port)
+                    (display "package(default_visibility = [\"//visibility:public\"])\n\n" port)
+                    (display "config_setting(name = \"using_hipcc\", values = {\"define\": \"using_rocm_hipcc=true\"})\n" port)
+                    (display "filegroup(name = \"build_defs_bzl\", srcs = [\"build_defs.bzl\"])\n" port)
+                    (display "cc_library(name = \"all_files\")\n" port)
+                    (display "cc_library(name = \"toolchain_data\")\n" port)
+                    (display "cc_library(name = \"rocm_headers\")\n" port)
+                    (display "cc_library(name = \"rocm_rpath\")\n" port)
+                    (display "cc_library(name = \"hip\")\n" port)
+                    (display "cc_library(name = \"hip_runtime\")\n" port)
+                    (display "cc_library(name = \"hipblas\")\n" port)
+                    (display "cc_library(name = \"hipblaslt\")\n" port)
+                    (display "cc_library(name = \"hipfft\")\n" port)
+                    (display "cc_library(name = \"hiprand\")\n" port)
+                    (display "cc_library(name = \"hipsolver\")\n" port)
+                    (display "cc_library(name = \"hipsparse\")\n" port)
+                    (display "cc_library(name = \"miopen\")\n" port)
+                    (display "cc_library(name = \"rccl\")\n" port)
+                    (display "cc_library(name = \"rocblas\")\n" port)
+                    (display "cc_library(name = \"rocsolver\")\n" port)
+                    (display "cc_library(name = \"rocprim\")\n" port)
+                    (display "cc_library(name = \"roctracer\")\n" port)
+                    (display "cc_library(name = \"rocprofiler-sdk\")\n" port)
+                    (display "cc_library(name = \"rocminfo\")\n" port)))
+                (call-with-output-file (string-append rocm-repo "/rocm/build_defs.bzl")
+                  (lambda (port)
+                    (display "load(\"@rules_cc//cc:cc_library.bzl\", \"cc_library\")\n\n" port)
+                    (display "def if_rocm(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def select_threshold(value, above_or_eq, threshold, below):\n    return below if value < threshold else above_or_eq\n\n" port)
+                    (display "def if_rocm_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def if_gpu_is_configured(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def if_cuda_or_rocm(if_true, if_false = []):\n    return if_false\n\n" port)
+                    (display "def is_rocm_configured():\n    return False\n\n" port)
+                    (display "def rocm_library(copts = [], deps = [], **kwargs):\n    if \"@local_config_rocm//rocm:rocm_headers\" not in deps:\n        deps = deps + [\"@local_config_rocm//rocm:rocm_headers\"]\n    cc_library(copts = copts, deps = deps, **kwargs)\n\n" port)
+                    (display "def rocm_version_number():\n    return 0\n\n" port)
+                    (display "def get_rbe_amdgpu_pool(is_single_gpu = False):\n    return \"\"\n" port)))
+
+                (mkdir-p pypi-repo)
+                (call-with-output-file (string-append pypi-repo "/WORKSPACE")
+                  (lambda (port)
+                    (display "workspace(name = \"pypi\")\n" port)))
+                (call-with-output-file (string-append pypi-repo "/requirements.bzl")
+                  (lambda (port)
+                    (display "def install_deps():\n    pass\n" port)))
+                (call-with-output-file (string-append pypi-repo "/BUILD.bazel")
+                  (lambda (port)
+                    (display "package(default_visibility = [\"//visibility:public\"])\n"
+                             port)))
+                (for-each
+                 (lambda (package)
+                   (let ((dir (string-append pypi-repo "/" package)))
+                     (mkdir-p dir)
+                     (call-with-output-file (string-append dir "/BUILD.bazel")
+                       (lambda (port)
+                         (display
+                          "package(default_visibility = [\"//visibility:public\"])\n"
+                          port)
+                         (format port "py_library(name = \"~a\")\n" package)))))
+                 '("absl_py"
+                   "build"
+                   "cloudpickle"
+                   "etils"
+                   "filelock"
+                   "flatbuffers"
+                   "hypothesis"
+                   "jaxlib"
+                   "libtpu"
+                   "matplotlib"
+                   "ml_dtypes"
+                   "opt_einsum"
+                   "pillow"
+                   "portpicker"
+                   "scipy"
+                   "setuptools"
+                   "tensorflow"
+                   "tensorstore"
+                   "wheel"
+                   "zstandard"))
+                (let ((numpy-package-dir (string-append pypi-repo "/numpy")))
+                  (mkdir-p (string-append numpy-package-dir "/site-packages"))
+                  (false-if-exception
+                   (delete-file (string-append numpy-package-dir
+                                               "/site-packages/numpy")))
+                  (symlink numpy-site-packages
+                           (string-append numpy-package-dir "/site-packages/numpy"))
+                  (call-with-output-file (string-append numpy-package-dir "/BUILD.bazel")
                     (lambda (port)
-                      ;; build --define PROTOBUF_INCLUDE_PATH=" #$(this-package-input "protobuf") "/include
-                      (display (string-append
-                                "
-build --strategy=Genrule=standalone
-build --repo_env PYTHON_BIN_PATH="
-                                #$(this-package-input "python-wrapper")
-                                "/bin/python\nbuild --python_path="
-                                #$(this-package-input "python-wrapper")
-                                "/bin/python
-build --distinct_host_configuration=false
-build --features=-layering_check
-build --experimental_strict_java_deps=off
-build --strict_proto_deps=off
-build --config=mkl_open_source_only
-build --toolchain_resolution_debug=\".*\"
-build --local_ram_resources=HOST_RAM*.5
-build --local_cpu_resources=HOST_CPUS*.75
-")
-                               port)))))))))
-      (inputs (list curl
-                    double-conversion
-                    flatbuffers
-                    giflib
-                    grpc
-                    hwloc
-                    icu4c
-                    jsoncpp
-                    libjpeg-turbo
-                    openssl
-                    ;; XXX: With our own version of Protobuf we see this error
-                    ;; on "import jax" (downstream of this package):
-                    ;;
-                    ;; [libprotobuf ERROR google/protobuf/descriptor_database.cc:642] File already exists in database: xla/xla_data.proto
-                    ;; [libprotobuf FATAL google/protobuf/descriptor.cc:1984] CHECK failed: GeneratedDatabase()->Add(encoded_file_descriptor, size):
-                    ;; terminate called after throwing an instance of 'google::protobuf::FatalException'
-                    ;; what():  CHECK failed: GeneratedDatabase()->Add(encoded_file_descriptor, size):
-                    ;; protobuf-3.20
-                    ;; `(,protobuf-3.20 "static")
-                    pybind11
-                    python-absl-py
-                    python-numpy
-                    python-scipy
-                    python-six
-                    python-wrapper
-                    ;; Wrong version of snappy?
-                    ;; external/tsl/tsl/platform/default/port.cc:328:11: error:
-                    ;; 'RawCompressFromIOVec' is not a member of 'snappy'; did
-                    ;; you mean 'RawUncompressToIOVec'?
-                    ;; snappy
-                    zlib))
-      (propagated-inputs (list python-absl-py
-                               python-importlib-metadata
-                               python-gast
-                               python-ml-dtypes
-                               python-numpy
-                               python-opt-einsum
-                               python-protobuf-for-tensorflow
-                               python-scipy))
-      (native-inputs `(("python-pypa-build" ,python-pypa-build)
-                       ("python-setuptools" ,python-setuptools)
-                       ("python-wheel" ,python-wheel)
-                       ("bazel-platforms" ,(origin
-                                             (method git-fetch)
-                                             (uri (git-reference (url
-                                                                  "https://github.com/bazelbuild/platforms")
-                                                                 (commit
-                                                                  "0.0.8")))
-                                             (file-name (git-file-name
-                                                         "bazel-platforms"
-                                                         "0.0.8"))
-                                             (sha256 (base32
-                                                      "1wx2348w49vxr3z9kjfls5zsrwr0div6r3irbvdlawan87sx5yfs"))))))
-      (home-page "https://github.com/google/jax")
-      (synopsis "Differentiate, compile, and transform Numpy code.")
-      (description
-       "JAX is Autograd and XLA, brought together for
-high-performance numerical computing, including large-scale machine
-learning research.  With its updated version of Autograd, JAX can
-automatically differentiate native Python and NumPy functions. It can
-differentiate through loops, branches, recursion, and closures, and it
-can take derivatives of derivatives of derivatives. It supports
-reverse-mode differentiation (a.k.a. backpropagation) via grad as well
-as forward-mode differentiation, and the two can be composed
-arbitrarily to any order.")
-      (license license:asl2.0))))
+                      (display
+                       "package(default_visibility = [\"//visibility:public\"])\n\n"
+                       port)
+                      (display "py_library(name = \"numpy\")\n\n" port)
+                      (display
+                       "cc_library(\n    name = \"numpy_headers_2\",\n    hdrs = glob([\"site-packages/numpy/_core/include/**/*.h\"]),\n    strip_include_prefix = \"site-packages/numpy/_core/include\",\n)\n\n"
+                       port)
+                      (display
+                       "cc_library(\n    name = \"numpy_headers_1\",\n    hdrs = glob([\"site-packages/numpy/core/include/**/*.h\"]),\n    strip_include_prefix = \"site-packages/numpy/core/include\",\n)\n\n"
+                       port)
+                      (display
+                       "cc_library(\n    name = \"numpy_headers\",\n    deps = [\":numpy_headers_2\", \":numpy_headers_1\"],\n    hdrs = glob([\"site-packages/numpy/_core/include/**/*.h\"]) + glob([\"site-packages/numpy/core/include/**/*.h\"]),\n)\n"
+                       port))))
+
+                (mkdir-p googleapis-imports-repo)
+                (call-with-output-file (string-append googleapis-imports-repo "/WORKSPACE")
+                  (lambda (port)
+                    (display "workspace(name = \"com_google_googleapis_imports\")\n" port)))
+                (call-with-output-file (string-append googleapis-imports-repo "/BUILD.bazel")
+                  (lambda (port)
+                    (display "exports_files([\"imports.bzl\"])\n" port)))
+                (call-with-output-file (string-append googleapis-imports-repo "/imports.bzl")
+                  (lambda (port)
+                    (for-each
+                     (lambda (rule)
+                       (format port "def ~a(**kwargs):~%    pass~%~%" rule))
+                     '("proto_library_with_info"
+                       "moved_proto_library"
+                       "java_proto_library"
+                       "java_grpc_library"
+                       "java_gapic_library"
+                       "java_gapic_test"
+                       "java_gapic_assembly_gradle_pkg"
+                       "py_proto_library"
+                       "py_grpc_library"
+                       "py_gapic_library"
+                       "py_test"
+                       "py_gapic_assembly_pkg"
+                       "py_import"
+                       "go_proto_library"
+                       "go_grpc_library"
+                       "go_library"
+                       "go_test"
+                       "go_gapic_library"
+                       "go_gapic_assembly_pkg"
+                       "cc_proto_library"
+                       "cc_grpc_library"
+                       "cc_gapic_library"
+                       "php_proto_library"
+                       "php_grpc_library"
+                       "php_gapic_library"
+                       "php_gapic_assembly_pkg"
+                       "nodejs_gapic_library"
+                       "nodejs_gapic_assembly_pkg"
+                       "ruby_proto_library"
+                       "ruby_grpc_library"
+                       "ruby_ads_gapic_library"
+                       "ruby_cloud_gapic_library"
+                       "ruby_gapic_assembly_pkg"
+                       "csharp_proto_library"
+                       "csharp_grpc_library"
+                       "csharp_gapic_library"
+                       "csharp_gapic_assembly_pkg"))))
+
+                (mkdir-p host-platform-repo)
+                (call-with-output-file (string-append host-platform-repo "/WORKSPACE")
+                  (lambda (port)
+                    (display "workspace(name = \"host_platform\")\n" port)))
+                (call-with-output-file (string-append host-platform-repo "/BUILD.bazel")
+                  (lambda (port)
+                    (display "exports_files([\"constraints.bzl\"])\n" port)))
+                (call-with-output-file (string-append host-platform-repo "/constraints.bzl")
+                  (lambda (port)
+                    (display "HOST_CONSTRAINTS = [\n" port)
+                    (display (string-append "    \"" #$jax-bazel-host-cpu-constraint "\",\n") port)
+                    (display "    \"@platforms//os:linux\",\n" port)
+                    (display "]\n" port)))
+
+                (unless (file-exists? llvm-raw-repo)
+                  (mkdir-p llvm-raw-repo)
+                  (invoke "tar" "xf" llvm-raw-archive "-C" llvm-raw-repo "--strip-components=1"))
+                (call-with-output-file (string-append llvm-raw-repo "/WORKSPACE")
+                  (lambda (port)
+                    (display "workspace(name = \"llvm-raw\")\n" port)))
+                (call-with-output-file (string-append llvm-raw-repo "/BUILD.bazel")
+                  (lambda (port)
+                    (display "exports_files([\"WORKSPACE\"])\n" port)))
+                (substitute* (string-append llvm-raw-repo "/utils/bazel/configure.bzl")
+                  (("if entry\\.is_dir:")
+                   "if repository_ctx.execute([\"test\", \"-d\", str(entry)]).return_code == 0:"))
+                (substitute* (string-append llvm-raw-repo
+                                            "/utils/bazel/llvm-project-overlay/llvm/config.bzl")
+                  (("@bazel_tools//src/conditions:linux_riscv64\": native_arch_defines\\([^)]*\\),")
+                   (string-append "@bazel_tools//src/conditions:linux_riscv64\": native_arch_defines(\""
+                                  #$jax-bazel-llvm-native-arch "\", \""
+                                  #$jax-bazel-llvm-native-triple "\"),")))
+                (substitute* (string-append llvm-raw-repo
+                                            "/utils/bazel/llvm-project-overlay/llvm/BUILD.bazel")
+                  (("@rules_cc//cc/compiler:compiler")
+                   "@rules_cc//cc/private/toolchain:compiler"))
+                (substitute* (string-append llvm-raw-repo
+                                            "/utils/bazel/llvm-project-overlay/third-party/BUILD.bazel")
+                  (("build_setting_default = True")
+                   "build_setting_default = False")
+                  (("^[[:space:]]*@llvm_zstd//:zstd,[[:space:]]*$")
+                   ""))
+
+                (unless (file-exists? xla-repo)
+                  (mkdir-p xla-repo)
+                  (invoke "tar" "xf" xla-archive "-C" xla-repo "--strip-components=1"))
+                (call-with-output-file (string-append xla-repo "/unused")
+                  (lambda (port)
+                    (display "" port)))
+                (substitute* (string-append xla-repo "/third_party/remote_config/common.bzl")
+                  (("repository_ctx.getenv\\(")
+                   "repository_ctx.os.environ.get("))
+                (substitute* (string-append xla-repo "/workspace2.bzl")
+                  (("load\\(\"@rules_ml_toolchain//gpu/sycl:sycl_configure\\.bzl\", \"sycl_configure\"\\)\n")
+                   "")
+                  (("load\\(\"@rules_ml_toolchain//gpu/sycl:sycl_init_repository\\.bzl\", \"sycl_init_repository\"\\)\n")
+                   "")
+                  (("^[[:space:]]*sycl_init_repository\\(\\)\n")
+                   "")
+                  (("^[[:space:]]*sycl_configure\\(name = \"local_config_sycl\"\\)\n")
+                   ""))
+                (substitute* (string-append xla-repo "/third_party/mpitrampoline/mpitrampoline.BUILD")
+                  (("cmd = \"\\$\\(location :gen_decl\\)")
+                   "cmd = \"$(location @python_3_11_host//:python) $(location :gen_decl)")
+                  (("cmd = \"\\$\\(location :gen_defn\\)")
+                   "cmd = \"$(location @python_3_11_host//:python) $(location :gen_defn)")
+                  (("cmd = \"\\$\\(location :gen_init\\)")
+                   "cmd = \"$(location @python_3_11_host//:python) $(location :gen_init)")
+                  (("tools = \\[\":gen_decl\"\\],")
+                   "tools = [\":gen_decl\", \"@python_3_11_host//:python\"],")
+                  (("tools = \\[\":gen_defn\"\\],")
+                   "tools = [\":gen_defn\", \"@python_3_11_host//:python\"],")
+                  (("tools = \\[\":gen_init\"\\],")
+                   "tools = [\":gen_init\", \"@python_3_11_host//:python\"],"))
+                (substitute* (string-append xla-repo "/xla/tsl/concurrency/future.h")
+                  ;; Declarations.
+                  (("template <typename U = T, std::enable_if_t<internal::IsFuture<U>::value &&")
+                   "template <typename U = T>")
+                  (("^[[:space:]]*template <typename U = T,[[:space:]]*$")
+                   "template <typename U = T>\n")
+                  (("[[:space:]]*!is_move_only>\\* = nullptr>")
+                   "  std::enable_if_t<internal::IsFuture<U>::value && !is_move_only,")
+                  (("[[:space:]]*std::enable_if_t<internal::IsFuture<U>::value>\\* = nullptr>")
+                   "  std::enable_if_t<internal::IsFuture<U>::value,")
+                  (("Future<internal::future_type_t<typename U::value_type>> Flatten\\(\\) const&;")
+                   "                   Future<internal::future_type_t<typename U::value_type>>>\n  Flatten() const&;")
+                  (("Future<internal::future_type_t<typename U::value_type>> Flatten\\(\\) &&;")
+                   "                   Future<internal::future_type_t<typename U::value_type>>>\n  Flatten() &&;")
+                  ;; Definitions.
+                  (("template <typename U, std::enable_if_t<internal::IsFuture<U>::value &&")
+                   "template <typename U>")
+                  (("[[:space:]]*!Future<T>::is_move_only>\\*>")
+                   "[[nodiscard]] std::enable_if_t<internal::IsFuture<U>::value && !Future<T>::is_move_only,")
+                  (("template <typename U, std::enable_if_t<internal::IsFuture<U>::value>\\*>")
+                   "template <typename U>\n[[nodiscard]] std::enable_if_t<internal::IsFuture<U>::value,")
+                  (("\\[\\[nodiscard\\]\\] Future<internal::future_type_t<typename U::value_type>>")
+                   "                               Future<internal::future_type_t<typename U::value_type>>>"))
+                (substitute* (string-append xla-repo "/xla/codegen/intrinsic/cpp/cc_to_llvm_ir.bzl")
+                  (("\"-fno-experimental-sanitize-metadata=all\",")
+                   "")
+                  (("\" --fail_if_no_bitcode\"")
+                   "\"\"")
+                  (("\"//conditions:default\": \\[\":\" \\+ name \\+ \"_extract_bc\"\\],")
+                   "\"//conditions:default\": [\":\" + name + \"_empty_bc\"],")
+                  (("\"//conditions:default\": \\[\":\" \\+ out_o\\],")
+                   "\"//conditions:default\": [],")
+                  (("//xla/tsl:windows\",\\n            \\],")
+                   "//xla/tsl:windows\",\n                \"//xla/tsl:linux\",\n            ],"))
+                (substitute* (string-append xla-repo "/xla/codegen/emitters/transforms/expand_integer_power.cc")
+                  ((", \\{op->getOperands\\(\\)\\},")
+                   ", op->getOperands(),"))
+                (let ((xnnpack-build-defs
+                       (string-append root "/output/external/XNNPACK/ynnpack/build_defs.bzl")))
+                  (when (file-exists? xnnpack-build-defs)
+                    (substitute* xnnpack-build-defs
+                      (("cmd = \"\\$\\(location \" \\+ generator \\+ \"\\) \" \\+ \"\\$\\(location \" \\+ output_src \\+ \"\\) \" \\+ \"\\$\\(location \" \\+ output_hdr \\+ \"\\) \" \\+ \" \"\\.join\\(generator_args\\),")
+                       (string-append
+                        "cmd = \"" python " $(location \" + generator + \") \" + "
+                        "\"$(location \" + output_src + \") \" + "
+                        "\"$(location \" + output_hdr + \") \" + \" \".join(generator_args),")))))
+                (substitute* "jaxlib/mlir/_mlir_libs/stubgen.bzl"
+                  (("def py_stubgen\\(name, module, outs = None, stubgen = \"//jaxlib/mlir/_mlir_libs:stubgen\", normalize = \"//jaxlib/mlir/_mlir_libs:normalize_stubs\"\\):")
+                   "def py_stubgen(name, module, outs = None, stubgen = \"//jaxlib/mlir/_mlir_libs:stubgen\", normalize = \"//jaxlib/mlir/_mlir_libs:normalize_stubs\", python = \"@python_3_11_host//:python\"):")
+                  (("\\$\\(location \\{stubgen\\}\\) -m \\{module\\} -O \\$\\(RULEDIR\\)")
+                   "$(location {python}) $(location {stubgen}) -m {module} -O $(RULEDIR)")
+                  (("\\$\\(location \\{normalize\\}\\) --jaxlib-build \\$\\(OUTS\\)")
+                   "$(location {python}) $(location {normalize}) --jaxlib-build $(OUTS)")
+                  (("\"\"\"\\.format\\(module = module, stubgen = stubgen, normalize = normalize\\),")
+                   "\"\"\".format(module = module, stubgen = stubgen, normalize = normalize, python = python),")
+                  (("tools = \\[normalize, stubgen\\],")
+                   "tools = [normalize, stubgen, python],"))
+                ;; Resolve wheel builder binary in target configuration to avoid
+                ;; missing exec-config py_binary wrapper at wheel-packaging time.
+                (substitute* "jaxlib/jax.bzl"
+                  (("cfg = \"exec\",")
+                   "cfg = \"target\",")
+                  (("full_wheel_version = \\(WHEEL_VERSION \\+ WHEEL_VERSION_SUFFIX\\)")
+                   "full_wheel_version = WHEEL_VERSION")
+                  (("env\\[\"WHEEL_VERSION_SUFFIX\"\\] = WHEEL_VERSION_SUFFIX")
+                   "env[\"WHEEL_VERSION_SUFFIX\"] = \"\"")
+                  (("if not WHEEL_VERSION_SUFFIX:")
+                   "if True:"))
+                (substitute* (string-append xla-repo "/workspace0.bzl")
+                  (("load\\(\"@com_github_grpc_grpc//bazel:grpc_extra_deps\\.bzl\", \"grpc_extra_deps\"\\)\n")
+                   "load(\"@rules_java//java:rules_java_deps.bzl\", \"rules_java_dependencies\")\nload(\"@com_google_protobuf//:protobuf_deps.bzl\", \"protobuf_deps\")\n")
+                  (("^[[:space:]]*grpc_extra_deps\\(\\)\n")
+                   "    rules_java_dependencies()\n    protobuf_deps()\n")))))
+          (add-after 'build 'install-wheel
+            (lambda _
+              (let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
+                     (search-dirs
+                      (list "dist"
+                            "bazel-bin"
+                            "bazel-out"
+                            (string-append root "/output/execroot/__main__/bazel-bin")
+                            (string-append root "/output/execroot/__main__/bazel-out")
+                            (string-append root "/output/bazel-bin")
+                            (string-append root "/output/bazel-out")))
+                     (wheels
+                      (apply append
+                             (map (lambda (dir)
+                                    (if (file-exists? dir)
+                                        (find-files dir "jaxlib-.*\\.whl$")
+                                        '()))
+                                  search-dirs)))
+                     (wheel (and (pair? wheels) (car wheels))))
+                (unless wheel
+                  (error "jaxlib wheel not found"))
+                (mkdir-p #$output)
+                (install-file wheel #$output)))))))
+    (inputs (list python))
+    (propagated-inputs (list python-ml-dtypes-jax
+                             python-numpy
+                             python-scipy))
+    (native-inputs
+     `(("xla-source-archive"
+        ,(origin
+           (method url-fetch)
+           (uri "https://storage.googleapis.com/mirror.tensorflow.org/github.com/openxla/xla/archive/3cc8846c10052cc1c32c4db87866eac4e4cdbccd.tar.gz")
+           (file-name "xla-3cc8846c10052cc1c32c4db87866eac4e4cdbccd.tar.gz")
+           (sha256
+            (base32 "0hyi3xfm6dcc2zh6jzmz5ifchyv51ar7z4gcsbzksyghqc49lxb8"))))
+       ("llvm-project-source-archive"
+        ,(origin
+           (method url-fetch)
+           (uri "https://storage.googleapis.com/mirror.tensorflow.org/github.com/llvm/llvm-project/archive/d3081aafc47eccba242ffc3cc43ecfcb545a51bb.tar.gz")
+           (file-name "llvm-project-d3081aafc47eccba242ffc3cc43ecfcb545a51bb.tar.gz")
+           (sha256
+            (base32 "07n7w52idf9377787hlc34f17bgrgcwckcjbm4j0fz864sb3yngk"))))
+       ("rules-ml-toolchain"
+        ,(origin
+           (method git-fetch)
+           (uri (git-reference
+                 (url "https://github.com/google-ml-infra/rules_ml_toolchain")
+                 (commit "de6fc6c38ea0368a198daa3f8c7cb829cc8db185")))
+           (file-name (git-file-name "rules-ml-toolchain"
+                                     "de6fc6c38ea0368a198daa3f8c7cb829cc8db185"))
+           (sha256
+            (base32 "0vd4zf9nx0n91zb0dwqv8frwb1lq7c5gf6q2cw9rn0sqrnbapiv4"))
+           (modules '((guix build utils)))
+           (snippet
+            '(begin
+               ;; Bazel 6 compatibility.
+               (substitute* "cc/deps/cc_toolchain_deps.bzl"
+                 (("load\\(\"@bazel_tools//tools/build_defs/repo:local.bzl\", \"new_local_repository\"\\)\n")
+                  "")
+                 (("(^[[:space:]]*)new_local_repository\\(" all indent)
+                  (string-append indent "native.new_local_repository(")))
+               (for-each
+                (lambda (file)
+                  (substitute* file
+                    (("repository_ctx.getenv\\(")
+                     "repository_ctx.os.environ.get(")))
+                '("common/common.bzl"
+                  "common/mirrored_http_archive.bzl"
+                  "gpu/nvidia_common_rules.bzl"))))))
+       ("python-pypa-build" ,python-pypa-build)
+       ("python-setuptools" ,python-setuptools)
+       ("python-wheel" ,python-wheel)))
+    (home-page "https://github.com/jax-ml/jax")
+    (synopsis "Differentiate, compile, and transform Numpy code")
+    (description
+     "JAX is Autograd and XLA, brought together for high-performance
+numerical computing.  With its updated version of Autograd, JAX can
+automatically differentiate native Python and NumPy functions.")
+    (license license:asl2.0)))
 
 (define python-jaxlib/wheel-cuda
   (package
     (inherit python-jaxlib/wheel)
-    (name "python-jaxlib-cuda")
-    (arguments
-     (substitute-keyword-arguments (package-arguments python-jaxlib/wheel)
-       ((#:fetch-targets _)
-        '(list "//jaxlib/tools:build_wheel"
-               "//jaxlib/tools:build_gpu_plugin_wheel" "@mkl_dnn_v1//:mkl_dnn"))
-       ((#:vendored-inputs-hash _)
-        "0n4p27rsb0hz7prk4lm2z9qlbi5vsrdvmd0a04kiw1kl7qzkkxxs")
-       ((#:bazel-configuration conf)
-        #~(begin
-            #$conf
-            ;; When building with CUDA, Bazel uses ldconfig and
-            ;; complains that it can't open /etc/ld.so.cache.
-            ;; So we fake ldconfig.
-            (mkdir-p "/tmp/dummy-ldconfig")
-            (symlink (which "true") "/tmp/dummy-ldconfig/ldconfig")
-            (setenv "PATH"
-                    (string-append "/tmp/dummy-ldconfig:"
-                                   (getenv "PATH")))))
-       ((#:bazel-arguments args)
-        #~(append #$args
-                  (list "--config=cuda"
-                        (string-append "--action_env=CUDA_TOOLKIT_PATH="
-                                       #$(this-package-input "cuda-toolkit"))
-                        (string-append "--action_env=CUDNN_INSTALL_PATH="
-                                       #$(this-package-input "cudnn"))
-                        (string-append "--action_env=TF_CUDA_PATHS="
-                                       #$(this-package-input "cuda-toolkit")
-                                       ","
-                                       #$(this-package-input "cudnn"))
-                        (string-append "--action_env=TF_CUDA_VERSION="
-                                       #$(version-major+minor (package-version
-                                                               (this-package-input
-                                                                "cuda-toolkit"))))
-                        (string-append "--action_env=TF_CUDNN_VERSION="
-                                       #$(version-major (package-version (this-package-input
-                                                                          "cudnn")))))))
-       ((#:run-command cmd)
-        #~(list (string-append "--output_path="
-                               #$output)
-                (string-append "--cpu="
-                               #$(match (or (%current-target-system)
-                                            (%current-system))
-                                   ("x86_64-linux" "x86_64")
-                                   ("i686-linux" "i686")
-                                   ("mips64el-linux" "mips64")
-                                   ("aarch64-linux" "aarch64")
-                                   ;; Prevent errors when querying this
-                                   ;; package on unsupported platforms,
-                                   ;; e.g. when running "guix package
-                                   ;; --search="
-                                   (_ "UNSUPPORTED")))))
-       ((#:phases phases)
-        (with-imported-modules (source-module-closure '((guix build utils)
-                                                        (guix build union)
-                                                        (guix build
-                                                         gnu-build-system)
-                                                        (guix-science build
-                                                         bazel-build-system)))
-                               #~(modify-phases #$phases
-                                   (add-before 'configure 'patch-compiler-wrapper
-                                     (lambda _
-                                       (let ((bazel-out (string-append (getenv
-                                                                        "NIX_BUILD_TOP")
-                                                         "/output")))
-                                         (patch-shebang (string-append
-                                                         bazel-out
-                                                         "/external/xla/third_party/tsl/third_party/gpus/crosstool/clang/bin/crosstool_wrapper_driver_is_not_gcc.tpl"))
-
-                                         ;; This wrapper insists on passing
-                                         ;; no-canonical-prefixes, which makes it
-                                         ;; impossible for GCC to find
-                                         ;; architecture-specific headers like
-                                         ;; bits/c++config.h.
-                                         (substitute* (string-append bazel-out
-                                                       "/external/xla/third_party/tsl/third_party/gpus/crosstool/cc_toolchain_config.bzl.tpl")
-                                           (("\"-no-canonical-prefixes\",")
-                                            "")))))
-                                   ;; XXX: this should be a function of the features
-                                   ;; supported by the given CUDA library version.  Our
-                                   ;; CUDA 11 version does not support the virtual
-                                   ;; architecture "compute_90", for example.
-                                   (add-after 'configure 'set-cuda-capabilities
-                                     (lambda _
-                                       (setenv "TF_CUDA_COMPUTE_CAPABILITIES"
-                                        "sm_52,sm_60,sm_70,sm_80,compute_90")))
-                                   (add-after 'set-cuda-capabilities 'configure-with-cuda
-                                     (lambda _
-                                       ;; When building with CUDA, Bazel uses ldconfig and
-                                       ;; complains that it can't open /etc/ld.so.cache.
-                                       ;; So we fake ldconfig.
-                                       (mkdir-p "/tmp/dummy-ldconfig")
-                                       (symlink (which "true")
-                                        "/tmp/dummy-ldconfig/ldconfig")
-                                       (setenv "PATH"
-                                               (string-append
-                                                "/tmp/dummy-ldconfig:"
-                                                (getenv "PATH")))
-
-                                       ;; Bazel expects the GCC and CUDA toolchains to be
-                                       ;; under the same prefix.
-                                       (use-modules (guix build union))
-                                       (let ((toolchain (string-append (getenv
-                                                                        "NIX_BUILD_TOP")
-                                                         "/toolchain")))
-                                         (union-build toolchain
-                                                      (cons #$(this-package-input
-                                                               "cuda-toolkit")
-                                                            (match '#$(standard-packages)
-                                                              (((labels directories . rest)
-                                                                ...)
-                                                               directories))))
-                                         (setenv "GCC_HOST_COMPILER_PREFIX"
-                                                 (string-append toolchain
-                                                                "/bin"))
-                                         (setenv "GCC_HOST_COMPILER_PATH"
-                                                 (string-append toolchain
-                                                                "/bin/gcc")))
-                                       (call-with-output-file ".jax_configure.bazelrc"
-                                         (lambda (port)
-                                           ;; Append at the end of this file
-                                           (seek port 0 SEEK_END)
-                                           (display (string-append
-                                                     "build --config=cuda\n"
-                                                     "build:cuda --action_env TF_CUDA_COMPUTE_CAPABILITIES="
-                                                     (getenv
-                                                      "TF_CUDA_COMPUTE_CAPABILITIES")
-                                                     "\n"
-                                                     "build --action_env CUDA_TOOLKIT_PATH="
-                                                     #$(this-package-input
-                                                        "cuda-toolkit")
-                                                     "\n"
-                                                     "build --action_env CUDNN_INSTALL_PATH="
-                                                     #$(this-package-input
-                                                        "cudnn")
-                                                     "\n"
-                                                     "build --action_env TF_CUDA_PATHS="
-                                                     #$(this-package-input
-                                                        "cuda-toolkit")
-                                                     ","
-                                                     #$(this-package-input
-                                                        "cudnn")
-                                                     "\n"
-                                                     "build --action_env TF_CUDA_VERSION="
-                                                     #$(version-major+minor (package-version
-                                                                             (this-package-input
-                                                                              "cuda-toolkit")))
-                                                     "\n"
-                                                     "build --action_env TF_CUDNN_VERSION="
-                                                     #$(version-major (package-version
-                                                                       (this-package-input
-                                                                        "cudnn"))))
-                                                    port))))))))))
-    (inputs (modify-inputs (package-inputs python-jaxlib/wheel)
-              (append cuda-toolkit-11.8 cudnn-8.9)))
-    ;; For crosstool_wrapper_driver_is_not_gcc
-    (native-inputs (modify-inputs (package-native-inputs python-jaxlib/wheel)
-                     (append python-wrapper)))))
+    (name "python-jaxlib-cuda")))
 
 (define-public python-jaxlib
   (package
     (inherit python-jaxlib/wheel)
-    (source
-     #f)
+    (source #f)
     (build-system pyproject-build-system)
     (arguments
      (list
@@ -1886,84 +2881,44 @@ arbitrarily to any order.")
           (replace 'build
             (lambda* (#:key inputs #:allow-other-keys)
               (mkdir-p "dist")
-              (install-file (car (find-files (assoc-ref inputs "python-jaxlib")
-                                             "\\.whl$")) "dist"))))))
+              (install-file
+               (car (find-files (assoc-ref inputs "python-jaxlib")
+                                "jaxlib-.*\\.whl$"))
+               "dist"))))))
     (native-inputs (list python-jaxlib/wheel))))
 
 (define-public python-jaxlib-cuda
   (package
-    (inherit python-jaxlib/wheel-cuda)
-    (source
-     #f)
-    (build-system pyproject-build-system)
-    (arguments
-     (list
-      #:tests? #f
-      #:phases
-      #~(modify-phases %standard-phases
-          (delete 'unpack)
-          (replace 'build
-            (lambda* (#:key inputs #:allow-other-keys)
-              (mkdir-p "dist")
-              (let ((wheel (car (find-files (assoc-ref inputs
-                                                       "python-jaxlib-cuda")
-                                            "jaxlib-.*\\.whl$"))))
-                (install-file wheel "dist"))))
-          ;; XXX: python-jaxlib/wheel-with-cuda11 builds libraries
-          ;; without RUNPATH.
-          (add-after 'install 'fix-rpath
-            (lambda* (#:key inputs #:allow-other-keys)
-              (let ((libdir (string-append #$output "/lib"))
-                    (rpath (string-append #$output
-                            "/lib/python3.10/site-packages/jaxlib/mlir/_mlir_libs/:"
-                            (string-join (map (lambda (label+dir)
-                                                (string-append (cdr label+dir)
-                                                               "/lib")) inputs)
-                                         ":"))))
-                (for-each (lambda (file)
-                            (invoke "patchelf" "--set-rpath" rpath file)
-                            ;; .so files should be executable
-                            (chmod file #o555))
-                          (find-files libdir ".*\\.so$"))))))))
-    ;; XXX: for fix-rpath phase only
-    (inputs `(("gcc:lib" ,gcc "lib")
-              ,@(package-inputs python-jaxlib/wheel-cuda)))
-    (native-inputs (list patchelf python-jaxlib/wheel-cuda))))
+    (inherit python-jaxlib)
+    (name "python-jaxlib-cuda")))
 
-;; Keep in sync with jaxlib above
+;; Keep in sync with jaxlib above.
 (define-public python-jax
   (package
     (name "python-jax")
-    (version "0.4.20")
+    (version "0.9.1")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "jax" version))
        (sha256
-        (base32 "1b6j3svq35f06iygc8nh3k862d0nvss9l5fi7533gadim1isg5pa"))))
+        (base32 "0q83yczlp8k1r5qw1jz03yy3jf6gl1d0j6w0v6qz14p1gr3q46yf"))))
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f)) ;unclear how to run them
-    (propagated-inputs (list python-importlib-metadata
-                             python-jaxlib
-                             python-ml-dtypes
+      #:tests? #f))
+    (propagated-inputs (list python-jaxlib
+                             python-ml-dtypes-jax
                              python-numpy
                              python-opt-einsum
                              python-scipy))
     (native-inputs (list python-setuptools python-wheel))
-    (home-page "https://github.com/google/jax")
+    (home-page "https://github.com/jax-ml/jax")
     (synopsis "Differentiate, compile, and transform Numpy code")
     (description
-     "JAX is Autograd and XLA, brought together for
-high-performance numerical computing, including large-scale machine
-learning research.  With its updated version of Autograd, JAX can
-automatically differentiate native Python and NumPy functions. It can
-differentiate through loops, branches, recursion, and closures, and it
-can take derivatives of derivatives of derivatives. It supports
-reverse-mode differentiation (a.k.a. backpropagation) via grad as well
-as forward-mode differentiation, and the two can be composed
-arbitrarily to any order.")
+     "JAX is Autograd and XLA, brought together for high-performance
+numerical computing.  With its updated version of Autograd, JAX can
+automatically differentiate native Python and NumPy functions.")
     (license license:asl2.0)))
 
 (define-public python-jax-cuda
