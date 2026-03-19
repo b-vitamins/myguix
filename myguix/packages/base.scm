@@ -172,6 +172,7 @@
             %bluetooth-system
             ;; Media
             %media-players
+            %video-players
             %media-editors
             %media-converters
             ;; Documents
@@ -384,6 +385,10 @@
 ;; Media Bundles
 (define %media-players
   (list audacious))
+
+(define %video-players
+  (list mpv
+        vlc))
 
 (define %media-editors
   (list blender obs))
