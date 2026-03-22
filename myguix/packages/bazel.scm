@@ -69,27 +69,49 @@
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'unpack 'prepare-jars
-            (lambda* (#:key inputs #:allow-other-keys)
-              (copy-file (search-input-file inputs
+            (lambda _
+              (define (find-jar directory pattern)
+                (let ((jars (find-files directory pattern)))
+                  (if (null? jars)
+                      (error "missing jar" directory pattern)
+                      (car jars))))
+              (copy-file (string-append
+                          #$(this-package-input "java-commons-collections")
                           "/share/java/commons-collections-3.2.2.jar")
                "third_party/apache_commons_collections/commons-collections-3.2.2.jar")
-              (copy-file (search-input-file inputs
-                          "/lib/m2/org/apache/commons/commons-compress/1.21/commons-compress-1.21.jar")
+              (copy-file (find-jar
+                          (string-append
+                           #$(this-package-input "java-commons-compress")
+                           "/lib/m2/org/apache/commons/commons-compress")
+                          "commons-compress-[0-9][^/]*\\.jar$")
                "third_party/apache_commons_compress/apache-commons-compress-1.19.jar")
-              (copy-file (search-input-file inputs
-                          "/lib/m2/commons-io/commons-io/2.5/commons-io-2.5.jar")
+              (copy-file (find-jar
+                          (string-append
+                           #$(this-package-input "java-commons-io")
+                           "/lib/m2/commons-io/commons-io")
+                          "commons-io-[0-9][^/]*\\.jar$")
                          "third_party/apache_commons_io/commons-io-2.4.jar")
-              (copy-file (search-input-file inputs
+              (copy-file (string-append
+                          #$(this-package-input "java-commons-lang")
                           "/share/java/commons-lang-2.6.jar")
                "third_party/apache_commons_lang/commons-lang-2.6.jar")
-              (copy-file (search-input-file inputs
-                          "/lib/m2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar")
+              (copy-file (find-jar
+                          (string-append
+                           #$(this-package-input "java-hamcrest-core")
+                           "/lib/m2/org/hamcrest/hamcrest-core")
+                          "hamcrest-core-[0-9][^/]*\\.jar$")
                          "third_party/hamcrest/hamcrest-core-1.3.jar")
-              (copy-file (search-input-file inputs
-                          "/lib/m2/com/google/code/findbugs/jsr305/3.0.1/jsr305-3.0.1.jar")
+              (copy-file (find-jar
+                          (string-append
+                           #$(this-package-input "java-jsr305")
+                           "/lib/m2/com/google/code/findbugs/jsr305")
+                          "jsr305-[0-9][^/]*\\.jar$")
                          "third_party/jsr305/jsr-305.jar")
-              (copy-file (search-input-file inputs
-                          "/lib/m2/org/tukaani/xz/1.9/xz-1.9.jar")
+              (copy-file (find-jar
+                          (string-append
+                           #$(this-package-input "java-xz")
+                           "/lib/m2/org/tukaani/xz")
+                          "xz-[0-9][^/]*\\.jar$")
                          "third_party/xz/xz-1.9.jar")))
           (delete 'configure)
           (replace 'build
@@ -434,4 +456,3 @@ repositories, and large numbers of users.")
                              "third_party/hamcrest/hamcrest-core-1.3.jar"
                              "third_party/jsr305/jsr-305.jar"
                              "third_party/xz/xz-1.9.jar")))))))
-
