@@ -339,6 +339,18 @@
                   (substitute* linux-cmds
                     (("return \"#!/usr/bin/env bash\"")
                      (string-append "return \"#!" bash-path "\""))))
+                (define (patchable-file? file)
+                  (catch 'system-error
+                    (lambda ()
+                      (and (not (file-is-directory? file))
+                           (or (access? file X_OK)
+                               (string-suffix? "Makefile" file)
+                               (string-suffix? "Makefile.in" file)
+                               (string-suffix? ".mk" file))))
+                    (lambda _
+                      ;; Some external repos contain dangling symlinks or
+                      ;; paths materialized later in the Bazel build.
+                      #f)))
                 ;; Patch configure scripts, shell scripts, and Makefiles in vendored dependencies
                 (for-each (lambda (file)
                             (catch #t
@@ -370,12 +382,7 @@
                                    (lambda (key . args)
                                      ;; Skip files that can't be decoded (binary files)
                                      #f)))
-                          (filter (lambda (f)
-                                    (and (not (file-is-directory? f))
-                                         (or (access? f X_OK)
-                                             (string-suffix? "Makefile" f)
-                                             (string-suffix? "Makefile.in" f)
-                                             (string-suffix? ".mk" f))))
+                          (filter patchable-file?
                                   (find-files "../output/external" ".*"))))))
           (add-after 'patch-foreign-cc-shebang 'patch-openssl-perl
             (lambda _
