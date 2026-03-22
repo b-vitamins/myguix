@@ -75,44 +75,63 @@
                   (if (null? jars)
                       (error "missing jar" directory pattern)
                       (car jars))))
-              (copy-file (string-append
-                          #$(this-package-input "java-commons-collections")
-                          "/share/java/commons-collections-3.2.2.jar")
+              (define (jar-present? directory)
+                (pair? (find-files directory "\\.jar$")))
+              (define (ensure-jar directory jar target)
+                (unless (jar-present? directory)
+                  (copy-file jar target)))
+              (ensure-jar
+               "third_party/apache_commons_collections"
+               (string-append
+                #$(this-package-input "java-commons-collections")
+                "/share/java/commons-collections-3.2.2.jar")
                "third_party/apache_commons_collections/commons-collections-3.2.2.jar")
-              (copy-file (find-jar
-                          (string-append
-                           #$(this-package-input "java-commons-compress")
-                           "/lib/m2/org/apache/commons/commons-compress")
-                          "commons-compress-[0-9][^/]*\\.jar$")
+              (ensure-jar
+               "third_party/apache_commons_compress"
+               (find-jar
+                (string-append
+                 #$(this-package-input "java-commons-compress")
+                 "/lib/m2/org/apache/commons/commons-compress")
+                "commons-compress-[0-9][^/]*\\.jar$")
                "third_party/apache_commons_compress/apache-commons-compress-1.19.jar")
-              (copy-file (find-jar
-                          (string-append
-                           #$(this-package-input "java-commons-io")
-                           "/lib/m2/commons-io/commons-io")
-                          "commons-io-[0-9][^/]*\\.jar$")
-                         "third_party/apache_commons_io/commons-io-2.4.jar")
-              (copy-file (string-append
-                          #$(this-package-input "java-commons-lang")
-                          "/share/java/commons-lang-2.6.jar")
+              (ensure-jar
+               "third_party/apache_commons_io"
+               (find-jar
+                (string-append
+                 #$(this-package-input "java-commons-io")
+                 "/lib/m2/commons-io/commons-io")
+                "commons-io-[0-9][^/]*\\.jar$")
+               "third_party/apache_commons_io/commons-io-2.4.jar")
+              (ensure-jar
+               "third_party/apache_commons_lang"
+               (string-append
+                #$(this-package-input "java-commons-lang")
+                "/share/java/commons-lang-2.6.jar")
                "third_party/apache_commons_lang/commons-lang-2.6.jar")
-              (copy-file (find-jar
-                          (string-append
-                           #$(this-package-input "java-hamcrest-core")
-                           "/lib/m2/org/hamcrest/hamcrest-core")
-                          "hamcrest-core-[0-9][^/]*\\.jar$")
-                         "third_party/hamcrest/hamcrest-core-1.3.jar")
-              (copy-file (find-jar
-                          (string-append
-                           #$(this-package-input "java-jsr305")
-                           "/lib/m2/com/google/code/findbugs/jsr305")
-                          "jsr305-[0-9][^/]*\\.jar$")
-                         "third_party/jsr305/jsr-305.jar")
-              (copy-file (find-jar
-                          (string-append
-                           #$(this-package-input "java-xz")
-                           "/lib/m2/org/tukaani/xz")
-                          "xz-[0-9][^/]*\\.jar$")
-                         "third_party/xz/xz-1.9.jar")))
+              (ensure-jar
+               "third_party/hamcrest"
+               (find-jar
+                (string-append
+                 #$(this-package-input "java-hamcrest-core")
+                 "/lib/m2/org/hamcrest/hamcrest-core")
+                "hamcrest-core-[0-9][^/]*\\.jar$")
+               "third_party/hamcrest/hamcrest-core-1.3.jar")
+              (ensure-jar
+               "third_party/jsr305"
+               (find-jar
+                (string-append
+                 #$(this-package-input "java-jsr305")
+                 "/lib/m2/com/google/code/findbugs/jsr305")
+                "jsr305-[0-9][^/]*\\.jar$")
+               "third_party/jsr305/jsr-305.jar")
+              (ensure-jar
+               "third_party/xz"
+               (find-jar
+                (string-append
+                 #$(this-package-input "java-xz")
+                 "/lib/m2/org/tukaani/xz")
+                "xz-[0-9][^/]*\\.jar$")
+               "third_party/xz/xz-1.9.jar")))
           (delete 'configure)
           (replace 'build
             (lambda _
