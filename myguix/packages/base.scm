@@ -168,6 +168,7 @@
             ;; Desktop
             %desktop-browsers
             %desktop-core
+            %desktop-gnome-assets
             %audio-system
             %bluetooth-system
             ;; Media
@@ -303,6 +304,19 @@
 
 (define %desktop-core
   (list fontconfig))
+
+(define %desktop-gnome-assets
+  (list gnome-tweaks
+        gnome-shell-extension-dash-to-dock
+        gnome-shell-extension-vitals
+        gnome-shell-extension-appindicator
+        gnome-shell-extension-gsconnect
+        gnome-shell-extension-just-perfection
+        yaru-theme
+        papirus-icon-theme
+        adwaita-icon-theme
+        font-abattis-cantarell
+        bibata-cursor-theme))
 
 (define %audio-system
   (list pipewire wireplumber))
