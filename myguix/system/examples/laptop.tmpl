@@ -124,6 +124,7 @@
              ;; Desktop
              %desktop-browsers
              %desktop-core
+             %intel-media-runtime
              %audio-system
              %bluetooth-system
              
@@ -194,9 +195,11 @@
      ;; Power management - critical for laptops
      (service tlp-service-type
               (tlp-configuration
+               ;; Intel HWP exposes only performance/powersave governors.
+               ;; Use EPP below to bias toward performance or battery life.
                ;; CPU settings
-               (cpu-scaling-governor-on-ac (list "balance_performance"))
-               (cpu-scaling-governor-on-bat (list "balance_power"))
+               (cpu-scaling-governor-on-ac (list "powersave"))
+               (cpu-scaling-governor-on-bat (list "powersave"))
                (cpu-energy-perf-policy-on-ac "balance_performance")
                (cpu-energy-perf-policy-on-bat "balance_power")
                (cpu-boost-on-ac? #t)
@@ -240,6 +243,8 @@
      (simple-service 'wayland-environment
                      session-environment-service-type
                      '(("MOZ_ENABLE_WAYLAND" . "1")
+                       ("LIBVA_DRIVER_NAME" . "iHD")
+                       ("LIBVA_DRIVERS_PATH" . "/run/current-system/profile/lib/dri")
                        ("QT_QPA_PLATFORM" . "wayland;xcb")
                        ("CLUTTER_BACKEND" . "wayland")
                        ("SDL_VIDEODRIVER" . "wayland")
