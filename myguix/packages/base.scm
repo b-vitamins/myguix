@@ -168,6 +168,7 @@
             ;; Desktop
             %desktop-browsers
             %desktop-core
+            %intel-media-runtime
             %gnome-shell-assets
             %gnome-desktop-assets
             %audio-system
@@ -306,6 +307,10 @@
 
 (define %desktop-core
   (list fontconfig))
+
+(define %intel-media-runtime
+  (list intel-media-driver/nonfree
+        libva-utils))
 
 (define %gnome-shell-assets
   (list gnome-shell-extension-dash-to-dock
