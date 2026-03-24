@@ -1,9 +1,7 @@
 (define-module (myguix services desktop)
   #:use-module (gnu)
   #:use-module (gnu packages)
-  #:use-module (gnu packages fonts)
   #:use-module (gnu packages gnome)
-  #:use-module (gnu packages gnome-xyz)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages nfs)
   #:use-module (gnu packages suckless)
@@ -20,22 +18,7 @@
   #:use-module (gnu system)
   #:use-module (gnu system privilege)
   #:use-module (myguix services base)
-  #:export (%my-gnome-shell-assets %my-desktop-services))
-
-(define %my-gnome-shell-assets
-  (list
-   ;; Core GNOME tools
-   gnome-tweaks
-   ;; Essential extensions
-   gnome-shell-extension-dash-to-dock
-   gnome-shell-extension-vitals
-   gnome-shell-extension-appindicator
-   gnome-shell-extension-gsconnect
-   ;; Theme components
-   adwaita-icon-theme
-   font-abattis-cantarell
-   bibata-cursor-theme))
-; Modern cursor theme
+  #:export (%my-desktop-services))
 
 (define %my-desktop-services
   (append (list

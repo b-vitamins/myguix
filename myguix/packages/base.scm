@@ -168,7 +168,8 @@
             ;; Desktop
             %desktop-browsers
             %desktop-core
-            %desktop-gnome-assets
+            %gnome-shell-assets
+            %gnome-desktop-assets
             %audio-system
             %bluetooth-system
             ;; Media
@@ -306,16 +307,21 @@
 (define %desktop-core
   (list fontconfig))
 
-(define %desktop-gnome-assets
-  (list gnome-tweaks
-        gnome-shell-extension-dash-to-dock
+(define %gnome-shell-assets
+  (list gnome-shell-extension-dash-to-dock
         gnome-shell-extension-vitals
         gnome-shell-extension-appindicator
         gnome-shell-extension-gsconnect
         gnome-shell-extension-just-perfection
+        flat-remix-gnome-theme))
+
+(define %gnome-desktop-assets
+  (list gnome-tweaks
         yaru-theme
         papirus-icon-theme
         adwaita-icon-theme
+        flat-remix-icon-theme
+        flat-remix-gtk-theme
         font-abattis-cantarell
         bibata-cursor-theme))
 
