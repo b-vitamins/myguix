@@ -211,7 +211,8 @@
         which
         mumi
         parallel
-        xdg-utils))
+        xdg-utils
+        bubblewrap))
 
 (define %shell-modern
   (list fzf
