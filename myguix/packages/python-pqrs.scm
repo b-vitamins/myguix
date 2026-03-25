@@ -63,15 +63,17 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages video)
-  #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages java-pqrs)
-  #:use-module (myguix packages nvidia)
   #:use-module (myguix packages huggingface)
   #:use-module ((myguix packages rust-crates-pqrs)
                 #:select (lookup-myguix-cargo-inputs))
   #:use-module ((myguix utils)
                 #:select (myguix-cargo-inputs))
   #:use-module (myguix build-system binary))
+
+(define (python-py3nvml-package)
+  (module-ref (resolve-interface '(myguix packages nvidia))
+              'python-py3nvml))
 
 (define-public python-bencode-py
   (package
@@ -1603,7 +1605,7 @@ parallelism.")))
                              python-prometheus-client
                              python-psutil
                              python-py-cpuinfo
-                             python-py3nvml
+                             (python-py3nvml-package)
                              python-questionary
                              python-rapidfuzz
                              python-requests
