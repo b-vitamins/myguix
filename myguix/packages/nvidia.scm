@@ -2519,13 +2519,68 @@ the CUDA Driver, Runtime, NVRTC, nvJitLink, NVVM and other CUDA APIs.")
                           (find-files site "\\.so$"))))))))
     (inputs (list (list "gcc:lib" gcc "lib")))
     (native-inputs (list patchelf-0.16))
+    (propagated-inputs (list python-cuda-bindings
+                             python-cuda-pathfinder))
     (home-page "https://github.com/NVIDIA/cuda-python")
     (supported-systems '("x86_64-linux"))
-    (synopsis "CUDA Python bindings")
+    (synopsis "Metapackage for CUDA Python subpackages")
     (description
-     "This package provides the NVIDIA CUDA Python bindings, packaged from
-the pre-built wheels.")
+     "This package provides the NVIDIA CUDA Python metapackage, packaged from
+the pre-built wheel.  It propagates the runtime dependencies declared by the
+upstream wheel so the @code{cuda} Python namespace is available in Guix
+environments just as it would be when installed with pip.")
     (license (license:nonfree "https://docs.nvidia.com/cuda/cuda-python/"))))
+
+(define-public python-apache-tvm-ffi
+  (package
+    (name "python-apache-tvm-ffi")
+    (version "0.1.9")
+    (home-page "https://github.com/apache/tvm-ffi")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://files.pythonhosted.org/packages/e4/3b/6cfc82a3ab5d9e501bbcee5df36eebe09da1c384461d7a55e2a17776d117/apache_tvm_ffi-0.1.9-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
+       (sha256
+        (base32 "1iqasckwrwq76q6495d7ryz2a4b5161h8kvf9qxns6ia5aymldi1"))
+       (file-name (string-append name "-" version ".whl"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests are not distributed with the wheel.
+      #:modules '((guix build pyproject-build-system)
+                  (guix build utils))
+      #:imported-modules `(,@%pyproject-build-system-modules (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key source #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file source "dist")))
+          (add-after 'install 'patch-elf
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (car (find-files out "site-packages$"
+                                            #:directories? #t)))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (rpath (string-append "$ORIGIN:$ORIGIN/lib:"
+                                           (dirname ld.so) ":"
+                                           gcc-lib "/lib")))
+                (for-each (lambda (file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs (list (list "gcc:lib" gcc "lib")))
+    (propagated-inputs (list python-typing-extensions))
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Open ABI and FFI runtime for machine learning systems")
+    (description
+     "This package provides Apache TVM FFI, an open ABI and FFI runtime used by
+machine learning systems and DSLs such as the NVIDIA CUTLASS Python DSL.  It
+is installed from the pre-built PyPI wheel.")
+    (license license-gnu:asl2.0)))
 
 (define-public python-nvidia-cutlass-dsl-libs-base
   (package
@@ -2671,13 +2726,17 @@ NVIDIA CUTLASS Python DSL (CuTe DSL), installed from the pre-built PyPI wheel.")
   (package
     (inherit python-nvidia-cutlass-dsl-libs-cu13)
     (name "python-nvidia-cutlass-dsl")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-nvidia-cutlass-dsl-libs-cu13)
+       (append python-apache-tvm-ffi)))
     (synopsis "NVIDIA CUTLASS Python DSL")
     (description
      "This package provides the NVIDIA CUTLASS Python DSL (CuTe DSL).
 Upstream split version 4.4.1 into a meta wheel plus base and CUDA 13 wheels; on
 x86_64-linux this package installs the CUDA 13 wheel directly because it is a
 strict superset of the base payload and includes the required runtime
-artifacts.")))
+artifacts.  It also propagates Apache TVM FFI so TVM FFI-backed compilation
+works out of the box.")))
 
 (define-public nccl
   (package
