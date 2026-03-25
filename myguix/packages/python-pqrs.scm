@@ -62,18 +62,24 @@
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module (myguix packages video)
   #:use-module (myguix packages java-pqrs)
-  #:use-module (myguix packages huggingface)
   #:use-module ((myguix packages rust-crates-pqrs)
                 #:select (lookup-myguix-cargo-inputs))
   #:use-module ((myguix utils)
                 #:select (myguix-cargo-inputs))
   #:use-module (myguix build-system binary))
 
+(define (decord-package)
+  (module-ref (resolve-interface '(myguix packages video))
+              'decord))
+
 (define (python-py3nvml-package)
   (module-ref (resolve-interface '(myguix packages nvidia))
               'python-py3nvml))
+
+(define (python-huggingface-hub-package)
+  (module-ref (resolve-interface '(myguix packages huggingface))
+              'python-huggingface-hub))
 
 (define-public python-bencode-py
   (package
@@ -230,7 +236,7 @@
                         (chdir "python")))))))
     (build-system python-build-system)
     (inputs (list python-numpy))
-    (native-inputs (list decord))
+    (native-inputs (list (decord-package)))
     (home-page "https://github.com/dmlc/decord")
     (synopsis
      "@code{Decord} is a reverse procedure of @code{Record}. It provides convenient video slicing methods based on a thin wrapper on top of hardware accelerated video decoders, e.g. 1) FFMPEG/LibAV, 2) NVIDEA Codecs, 3) Intel Codecs")
@@ -2740,7 +2746,7 @@ Skia library, performing boolean operations on paths.")
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f)) ;Tests require network
-    (propagated-inputs (list python-httpx python-huggingface-hub
+    (propagated-inputs (list python-httpx (python-huggingface-hub-package)
                              python-packaging python-typing-extensions
                              python-websockets))
     (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
@@ -2780,7 +2786,7 @@ Skia library, performing boolean operations on paths.")
                              python-groovy
                              python-gradio-client
                              python-httpx
-                             python-huggingface-hub
+                             (python-huggingface-hub-package)
                              python-jinja2
                              python-markupsafe
                              python-numpy
