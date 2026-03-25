@@ -77,10 +77,6 @@
   (module-ref (resolve-interface '(myguix packages nvidia))
               'python-py3nvml))
 
-(define (python-exceptiongroup-package)
-  (module-ref (resolve-interface '(gnu packages python-build))
-              'python-exceptiongroup))
-
 (define (python-huggingface-hub-package)
   (module-ref (resolve-interface '(myguix packages huggingface))
               'python-huggingface-hub))
@@ -590,7 +586,7 @@ writing them to disk during site builds.")
     (build-system pyproject-build-system)
     (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
                          python-hatch-vcs))
-    (propagated-inputs (list python-attrs (python-exceptiongroup-package)
+    (propagated-inputs (list python-attrs
                              python-typing-extensions))
     (arguments
      (list

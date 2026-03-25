@@ -94,10 +94,6 @@
   #:use-module (ice-9 match)
   #:use-module (srfi srfi-26))
 
-(define (python-exceptiongroup-package)
-  (module-ref (resolve-interface '(gnu packages python-build))
-              'python-exceptiongroup))
-
 (define-public static-protobuf
   (package
     (inherit protobuf)
@@ -378,7 +374,6 @@ Interchange Format (SARIF)} file format.")
                                            "docker"
                                            "docutils"
                                            "ecdsa"
-                                           "exceptiongroup"
                                            "executing"
                                            "flask"
                                            "flask_cors"
@@ -641,7 +636,6 @@ Interchange Format (SARIF)} file format.")
                                python-docker
                                python-docutils
                                python-ecdsa
-                               (python-exceptiongroup-package)
                                python-executing
                                python-flask
                                python-flask-cors
