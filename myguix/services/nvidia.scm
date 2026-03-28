@@ -45,7 +45,8 @@
 
 ;; Create path hard-coded by some NVIDIA userspace components.
 (define (nvidia-special-files _)
-  '(("/usr/bin/nvidia-modprobe" "/run/privileged/bin/nvidia-modprobe")))
+  '(("/usr/bin/nvidia-modprobe" "/run/privileged/bin/nvidia-modprobe")
+    ("/usr/share/nvidia" "/run/booted-system/profile/share/nvidia")))
 
 ;; Adapted from:
 ;; <https://github.com/Frogging-Family/nvidia-all/blob/master/system/60-nvidia.rules>
