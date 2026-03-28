@@ -692,8 +692,9 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
     (description
      "This package provides kernel modules of the proprietary NVIDIA driver.
 Module setup can be done with @code{nvidia-service-type}, to actually use these
-modules, also add @code{modprobe.blacklist=nouveau} to @code{kernel-arguments}
-field of the @code{operating-system} configuration.
+modules, also add @code{modprobe.blacklist=nouveau} and
+@code{modprobe.blacklist=nova_core,nova_drm} to @code{kernel-arguments} field
+of the @code{operating-system} configuration.
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
@@ -732,8 +733,9 @@ enabled (see also the description of @code{nvidia-firmware} package).
 
 Module setup can be done with @code{nvidia-service-type} (with @code{module}
 field of @code{nvidia-configuration} set to @code{nvidia-module-open}), to
-actually use these modules, also add @code{modprobe.blacklist=nouveau} to
-@code{kernel-arguments} field of the @code{operating-system} configuration.
+actually use these modules, also add @code{modprobe.blacklist=nouveau} and
+@code{modprobe.blacklist=nova_core,nova_drm} to @code{kernel-arguments} field
+of the @code{operating-system} configuration.
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
