@@ -1445,7 +1445,7 @@ documented in the respective processor revision guides.")
 (define-public sof-firmware
   (package
     (name "sof-firmware")
-    (version "2025.05")
+    (version "2025.12.2")
     (source
      (origin
        (method url-fetch)
@@ -1453,7 +1453,7 @@ documented in the respective processor revision guides.")
              "https://github.com/thesofproject/sof-bin/releases/download/v"
              version "/sof-bin-" version ".tar.gz"))
        (sha256
-        (base32 "1k3bm2w5r49nl995jh0zjas4sjzqzdiii43j2vdwpirq1lxn1wp2"))))
+        (base32 "05zmg7n67xbc49whjz3q43zq79jzcxxnb0m70p70jk6rlvin6gsk"))))
     (build-system copy-build-system)
     (arguments
      `(#:install-plan (list (list "sof" "lib/firmware/intel/sof")
