@@ -7730,14 +7730,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.116.0")
+    (version "0.117.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "0iy3lgnkz295hbl8b227gcmwyygi8daapwhfh5xikhfdg86i1y7i"))))
+        (base32 "12g1g6kfrphbpa8bq4b6ghv9na1v4wlkgpn41rfdrhsm7pvq5nxg"))))
     (build-system node-build-system)
     (native-inputs (list `("platform-source" ,(origin
                                                 (method url-fetch)
@@ -7766,11 +7766,11 @@ characters using Unicode emoji modifier bases.")
                                                                     ((string=?
                                                                       system
                                                                       "x86_64-linux")
-                                                                     "0las9sag142jfz3dgagdyyffbwl6w6fax87hj9ak2j77vf0ydlxp")
+                                                                     "01jncdvnpj4j9zrp26kfsjnylhb7gb8ibm1mgg1p6hadn96zs5pb")
                                                                     ((string=?
                                                                       system
                                                                       "aarch64-linux")
-                                                                     "192czs8dabip21hyrcpmg85ippp4wz3kn7gmvv9q13i1jdagz9gn")
+                                                                     "1qypigxg98r8k8j413y9zk7yy8qlkrpsfmrx9ixgh10xhg4b81v3")
                                                                     (else (error
                                                                            "unsupported system for node-openai-codex"
                                                                            system))))))))))
