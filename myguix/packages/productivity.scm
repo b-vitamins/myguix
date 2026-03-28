@@ -249,21 +249,21 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public google-antigravity
   (package
     (name "google-antigravity")
-    (version "1.20.6")
+    (version "1.21.6")
     (source
      (origin
        (method url-fetch)
        (uri (let* ((system (or (%current-target-system)
                                (%current-system)))
                    (deb-version (match system
-                                  ("x86_64-linux" "1.20.6-1773708602")
-                                  ("aarch64-linux" "1.20.6-1773708612")
+                                  ("x86_64-linux" "1.21.6-1774402696")
+                                  ("aarch64-linux" "1.21.6-1774402728")
                                   (_ "unsupported")))
                    (arch+hash (match system
                                 ("x86_64-linux"
-                                 "amd64_3f0d9f82447ab50374042684f891a07d")
+                                 "amd64_98e03c846452e0ea2610f02177e7654c")
                                 ("aarch64-linux"
-                                 "arm64_5b7b60d8fcfc5c95ec83df02c4329f1c")
+                                 "arm64_d913bda594d63ccff238497d87b35e1f")
                                 (_ "unsupported"))))
               (string-append
                "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/"
@@ -277,9 +277,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "017xr6rijrq5glf1g8cwgvjqhwrgh8w8dx4f8ds4lnspxapaa9g7")
+                   "15q5zndw7fwbg01f90l3822fa8ns8hm6bsrfxvpdb01vdrp78dmg")
                   ("aarch64-linux"
-                   "0x3rfh1i3n13i2zwdym3047jfc51gpi9hnrl36x1pqjql7zd196m")
+                   "1bhw1niclcp584ciaf5qqvy4iprrawyfwfmlknrq9kp4w20yam4d")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
@@ -310,9 +310,14 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  (string-append #$output "/bin/antigravity")))))
           (add-after 'setup-cwd 'patch-browser-launcher
             (lambda _
-              (substitute* "share/antigravity/resources/app/extensions/antigravity-browser-launcher/dist/extension.js"
-                (("\"/opt/google/chrome/chrome\"")
-                 "\"/opt/google/chrome/chrome\",\"/run/current-system/profile/bin/google-chrome\""))
+              (let ((launcher
+                     "share/antigravity/resources/app/extensions/antigravity-browser-launcher/dist/extension.js"))
+                ;; The browser launcher extension was removed/moved in newer
+                ;; upstream releases.
+                (when (file-exists? launcher)
+                  (substitute* launcher
+                    (("\"/opt/google/chrome/chrome\"")
+                     "\"/opt/google/chrome/chrome\",\"/run/current-system/profile/bin/google-chrome\""))))
               #t))
           (add-after 'setup-cwd 'patch-language-server
             (lambda* (#:key inputs outputs #:allow-other-keys)
