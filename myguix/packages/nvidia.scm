@@ -130,6 +130,11 @@
     ;; opencl-icd-loader
     "libOpenCL\\.so\\."))
 
+(define %nvidia-unbundle-libraries-590
+  `(;; egl-wayland2
+    "libnvidia-egl-wayland2\\.so\\."
+    ,@%nvidia-unbundle-libraries-580))
+
 (define (make-nvidia-driver-snippet unbundle-libraries)
   #~(begin
       (use-modules (guix build utils)
@@ -159,30 +164,24 @@
         (rename-file (string-append "extractdir/" this-file ".tar.zst")
                      this-file))))
 
-(define (nvidia-source version hash)
-  "Given VERSION of an NVIDIA driver installer, return an <origin> for
-its unpacked checkout."
-  (origin
-    (method url-fetch)
-    (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
-          version "/NVIDIA-Linux-x86_64-" version ".run"))
-    (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-    (sha256 (base32 hash))
-    (modules '((guix build utils)))
-    (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-580))))
-
 
 ;;;
 ;;; NVIDIA drivers
 ;;;
 
-(define-public nvidia-driver
+(define-public nvidia-driver-580
   (package
     (name "nvidia-driver")
     (version "580.142")
     (source
-     (nvidia-source version
-                    "0qvm8hh3d90i3674dqlj1lam6m189ah60fzr1iaw72gy7z7mz490"))
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
+             version "/NVIDIA-Linux-x86_64-" version ".run"))
+       (file-name (string-append "NVIDIA-Linux-x86_64-" version))
+       (sha256 (base32 "0qvm8hh3d90i3674dqlj1lam6m189ah60fzr1iaw72gy7z7mz490"))
+       (modules '((guix build utils)))
+       (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-580))))
     (build-system copy-build-system)
     (arguments
      (list
@@ -411,14 +410,54 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
+(define-public nvidia-driver-590
+  (package
+    (inherit nvidia-driver-580)
+    (name "nvidia-driver")
+    (version "590.48.01")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
+             version "/NVIDIA-Linux-x86_64-" version ".run"))
+       (file-name (string-append "NVIDIA-Linux-x86_64-" version))
+       (sha256 (base32 "12fnddljvgxksil6n3d5a35wwg8kkq82kkglhz63253qjc3giqmr"))
+       (modules '((guix build utils)))
+       (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))
+    (arguments
+     (substitute-keyword-arguments arguments
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'create-misc-files 'create-misc-files-590
+              (lambda* (#:key inputs #:allow-other-keys)
+                ;; EGL external platform configuration.
+                (let ((dir "share/egl/egl_external_platform.d"))
+                  (for-each
+                   (lambda (file)
+                     (install-file
+                      (search-input-file inputs (in-vicinity dir file))
+                      (in-vicinity #$output dir)))
+                   '("09_nvidia_wayland2.json")))))))))
+    (inputs
+     (modify-inputs inputs
+       (prepend egl-wayland2)))))
+
 (define-public nvidia-driver-beta
   (package
-    (inherit nvidia-driver)
+    (inherit nvidia-driver-590)
     (name "nvidia-driver-beta")
     (version "595.45.04")
     (source
-     (nvidia-source version
-                    "0plg9vsim8252c7k3slxblvrspy4xqa6q719flxjmfkc4i4najfd"))))
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
+             version "/NVIDIA-Linux-x86_64-" version ".run"))
+       (file-name (string-append "NVIDIA-Linux-x86_64-" version))
+       (sha256 (base32 "0plg9vsim8252c7k3slxblvrspy4xqa6q719flxjmfkc4i4najfd"))
+       (modules '((guix build utils)))
+       (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))))
+
+(define-public nvidia-driver nvidia-driver-580)
 
 (define-public nvidia-libs
   (deprecated-package "nvidia-libs" nvidia-driver))
@@ -428,8 +467,8 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
 ;;; NVIDIA firmwares
 ;;;
 
-(define-public nvidia-firmware
-  (let ((base nvidia-driver))
+(define-public nvidia-firmware-580
+  (let ((base nvidia-driver-580))
     (package
       (inherit base)
       (name "nvidia-firmware")
@@ -457,25 +496,34 @@ product.
 To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
 @code{kernel-arguments} field of the @code{operating-system} configuration."))))
 
+(define-public nvidia-firmware-590
+  (package
+    (inherit nvidia-firmware-580)
+    (version (package-version nvidia-driver-590))
+    (source
+     (package-source nvidia-driver-590))))
+
 (define-public nvidia-firmware-beta
   (package
-    (inherit nvidia-firmware)
+    (inherit nvidia-firmware-580)
     (name "nvidia-firmware-beta")
     (version (package-version nvidia-driver-beta))
     (source
      (package-source nvidia-driver-beta))))
+
+(define-public nvidia-firmware nvidia-firmware-580)
 
 
 ;;;
 ;;; NVIDIA kernel modules
 ;;;
 
-(define-public nvidia-module
+(define-public nvidia-module-580
   (package
     (name "nvidia-module")
-    (version (package-version nvidia-driver))
+    (version (package-version nvidia-driver-580))
     (source
-     (package-source nvidia-driver))
+     (package-source nvidia-driver-580))
     (build-system linux-module-build-system)
     (arguments
      (list
@@ -526,16 +574,25 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                                "file:///share/doc/nvidia-driver-~a/LICENSE"
                                version)))))
 
+(define-public nvidia-module-590
+  (package
+    (inherit nvidia-module-580)
+    (version (package-version nvidia-driver-590))
+    (source
+     (package-source nvidia-driver-590))))
+
 (define-public nvidia-module-beta
   (package
-    (inherit nvidia-module)
+    (inherit nvidia-module-580)
     (name "nvidia-module-beta")
     (version (package-version nvidia-driver-beta))
     (source
      (package-source nvidia-driver-beta))))
 
-(define-public nvidia-module-open
-  (let ((base nvidia-module))
+(define-public nvidia-module nvidia-module-580)
+
+(define-public nvidia-module-open-580
+  (let ((base nvidia-module-580))
     (package
       (inherit base)
       (name "nvidia-module-open")
@@ -567,34 +624,40 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 
 (define-public nvidia-module-open-beta
   (package
-    (inherit nvidia-module-open)
+    (inherit nvidia-module-open-580)
     (name "nvidia-module-open-beta")
     (version (package-version nvidia-driver-beta))
     (source
      (package-source nvidia-driver-beta))))
+
+(define-public nvidia-module-open-590
+  (package
+    (inherit nvidia-module-open-580)
+    (version (package-version nvidia-driver-590))
+    (source
+     (package-source nvidia-driver-590))))
+
+(define-public nvidia-module-open nvidia-module-open-580)
 
 
 ;;;
 ;;; ‘nvidia-settings’ packages
 ;;;
 
-(define (nvidia-settings-source name version hash)
-  (origin
-    (method git-fetch)
-    (uri (git-reference (url "https://github.com/NVIDIA/nvidia-settings")
-                        (commit version)))
-    (file-name (git-file-name name version))
-    (modules '((guix build utils)))
-    (snippet '(delete-file-recursively "src/jansson"))
-    (sha256 (base32 hash))))
-
-(define-public nvidia-settings
+(define-public nvidia-settings-580
   (package
     (name "nvidia-settings")
     (version "580.142")
     (source
-     (nvidia-settings-source name version
-      "00sdrka3mslqgyhpnxyr6165nbrrfqdp1shgmbgp9ga07sbchyh6"))
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-settings")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (modules '((guix build utils)))
+       (snippet '(delete-file-recursively "src/jansson"))
+       (sha256 (base32 "00sdrka3mslqgyhpnxyr6165nbrrfqdp1shgmbgp9ga07sbchyh6"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -652,14 +715,39 @@ configuration, creating application profiles, gpu monitoring and more.")
     (home-page "https://github.com/NVIDIA/nvidia-settings")
     (license license-gnu:gpl2)))
 
+(define-public nvidia-settings-590
+  (package
+    (inherit nvidia-settings-580)
+    (name "nvidia-settings")
+    (version "590.48.01")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-settings")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (modules '((guix build utils)))
+       (snippet '(delete-file-recursively "src/jansson"))
+       (sha256 (base32 "0h9059gkibyiidg5s9cakbg369y9nwfd17vycpsqfswgr18jlsrm"))))))
+
 (define-public nvidia-settings-beta
   (package
-    (inherit nvidia-settings)
+    (inherit nvidia-settings-580)
     (name "nvidia-settings-beta")
     (version "595.45.04")
     (source
-     (nvidia-settings-source name version
-      "0w7ndc2p2131h1wh3rj1dhhs59ihrdfl8ni44x9sdywc5jpnk3k3"))))
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-settings")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (modules '((guix build utils)))
+       (snippet '(delete-file-recursively "src/jansson"))
+       (sha256 (base32 "0w7ndc2p2131h1wh3rj1dhhs59ihrdfl8ni44x9sdywc5jpnk3k3"))))))
+
+(define-public nvidia-settings nvidia-settings-580)
 
 
 ;;;
@@ -803,29 +891,33 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
     (license (package-license nvidia-driver))
     (home-page (package-home-page nvidia-driver))))
 
-(define-public nvdb
-  (package
-    (inherit nvda)
-    (name "nvdb")
-    (version (string-pad-right (package-version nvidia-driver-beta)
-                               (string-length (package-version mesa-for-nvda))
-                               #\0))
-    (arguments
-     (list
-      #:modules '((guix build union))
-      #:builder
-      #~(begin
-          (use-modules (guix build union))
-          (union-build #$output
-                       '#$(list (this-package-input "libglvnd")
-                                (this-package-input "mesa")
-                                (this-package-input "nvidia-driver-beta"))))))
-    (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
-                               (package-propagated-inputs nvidia-driver-beta)))
-    (inputs (list mesa-for-nvda nvidia-driver-beta))))
+(define-public nvda-590
+  ((package-input-rewriting `((,nvidia-driver . ,nvidia-driver-590)))
+   (package
+     (inherit nvda)
+     (version (string-pad-right
+               (package-version nvidia-driver-590)
+               (string-length (package-version mesa-for-nvda))
+               #\0)))))
 
-(define replace-mesa
-  (package-input-grafting `((,mesa unquote nvda))))
+(define-public nvdb
+  ((package-input-rewriting `((,nvidia-driver . ,nvidia-driver-beta)))
+   (package
+     (inherit nvda)
+     (name "nvdb")
+     (version (string-pad-right
+               (package-version nvidia-driver-beta)
+               (string-length (package-version mesa-for-nvda))
+               #\0)))))
+
+(define* (replace-mesa obj #:key (driver nvda))
+  (with-transformation
+      (package-input-grafting
+       `((,mesa . ,driver)
+         (,nvidia-driver . ,driver)
+         (,ffmpeg . ,ffmpeg/nvidia)
+         (,ffmpeg-6 . ,ffmpeg-6/nvidia)))
+    obj))
 
 
 ;;;
@@ -835,7 +927,7 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 (define-public egl-gbm
   (package
     (name "egl-gbm")
-    (version "1.1.2.1")
+    (version "1.1.3")
     (source
      (origin
        (method git-fetch)
@@ -844,8 +936,20 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1zcr1jksnh0431marzvgg301aybli29r1xw5vs4wnxgcp9bigvn6"))))
+        (base32 "1p9w7xc7zdrwxxiwmmhmsqf0jlzcgnrkgci2j5da4xzjasyf109s"))))
     (build-system meson-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'patch-library-reference
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((dir "share/egl/egl_external_platform.d"))
+                (with-directory-excursion (in-vicinity #$output dir)
+                  (substitute* "15_nvidia_gbm.json"
+                    (("libnvidia-egl-.*\\.so\\.." lib)
+                     (search-input-file
+                      outputs (in-vicinity "lib" lib)))))))))))
     (native-inputs (list pkg-config))
     (inputs (list eglexternalplatform mesa-for-nvda))
     (synopsis "GBM EGL external platform library")
@@ -855,10 +959,45 @@ GBM EGL support.")
     (home-page "https://github.com/NVIDIA/egl-gbm")
     (license license-gnu:expat)))
 
+(define-public egl-wayland2
+  (package
+    (inherit egl-wayland)
+    (name "egl-wayland2")
+    (version "1.0.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/egl-wayland2")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "15n6jf8kxkha0bxhjj9x720i88nqar8k6wkirav2izbi52vgxnji"))))
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'patch-library-reference
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((dir "share/egl/egl_external_platform.d"))
+                (with-directory-excursion (in-vicinity #$output dir)
+                  (substitute* "09_nvidia_wayland2.json"
+                    (("libnvidia-egl-.*\\.so\\.." lib)
+                     (search-input-file
+                      outputs (in-vicinity "lib" lib)))))))))))
+    (synopsis "Dma-buf-based Wayland external platform library")
+    (description
+     "This is a new implementation of the EGL External Platform Library for
+Wayland (@code{EGL_KHR_platform_wayland}), using the NVIDIA driver's new
+platform surface interface, which simplifies a lot of the library and improves
+window resizing.")
+    (home-page "https://github.com/NVIDIA/egl-wayland2")
+    (license license-gnu:asl2.0)))
+
 (define-public egl-x11
   (package
     (name "egl-x11")
-    (version "1.0.3")
+    (version "1.0.5")
     (source
      (origin
        (method git-fetch)
@@ -867,8 +1006,21 @@ GBM EGL support.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1hh1wkdijjhsmym5ab5nw8wyi0w9x7aznnmyg8sczhwdfb5rdnrj"))))
+        (base32 "07d72z4dm2w9ys01li2v770j51zciahn0m5yn4bxrns7gxrylpsa"))))
     (build-system meson-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'patch-library-reference
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((dir "share/egl/egl_external_platform.d"))
+                (with-directory-excursion (in-vicinity #$output dir)
+                  (substitute* '("20_nvidia_xcb.json"
+                                 "20_nvidia_xlib.json")
+                    (("libnvidia-egl-.*\\.so\\.." lib)
+                     (search-input-file
+                      outputs (in-vicinity "lib" lib)))))))))))
     (native-inputs (list pkg-config))
     (inputs (list eglexternalplatform mesa-for-nvda))
     (synopsis "X11 and XCB EGL external platform library")
@@ -878,6 +1030,39 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
 @code{EGL_EXT_platform_xcb}).")
     (home-page "https://github.com/NVIDIA/egl-x11")
     (license license-gnu:expat)))
+
+(define-public nvidia-prime
+  (package
+    (name "nvidia-prime")
+    (version "1.0-5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://gitlab.archlinux.org/archlinux/packaging/packages/nvidia-prime.git")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "017xjk4lp25ib6jn3lpf80x7bfybj6lfam7xd1byyjj5rd60jp7f"))))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'build)
+          (delete 'check)
+          (replace 'install
+            (lambda _
+              (chmod "prime-run" #o555)
+              (install-file "prime-run" (in-vicinity #$output "bin")))))))
+    (inputs (list bash-minimal))
+    (home-page "https://www.archlinux.org/packages/extra/any/nvidia-prime/")
+    (synopsis "NVIDIA PRIME render offload configuration and utilities")
+    (description
+     "This package provides @command{prime-run} to run a program on the NVIDIA
+GPU in switchable graphics setup.")
+    (license license-gnu:gpl3+)))
 
 (define-public nvidia-htop
   (package
@@ -2740,7 +2925,7 @@ See also
     (license (license:nonfree
               "https://docs.nvidia.com/cuda/cudss/license.html"))))
 
-(define-public nvidia-modprobe
+(define-public nvidia-modprobe-580
   (package
     (name "nvidia-modprobe")
     (version "580.142")
@@ -2794,9 +2979,24 @@ See also
     (home-page "https://github.com/NVIDIA/nvidia-modprobe")
     (license license-gnu:gpl2)))
 
+(define-public nvidia-modprobe-590
+  (package
+    (inherit nvidia-modprobe-580)
+    (name "nvidia-modprobe")
+    (version "590.48.01")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-modprobe")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1y6kqhvjfpq0zssjsbkwkav2khsb7x63nxgd1lnvrkg660a7knjn"))))))
+
 (define-public nvidia-modprobe-beta
   (package
-    (inherit nvidia-modprobe)
+    (inherit nvidia-modprobe-580)
     (name "nvidia-modprobe-beta")
     (version "595.45.04")
     (source
@@ -2808,6 +3008,8 @@ See also
        (file-name (git-file-name name version))
        (sha256
         (base32 "0s1p89js7f65pzss7fqglddz052lq357xjxyqwpca9kmljxr4dqc"))))))
+
+(define-public nvidia-modprobe nvidia-modprobe-580)
 
 (define-public nvtx
   (package

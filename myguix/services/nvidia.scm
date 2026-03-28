@@ -27,8 +27,18 @@
           (default nvidia-module)) ;file-like
   (modprobe nvidia-configuration-modprobe
             (default nvidia-modprobe)) ;file-like
+  (settings nvidia-configuration-settings
+            (default #f)) ;file-like or #f
   (non-admin-profiling? nvidia-configuration-non-admin-profiling?
                         (default #t)))
+
+(define (nvidia-profile config)
+  (let ((settings (nvidia-configuration-settings config)))
+    (append (list (nvidia-configuration-driver config)
+                  nvidia-prime)
+            (if settings
+                (list settings)
+                '()))))
 
 (define (nvidia-modprobe-configuration config)
   (if (nvidia-configuration-non-admin-profiling? config)
@@ -86,8 +96,7 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
 (define nvidia-service-type
   (service-type (name 'nvidia)
                 (extensions (list (service-extension profile-service-type
-                                                     (compose list
-                                                      nvidia-configuration-driver))
+                                                     nvidia-profile)
                                   (service-extension
                                    privileged-program-service-type
                                    nvidia-privileged-program)
