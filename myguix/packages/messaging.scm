@@ -125,8 +125,8 @@ its core.")
                 ;; application ID, otherwise the icon is not displayed
                 ;; correctly (see:
                 ;; <https://github.com/signalapp/Signal-Desktop/issues/6868>)
-                ("StartupWMClass=Signal")
-                "StartupWMClass=signal")))
+                (("StartupWMClass=Signal")
+                 "StartupWMClass=signal"))))
           (add-after 'install 'symlink-binary-file
             (lambda _
               (mkdir-p (string-append #$output "/bin"))
