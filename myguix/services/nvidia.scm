@@ -5,12 +5,12 @@
 (define-module (myguix services nvidia)
   #:use-module (guix gexp)
   #:use-module (guix records)
+  #:use-module (gnu system privilege)
   #:use-module (gnu packages)
   #:use-module (gnu packages linux)
   #:use-module (gnu services)
   #:use-module (gnu services base)
   #:use-module (gnu services linux)
-  #:use-module (gnu services shepherd)
   #:use-module (myguix packages nvidia)
   #:export (nvidia-configuration nvidia-configuration?
                                  nvidia-configuration-record?
@@ -25,6 +25,8 @@
             (default nvidia-firmware)) ;file-like
   (module nvidia-configuration-module
           (default nvidia-module)) ;file-like
+  (modprobe nvidia-configuration-modprobe
+            (default nvidia-modprobe)) ;file-like
   (non-admin-profiling? nvidia-configuration-non-admin-profiling?
                         (default #t)))
 
@@ -36,51 +38,62 @@
                 "options nvidia NVreg_RestrictProfilingToAdminUsers=0\n")))
       '()))
 
-(define (nvidia-shepherd-service config)
-  (let* ((nvidia-driver (nvidia-configuration-driver config))
-         (nvidia-smi (file-append nvidia-driver "/bin/nvidia-smi")))
-    (list (shepherd-service (documentation
-                             "Prepare system environment for NVIDIA driver.")
-                            (provision '(nvidia))
-                            (requirement '(udev))
-                            (modules '(((guix build utils)
-                                        #:select (invoke/quiet))
-                                       ((rnrs io ports)
-                                        #:select (get-line))))
-                            (start #~(lambda _
-                                       (let ((modprobe
-                                              (call-with-input-file
-                                                  "/proc/sys/kernel/modprobe"
-                                                get-line)))
-                                         ;; Ensure the NVIDIA DRM/KMS module is
-                                         ;; available before display managers
-                                         ;; (e.g. GDM) start, so monitors
-                                         ;; connected to the dGPU remain active.
-                                         (false-if-exception
-                                          (invoke/quiet modprobe "--"
-                                                       "nvidia_drm"))
+(define (nvidia-privileged-program config)
+  (list (file-like->setuid-program
+         (file-append (nvidia-configuration-modprobe config)
+                      "/bin/nvidia-modprobe"))))
 
-                                         ;; Load UVM for CUDA userspace; ignore
-                                         ;; errors on systems without it.
-                                         (false-if-exception
-                                          (invoke/quiet modprobe "--"
-                                                       "nvidia_uvm"))
+;; Create path hard-coded by some NVIDIA userspace components.
+(define (nvidia-special-files _)
+  '(("/usr/bin/nvidia-modprobe" "/run/privileged/bin/nvidia-modprobe")))
 
-                                         (false-if-exception
-                                          (invoke/quiet #$nvidia-smi)))))
-                            (stop #~(const #f))))))
+;; Adapted from:
+;; <https://github.com/Frogging-Family/nvidia-all/blob/master/system/60-nvidia.rules>
+(define (nvidia-udev-rule _)
+  (list
+   (udev-rule "90-nvidia.rules" "\
+# Device nodes are created by nvidia-modprobe, which is called by the nvidia DDX.
+# In case the DDX is not started, call nvidia-modprobe in udev rules to cover
+# Wayland/EGLStream and compute setups without a started display.
+ACTION==\"add|bind\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x03[0-9]*\", \\
+    DRIVER==\"nvidia\", TEST!=\"/dev/nvidia-uvm\", \\
+    RUN+=\"/usr/bin/nvidia-modprobe\", \\
+    RUN+=\"/usr/bin/nvidia-modprobe -c0 -u\"
+
+# Allow non-root access to NVIDIA profiling capabilities devices (needed for Nsight Compute metrics).
+KERNEL==\"nvidia-cap[0-9]*\", MODE=\"0666\"
+
+# Enable runtime PM for NVIDIA VGA/3D controller devices
+ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x03[0-9]*\", TEST==\"power/control\", ATTR{power/control}=\"auto\"
+# Enable runtime PM for NVIDIA Audio devices
+ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x040300\", TEST==\"power/control\", ATTR{power/control}=\"auto\"
+# Enable runtime PM for NVIDIA USB xHCI Host Controller devices
+ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c0330\", TEST==\"power/control\", ATTR{power/control}=\"auto\"
+# Enable runtime PM for NVIDIA USB Type-C UCSI devices
+ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c8000\", TEST==\"power/control\", ATTR{power/control}=\"auto\"
+
+# Disable runtime PM for NVIDIA VGA/3D controller devices
+ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x03[0-9]*\", TEST==\"power/control\", ATTR{power/control}=\"on\"
+# Disable runtime PM for NVIDIA Audio devices
+ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x040300\", TEST==\"power/control\", ATTR{power/control}=\"on\"
+# Disable runtime PM for NVIDIA USB xHCI Host Controller devices
+ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c0330\", TEST==\"power/control\", ATTR{power/control}=\"on\"
+# Disable runtime PM for NVIDIA USB Type-C UCSI devices
+ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c8000\", TEST==\"power/control\", ATTR{power/control}=\"on\"
+")))
 
 (define nvidia-service-type
   (service-type (name 'nvidia)
-                (extensions (list (service-extension
-                                   shepherd-root-service-type
-                                   nvidia-shepherd-service)
-                                  (service-extension profile-service-type
+                (extensions (list (service-extension profile-service-type
                                                      (compose list
                                                       nvidia-configuration-driver))
+                                  (service-extension
+                                   privileged-program-service-type
+                                   nvidia-privileged-program)
+                                  (service-extension special-files-service-type
+                                                     nvidia-special-files)
                                   (service-extension udev-service-type
-                                                     (compose list
-                                                      nvidia-configuration-driver))
+                                                     nvidia-udev-rule)
                                   (service-extension firmware-service-type
                                                      (compose list
                                                       nvidia-configuration-firmware))
@@ -88,10 +101,6 @@
                                                      nvidia-modprobe-configuration)
                                   (service-extension
                                    linux-loadable-module-service-type
-                                   (compose list nvidia-configuration-module))
-                                  ;; Start before other user processes, necessary for some display
-                                  ;; managers.
-                                  (service-extension user-processes-service-type
-                                                     (const '(nvidia)))))
+                                   (compose list nvidia-configuration-module))))
                 (default-value (nvidia-configuration))
                 (description "Prepare system environment for NVIDIA driver.")))
