@@ -835,3 +835,48 @@ library.")
     (description
      "Sonic is a blazingly fast JSON serialization and deserialization library.")
     (license license:asl2.0)))
+
+(define-public go-github-com-nvidia-go-nvml
+  (package
+    (name "go-github-com-nvidia-go-nvml")
+    (version "0.13.0-1.0.20260212130905-92cf8c963449")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/go-nvml")
+             (commit "92cf8c963449ccbb5ed0b2d51be1b426d6988f41")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1vx5wdp0r390qh8gq9fwdzqvp6lx13s9mp03cz64q7fkkv7kxy65"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/NVIDIA/go-nvml"
+      #:unpack-path "github.com/NVIDIA/go-nvml"
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda _
+              (with-directory-excursion "src/github.com/NVIDIA/go-nvml"
+                (invoke "go" "install"
+                        "-ldflags=-s -w"
+                        "-trimpath"
+                        "./..."))))
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                (with-directory-excursion "src/github.com/NVIDIA/go-nvml"
+                  (invoke "go" "test" "./...")))
+              #t)))))
+    (native-inputs
+     (list go-github-com-stretchr-testify))
+    (propagated-inputs
+     (list go-github-com-google-uuid))
+    (home-page "https://github.com/NVIDIA/go-nvml")
+    (synopsis "Go bindings for the NVIDIA Management Library")
+    (description
+     "This package provides Go bindings for the NVIDIA Management Library
+(@acronym{NVML}), including wrappers for dynamic loading and generated Go APIs
+for interacting with NVIDIA GPU management interfaces.")
+    (license license:asl2.0)))
