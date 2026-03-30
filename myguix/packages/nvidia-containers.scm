@@ -271,3 +271,53 @@ used to configure Linux containers for access to NVIDIA GPUs.")
 the @command{nvidia-ctk} management CLI, and the @command{nvidia-cdi-hook}
 helper used to enable GPU support in containers.")
     (license license:asl2.0)))
+
+(define-public nvidia-container-toolkit
+  (package
+    (name "nvidia-container-toolkit")
+    (version "1.19.0")
+    (source nvidia-container-toolkit-source)
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:go go-1.25
+      #:import-path "github.com/NVIDIA/nvidia-container-toolkit"
+      #:install-source? #f
+      #:tests? #f                  ;Integration tests require a live container runtime.
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key import-path outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out"))
+                    (ldflags
+                     (string-append
+                      "-s -w "
+                      "-X github.com/NVIDIA/nvidia-container-toolkit/internal/info.version="
+                      #$version)))
+                (mkdir-p (string-append out "/bin"))
+                (with-directory-excursion (string-append "src/" import-path)
+                  (invoke "go" "build"
+                          "-trimpath"
+                          "-ldflags" ldflags
+                          "-o" (string-append out "/bin/nvidia-container-runtime-hook")
+                          "./cmd/nvidia-container-runtime-hook")))))
+          (add-after 'install 'wrap-executables
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((bindir (string-append (assoc-ref outputs "out") "/bin"))
+                     (libnvidia-container-bindir
+                      (string-append (assoc-ref inputs "libnvidia-container")
+                                     "/bin")))
+                (wrap-program
+                    (string-append bindir "/nvidia-container-runtime-hook")
+                  `("PATH" ":" prefix (,libnvidia-container-bindir)))
+                (symlink "nvidia-container-runtime-hook"
+                         (string-append bindir "/nvidia-container-toolkit"))))))))
+    (inputs
+     (list libnvidia-container))
+    (home-page "https://github.com/NVIDIA/nvidia-container-toolkit")
+    (synopsis "NVIDIA container runtime hook")
+    (description
+     "nvidia-container-toolkit provides the NVIDIA container runtime hook used
+by OCI runtimes and Docker's @option{--gpus} path to invoke
+@command{nvidia-container-cli} during container setup.")
+    (license license:asl2.0)))
