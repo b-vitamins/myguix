@@ -321,3 +321,58 @@ helper used to enable GPU support in containers.")
 by OCI runtimes and Docker's @option{--gpus} path to invoke
 @command{nvidia-container-cli} during container setup.")
     (license license:asl2.0)))
+
+(define-public nvidia-container-toolkit-operator-extensions
+  (package
+    (name "nvidia-container-toolkit-operator-extensions")
+    (version "1.19.0")
+    (source nvidia-container-toolkit-source)
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:go go-1.25
+      #:import-path "github.com/NVIDIA/nvidia-container-toolkit"
+      #:install-source? #f
+      #:tests? #f                  ;Integration tests require a live container runtime.
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key import-path outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out"))
+                    (ldflags
+                     (string-append
+                      "-s -w "
+                      "-X github.com/NVIDIA/nvidia-container-toolkit/internal/info.version="
+                      #$version)))
+                (mkdir-p (string-append out "/bin"))
+                (with-directory-excursion (string-append "src/" import-path)
+                  (for-each
+                   (lambda (command)
+                     (invoke "go" "build"
+                             "-trimpath"
+                             "-ldflags" ldflags
+                             "-o" (string-append out "/bin/" command)
+                             (string-append "./cmd/" command)))
+                   '("nvidia-container-runtime.cdi"
+                     "nvidia-container-runtime.legacy"))))))
+          (add-after 'install 'wrap-executables
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((bindir (string-append (assoc-ref outputs "out") "/bin"))
+                     (base-bindir
+                      (string-append
+                       (assoc-ref inputs "nvidia-container-toolkit-base")
+                       "/bin")))
+                (wrap-program (string-append bindir "/nvidia-container-runtime.cdi")
+                  `("PATH" ":" prefix (,base-bindir)))
+                (wrap-program (string-append bindir "/nvidia-container-runtime.legacy")
+                  `("PATH" ":" prefix (,base-bindir)))))))))
+    (inputs
+     (list nvidia-container-toolkit-base))
+    (home-page "https://github.com/NVIDIA/nvidia-container-toolkit")
+    (synopsis "Additional NVIDIA container runtime entry points")
+    (description
+     "nvidia-container-toolkit-operator-extensions provides the
+@command{nvidia-container-runtime.cdi} and
+@command{nvidia-container-runtime.legacy} entry points that force the NVIDIA
+container runtime into CDI or legacy mode.")
+    (license license:asl2.0)))
