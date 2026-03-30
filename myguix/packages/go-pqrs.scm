@@ -880,3 +880,50 @@ library.")
 (@acronym{NVML}), including wrappers for dynamic loading and generated Go APIs
 for interacting with NVIDIA GPU management interfaces.")
     (license license:asl2.0)))
+
+(define-public go-github-com-nvidia-go-nvlib
+  (package
+    (name "go-github-com-nvidia-go-nvlib")
+    (version "0.9.1-0.20251202135446-d0f42ba016dd")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/go-nvlib")
+             (commit "d0f42ba016dd2e1a955b3133a22654141bb6f21e")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "05baqk2m4a21jkr0kjcbyldaiyirz1yyyn78v38qiqwkap3rh1fi"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "github.com/NVIDIA/go-nvlib"
+      #:unpack-path "github.com/NVIDIA/go-nvlib"
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda _
+              (with-directory-excursion "src/github.com/NVIDIA/go-nvlib"
+                (invoke "go" "install"
+                        "-ldflags=-s -w"
+                        "-trimpath"
+                        "./..."))))
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                (with-directory-excursion "src/github.com/NVIDIA/go-nvlib"
+                  (invoke "go" "test" "./...")))
+              #t)))))
+    (native-inputs
+     (list go-github-com-stretchr-testify))
+    (propagated-inputs
+     (list go-github-com-google-uuid
+           go-github-com-nvidia-go-nvml))
+    (home-page "https://github.com/NVIDIA/go-nvlib")
+    (synopsis "Go helpers for working with NVIDIA device state")
+    (description
+     "This package provides Go libraries for working with NVIDIA GPUs and
+related devices.  It builds on top of @code{go-nvml} and includes helpers for
+device identification, platform detection, PCI inspection, and related
+utilities used by NVIDIA container tooling.")
+    (license license:asl2.0)))
