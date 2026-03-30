@@ -8,13 +8,15 @@
   #:use-module (gnu packages golang-compression)
   #:use-module (gnu packages golang-crypto)
   #:use-module (gnu packages golang-xyz)
+  #:use-module (gnu packages pkg-config)
   #:use-module (guix build-system go)
   #:use-module (guix git-download)
   #:use-module (guix download)
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
-  #:use-module (guix gexp))
+  #:use-module (guix gexp)
+  #:use-module (myguix packages nvidia-containers))
 
 ;;;
 ;;; Go packages needed for Ollama v0.9.1 packaging
@@ -927,3 +929,48 @@ related devices.  It builds on top of @code{go-nvml} and includes helpers for
 device identification, platform detection, PCI inspection, and related
 utilities used by NVIDIA container tooling.")
     (license license:asl2.0)))
+
+(define-public go-cyphar-com-go-pathrs
+  (package
+    (name "go-cyphar-com-go-pathrs")
+    (version "0.2.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/cyphar/libpathrs")
+             (commit "f900452f21ff9fa092ea5250de5634beaae0f082")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1iqwm755vlfgpn3qg2f0932yl89xym8g1njgfyaaprmqvzbs8hn1"))))
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:import-path "cyphar.com/go-pathrs"
+      #:unpack-path "cyphar.com"
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda _
+              (with-directory-excursion "src/cyphar.com/go-pathrs"
+                (invoke "go" "install"
+                        "-ldflags=-s -w"
+                        "-trimpath"
+                        "./..."))))
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                (with-directory-excursion "src/cyphar.com/go-pathrs"
+                  (invoke "go" "test" "./...")))
+              #t)))))
+    (native-inputs
+     (list pkg-config))
+    (propagated-inputs
+     (list go-golang-org-x-sys
+           pathrs))
+    (home-page "https://github.com/cyphar/libpathrs")
+    (synopsis "Go bindings for the libpathrs safe path resolution library")
+    (description
+     "This package provides Go bindings for @code{libpathrs}, a Linux-only
+library for safe path resolution and related filesystem operations.")
+    (license license:mpl2.0)))
