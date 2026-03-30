@@ -6,6 +6,7 @@
   #:use-module (gnu packages onc-rpc)
   #:use-module (gnu packages pkg-config)
   #:use-module (guix build-system cargo)
+  #:use-module (guix build-system go)
   #:use-module (guix build-system gnu)
   #:use-module (guix download)
   #:use-module (guix gexp)
@@ -207,3 +208,66 @@ safer path resolution operations on Linux.")
 used to configure Linux containers for access to NVIDIA GPUs.")
     (license (list license:asl2.0
                    license:bsd-3))))
+
+(define nvidia-container-toolkit-source
+  (origin
+    (method url-fetch)
+    (uri (string-append "https://github.com/NVIDIA/nvidia-container-toolkit"
+                        "/archive/refs/tags/v1.19.0.tar.gz"))
+    (file-name "nvidia-container-toolkit-1.19.0.tar.gz")
+    (sha256
+     (base32 "0bp4bxv2ajx6m80iywc9gszn4jw67qmsgz7813rgyrqicxkqapwc"))))
+
+(define-public nvidia-container-toolkit-base
+  (package
+    (name "nvidia-container-toolkit-base")
+    (version "1.19.0")
+    (source nvidia-container-toolkit-source)
+    (build-system go-build-system)
+    (arguments
+     (list
+      #:go go-1.25
+      #:import-path "github.com/NVIDIA/nvidia-container-toolkit"
+      #:install-source? #f
+      #:tests? #f                  ;Integration tests require a live container runtime.
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'build
+            (lambda* (#:key import-path outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out"))
+                    (ldflags
+                     (string-append
+                      "-s -w "
+                      "-X github.com/NVIDIA/nvidia-container-toolkit/internal/info.version="
+                      #$version)))
+                (setenv "CGO_ENABLED" "1")
+                (mkdir-p (string-append out "/bin"))
+                (with-directory-excursion (string-append "src/" import-path)
+                  (for-each
+                   (lambda (command)
+                     (invoke "go" "build"
+                             "-trimpath"
+                             "-ldflags" ldflags
+                             "-o" (string-append out "/bin/" command)
+                             (string-append "./cmd/" command)))
+                   '("nvidia-container-runtime"
+                     "nvidia-ctk"
+                     "nvidia-cdi-hook"))))))
+          (add-after 'install 'wrap-executables
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((bindir (string-append (assoc-ref outputs "out") "/bin")))
+                (wrap-program (string-append bindir "/nvidia-container-runtime")
+                  `("PATH" ":" prefix (,bindir)))
+                (wrap-program (string-append bindir "/nvidia-ctk")
+                  `("PATH" ":" prefix (,bindir)))))))))
+    (native-inputs
+     (list pkg-config))
+    (inputs
+     (list pathrs))
+    (home-page "https://github.com/NVIDIA/nvidia-container-toolkit")
+    (synopsis "NVIDIA container runtime and CLI tools")
+    (description
+     "nvidia-container-toolkit-base provides the NVIDIA container runtime,
+the @command{nvidia-ctk} management CLI, and the @command{nvidia-cdi-hook}
+helper used to enable GPU support in containers.")
+    (license license:asl2.0)))
