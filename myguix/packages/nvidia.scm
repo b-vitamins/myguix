@@ -164,6 +164,134 @@
         (rename-file (string-append "extractdir/" this-file ".tar.zst")
                      this-file))))
 
+(define %nvidia-script-create-device-nodes
+  (program-file "create-device-nodes.scm"
+                (with-imported-modules '((guix build utils))
+                  #~(begin
+                      (use-modules (ice-9 regex)
+                                   (rnrs io ports)
+                                   (srfi srfi-1)
+                                   (guix build utils))
+
+                      (define %nvidia-character-devices
+                        (call-with-input-file "/proc/devices"
+                          (lambda (port)
+                            (filter-map
+                             (lambda (line)
+                               (if (string-contains line "nvidia")
+                                   (apply cons
+                                          (reverse (string-tokenize line)))
+                                   #f))
+                             (string-split (get-string-all port) #\newline)))))
+
+                      (define %nvidia-driver-device-minors
+                        (let ((device-minor-regexp
+                               (make-regexp "^Device Minor: \t (.*)")))
+                          (append-map
+                           (lambda (file)
+                             (call-with-input-file file
+                               (lambda (port)
+                                 (filter-map
+                                  (lambda (line)
+                                    (let ((matched
+                                           (regexp-exec device-minor-regexp
+                                                        line)))
+                                      (if matched
+                                          (match:substring matched 1)
+                                          #f)))
+                                  (string-split (get-string-all port)
+                                                #\newline)))))
+                           (find-files "/proc/driver/nvidia/gpus/"
+                                       "information$"))))
+
+                      (define (create-device-node path name minor)
+                        (let ((major (or (assoc-ref %nvidia-character-devices
+                                                    name)
+                                         (assoc-ref %nvidia-character-devices
+                                                    "nvidia-frontend")))
+                              (mknod #$(file-append coreutils "/bin/mknod")))
+                          (system* mknod "-Zm0666" path "c" major minor)))
+
+                      (define (main args)
+                        (case (string->symbol (first args))
+                          ((nvidia_modeset)
+                           (create-device-node "/dev/nvidia-modeset"
+                                               "nvidia-modeset" "254"))
+                          ((nvidia_uvm)
+                           (begin
+                             (create-device-node "/dev/nvidia-uvm"
+                                                 "nvidia-uvm" "0")
+                             (create-device-node "/dev/nvidia-uvm-tools"
+                                                 "nvidia-uvm" "1")))
+                          ((nvidia)
+                           (begin
+                             (create-device-node "/dev/nvidiactl"
+                                                 "nvidiactl" "255")
+                             (for-each
+                              (lambda (minor)
+                                (create-device-node
+                                 (string-append "/dev/nvidia" minor)
+                                 "nvidia" minor))
+                              %nvidia-driver-device-minors))))
+                        (let ((caps-major
+                               (assoc-ref %nvidia-character-devices
+                                          "nvidia-caps")))
+                          (when caps-major
+                            (let ((caps-dir "/dev/nvidia-caps"))
+                              (mkdir-p caps-dir)
+                              (let ((cap1 (string-append caps-dir
+                                                         "/nvidia-cap1"))
+                                    (cap2 (string-append caps-dir
+                                                         "/nvidia-cap2")))
+                                (false-if-exception
+                                 (begin
+                                   (unless (file-exists? cap1)
+                                     (create-device-node cap1
+                                                         "nvidia-caps"
+                                                         "1"))
+                                   (chmod cap1 #o666)))
+                                (false-if-exception
+                                 (begin
+                                   (unless (file-exists? cap2)
+                                     (create-device-node cap2
+                                                         "nvidia-caps"
+                                                         "2"))
+                                   (chmod cap2 #o666))))))))
+
+                      (main (cdr (command-line)))))))
+
+;; Adapted from <https://github.com/Frogging-Family/nvidia-all/blob/master/60-nvidia.rules>
+(define %nvidia-udev-rules
+  (mixed-text-file "90-nvidia.rules"
+   "# Make sure device nodes are present even when the DDX is not started for the Wayland/EGLStream case\n"
+   "KERNEL==\"nvidia\", RUN+=\""
+   %nvidia-script-create-device-nodes
+   " nvidia\"\n"
+   "KERNEL==\"nvidia_modeset\", RUN+=\""
+   %nvidia-script-create-device-nodes
+   " nvidia_modeset\"\n"
+   "KERNEL==\"nvidia_uvm\", RUN+=\""
+   %nvidia-script-create-device-nodes
+   " nvidia_uvm\"\n\n"
+   "# Allow non-root access to NVIDIA profiling capabilities devices (needed for Nsight Compute metrics).\n"
+   "KERNEL==\"nvidia-cap[0-9]*\", MODE=\"0666\"\n\n"
+   "# Enable runtime PM for NVIDIA VGA/3D controller devices\n"
+   "ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x03[0-9]*\", TEST==\"power/control\", ATTR{power/control}=\"auto\"\n"
+   "# Enable runtime PM for NVIDIA Audio devices\n"
+   "ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x040300\", TEST==\"power/control\", ATTR{power/control}=\"auto\"\n"
+   "# Enable runtime PM for NVIDIA USB xHCI Host Controller devices\n"
+   "ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c0330\", TEST==\"power/control\", ATTR{power/control}=\"auto\"\n"
+   "# Enable runtime PM for NVIDIA USB Type-C UCSI devices\n"
+   "ACTION==\"bind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c8000\", TEST==\"power/control\", ATTR{power/control}=\"auto\"\n\n"
+   "# Disable runtime PM for NVIDIA VGA/3D controller devices\n"
+   "ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x03[0-9]*\", TEST==\"power/control\", ATTR{power/control}=\"on\"\n"
+   "# Disable runtime PM for NVIDIA Audio devices\n"
+   "ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x040300\", TEST==\"power/control\", ATTR{power/control}=\"on\"\n"
+   "# Disable runtime PM for NVIDIA USB xHCI Host Controller devices\n"
+   "ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c0330\", TEST==\"power/control\", ATTR{power/control}=\"on\"\n"
+   "# Disable runtime PM for NVIDIA USB Type-C UCSI devices\n"
+   "ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\"0x0c8000\", TEST==\"power/control\", ATTR{power/control}=\"on\"\n"))
+
 
 ;;;
 ;;; NVIDIA drivers
@@ -206,6 +334,7 @@
           ("." "share/egl/egl_external_platform.d/"
            #:include-regexp ("(gbm|wayland|xcb|xlib)\\.json"))
           ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
+          ("90-nvidia.rules" "lib/udev/rules.d/")
           ("nvidia-drm-outputclass.conf" "share/X11/xorg.conf.d/")
           ("nvidia-dbus.conf" "share/dbus-1/system.d/")
           ("nvidia.icd" "etc/OpenCL/vendors/")
@@ -248,7 +377,10 @@
               ;; VulkanSC ICD configuration
               (substitute* "nvidia_icd_vksc.json"
                 (("libnvidia-vksc-core\\.so\\.." all)
-                 (string-append #$output "/lib/" all)))))
+                 (string-append #$output "/lib/" all)))
+
+              ;; Add udev rules.
+              (symlink #$%nvidia-udev-rules "90-nvidia.rules")))
           (add-after 'install 'add-architecture-to-filename
             (lambda _
               (for-each (lambda (path)
@@ -564,9 +696,8 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
     (description
      "This package provides kernel modules of the proprietary NVIDIA driver.
 Module setup can be done with @code{nvidia-service-type}, to actually use these
-modules, also add @code{modprobe.blacklist=nouveau} and
-@code{modprobe.blacklist=nova_core,nova_drm} to @code{kernel-arguments} field
-of the @code{operating-system} configuration.
+modules, also add @code{modprobe.blacklist=nouveau} to @code{kernel-arguments}
+field of the @code{operating-system} configuration.
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
@@ -614,9 +745,8 @@ enabled (see also the description of @code{nvidia-firmware} package).
 
 Module setup can be done with @code{nvidia-service-type} (with @code{module}
 field of @code{nvidia-configuration} set to @code{nvidia-module-open}), to
-actually use these modules, also add @code{modprobe.blacklist=nouveau} and
-@code{modprobe.blacklist=nova_core,nova_drm} to @code{kernel-arguments} field
-of the @code{operating-system} configuration.
+actually use these modules, also add @code{modprobe.blacklist=nouveau} to
+@code{kernel-arguments} field of the @code{operating-system} configuration.
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")

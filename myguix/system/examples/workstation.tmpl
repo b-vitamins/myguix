@@ -27,7 +27,6 @@
   ;; Full Linux kernel with firmware and nvidia support
   (kernel linux)
   (kernel-arguments (append '("modprobe.blacklist=nouveau"
-                              "modprobe.blacklist=nova_core,nova_drm"
                               "nvidia_drm.modeset=1"
                               "nvidia_drm.fbdev=1")
                             %default-kernel-arguments))
