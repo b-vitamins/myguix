@@ -237,6 +237,9 @@
                              "//:ray_py_proto_zip"
                              "//:ray_pkg_zip")
       #:distdir-inputs ray-bazel-distdir-sources
+      ;; Ray's Bazel C++ build fanout is large enough to OOM-kill cc1plus on
+      ;; this machine when it inherits the full Guix parallel job count.
+      #:bazel-jobs 4
       #:bazel-arguments '(list "--cxxopt=-Wno-dangling-reference")
       #:vendored-inputs-hash
       "136r3rmhyxrx99fkkf2fbfr1b57j9xvxdx1w0v9fczy1rz365w94"
