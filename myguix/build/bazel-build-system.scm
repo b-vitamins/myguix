@@ -60,6 +60,7 @@
           (getenv "NIX_BUILD_TOP")))
 
 (define* (build #:key parallel-build?
+                bazel-jobs
                 build-targets
                 bazel-arguments
                 (distdir '())
@@ -122,8 +123,11 @@
                      '())
                  bazel-arguments
                  (list "--jobs"
-                       (if parallel-build?
-                           (number->string (parallel-job-count)) "1"))
+                       (number->string
+                        (or bazel-jobs
+                            (if parallel-build?
+                                (parallel-job-count)
+                                1))))
                  (match run-command
                    (() build-targets)
                    (_ `(,@build-targets "--"

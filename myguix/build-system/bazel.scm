@@ -313,6 +313,7 @@
                 (fetch-targets '())
                 (build-targets '())
                 (distdir-inputs '())
+                bazel-jobs
                 (bazel-arguments '())
                 (bazel-configuration '())
                 vendored-inputs-hash
@@ -358,6 +359,7 @@
                       (fetch-targets ''())
                       (build-targets ''())
                       (distdir-inputs '())
+                      bazel-jobs
                       (bazel-arguments ''())
                       (bazel-configuration ''())
                       (run-command ''())
@@ -404,6 +406,7 @@
                                                           #:distdir '#$distdir-inputs
                                                           #:system #$system
                                                           #:tests? #$tests?
+                                                          #:bazel-jobs #$bazel-jobs
                                                           #:parallel-build? #$parallel-build?
                                                           #:build-targets #$build-targets
                                                           #:run-command #$run-command
