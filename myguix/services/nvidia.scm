@@ -11,6 +11,7 @@
   #:use-module (gnu services)
   #:use-module (gnu services base)
   #:use-module (gnu services linux)
+  #:use-module (gnu services shepherd)
   #:use-module (myguix packages nvidia)
   #:export (nvidia-configuration nvidia-configuration?
                                  nvidia-configuration-record?
@@ -52,6 +53,36 @@
   (list (file-like->setuid-program
          (file-append (nvidia-configuration-modprobe config)
                       "/bin/nvidia-modprobe"))))
+
+(define (nvidia-shepherd-service config)
+  (let ((nvidia-driver (nvidia-configuration-driver config))
+        (nvidia-modprobe (file-append (nvidia-configuration-modprobe config)
+                                      "/bin/nvidia-modprobe")))
+    (list
+     (shepherd-service
+      (documentation "Prepare system environment for NVIDIA driver.")
+      (provision '(nvidia))
+      (requirement '(udev))
+      (modules '(((guix build utils) #:select (invoke/quiet))
+                 ((rnrs io ports) #:select (get-line))))
+      (start
+       #~(lambda _
+           (let ((modprobe
+                  (call-with-input-file "/proc/sys/kernel/modprobe"
+                    get-line))
+                 (nvidia-smi
+                  (string-append #$nvidia-driver "/bin/nvidia-smi")))
+             ;; Make DRM/KMS and UVM available before display managers start,
+             ;; and create device nodes in case the udev path did not run.
+             (false-if-exception
+              (invoke/quiet modprobe "--" "nvidia_drm"))
+             (false-if-exception
+              (invoke/quiet modprobe "--" "nvidia_uvm"))
+             (false-if-exception
+              (invoke/quiet #$nvidia-modprobe "-c0" "-u"))
+             (false-if-exception
+              (invoke/quiet nvidia-smi)))))
+      (stop #~(const #f))))))
 
 ;; Create path hard-coded by some NVIDIA userspace components.
 (define (nvidia-special-files _)
@@ -95,7 +126,10 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
 
 (define nvidia-service-type
   (service-type (name 'nvidia)
-                (extensions (list (service-extension profile-service-type
+                (extensions (list (service-extension
+                                   shepherd-root-service-type
+                                   nvidia-shepherd-service)
+                                  (service-extension profile-service-type
                                                      nvidia-profile)
                                   (service-extension
                                    privileged-program-service-type
@@ -111,6 +145,10 @@ ACTION==\"unbind\", SUBSYSTEM==\"pci\", ATTR{vendor}==\"0x10de\", ATTR{class}==\
                                                      nvidia-modprobe-configuration)
                                   (service-extension
                                    linux-loadable-module-service-type
-                                   (compose list nvidia-configuration-module))))
+                                   (compose list nvidia-configuration-module))
+                                  ;; Start before display managers and other
+                                  ;; user processes touch the graphics stack.
+                                  (service-extension user-processes-service-type
+                                                     (const '(nvidia)))))
                 (default-value (nvidia-configuration))
                 (description "Prepare system environment for NVIDIA driver.")))
