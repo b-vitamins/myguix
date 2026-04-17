@@ -862,6 +862,10 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define %nvidia-module-open-ibt-patches
   (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"))
 
+(define %nvidia-module-open-590-patches
+  (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"
+                        "nvidia-module-open-fix-linux-6.19.patch"))
+
 (define (nvidia-module-open-arguments patches)
   (substitute-keyword-arguments (package-arguments nvidia-module-580)
     ((#:source-directory _)
@@ -918,7 +922,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (version (package-version nvidia-driver-590))
     (source (package-source nvidia-driver-590))
     (arguments
-     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))))
+     (nvidia-module-open-arguments %nvidia-module-open-590-patches))))
 
 (define-public nvidia-module-open nvidia-module-open-580)
 
