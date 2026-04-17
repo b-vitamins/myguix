@@ -1058,7 +1058,7 @@ configuration, creating application profiles, gpu monitoring and more.")
 (define-public mesa-for-nvda
   (hidden-package (package
                     (inherit mesa)
-                    (propagated-inputs (modify-inputs propagated-inputs
+                    (propagated-inputs (modify-inputs (package-propagated-inputs mesa)
                                          (prepend libglvnd-for-nvda)))
                     (arguments
                      (substitute-keyword-arguments arguments
