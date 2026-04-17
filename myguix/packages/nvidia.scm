@@ -559,19 +559,25 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
                           (find-files #$output)))))
           (add-before 'patch-elf 'install-commands
             (lambda _
-              (when (string-match "x86_64-linux"
-                                  (or #$(%current-target-system)
-                                      #$(%current-system)))
-                (for-each (lambda (binary)
-                            (let ((bindir (string-append #$output "/bin"))
-                                  (manual (string-append binary ".1.gz"))
-                                  (mandir (string-append #$output
-                                                         "/share/man/man1")))
-                              (install-file binary bindir)
-                              (when (file-exists? manual)
-                                (install-file manual mandir))))
-                          '("nvidia-cuda-mps-control" "nvidia-cuda-mps-server"
-                            "nvidia-pcc" "nvidia-smi")))))
+              (let ((binaries (append '("nvidia-cuda-mps-control"
+                                        "nvidia-cuda-mps-server"
+                                        "nvidia-pcc"
+                                        "nvidia-smi")
+                                      (if #$(target-64bit?)
+                                          '("nvidia-powerd")
+                                          '()))))
+                (when (string-match "x86_64-linux"
+                                    (or #$(%current-target-system)
+                                        #$(%current-system)))
+                  (for-each (lambda (binary)
+                              (let ((bindir (string-append #$output "/bin"))
+                                    (manual (string-append binary ".1.gz"))
+                                    (mandir (string-append #$output
+                                                           "/share/man/man1")))
+                                (install-file binary bindir)
+                                (when (file-exists? manual)
+                                  (install-file manual mandir))))
+                            binaries)))))
           (add-before 'patch-elf 'relocate-libraries
             (lambda _
               (let* ((version #$(package-version this-package))
