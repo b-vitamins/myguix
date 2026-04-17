@@ -19,32 +19,17 @@
 ;;;
 ;;; Code:
 
-(define %myguix-root-directory
-  ;; This is like %distro-root-directory from (gnu packages), with adjusted
-  ;; paths.
-  (letrec-syntax ((dirname* (syntax-rules ()
-                                          ((_ file)
-                                           (dirname file))
-                                          ((_ file head tail ...)
-                                           (dirname (dirname* file tail ...)))))
-                  (try (syntax-rules ()
-                                     ((_ (file things ...) rest ...)
-                                      (match (search-path %load-path file)
-                                        (#f (try rest ...))
-                                        (absolute (dirname* absolute things
-                                                            ...))))
-                                     ((_)
-                                      #f))))
-                 (try ("myguix/packages/firmware.scm" myguix/ packages/)
-                      ("myguix/ci.scm" myguix/))))
-
 (define %patch-path
-  ;; Define it after '%package-module-path' so that '%load-path' contains user
-  ;; directories, allowing patches in $GUIX_PACKAGE_PATH to be found.
+  ;; Search patches relative to every load path entry, mirroring the ad hoc
+  ;; patch lookup used in other myguix package modules.  Canonicalize entries
+  ;; so callers such as 'local-file' never end up with paths relative to the
+  ;; current working directory.
   (make-parameter (map (lambda (directory)
-                         (if (string=? directory %myguix-root-directory)
-                             (string-append directory "/myguix/patches")
-                             directory)) %load-path)))
+                         (string-append (if (absolute-file-name? directory)
+                                            directory
+                                            (canonicalize-path directory))
+                                        "/myguix/patches"))
+                       %load-path)))
 
 ;;; XXX: The following must be redefined to make use of the overridden
 ;;; %patch-path parameter above.
