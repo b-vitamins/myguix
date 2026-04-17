@@ -541,6 +541,7 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
                                                        "libXext.so.6"
                                                        "libcrypto.so.1.1"
                                                        "libcrypto.so.3"
+                                                       "libdbus-1.so.3"
                                                        "libdrm.so.2"
                                                        "libgbm.so.1"
                                                        "libgcc_s.so.1"
@@ -557,6 +558,13 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
                             (when (elf-file? file)
                               (patch-elf file)))
                           (find-files #$output)))))
+          (add-after 'patch-elf 'wrap-program-580
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let* ((lscpu (search-input-file inputs "bin/lscpu"))
+                     (nvidia-powerd (string-append #$output "/bin/nvidia-powerd")))
+                (when (file-exists? nvidia-powerd)
+                  (wrap-program nvidia-powerd
+                    `("PATH" = (,(dirname lscpu))))))))
           (add-before 'patch-elf 'install-commands
             (lambda _
               (let ((binaries (append '("nvidia-cuda-mps-control"
@@ -644,7 +652,9 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
             (variable "LD_LIBRARY_PATH")
             (files '("lib")))))
     (native-inputs (list patchelf-0.16))
-    (inputs (list egl-gbm
+    (inputs (list bash-minimal
+                  dbus
+                  egl-gbm
                   egl-wayland
                   egl-x11
                   `(,gcc "lib")
@@ -652,6 +662,7 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
                   mesa-for-nvda
                   openssl
                   openssl-1.1
+                  util-linux
                   wayland))
     (home-page "https://www.nvidia.com")
     (synopsis "Proprietary NVIDIA driver (libraries)")
