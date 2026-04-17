@@ -9,6 +9,7 @@
   #:use-module (gnu packages linux)
   #:use-module (gnu services)
   #:use-module (gnu services base)
+  #:use-module (gnu services dbus)
   #:use-module (gnu services linux)
   #:use-module (gnu services shepherd)
   #:use-module (myguix packages nvidia)
@@ -25,6 +26,8 @@
             (default nvidia-firmware)) ;file-like
   (module nvidia-configuration-module
           (default nvidia-module)) ;file-like
+  (powerd nvidia-configuration-powerd
+          (default #t)) ;boolean
   (non-admin-profiling? nvidia-configuration-non-admin-profiling?
                         (default #t)))
 
@@ -38,37 +41,48 @@
 
 (define (nvidia-shepherd-service config)
   (let* ((nvidia-driver (nvidia-configuration-driver config))
-         (nvidia-smi (file-append nvidia-driver "/bin/nvidia-smi")))
-    (list (shepherd-service (documentation
-                             "Prepare system environment for NVIDIA driver.")
-                            (provision '(nvidia))
-                            (requirement '(udev))
-                            (modules '(((guix build utils)
-                                        #:select (invoke/quiet))
-                                       ((rnrs io ports)
-                                        #:select (get-line))))
-                            (start #~(lambda _
-                                       (let ((modprobe
-                                              (call-with-input-file
-                                                  "/proc/sys/kernel/modprobe"
-                                                get-line)))
-                                         ;; Ensure the NVIDIA DRM/KMS module is
-                                         ;; available before display managers
-                                         ;; (e.g. GDM) start, so monitors
-                                         ;; connected to the dGPU remain active.
-                                         (false-if-exception
-                                          (invoke/quiet modprobe "--"
-                                                        "nvidia_drm"))
+         (nvidia-smi (file-append nvidia-driver "/bin/nvidia-smi"))
+         (nvidia-powerd (file-append nvidia-driver "/bin/nvidia-powerd")))
+    (append
+     (list
+      (shepherd-service
+       (documentation "Prepare system environment for NVIDIA driver.")
+       (provision '(nvidia))
+       (requirement '(udev))
+       (modules '(((guix build utils)
+                   #:select (invoke/quiet))
+                  ((rnrs io ports)
+                   #:select (get-line))))
+       (start #~(lambda _
+                  (let ((modprobe
+                         (call-with-input-file
+                             "/proc/sys/kernel/modprobe"
+                           get-line)))
+                    ;; Ensure the NVIDIA DRM/KMS module is available before
+                    ;; display managers (e.g. GDM) start, so monitors
+                    ;; connected to the dGPU remain active.
+                    (false-if-exception
+                     (invoke/quiet modprobe "--" "nvidia_drm"))
 
-                                         ;; Load UVM for CUDA userspace; ignore
-                                         ;; errors on systems without it.
-                                         (false-if-exception
-                                          (invoke/quiet modprobe "--"
-                                                        "nvidia_uvm"))
+                    ;; Load UVM for CUDA userspace; ignore errors on systems
+                    ;; without it.
+                    (false-if-exception
+                     (invoke/quiet modprobe "--" "nvidia_uvm"))
 
-                                         (false-if-exception
-                                          (invoke/quiet #$nvidia-smi)))))
-                            (stop #~(const #f))))))
+                    (false-if-exception
+                     (invoke/quiet #$nvidia-smi)))))
+       (stop #~(const #f))))
+     (if (nvidia-configuration-powerd config)
+         (list
+          (shepherd-service
+           (documentation "NVIDIA Dynamic Boost support.")
+           (provision '(nvidia-powerd))
+           (requirement '(user-processes))
+           (start
+            #~(make-forkexec-constructor
+               (list #$nvidia-powerd)))
+           (stop #~(make-kill-destructor))))
+         '()))))
 
 (define nvidia-service-type
   (service-type (name 'nvidia)
@@ -76,6 +90,9 @@
                                    shepherd-root-service-type
                                    nvidia-shepherd-service)
                                   (service-extension profile-service-type
+                                                     (compose list
+                                                      nvidia-configuration-driver))
+                                  (service-extension dbus-root-service-type
                                                      (compose list
                                                       nvidia-configuration-driver))
                                   (service-extension udev-service-type
