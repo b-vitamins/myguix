@@ -1485,7 +1485,8 @@ NVIDIA.")
                                 (copy-recursively sub-directory target)))
                             '("bin" "targets/x86_64-linux/lib"
                               "targets/x86_64-linux/include" "nvvm/bin"
-                              "nvvm/include" "nvvm/lib64")))
+                              "nvvm/include" "nvvm/lib64"
+                              "compute-sanitizer")))
 
                 (setenv "COLUMNS" "200")
                 (with-directory-excursion "builds"
@@ -1569,7 +1570,11 @@ NVIDIA.")
                                   "nsys-ui")
                       (maybe-link (string-append prefix
                                                  "/target-linux-x64/nsys")
-                                  "nsight-sys"))))
+                                  "nsight-sys")))
+                  (maybe-link (string-append #$output
+                                             "/compute-sanitizer/"
+                                             "compute-sanitizer")
+                              "compute-sanitizer"))
                 (let ((applications (string-append #$output
                                                    "/share/applications"))
                       (icons (string-append #$output
