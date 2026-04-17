@@ -78,6 +78,8 @@
            (documentation "NVIDIA Dynamic Boost support.")
            (provision '(nvidia-powerd))
            (requirement '(user-processes))
+           ;; Unsupported platforms fail immediately; retrying is pointless.
+           (respawn? #f)
            (start
             #~(make-forkexec-constructor
                (list #$nvidia-powerd)))
