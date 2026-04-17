@@ -1,0 +1,25 @@
+From ca238f1f305d5db05a3bde44ae275965765b2ab9 Mon Sep 17 00:00:00 2001
+From: Peter Jung <admin@ptr1337.dev>
+Date: Fri, 18 Oct 2024 22:40:58 +0200
+Subject: [PATCH] Add IBT support
+
+Source: https://github.com/CachyOS/kernel-patches/blob/master/6.18/misc/nvidia/0002-Add-IBT-support.patch
+Adapted for the NVIDIA .run source layout used by myguix.
+---
+ kernel-open/nvidia-modeset/nvidia-modeset.Kbuild | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/kernel-open/nvidia-modeset/nvidia-modeset.Kbuild b/kernel-open/nvidia-modeset/nvidia-modeset.Kbuild
+--- a/kernel-open/nvidia-modeset/nvidia-modeset.Kbuild
++++ b/kernel-open/nvidia-modeset/nvidia-modeset.Kbuild
+@@ -55,6 +55,10 @@
+ NVIDIA_MODESET_CFLAGS += -I$(src)/nvidia-modeset -I$(src)/common/inc
+ NVIDIA_MODESET_CFLAGS += -UDEBUG -U_DEBUG -DNDEBUG -DNV_BUILD_MODULE_INSTANCES=0
+ 
++ifeq ($(ARCH),x86_64)
++  NVIDIA_MODESET_CFLAGS += $(call cc-option,-mharden-sls=all,)
++endif
++
+ # Some Android kernels prohibit driver use of filesystem functions like
+ # filp_open() and kernel_read().  Disable the NVKMS_CONFIG_FILE_SUPPORTED
+ # functionality that uses those functions when building for Android.

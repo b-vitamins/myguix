@@ -72,6 +72,7 @@
                 #:prefix license-gnu:)
   #:use-module ((myguix licenses)
                 #:prefix license:)
+  #:use-module (myguix packages)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix utils)
@@ -853,23 +854,42 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 
 (define-public nvidia-module nvidia-module-580)
 
+(define-syntax-rule (myguix-local-patches file-name ...)
+  (list (local-file (car (myguix-patches file-name))
+                    file-name)
+        ...))
+
+(define %nvidia-module-open-ibt-patches
+  (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"))
+
+(define (nvidia-module-open-arguments patches)
+  (substitute-keyword-arguments (package-arguments nvidia-module-580)
+    ((#:source-directory _)
+     "kernel-open")
+    ((#:phases phases)
+     #~(modify-phases #$phases
+         (add-after 'unpack 'apply-open-module-patches
+           (lambda _
+             (for-each
+              (lambda (patch)
+                (invoke "patch" "--force" "--no-backup-if-mismatch" "-p1"
+                        "--input" patch))
+              (list #$@patches))))))))
+
 (define-public nvidia-module-open-580
-  (let ((base nvidia-module-580))
-    (package
-      (inherit base)
-      (name "nvidia-module-open")
-      (arguments
-       (substitute-keyword-arguments arguments
-         ;; NOTE: Kernels compiled with CONFIG_LTO_CLANG_THIN would cause an
-         ;; error here.  See also:
-         ;; <https://github.com/NVIDIA/open-gpu-kernel-modules/issues/214>
-         ;; <https://github.com/llvm/llvm-project/issues/55820>
-         ((#:source-directory _)
-          "kernel-open")))
-      (home-page "https://github.com/NVIDIA/open-gpu-kernel-modules")
-      (synopsis "Open source NVIDIA kernel modules")
-      (description
-       "This package provides open source NVIDIA kernel modules, however
+  (package
+    (inherit nvidia-module-580)
+    (name "nvidia-module-open")
+    (arguments
+     ;; NOTE: Kernels compiled with CONFIG_LTO_CLANG_THIN would cause an
+     ;; error here.  See also:
+     ;; <https://github.com/NVIDIA/open-gpu-kernel-modules/issues/214>
+     ;; <https://github.com/llvm/llvm-project/issues/55820>
+     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))
+    (home-page "https://github.com/NVIDIA/open-gpu-kernel-modules")
+    (synopsis "Open source NVIDIA kernel modules")
+    (description
+     "This package provides open source NVIDIA kernel modules, however
 proprietary firmware and libraries are still necessary, and these modules
 require GPU System Processor to be present (Turing or later architectures) and
 enabled (see also the description of @code{nvidia-firmware} package).
@@ -881,22 +901,24 @@ actually use these modules, also add @code{modprobe.blacklist=nouveau} to
 
 If the NVIDIA card is not used for displaying, or on a Wayland environment,
 add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
-      (license license-gnu:gpl2))))
+    (license license-gnu:gpl2)))
 
 (define-public nvidia-module-open-beta
   (package
     (inherit nvidia-module-open-580)
     (name "nvidia-module-open-beta")
     (version (package-version nvidia-driver-beta))
-    (source
-     (package-source nvidia-driver-beta))))
+    (source (package-source nvidia-driver-beta))
+    (arguments
+     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))))
 
 (define-public nvidia-module-open-590
   (package
     (inherit nvidia-module-open-580)
     (version (package-version nvidia-driver-590))
-    (source
-     (package-source nvidia-driver-590))))
+    (source (package-source nvidia-driver-590))
+    (arguments
+     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))))
 
 (define-public nvidia-module-open nvidia-module-open-580)
 
