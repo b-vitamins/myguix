@@ -5401,6 +5401,7 @@
                                rust-thiserror-impl-2.0.18
                                rust-unicode-ident-1.0.24
                                rust-unicode-xid-0.2.6
+                               rust-urlencoding-2.1.3
                                rust-utf8parse-0.2.2
                                rust-uuid-1.22.0
                                rust-vcpkg-0.2.15
