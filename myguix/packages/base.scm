@@ -224,6 +224,7 @@
         zoxide
         jq
         yq
+        rsync
         du-dust))
 
 (define %shell-zsh
