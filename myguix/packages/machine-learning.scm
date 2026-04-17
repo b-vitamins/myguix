@@ -3935,7 +3935,7 @@ features.")
               (setenv "GOTOOLCHAIN" "local")
               (setenv "GOFLAGS" "-buildvcs=false"))))))
     ;; build-time tools only
-    (native-inputs (list go-1.23 python-hatchling python-typing-extensions))
+    (native-inputs (list go python-hatchling python-typing-extensions))
     ;; runtime Python deps
     (propagated-inputs (list python-click
                              python-docker-pycreds
