@@ -82,6 +82,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix build-system bazel)
+  #:use-module (myguix packages)
   #:use-module (myguix packages compression)
   #:use-module (myguix packages llm)
   #:use-module (myguix packages llvm-pqrs)
@@ -3157,8 +3158,8 @@ designed for flexibility.")
          (file-name (git-file-name name version))
          (sha256
           (base32 "0xsp2m2if3g85l0c3cx9l0j3kz36j3kbmz9mai6kchdhrs13r7d5"))
-         (patches (search-patches
-                   "myguix/patches/gloo-cuda-cpp-standard.patch"))))
+         (patches (myguix-patches
+                   "gloo-cuda-cpp-standard.patch"))))
       (build-system cmake-build-system)
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
@@ -3715,9 +3716,9 @@ implemented for PyTorch.")
        (file-name (git-file-name name version))
        (sha256
         (base32 "0fcs959s4fwnh037mqfi890fll3i352az0kwqzkv8mwlxs8kvjzg"))
-       (patches (search-patches
-                 "myguix/patches/triton-link-llvm-dynamically.patch"
-                 "myguix/patches/triton-fix-ldconfig-path.patch"))))
+       (patches (myguix-patches
+                 "triton-link-llvm-dynamically.patch"
+                 "triton-fix-ldconfig-path.patch"))))
     (build-system cmake-build-system)
     (arguments
      (list
@@ -4697,8 +4698,8 @@ GPU support and memory-efficient adjoint backpropagation.")
        (file-name (git-file-name name version))
        (sha256
         (base32 "1ahjk9kk3kw525wr056rgfz1wjr436lksgqap30a1d8p71061sx9"))
-       (patches (search-patches
-                 "myguix/patches/mujoco-skip-tmd-header-rewrite.patch"))))
+       (patches (myguix-patches
+                 "mujoco-skip-tmd-header-rewrite.patch"))))
     (build-system cmake-build-system)
     (arguments
      (list
