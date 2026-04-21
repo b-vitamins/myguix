@@ -218,7 +218,6 @@
         emacs-sly-quicklisp
         emacs-sly-repl-ansi-color
         emacs-smartparens
-        emacs-telega
         emacs-tempel
         emacs-toml-mode
         emacs-treemacs
