@@ -27,7 +27,7 @@
   (module nvidia-configuration-module
           (default nvidia-module)) ;file-like
   (powerd nvidia-configuration-powerd
-          (default #t)) ;boolean
+          (default #f)) ;boolean
   (non-admin-profiling? nvidia-configuration-non-admin-profiling?
                         (default #t)))
 
