@@ -689,7 +689,7 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))
     (arguments
-     (substitute-keyword-arguments arguments
+     (substitute-keyword-arguments (package-arguments nvidia-driver-580)
        ((#:phases phases)
         #~(modify-phases #$phases
             (add-after 'create-misc-files 'create-misc-files-590
@@ -703,7 +703,7 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
                       (in-vicinity #$output dir)))
                    '("09_nvidia_wayland2.json")))))))))
     (inputs
-     (modify-inputs inputs
+     (modify-inputs (package-inputs nvidia-driver-580)
        (prepend egl-wayland2)))))
 
 (define-public nvidia-driver-beta
@@ -1045,7 +1045,7 @@ configuration, creating application profiles, gpu monitoring and more.")
   (hidden-package (package
                     (inherit libglvnd)
                     (arguments
-                     (substitute-keyword-arguments arguments
+                     (substitute-keyword-arguments (package-arguments libglvnd)
                        ((#:configure-flags flags
                          #~'())
                         #~(cons* "-Dc_link_args=-Wl,-rpath=$ORIGIN"
@@ -1061,7 +1061,7 @@ configuration, creating application profiles, gpu monitoring and more.")
                     (propagated-inputs (modify-inputs (package-propagated-inputs mesa)
                                          (prepend libglvnd-for-nvda)))
                     (arguments
-                     (substitute-keyword-arguments arguments
+                     (substitute-keyword-arguments (package-arguments mesa)
                        ((#:configure-flags flags
                          #~'())
                         #~(cons* "-Dglvnd=true"
