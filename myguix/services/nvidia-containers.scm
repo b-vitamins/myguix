@@ -98,11 +98,31 @@
      "[nvidia-ctk]\n"
      "path = \"/usr/bin/nvidia-ctk\"\n")))
 
-(define (nvidia-container-toolkit-etc-files config)
-  (list `("docker/daemon.json"
-          ,(nvidia-container-toolkit-docker-config-file config))
-        `("nvidia-container-runtime/config.toml"
-          ,(nvidia-container-toolkit-runtime-config-file config))))
+(define (nvidia-container-toolkit-activation config)
+  (let ((docker-config
+         (nvidia-container-toolkit-docker-config-file config))
+        (runtime-config
+         (nvidia-container-toolkit-runtime-config-file config)))
+    #~(begin
+        (use-modules (guix build utils))
+
+        (define (install-managed-file directory target source)
+          (mkdir-p directory)
+          (when (file-exists? target)
+            (if (directory? target)
+                (error "refusing to overwrite directory" target)
+                (delete-file target)))
+          (copy-file source target)
+          (chmod target #o644))
+
+        ;; Preserve existing directories such as /etc/docker, which may
+        ;; contain Docker-managed state like key.json.
+        (install-managed-file "/etc/docker"
+                              "/etc/docker/daemon.json"
+                              #$docker-config)
+        (install-managed-file "/etc/nvidia-container-runtime"
+                              "/etc/nvidia-container-runtime/config.toml"
+                              #$runtime-config))))
 
 (define nvidia-container-toolkit-service-type
   (service-type
@@ -112,8 +132,8 @@
                              nvidia-container-toolkit-profile)
           (service-extension special-files-service-type
                              nvidia-container-toolkit-special-files)
-          (service-extension etc-service-type
-                             nvidia-container-toolkit-etc-files)))
+          (service-extension activation-service-type
+                             nvidia-container-toolkit-activation)))
    (default-value (nvidia-container-toolkit-configuration))
    (description
     "Install and configure the NVIDIA container toolkit for Docker-based
