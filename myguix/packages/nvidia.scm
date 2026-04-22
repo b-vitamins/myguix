@@ -802,6 +802,14 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
           (replace 'unpack
             (lambda* (#:key source #:allow-other-keys)
               (invoke "tar" "xvf" source)))
+          (add-after 'unpack 'apply-module-patches
+            (lambda _
+              (when (string=? #$(package-version this-package) "580.142")
+                (for-each
+                 (lambda (patch)
+                   (invoke "patch" "--force" "--no-backup-if-mismatch" "-p1"
+                           "--input" patch))
+                 (list #$@%nvidia-module-580-patches)))))
           (delete 'strip)
           (add-before 'configure 'fixpath
             (lambda* (#:key (source-directory ".") #:allow-other-keys)
@@ -859,6 +867,9 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
                     file-name)
         ...))
 
+(define %nvidia-module-580-patches
+  (myguix-local-patches "nvidia-module-580-revert-drm-fb-regression.patch"))
+
 (define %nvidia-module-open-ibt-patches
   (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"))
 
@@ -872,7 +883,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
      "kernel-open")
     ((#:phases phases)
      #~(modify-phases #$phases
-         (add-after 'unpack 'apply-open-module-patches
+         (add-after 'apply-module-patches 'apply-open-module-patches
            (lambda _
              (for-each
               (lambda (patch)
