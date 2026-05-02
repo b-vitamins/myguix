@@ -8,6 +8,7 @@
   #:use-module (gnu packages compression)
   #:use-module (guix deprecation)
   #:use-module (guix download)
+  #:use-module (guix git-download)
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix build-system font)
@@ -302,3 +303,34 @@ automatically align with text labels."))
     (description "An Apple system font intended to provide coverage for
 characters defined as symbols in the Unicode Standard.")
     (license (nonfree "https://www.apple.com"))))
+
+(define-public font-ubuntu-sans
+  (package
+    (name "font-ubuntu-sans")
+    (version "1.006")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/canonical/Ubuntu-Sans-fonts")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "05xf44dxyb56kq0hvfg1yv2sgy1ijiaakqg6zvvlc9d0ld0wvw1y"))))
+    (build-system font-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'enter-font-directory
+            (lambda _
+              (chdir "fonts"))))))
+    (outputs '("out" "woff" "otf"))
+    (home-page "https://github.com/canonical/Ubuntu-Sans-fonts")
+    (synopsis "Ubuntu Sans font family")
+    (description
+     "Ubuntu Sans is a contemporary sans-serif typeface designed by Canonical,
+the makers of Ubuntu.  It is part of the expanded Ubuntu font family and
+offers a clean, reliable, and free typographic voice for the operating
+system and its community.")
+    (license (nonfree "https://ubuntu.com/legal/font-licence"))))
