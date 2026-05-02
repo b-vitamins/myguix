@@ -706,9 +706,24 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
      (modify-inputs (package-inputs nvidia-driver-580)
        (prepend egl-wayland2)))))
 
-(define-public nvidia-driver-beta
+(define-public nvidia-driver-595
   (package
     (inherit nvidia-driver-590)
+    (name "nvidia-driver")
+    (version "595.71.05")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
+             version "/NVIDIA-Linux-x86_64-" version ".run"))
+       (file-name (string-append "NVIDIA-Linux-x86_64-" version))
+       (sha256 (base32 "10kbdy2ds1mgk2vj8arxx42lmqydcdc1zfpn8a59rr5pc24kn81n"))
+       (modules '((guix build utils)))
+       (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))))
+
+(define-public nvidia-driver-beta
+  (package
+    (inherit nvidia-driver-595)
     (name "nvidia-driver-beta")
     (version "595.45.04")
     (source
@@ -766,6 +781,13 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
     (version (package-version nvidia-driver-590))
     (source
      (package-source nvidia-driver-590))))
+
+(define-public nvidia-firmware-595
+  (package
+    (inherit nvidia-firmware-580)
+    (version (package-version nvidia-driver-595))
+    (source
+     (package-source nvidia-driver-595))))
 
 (define-public nvidia-firmware-beta
   (package
@@ -852,6 +874,13 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (source
      (package-source nvidia-driver-590))))
 
+(define-public nvidia-module-595
+  (package
+    (inherit nvidia-module-580)
+    (version (package-version nvidia-driver-595))
+    (source
+     (package-source nvidia-driver-595))))
+
 (define-public nvidia-module-beta
   (package
     (inherit nvidia-module-580)
@@ -936,6 +965,24 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (source (package-source nvidia-driver-590))
     (arguments
      (nvidia-module-open-arguments %nvidia-module-open-590-patches))))
+
+(define-public nvidia-module-open-595
+  (package
+    (inherit nvidia-module-open-580)
+    (version "595.71.05")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/open-gpu-kernel-modules")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32
+         "0k6c2rqjyr0dbrjp9l1pi3zbnj55jrjdp09xiizsqcwa0pazpz1d"))
+       (patches %nvidia-module-open-ibt-patches)))
+    (arguments
+     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))))
 
 (define-public nvidia-module-open nvidia-module-open-580)
 
@@ -1030,6 +1077,22 @@ configuration, creating application profiles, gpu monitoring and more.")
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
        (sha256 (base32 "0h9059gkibyiidg5s9cakbg369y9nwfd17vycpsqfswgr18jlsrm"))))))
+
+(define-public nvidia-settings-595
+  (package
+    (inherit nvidia-settings-580)
+    (name "nvidia-settings")
+    (version "595.71.05")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-settings")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (modules '((guix build utils)))
+       (snippet '(delete-file-recursively "src/jansson"))
+       (sha256 (base32 "198hgpizzc0qzmbzfvyhh6nz86xggfp7gjp7vk0pgkmg7kgdyycr"))))))
 
 (define-public nvidia-settings-beta
   (package
@@ -1199,6 +1262,9 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 
 (define-public nvda-590
   (make-nvda nvidia-driver-590))
+
+(define-public nvda-595
+  (make-nvda nvidia-driver-595))
 
 (define-public nvdb
   (make-nvda nvidia-driver-beta
@@ -3181,6 +3247,21 @@ See also
        (file-name (git-file-name name version))
        (sha256
         (base32 "1y6kqhvjfpq0zssjsbkwkav2khsb7x63nxgd1lnvrkg660a7knjn"))))))
+
+(define-public nvidia-modprobe-595
+  (package
+    (inherit nvidia-modprobe-580)
+    (name "nvidia-modprobe")
+    (version "595.71.05")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-modprobe")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0sr54fzjgjv6n46g53ggs19ri6v9hd723ks8vlhs24k48sfsymax"))))))
 
 (define-public nvidia-modprobe-beta
   (package
