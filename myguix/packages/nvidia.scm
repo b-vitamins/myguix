@@ -416,14 +416,14 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
 (define-public nvidia-driver-580
   (package
     (name "nvidia-driver")
-    (version "580.142")
+    (version "580.159.03")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "0qvm8hh3d90i3674dqlj1lam6m189ah60fzr1iaw72gy7z7mz490"))
+       (sha256 (base32 "0xzshdvw0d84zp2zpi0ms2405z88sbd9vcv13x8cjh7nn2cmvj1j"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-580))))
     (build-system copy-build-system)
@@ -804,7 +804,7 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
               (invoke "tar" "xvf" source)))
           (add-after 'unpack 'apply-module-patches
             (lambda _
-              (when (string=? #$(package-version this-package) "580.142")
+              (when (string=? #$(package-version this-package) "580.159.03")
                 (for-each
                  (lambda (patch)
                    (invoke "patch" "--force" "--no-backup-if-mismatch" "-p1"
@@ -947,7 +947,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define-public nvidia-settings-580
   (package
     (name "nvidia-settings")
-    (version "580.142")
+    (version "580.159.03")
     (source
      (origin
        (method git-fetch)
@@ -957,7 +957,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "00sdrka3mslqgyhpnxyr6165nbrrfqdp1shgmbgp9ga07sbchyh6"))))
+       (sha256 (base32 "1l2zvhjn2sz8h7nqlrg254irvqg3cq9pb4vr4j7g6m4lpgrwkzch"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -3116,7 +3116,7 @@ See also
 (define-public nvidia-modprobe-580
   (package
     (name "nvidia-modprobe")
-    (version "580.142")
+    (version "580.159.03")
     (source
      (origin
        (method git-fetch)
@@ -3125,7 +3125,7 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1rbl52d40q86y9dbj5qlm5k3rindg5fqh121wxfzrc68fl3gjila"))))
+        (base32 "1g4pc51xq5pzifvzdf9gzd0dndyjbdxdblh0rjrgg8w3c16n7p4y"))))
     (build-system gnu-build-system)
     (arguments
      (list
