@@ -345,6 +345,17 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                                                 output
                                                                 "/share/antigravity")))
                                                  ":") server)) servers) #t)))
+          (add-after 'patch-language-server 'patch-workbench-folder-picker
+            (lambda _
+              ;; The welcome screen's Open Folder action routes through the
+              ;; workbench file-dialog service and can stall on Linux when it
+              ;; tries to use the native picker path.  Force the simplified
+              ;; in-app picker instead.
+              (substitute*
+                  "share/antigravity/resources/app/out/vs/workbench/workbench.desktop.main.js"
+                (("this\\.g\\.getValue\\(\"files\\.simpleDialog\\.enable\"\\)===!0")
+                 "!0"))
+              #t))
           (add-before 'install-wrapper 'install-entrypoint
             (lambda _
               (let* ((bin (string-append #$output "/bin"))
