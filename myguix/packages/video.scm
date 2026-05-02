@@ -86,89 +86,13 @@
     (license license:asl2.0)))
 
 (define-public nv-codec-headers
-  (package
-    (name "nv-codec-headers")
-    (version "13.0.19.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/FFmpeg/nv-codec-headers")
-             (commit (string-append "n" version))))
-       (sha256
-        (base32 "01p6bjbgm6hfc1snf0hw63b7f7hif40v7bb1xn84ic3cww2m2fcw"))))
-    (build-system gnu-build-system)
-    (arguments
-     `(#:make-flags (list "PREFIX=" "LIBDIR=lib")
-       #:phases (modify-phases %standard-phases
-                  (delete 'configure)
-                  (replace 'install
-                    (lambda* (#:key make-flags outputs #:allow-other-keys)
-                      (let ((out (assoc-ref outputs "out")))
-                        (apply invoke "make" "install"
-                               (string-append "DESTDIR=" out) make-flags))))
-                  (delete 'check))))
-    (native-inputs (list pkg-config))
-    (home-page "https://github.com/FFmpeg/nv-codec-headers")
-    (synopsis
-     "FFmpeg version of headers required to interface with NVIDIA codec APIs")
-    (description
-     "NV Codec headers are required for FFmpeg and other multimedia frameworks to interface with NVIDIA's hardware-accelerated video encoding and decoding.")
-    (license license:expat)))
-
-(define* (make-ffmpeg-nvidia ffmpeg-package
-                             #:key
-                             (name "ffmpeg-nvidia"))
-  (package/inherit ffmpeg-package
-    (name name)
-    (inputs
-     (modify-inputs (package-inputs ffmpeg-package)
-       (prepend nv-codec-headers)))
-    (arguments
-     (substitute-keyword-arguments (package-arguments ffmpeg-package)
-       ((#:configure-flags flags)
-        ;; All the codecs from the original plus NVENC support.
-        #~(append #$flags
-                  (list "--enable-nonfree"
-                        "--enable-nvdec"
-                        "--enable-nvenc"
-                        "--enable-cuvid"
-                        "--enable-ffnvcodec"
-                        "--enable-encoder=hevc_nvenc"
-                        "--enable-encoder=h264_nvenc"
-                        "--enable-decoder=hevc_cuvid"
-                        "--enable-decoder=h264_cuvid"
-                        "--enable-decoder=mjpeg_cuvid"
-                        "--enable-decoder=mpeg1_cuvid"
-                        "--enable-decoder=mpeg2_cuvid"
-                        "--enable-decoder=mpeg4_cuvid"
-                        "--enable-decoder=vc1_cuvid"
-                        "--enable-decoder=vp8_cuvid"
-                        "--enable-decoder=vp9_cuvid"
-                        "--enable-decoder=av1_cuvid"
-                        "--enable-decoder=aac"
-                        "--enable-decoder=h264"
-                        "--enable-decoder=rawvideo"
-                        "--enable-indev=lavfi"
-                        "--enable-demuxer=mov"
-                        "--enable-muxer=mp4"
-                        "--enable-filter=scale"
-                        "--enable-filter=testsrc2"
-                        "--enable-protocol=file"
-                        "--enable-protocol=https")))))
-    (description
-     (string-append
-      (package-description ffmpeg-package)
-      "  This build of FFmpeg includes nonfree NVIDIA encoders and decoders for
-hardware acceleration including h264_nvenc, hevc_nvenc encoders and various
-cuvid decoders."))))
+  (@ (myguix packages nvidia) nv-codec-headers))
 
 (define-public ffmpeg-nvidia
-  (make-ffmpeg-nvidia ffmpeg))
+  (@ (myguix packages nvidia) ffmpeg-nvidia))
 
 (define-public ffmpeg-6-nvidia
-  (make-ffmpeg-nvidia ffmpeg-6
-                      #:name "ffmpeg-6-nvidia"))
+  (@ (myguix packages nvidia) ffmpeg-6-nvidia))
 
 (define-public mpv-cuda
   (package
@@ -272,44 +196,7 @@ graphics hardware.")
 video decode capabilities of supported Intel GPUs."))))
 
 (define-public nvidia-vaapi-driver
-  (package
-    (name "nvidia-vaapi-driver")
-    (version "0.0.13")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/elFarto/nvidia-vaapi-driver")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1ycrik4sdiy14miqvin5vg79776p7p2pazm0s8la4kngbgss1qr9"))))
-    (build-system meson-build-system)
-    (arguments
-     (list
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-before 'configure 'fix-install-path
-            (lambda _
-              (substitute* "meson.build"
-                (("(nvidia_install_dir = ).*" _ prefix)
-                 (format #f "~a'~a/lib/dri'" prefix
-                         #$output))))))))
-    (native-inputs (list pkg-config))
-    (inputs (list libva mesa nv-codec-headers))
-    ;; XXX Because of <https://issues.guix.gnu.org/issue/22138>, we need to add
-    ;; this to all VA-API back ends instead of once to libva.
-    (native-search-paths
-     (list (search-path-specification
-            (variable "LIBVA_DRIVERS_PATH")
-            (files '("lib/dri")))))
-    (home-page "https://github.com/elFarto/nvidia-vaapi-driver")
-    (synopsis "VA-API implemention using NVIDIA's NVDEC.")
-    (description
-     "This is an VA-API implementation that uses NVDEC as a backend,
-specifically designed to be used by Firefox for accelerated decoding of web
-content.")
-    (license license:expat)))
+  (@ (myguix packages nvidia) nvidia-vaapi-driver))
 
 (define-public python-manim
   (package
