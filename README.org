@@ -79,6 +79,24 @@ For customized ~initrd~, refer to the [[https://guix.gnu.org/manual/en/html_node
 
 NVIDIA support in myguix includes the =nvidia-service-type= system service and the =nvda= package for application setup.
 
+Available driver streams:
+
+- =nvda= tracks the 580 production branch and is the default.
+- =nvda-590= tracks the 590 new feature branch.
+- =nvda-595= tracks the 595 production branch.
+- =nvdb= tracks the beta branch.
+
+Per-driver kernel coverage in myguix follows the package definitions carried here. Hardware reports are still welcome.
+
+| Driver     | linux-7.0 | linux-6.19 | linux-6.18 | linux-6.12 | linux-6.6 | linux-6.1 |
+|------------+-----------+------------+------------+------------+-----------+-----------|
+| =nvdb=     | yes*      | yes        | yes        | yes        | yes       | yes       |
+| =nvda-595= | yes*      | yes        | yes        | yes        | yes       | yes       |
+| =nvda-590= | yes*      | yes        | yes        | yes        | yes       | yes       |
+| =nvda=     | yes*      | yes        | yes        | yes        | yes       | yes       |
+
+* =linux-7.0= is defined in this channel, but it requires a Guix base that already provides =linux-libre-7.0=.
+
 To configure your system:
 
 #+BEGIN_SRC scheme
