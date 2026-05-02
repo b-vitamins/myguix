@@ -249,21 +249,21 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public google-antigravity
   (package
     (name "google-antigravity")
-    (version "1.21.6")
+    (version "1.23.2")
     (source
      (origin
        (method url-fetch)
        (uri (let* ((system (or (%current-target-system)
                                (%current-system)))
                    (deb-version (match system
-                                  ("x86_64-linux" "1.21.6-1774402696")
-                                  ("aarch64-linux" "1.21.6-1774402728")
+                                  ("x86_64-linux" "1.23.2-1776332190")
+                                  ("aarch64-linux" "1.23.2-1776332230")
                                   (_ "unsupported")))
                    (arch+hash (match system
                                 ("x86_64-linux"
-                                 "amd64_98e03c846452e0ea2610f02177e7654c")
+                                 "amd64_d29aa2e214aa69c5a7199fce43624422")
                                 ("aarch64-linux"
-                                 "arm64_d913bda594d63ccff238497d87b35e1f")
+                                 "arm64_cdd44fd493c967bb35c13b3b2c49e726")
                                 (_ "unsupported"))))
               (string-append
                "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/"
@@ -277,9 +277,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "15q5zndw7fwbg01f90l3822fa8ns8hm6bsrfxvpdb01vdrp78dmg")
+                   "190pcfnsdzb84skjgk6357j8zrynxgsi7xyj1dj3c73r4qnz7mdx")
                   ("aarch64-linux"
-                   "1bhw1niclcp584ciaf5qqvy4iprrawyfwfmlknrq9kp4w20yam4d")
+                   "0f4xmwc3jb8hkj0f4qv64jdpg8z0lykq4lgasl54raxgbdpahyr8")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
@@ -357,10 +357,12 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display "#!/bin/sh\n")
                     (display (string-append "exec \"" target "\" \"$@\"\n"))))
                 (chmod exe #o555))))
-          (add-after 'install-wrapper 'set-playwright-nodejs-path
+          (add-after 'install-wrapper 'configure-runtime-wrapper
             (lambda _
-              (substitute* (string-append #$output "/bin/antigravity")
-                (("^exec -a")
+              (substitute* (string-append #$output "/bin/.antigravity-real")
+                ;; Avoid Electron's portal-backed folder picker, which can
+                ;; leave the welcome screen's Open Folder action inert.
+                (("^exec .*$")
                  (string-append
                   "if [ -z \"${PLAYWRIGHT_NODEJS_PATH:-}\" ] && command -v node >/dev/null 2>&1; then"
                   "\n"
@@ -368,7 +370,11 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                   "\n"
                   "fi"
                   "\n"
-                  "exec -a"))) #t)))))
+                  "exec \""
+                  #$output
+                  "/share/antigravity/bin/antigravity\""
+                  " --xdg-portal-required-version=999 \"$@\"")))
+              #t)))))
     (inputs (list node))
     (home-page "https://antigravity.google")
     (synopsis "AI-powered development environment")
