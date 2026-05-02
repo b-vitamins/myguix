@@ -871,10 +871,12 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
   (myguix-local-patches "nvidia-module-580-revert-drm-fb-regression.patch"))
 
 (define %nvidia-module-open-ibt-patches
-  (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"))
+  (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"
+                        "nvidia-module-open-bsb-dsc-fix.patch"))
 
 (define %nvidia-module-open-590-patches
   (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"
+                        "nvidia-module-open-bsb-dsc-fix.patch"
                         "nvidia-module-open-fix-linux-6.19.patch"))
 
 (define (nvidia-module-open-arguments patches)
