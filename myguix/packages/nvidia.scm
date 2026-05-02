@@ -1117,10 +1117,12 @@ configuration, creating application profiles, gpu monitoring and more.")
 
 ;; nvda is used as a name because it has the same length as mesa which is
 ;; required for grafting
-(define-public nvda
+(define* (make-nvda driver
+                    #:key
+                    (name "nvda"))
   (package
-    (name "nvda")
-    (version (string-pad-right (package-version nvidia-driver)
+    (name name)
+    (version (string-pad-right (package-version driver)
                                (string-length (package-version mesa-for-nvda))
                                #\0))
     (source
@@ -1135,7 +1137,8 @@ configuration, creating application profiles, gpu monitoring and more.")
           (union-build #$output
                        '#$(list (this-package-input "libglvnd")
                                 (this-package-input "mesa")
-                                (this-package-input "nvidia-driver")
+                                (or (this-package-input "nvidia-driver")
+                                    (this-package-input "nvidia-driver-beta"))
                                 (this-package-input "nvidia-vaapi-driver"))))))
     (native-search-paths
      (list
@@ -1183,38 +1186,29 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 @code{__NV_PRIME_RENDER_OFFLOAD=1} may be set.")
     (native-inputs '())
     (propagated-inputs (append (package-propagated-inputs mesa-for-nvda)
-                               (package-propagated-inputs nvidia-driver)))
-    (inputs (list mesa-for-nvda nvidia-driver nvidia-vaapi-driver))
+                               (package-propagated-inputs driver)))
+    (inputs (list mesa-for-nvda driver nvidia-vaapi-driver))
     (outputs '("out"))
-    (license (package-license nvidia-driver))
-    (home-page (package-home-page nvidia-driver))))
+    (license (package-license driver))
+    (home-page (package-home-page driver))))
+
+(define-public nvda
+  (make-nvda nvidia-driver))
 
 (define-public nvda-590
-  ((package-input-rewriting `((,nvidia-driver . ,nvidia-driver-590)))
-   (package
-     (inherit nvda)
-     (version (string-pad-right
-               (package-version nvidia-driver-590)
-               (string-length (package-version mesa-for-nvda))
-               #\0)))))
+  (make-nvda nvidia-driver-590))
 
 (define-public nvdb
-  ((package-input-rewriting `((,nvidia-driver . ,nvidia-driver-beta)))
-   (package
-     (inherit nvda)
-     (name "nvdb")
-     (version (string-pad-right
-               (package-version nvidia-driver-beta)
-               (string-length (package-version mesa-for-nvda))
-               #\0)))))
+  (make-nvda nvidia-driver-beta
+             #:name "nvdb"))
 
 (define* (replace-mesa obj #:key (driver nvda))
   (with-transformation
       (package-input-grafting
        `((,mesa . ,driver)
          (,nvidia-driver . ,driver)
-         (,ffmpeg . ,ffmpeg/nvidia)
-         (,ffmpeg-6 . ,ffmpeg-6/nvidia)))
+         (,ffmpeg . ,ffmpeg-nvidia)
+         (,ffmpeg-6 . ,ffmpeg-6-nvidia)))
     obj))
 
 

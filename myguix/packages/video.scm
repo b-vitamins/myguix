@@ -116,26 +116,18 @@
      "NV Codec headers are required for FFmpeg and other multimedia frameworks to interface with NVIDIA's hardware-accelerated video encoding and decoding.")
     (license license:expat)))
 
-(define-public ffmpeg-nvidia
-  (package
-    (inherit ffmpeg)
-    (name "ffmpeg-nvidia")
-    (version "6.1.2")
-    (source (origin
-              (method url-fetch)
-              (uri (string-append "https://ffmpeg.org/releases/ffmpeg-"
-                                  version ".tar.xz"))
-              (sha256
-               (base32
-                "0f2fr8ywchhlkdff88lr4d4vscqzsi1ndjh3r5jwbkayf94lcqiv"))))
+(define* (make-ffmpeg-nvidia ffmpeg-package
+                             #:key
+                             (name "ffmpeg-nvidia"))
+  (package/inherit ffmpeg-package
+    (name name)
     (inputs
-     (modify-inputs
-         (package-inputs ffmpeg)
+     (modify-inputs (package-inputs ffmpeg-package)
        (prepend nv-codec-headers)))
     (arguments
-     (substitute-keyword-arguments (package-arguments ffmpeg)
+     (substitute-keyword-arguments (package-arguments ffmpeg-package)
        ((#:configure-flags flags)
-        ;; All the codecs from the original plus NVENC support
+        ;; All the codecs from the original plus NVENC support.
         #~(append #$flags
                   (list "--enable-nonfree"
                         "--enable-nvdec"
@@ -166,11 +158,17 @@
                         "--enable-protocol=https")))))
     (description
      (string-append
-      (package-description ffmpeg)
+      (package-description ffmpeg-package)
       "  This build of FFmpeg includes nonfree NVIDIA encoders and decoders for
 hardware acceleration including h264_nvenc, hevc_nvenc encoders and various
-cuvid decoders."))
-    (properties '((upstream-name . "ffmpeg")))))
+cuvid decoders."))))
+
+(define-public ffmpeg-nvidia
+  (make-ffmpeg-nvidia ffmpeg))
+
+(define-public ffmpeg-6-nvidia
+  (make-ffmpeg-nvidia ffmpeg-6
+                      #:name "ffmpeg-6-nvidia"))
 
 (define-public mpv-cuda
   (package
