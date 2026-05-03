@@ -95,7 +95,14 @@ commands against a Neo4j graph database over the Bolt protocol.")
                                        "if(NOT TARGET re2::re2)
   add_library(re2::re2 INTERFACE IMPORTED)
 endif()"))))))))))
-         (libcares c-ares/cmake))
+         (libcares (or (and=> (module-variable (resolve-interface
+                                                '(gnu packages dns))
+                                               'c-ares/cmake)
+                              variable-ref)
+                       (and=> (module-variable (resolve-interface
+                                                '(gnu packages adns))
+                                               'c-ares/cmake)
+                              variable-ref))))
     (package
       (inherit apache-arrow)
       (name "apache-arrow-flight")
