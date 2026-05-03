@@ -363,11 +363,14 @@
           (replace 'build
             (lambda* (#:key (make-flags '())
                       (parallel-build? #t) #:allow-other-keys)
-              (apply invoke "./mach" "build"
-                     `(,@(if parallel-build?
-                             `(,(string-append "-j"
-                                               (number->string (parallel-job-count))))
-                             '("-j1")) ,@make-flags))))
+              (let ((jobs (if parallel-build?
+                              (max 1
+                                   (quotient (parallel-job-count) 2))
+                              1)))
+                (apply invoke "./mach" "build"
+                       `(,(string-append "-j"
+                                         (number->string jobs))
+                         ,@make-flags)))))
           (add-after 'build 'neutralise-store-references
             (lambda _
               ;; Mangle the store references to compilers & other build tools in
