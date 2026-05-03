@@ -244,7 +244,11 @@
   (list neovim google-antigravity))
 
 (define %security-essentials
-  (list clamav gnupg pinentry-gnome3 password-store))
+  (list clamav
+        fprintd
+        gnupg
+        pinentry-gnome3
+        password-store))
 
 (define %ai-assistants
   (list node-openai-codex node-anthropic-ai-claude-code))
