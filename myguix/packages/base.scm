@@ -254,7 +254,12 @@
   (list atop inxi sysstat procps))
 
 (define %hardware-monitoring
-  (list smartmontools hdparm blktrace lsscsi nvme-cli))
+  (list smartmontools
+        hdparm
+        blktrace
+        lsscsi
+        nvme-cli
+        brightnessctl))
 
 (define %nvidia-monitoring
   (list nvidia-system-monitor nvidia-settings nvidia-htop python-nvidia-ml-py
