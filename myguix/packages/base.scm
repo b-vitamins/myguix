@@ -110,7 +110,9 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
-  #:use-module (myguix packages video)
+  #:use-module ((myguix packages video)
+                #:hide (ffmpeg-nvidia ffmpeg-6-nvidia
+                        nv-codec-headers nvidia-vaapi-driver))
   #:export ( ;Core System Bundles
              %core-minimal
             %core-extended

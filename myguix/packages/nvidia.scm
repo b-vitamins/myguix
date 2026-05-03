@@ -78,7 +78,6 @@
   #:use-module (myguix utils)
   #:use-module (myguix packages linux)
   #:use-module (myguix packages python-pqrs)
-  #:use-module (myguix packages machine-learning)
   #:use-module (ice-9 match)
   #:export (replace-mesa))
 
@@ -975,7 +974,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (uri (git-reference
              (url "https://github.com/NVIDIA/open-gpu-kernel-modules")
              (commit version)))
-       (file-name (git-file-name name version))
+       (file-name (git-file-name "nvidia-module-open" version))
        (sha256
         (base32
          "0k6c2rqjyr0dbrjp9l1pi3zbnj55jrjdp09xiizsqcwa0pazpz1d"))
@@ -1208,7 +1207,7 @@ configuration, creating application profiles, gpu monitoring and more.")
      "FFmpeg version of headers required to interface with NVIDIA codec APIs")
     (description
      "NV Codec headers are required for FFmpeg and other multimedia frameworks to interface with NVIDIA's hardware-accelerated video encoding and decoding.")
-    (license license:expat)))
+    (license license-gnu:expat)))
 
 (define* (make-ffmpeg-nvidia ffmpeg-package
                              #:key
@@ -1302,7 +1301,7 @@ cuvid decoders."))))
      "This is an VA-API implementation that uses NVDEC as a backend,
 specifically designed to be used by Firefox for accelerated decoding of web
 content.")
-    (license license:expat)))
+    (license license-gnu:expat)))
 
 ;; nvda is used as a name because it has the same length as mesa which is
 ;; required for grafting
@@ -2111,6 +2110,42 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
        (sha256
         (base32 "0p286gnjslz06z9vff136pq8srkax75nbklmvg4r11g2cxr8ind6"))
        (method url-fetch)))))
+
+(define-public dlpack
+  (package
+    (name "dlpack")
+    (version "1.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/dmlc/dlpack")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0vlp8gcf7s3snalj6xmvgqxxn96fki6gw9hzph30gmgdbaz730j6"))))
+    (build-system cmake-build-system)
+    (arguments
+     (list
+      #:tests? #f)) ;no tests.
+    (home-page "https://github.com/dmlc/dlpack")
+    (synopsis "In Memory Tensor Structure")
+    (description
+     "This package provides an open in-memory tensor structure for
+sharing tensors among frameworks.  DLPack enables
+@itemize
+@item Easier sharing of operators between deep learning frameworks.
+@item Easier wrapping of vendor level operator implementations, allowing
+collaboration when introducing new devices/ops.
+@item Quick swapping of backend implementations, like different version of
+BLAS
+@item For final users,this could bring more operators, and possibility of
+mixing usage between frameworks.
+@end itemize
+
+This package does not intend to implement Tensor and Ops, but instead use this
+as common bridge to reuse tensor and ops across frameworks.")
+    (license license-gnu:asl2.0)))
 
 (define-public cudnn-frontend
   (package

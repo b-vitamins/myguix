@@ -30,7 +30,7 @@
   #:use-module (gnu packages linux)
   #:use-module (gnu packages llvm)
   #:use-module ((gnu packages machine-learning)
-                #:hide (python-safetensors python-transformers))
+                #:hide (dlpack python-safetensors python-transformers))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages ninja)
@@ -89,7 +89,6 @@
   #:use-module (myguix packages maths)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages nvidia)
-  #:use-module (myguix packages video)
   #:use-module (myguix packages bazel)
   #:use-module (myguix packages huggingface)
   #:use-module (ice-9 match)
@@ -3215,40 +3214,7 @@ the tensors contained therein.")
       (license license:bsd-3))))
 
 (define-public dlpack
-  (package
-    (name "dlpack")
-    (version "1.1")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/dmlc/dlpack")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "0vlp8gcf7s3snalj6xmvgqxxn96fki6gw9hzph30gmgdbaz730j6"))))
-    (build-system cmake-build-system)
-    (arguments
-     (list
-      #:tests? #f)) ;no tests.
-    (home-page "https://github.com/dmlc/dlpack")
-    (synopsis "In Memory Tensor Structure")
-    (description
-     "This package provides an open in-memory tensor structure for
-sharing tensors among frameworks.  DLPack enables
-@itemize
-@item Easier sharing of operators between deep learning frameworks.
-@item Easier wrapping of vendor level operator implementations, allowing
-collaboration when introducing new devices/ops.
-@item Quick swapping of backend implementations, like different version of
-BLAS
-@item For final users,this could bring more operators, and possibility of
-mixing usage between frameworks.
-@end itemize
-
-This package does not intend to implement Tensor and Ops, but instead use this
-as common bridge to reuse tensor and ops across frameworks.")
-    (license license:asl2.0)))
+  (@ (myguix packages nvidia) dlpack))
 
 (define %python-pytorch-version
   "2.10.0")
