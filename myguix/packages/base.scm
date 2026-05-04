@@ -78,6 +78,7 @@
   #:use-module (gnu packages search)
   #:use-module (gnu packages shellutils)
   #:use-module (gnu packages sync)
+  #:use-module (gnu packages ssh)
   #:use-module (gnu packages terminals)
   #:use-module (gnu packages textutils)
   #:use-module (gnu packages tex)
@@ -305,7 +306,7 @@
 
 ;; Networking Bundles
 (define %network-core
-  (list curl wget network-manager-applet))
+  (list curl wget network-manager-applet sshpass))
 
 (define %network-diagnostics
   (list nmap tcpdump traceroute mtr))
