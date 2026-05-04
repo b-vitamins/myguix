@@ -363,10 +363,27 @@
           (replace 'build
             (lambda* (#:key (make-flags '())
                       (parallel-build? #t) #:allow-other-keys)
-              (let ((jobs (if parallel-build?
-                              (max 1
-                                   (quotient (parallel-job-count) 2))
-                              1)))
+              (define (memory-job-cap)
+                (let* ((meminfo (call-with-input-file "/proc/meminfo"
+                                  get-string-all))
+                       (match (string-match
+                               "^MemTotal:[[:blank:]]+([0-9]+)[[:blank:]]+kB"
+                               meminfo)))
+                  (and match
+                       (max 1
+                            (quotient (string->number
+                                       (match:substring match 1))
+                                      (* 4 1024 1024))))))
+              (let* ((cpu-jobs (if parallel-build?
+                                   (max 1
+                                        (quotient (parallel-job-count) 2))
+                                   1))
+                     ;; Firefox's Rust/C++ build fanout is memory-hungry; cap
+                     ;; jobs to roughly one worker per 4 GiB of RAM.
+                     (jobs (min cpu-jobs
+                                (or (memory-job-cap) cpu-jobs))))
+                (format #t "firefox build jobs: cpu cap ~a, using ~a~%"
+                        cpu-jobs jobs)
                 (apply invoke "./mach" "build"
                        `(,(string-append "-j"
                                          (number->string jobs))
