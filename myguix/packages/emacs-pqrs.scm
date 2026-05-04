@@ -70,69 +70,6 @@ cache, refreshes edited fragments after an idle delay, and reuses native Org
 preview configuration by default.")
     (license license:gpl3+)))
 
-(define-public emacs-nerd-icons-dired
-  (package
-    (name "emacs-nerd-icons-dired")
-    (version "c1c7348")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/rainstormstudio/nerd-icons-dired")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1ln73ii7c3chl4lvarwiwrdmx49q528wc0h6a7xbl68pc2pyyvq2"))))
-    (build-system emacs-build-system)
-    (inputs (list emacs-nerd-icons))
-    (home-page "https://github.com/rainstormstudio/nerd-icons-dired")
-    (synopsis "Icon enhancements for Dired using Nerd Fonts")
-    (description
-     "This package provides Nerd Font icon enhancements for Emacs' Dired mode, offering visually distinct file icons to improve navigation and aesthetics.")
-    (license license:gpl3+)))
-
-(define-public emacs-nerd-icons-ibuffer
-  (package
-    (name "emacs-nerd-icons-ibuffer")
-    (version "1.0.0")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/seagle0128/nerd-icons-ibuffer")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "1wj6kcgvh700maj9i5pmgzc48lbj0dbxx849a8w519m4anr7b23s"))))
-    (build-system emacs-build-system)
-    (inputs (list emacs-nerd-icons))
-    (home-page "https://github.com/seagle0128/nerd-icons-ibuffer")
-    (synopsis "Nerd Fonts icon theme for Emacs iBuffer")
-    (description
-     "Integrates Nerd Fonts into Emacs iBuffer, enhancing its interface by displaying appropriate icons for different file types and buffers.")
-    (license license:gpl3+)))
-
-(define-public emacs-nerd-icons-completion
-  (package
-    (name "emacs-nerd-icons-completion")
-    (version "c2db855")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/rainstormstudio/nerd-icons-completion")
-             (commit version)))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32 "10ll0dj6ym5prrkv6smj0ac2ail4b3rqcrh1lyr61y3cj422vn9z"))))
-    (inputs (list emacs-nerd-icons))
-    (build-system emacs-build-system)
-    (home-page "https://github.com/rainstormstudio/nerd-icons-completion")
-    (synopsis "Icon completion using Nerd Fonts in Emacs")
-    (description
-     "This package uses Nerd Fonts to provide icon completion features within Emacs, helping users visually identify file types and other items quickly.")
-    (license license:gpl3+)))
-
 (define-public emacs-nerd-icons-corfu
   (package
     (name "emacs-nerd-icons-corfu")
