@@ -2,9 +2,12 @@
 ;;; Copyright © 2026 Ayan Das <bvits@riseup.net>
 
 (define-module (myguix services nvidia-containers)
+  #:use-module (gnu packages docker)
   #:use-module (gnu packages base)
   #:use-module (gnu services)
   #:use-module (gnu services base)
+  #:use-module (gnu services shepherd)
+  #:use-module (gnu system shadow)
   #:use-module (guix gexp)
   #:use-module (guix records)
   #:use-module (myguix packages nvidia-containers)
@@ -42,7 +45,14 @@
 (define (nvidia-container-toolkit-profile config)
   (list (nvidia-container-toolkit-configuration-libnvidia-container config)
         (nvidia-container-toolkit-configuration-toolkit-base config)
-        (nvidia-container-toolkit-configuration-toolkit config)))
+        (nvidia-container-toolkit-configuration-toolkit config)
+        docker-cli
+        containerd))
+
+(define %nvidia-container-toolkit-docker-environment
+  ;; Docker registers its --gpus NVIDIA device driver only when dockerd can
+  ;; find nvidia-container-runtime-hook at daemon startup.
+  '("PATH=/run/current-system/profile/bin"))
 
 ;; Provide the FHS paths that Docker and NVIDIA's helper tools still assume.
 (define (nvidia-container-toolkit-special-files _)
@@ -88,6 +98,7 @@
      "nvidia-container-runtime-config.toml"
      "[nvidia-container-cli]\n"
      "path = \"/usr/bin/nvidia-container-cli\"\n"
+     "ldcache = \"/run/current-system/profile/etc/ld.so.cache\"\n"
      "ldconfig = \"@" ldconfig "\"\n\n"
      "[nvidia-container-runtime]\n"
      "mode = \"" runtime-mode "\"\n"
@@ -122,7 +133,58 @@
                               #$docker-config)
         (install-managed-file "/etc/nvidia-container-runtime"
                               "/etc/nvidia-container-runtime/config.toml"
-                              #$runtime-config))))
+                              #$runtime-config)
+
+        (mkdir-p "/var/lib/containerd")
+        (mkdir-p "/var/lib/docker"))))
+
+(define (nvidia-container-toolkit-containerd-shepherd-service _)
+  (shepherd-service
+   (documentation "containerd daemon.")
+   (provision '(containerd))
+   (requirement '(user-processes))
+   (start #~(make-forkexec-constructor
+             (list (string-append #$containerd "/bin/containerd"))
+             ;; For finding containerd-shim binary.
+             #:environment-variables
+             (list (string-append "PATH=" #$containerd "/bin"))
+             #:pid-file "/run/containerd/containerd.pid"
+             #:pid-file-timeout 300
+             #:log-file "/var/log/containerd.log"))
+   (stop #~(make-kill-destructor))))
+
+(define (nvidia-container-toolkit-dockerd-shepherd-service _)
+  (shepherd-service
+   (documentation "Docker daemon with NVIDIA container runtime support.")
+   (provision '(dockerd))
+   (requirement '(user-processes
+                  containerd
+                  dbus-system
+                  elogind
+                  file-system-/sys/fs/cgroup
+                  networking
+                  udev))
+   (start #~(make-forkexec-constructor
+             (list (string-append #$docker "/bin/dockerd")
+                   "-p" "/var/run/docker.pid"
+                   "--userland-proxy=true"
+                   (string-append "--userland-proxy-path="
+                                  #$docker-libnetwork-cmd-proxy
+                                  "/bin/proxy")
+                   "--iptables"
+                   "--containerd" "/run/containerd/containerd.sock")
+             #:environment-variables
+             (list #$@%nvidia-container-toolkit-docker-environment)
+             #:pid-file "/var/run/docker.pid"
+             #:log-file "/var/log/docker.log"))
+   (stop #~(make-kill-destructor))))
+
+(define (nvidia-container-toolkit-shepherd-services config)
+  (list (nvidia-container-toolkit-containerd-shepherd-service config)
+        (nvidia-container-toolkit-dockerd-shepherd-service config)))
+
+(define %nvidia-container-toolkit-accounts
+  (list (user-group (name "docker") (system? #t))))
 
 (define nvidia-container-toolkit-service-type
   (service-type
@@ -133,8 +195,12 @@
           (service-extension special-files-service-type
                              nvidia-container-toolkit-special-files)
           (service-extension activation-service-type
-                             nvidia-container-toolkit-activation)))
+                             nvidia-container-toolkit-activation)
+          (service-extension account-service-type
+                             (const %nvidia-container-toolkit-accounts))
+          (service-extension shepherd-root-service-type
+                             nvidia-container-toolkit-shepherd-services)))
    (default-value (nvidia-container-toolkit-configuration))
    (description
-    "Install and configure the NVIDIA container toolkit for Docker-based
-GPU workloads.")))
+    "Install Docker, containerd, and the NVIDIA container toolkit for
+Docker-based GPU workloads.")))
