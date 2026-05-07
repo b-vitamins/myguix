@@ -120,7 +120,7 @@
         (define (install-managed-file directory target source)
           (mkdir-p directory)
           (when (file-exists? target)
-            (if (directory? target)
+            (if (file-is-directory? target)
                 (error "refusing to overwrite directory" target)
                 (delete-file target)))
           (copy-file source target)
