@@ -54,6 +54,9 @@
   ;; find nvidia-container-runtime-hook at daemon startup.
   '("PATH=/run/current-system/profile/bin"))
 
+(define %nvidia-container-toolkit-ldcache-file
+  "/etc/nvidia-container-runtime/ld.so.cache")
+
 ;; Provide the FHS paths that Docker and NVIDIA's helper tools still assume.
 (define (nvidia-container-toolkit-special-files _)
   '(("/usr/bin/nvidia-container-cli"
@@ -98,7 +101,7 @@
      "nvidia-container-runtime-config.toml"
      "[nvidia-container-cli]\n"
      "path = \"/usr/bin/nvidia-container-cli\"\n"
-     "ldcache = \"/run/current-system/profile/etc/ld.so.cache\"\n"
+     "ldcache = \"" %nvidia-container-toolkit-ldcache-file "\"\n"
      "ldconfig = \"@" ldconfig "\"\n\n"
      "[nvidia-container-runtime]\n"
      "mode = \"" runtime-mode "\"\n"
@@ -113,7 +116,10 @@
   (let ((docker-config
          (nvidia-container-toolkit-docker-config-file config))
         (runtime-config
-         (nvidia-container-toolkit-runtime-config-file config)))
+         (nvidia-container-toolkit-runtime-config-file config))
+        (ldconfig
+         (file-append (nvidia-container-toolkit-configuration-glibc config)
+                      "/sbin/ldconfig")))
     #~(begin
         (use-modules (guix build utils))
 
@@ -134,6 +140,11 @@
         (install-managed-file "/etc/nvidia-container-runtime"
                               "/etc/nvidia-container-runtime/config.toml"
                               #$runtime-config)
+        (invoke #$ldconfig
+                "-C" #$%nvidia-container-toolkit-ldcache-file
+                "/run/current-system/profile/lib"
+                "/run/current-system/profile/lib64")
+        (chmod #$%nvidia-container-toolkit-ldcache-file #o644)
 
         (mkdir-p "/var/lib/containerd")
         (mkdir-p "/var/lib/docker"))))
