@@ -129,7 +129,7 @@
 ;; GROBID - machine learning for scholarly document extraction
 (define oci-grobid-container
   (oci-container-configuration (provision "oci-grobid")
-                               (image "grobid/grobid:0.8.2.1-full")
+                               (image "grobid/grobid:0.9.0-full")
                                (network "host")
                                (ports '(("8070" . "8070")))))
 
