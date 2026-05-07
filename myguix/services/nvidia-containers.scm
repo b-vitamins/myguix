@@ -101,6 +101,7 @@
      "nvidia-container-runtime-config.toml"
      "[nvidia-container-cli]\n"
      "path = \"/usr/bin/nvidia-container-cli\"\n"
+     "environment = [\"LD_LIBRARY_PATH=/run/current-system/profile/lib\"]\n"
      "ldcache = \"" %nvidia-container-toolkit-ldcache-file "\"\n"
      "ldconfig = \"@" ldconfig "\"\n\n"
      "[nvidia-container-runtime]\n"
