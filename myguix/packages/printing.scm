@@ -135,11 +135,20 @@
                   (for-each patch-shebang
                             (list cups-wrapper vendor-wrapper lpd-filter))
 
+                  ;; The LPD filter derives the printer model from $0.  Do not
+                  ;; wrap it, since wrap-program renames the real script to
+                  ;; ".filter_hlt4000dw-real" and breaks that logic.
+                  (substitute* lpd-filter
+                    (("use File::Copy;\n")
+                     (string-append
+                      "use File::Copy;\n"
+                      "$ENV{PATH} = '" path ":' . ($ENV{PATH} || '');\n")))
+
                   (for-each
                    (lambda (program)
                      (wrap-program program
                        `("PATH" ":" prefix (,path))))
-                   (list cups-wrapper vendor-wrapper lpd-filter)))))
+                   (list cups-wrapper vendor-wrapper)))))
             (add-after 'patch-scripts 'patch-elf-binaries
               (lambda* (#:key inputs #:allow-other-keys)
                 (let* ((out #$output)
@@ -174,7 +183,11 @@
                                    "/lpd/brhlt4000dwfilter"))))))
             (add-after 'patch-elf-binaries 'validate-install
               (lambda _
-                (let ((out #$output))
+                (let* ((out #$output)
+                       (opt-dir
+                        (string-append out "/opt/brother/Printers/hlt4000dw"))
+                       (lpd-filter
+                        (string-append opt-dir "/lpd/filter_hlt4000dw")))
                   (for-each
                    (lambda (file)
                      (unless (file-exists? file)
@@ -184,15 +197,16 @@
                     (string-append out
                                    "/lib/cups/filter"
                                    "/brother_lpdwrapper_hlt4000dw")
-                    (string-append out
-                                   "/opt/brother/Printers/hlt4000dw"
-                                   "/lpd/filter_hlt4000dw")
-                    (string-append out
-                                   "/opt/brother/Printers/hlt4000dw"
-                                   "/lpd/brhlt4000dwfilter")
+                    lpd-filter
+                    (string-append opt-dir "/lpd/brhlt4000dwfilter")
                     (string-append out
                                    "/share/cups/model/Brother"
-                                   "/brother_hlt4000dw_printer_en.ppd")))))))))
+                                   "/brother_hlt4000dw_printer_en.ppd")))
+                  (when (file-exists?
+                         (string-append opt-dir
+                                        "/lpd/.filter_hlt4000dw-real"))
+                    (error "LPD filter must not be wrap-program renamed"
+                           lpd-filter))))))))
       (native-inputs
        (list patchelf-0.16))
       (inputs
