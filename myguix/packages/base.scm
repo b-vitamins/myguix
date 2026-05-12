@@ -640,6 +640,7 @@
         font-fira-mono
         font-fira-sans
         font-jetbrains-mono
+        font-nerd-symbols
         font-inconsolata
         font-hack
         font-adobe-source-code-pro))
