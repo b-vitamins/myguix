@@ -3,10 +3,12 @@
 (define-module (myguix packages printing)
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
+  #:use-module (gnu packages cups)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages file)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages ghostscript)
+  #:use-module (gnu packages pdf)
   #:use-module (gnu packages perl)
   #:use-module (guix build-system gnu)
   #:use-module (guix gexp)
@@ -14,9 +16,24 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (myguix utils)
   #:use-module ((myguix licenses)
                 #:prefix myguix-license:))
+
+(define-public cups-filters/fixed-pdftops
+  (package
+    (inherit cups-filters)
+    (name "cups-filters-fixed-pdftops")
+    (arguments
+     (substitute-keyword-arguments (package-arguments cups-filters)
+       ((#:configure-flags flags)
+        #~(append
+           #$flags
+           (list
+            (string-append
+             "--with-pdftops-path="
+             #$(file-append poppler "/bin/pdftops")))))))))
 
 (define-public brother-hlt4000dw
   (let ((commit "6299dd0d9856be8afb198ec92a7d73563be77600"))
