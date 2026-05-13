@@ -38,6 +38,8 @@
   #:use-module (guix git-download)
   #:use-module ((guix licenses)
                 #:prefix license:)
+  #:use-module ((myguix licenses)
+                #:prefix myguix-license:)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix packages nvidia)
@@ -1185,6 +1187,433 @@ speech models.")
      "Argbind provides helpers for binding Python function arguments to command
 line interfaces.")
     (license license:expat)))
+
+(define-public python-einx
+  (package
+    (name "python-einx")
+    (version "0.2.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "einx" version))
+       (sha256
+        (base32 "1s32dkjgvlqbsn23b2bfx38cc5xlsxg3cf2kaf8c8w3kq1vzzx3r"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require optional framework backends.
+    (propagated-inputs (list python-frozendict python-numpy python-sympy))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/fferflo/einx")
+    (synopsis "Einstein-inspired tensor operations")
+    (description
+     "Einx provides NumPy-style tensor operation helpers with Einstein-inspired
+notation.")
+    (license license:expat)))
+
+(define-public python-loralib
+  (package
+    (name "python-loralib")
+    (version "0.1.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "loralib" version))
+       (sha256
+        (base32 "0rs5pm7sq32fl32pa712nk542yb5sjmgksdfvmrvjm32994zzk12"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests in the source release.
+    (propagated-inputs (list python-pytorch))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/microsoft/LoRA")
+    (synopsis "PyTorch layers for low-rank adaptation")
+    (description
+     "Loralib provides PyTorch layers and helpers for low-rank adaptation of
+large models.")
+    (license license:expat)))
+
+(define-public python-loralib-cuda
+  (package
+    (inherit python-loralib)
+    (name "python-loralib-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-loralib)
+                         (replace "python-pytorch" python-pytorch-cuda)))
+    (synopsis "PyTorch layers for low-rank adaptation with CUDA support")))
+
+(define-public python-pyrootutils
+  (package
+    (name "python-pyrootutils")
+    (version "1.0.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pyrootutils" version))
+       (sha256
+        (base32 "1wn5ix9pcjc56c169iikk8rdcw265z5q7dxp704v5fkv2iksr2pm"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests require a checked-out project layout.
+    (propagated-inputs (list python-dotenv))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/ashleve/pyrootutils")
+    (synopsis "Project root setup helpers")
+    (description
+     "Pyrootutils provides helpers for locating a project root and updating the
+Python path.")
+    (license license:expat)))
+
+(define-public python-descript-audio-codec
+  (package
+    (name "python-descript-audio-codec")
+    (version "1.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "descript-audio-codec" version))
+       (sha256
+        (base32 "1q001cgrizhca7rasd4bjxx9skjk0pa14rbmf0aq51l6290sb9an"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests require model assets and the full training stack.
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'trim-audiotools-coupling
+            (lambda _
+              ;; Fish Speech only imports DAC layers, quantizers, and
+              ;; CodecMixin.  Avoid importing the full audiotools training and
+              ;; notebook stack on those inference-only imports.
+              (substitute* "setup.py"
+                (("^ *\"argbind>=0\\.3\\.7\",.*") "")
+                (("^ *\"descript-audiotools>=0\\.7\\.2\",.*") ""))
+              (when (file-exists? "descript_audio_codec.egg-info")
+                (delete-file-recursively "descript_audio_codec.egg-info"))
+              (call-with-output-file "dac/__init__.py"
+                (lambda (port)
+                  (display "__version__ = \"1.0.0\"\n" port)
+                  (display "__model_version__ = \"latest\"\n" port)))
+              (call-with-output-file "dac/model/__init__.py"
+                (lambda (port)
+                  (display "from .base import CodecMixin\n" port)
+                  (display "from .base import DACFile\n" port)))
+              (call-with-output-file "dac/nn/__init__.py"
+                (lambda (port)
+                  (display "from . import layers\n" port)
+                  (display "from . import quantize\n" port)))
+              (substitute* "dac/model/base.py"
+                (("from audiotools import AudioSignal")
+                 "class AudioSignal:\n    pass"))
+              (substitute* "dac/nn/layers.py"
+                (("# Scripting this brings model speed up 1\\.4x")
+                 "# Run Snake eagerly for compatibility with this PyTorch build.")
+                (("^@torch\\.jit\\.script") "")))))))
+    (propagated-inputs (list python-einops
+                             python-numpy
+                             python-pytorch
+                             python-torchaudio
+                             python-tqdm))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/descriptinc/descript-audio-codec")
+    (synopsis "Neural audio codec components")
+    (description
+     "Descript Audio Codec provides neural audio codec layers, quantizers, and
+model helpers.  This package trims the optional audiotools coupling needed only
+for the upstream CLI/training workflow so Fish Speech can use the codec modules
+in a smaller inference environment.")
+    (license license:expat)))
+
+(define-public python-descript-audio-codec-cuda
+  (package
+    (inherit python-descript-audio-codec)
+    (name "python-descript-audio-codec-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-descript-audio-codec)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchaudio" python-torchaudio-cuda)))
+    (synopsis "Neural audio codec components with CUDA support")))
+
+(define-public python-fish-speech
+  (let ((commit "a391467946cc9c396c025fc69eba10ef0b38332e")
+        (revision "0"))
+    (package
+      (name "python-fish-speech")
+      (version (git-version "2.0.0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/fishaudio/fish-speech")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "171b5jaxh4xyjjqxbpmvi9gxyvckayb16acd8hfrl475hi4assv6"))))
+      (build-system pyproject-build-system)
+      (arguments
+       (list
+        #:tests? #f ;Tests require the multi-GB model checkpoints.
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'unpack 'focus-metadata-on-inference
+              (lambda _
+                ;; Upstream's metadata covers training, API server, Docker, and
+                ;; WebUI deployments.  This package keeps the inference/WebUI
+                ;; dependency set in Guix and avoids hard PyTorch pins.
+                (substitute* "pyproject.toml"
+                  (("torch==2\\.8\\.0") "torch")
+                  (("torchaudio==2\\.8\\.0") "torchaudio")
+                  (("transformers<=4\\.57\\.3") "transformers")
+                  (("einx\\[torch\\]==0\\.2\\.2") "einx")
+                  (("pydantic==2\\.9\\.2") "pydantic")
+                  (("    \"datasets==2\\.18\\.0\",\\n") "")
+                  (("    \"lightning>=2\\.1\\.0\",\\n") "")
+                  (("    \"tensorboard>=2\\.14\\.1\",\\n") "")
+                  (("    \"wandb>=0\\.19\\.0\",\\n") "")
+                  (("    \"grpcio>=1\\.58\\.0\",\\n") "")
+                  (("    \"kui>=1\\.6\\.0\",\\n") "")
+                  (("    \"uvicorn>=0\\.30\\.0\",\\n") "")
+                  (("    \"resampy>=0\\.4\\.3\",\\n") "")
+                  (("    \"zstandard>=0\\.22\\.0\",\\n") "")
+                  (("    \"pydub\",\\n") "")
+                  (("    \"pyaudio\",\\n") "")
+                  (("    \"modelscope==1\\.17\\.1\",\\n") "")
+                  (("    \"opencc-python-reimplemented==0\\.1\\.7\",\\n") "")
+                  (("    \"silero-vad\",\\n") "")
+                  (("    \"ormsgpack\",\\n") "")
+                  (("^packages = \\[\"fish_speech\", \"tools\"\\]")
+                   (string-append
+                    "include-package-data = true\n\n"
+                    "[tool.setuptools.packages.find]\n"
+                    "include = [\"fish_speech*\", \"tools*\"]\n"
+                    "namespaces = true\n")))))
+            (add-after 'unpack 'prune-unsupported-runtime-modules
+              (lambda _
+                ;; Keep the installed tree aligned with the dependency set
+                ;; below: inference, WebUI, codec helpers, and quantization
+                ;; tools.  The removed modules are training/data-server/API
+                ;; helpers that pull in Lightning, datasets, Kui, ormsgpack,
+                ;; pyaudio, and other stacks not provided by this package.
+                (for-each
+                 (lambda (path)
+                   (when (file-exists? path)
+                     (delete-file path)))
+                 '("fish_speech/train.py"
+                   "fish_speech/datasets/semantic.py"
+                   "fish_speech/datasets/vqgan.py"
+                   "fish_speech/i18n/scan.py"
+                   "fish_speech/models/text2semantic/lit_module.py"
+                   "fish_speech/utils/instantiators.py"
+                   "fish_speech/utils/logger.py"
+                   "fish_speech/utils/logging_utils.py"
+                   "fish_speech/utils/rich_utils.py"
+                   "fish_speech/utils/utils.py"
+                   "tools/api_client.py"
+                   "tools/api_server.py"
+                   "tools/llama/build_dataset.py"
+                   "tools/llama/eval_in_context.py"
+                   "tools/vqgan/create_train_split.py"))
+                (for-each
+                 (lambda (path)
+                   (when (file-exists? path)
+                     (delete-file-recursively path)))
+                 '("fish_speech/callbacks"
+                   "tools/server"))))
+            (add-after 'unpack 'avoid-training-imports
+              (lambda _
+                ;; fish_speech.utils imports Lightning-oriented helpers from
+                ;; training code.  The inference engine only needs these two
+                ;; small utilities.
+                (call-with-output-file "fish_speech/utils/__init__.py"
+                  (lambda (port)
+                    (display "import random\n" port)
+                    (display "import numpy as np\n" port)
+                    (display "import torch\n" port)
+                    (display "from .context import autocast_exclude_mps\n\n" port)
+                    (display "def set_seed(seed: int):\n" port)
+                    (display "    if seed < 0:\n" port)
+                    (display "        seed = -seed\n" port)
+                    (display "    if seed > (1 << 31):\n" port)
+                    (display "        seed = 1 << 31\n" port)
+                    (display "    random.seed(seed)\n" port)
+                    (display "    np.random.seed(seed)\n" port)
+                    (display "    torch.manual_seed(seed)\n" port)
+                    (display "    if torch.cuda.is_available():\n" port)
+                    (display "        torch.cuda.manual_seed(seed)\n" port)
+                    (display "        torch.cuda.manual_seed_all(seed)\n" port)
+                    (display "    if torch.backends.cudnn.is_available():\n" port)
+                    (display "        torch.backends.cudnn.deterministic = True\n" port)
+                    (display "        torch.backends.cudnn.benchmark = False\n" port)
+                    (display "\n__all__ = [\"autocast_exclude_mps\", \"set_seed\"]\n"
+                             port)))))
+            (add-after 'unpack 'avoid-audiotools-import
+              (lambda _
+                (substitute* "fish_speech/models/dac/modded_dac.py"
+                  (("from audiotools import AudioSignal\n") "")
+                  (("from audiotools\\.ml import BaseModel\n") "")
+                  (("from torch import Tensor, nn\n")
+                   (string-append
+                    "from torch import Tensor, nn\n\n"
+                    "class BaseModel(nn.Module):\n"
+                    "    @property\n"
+                    "    def device(self):\n"
+                    "        return next(self.parameters()).device\n\n")))))
+            (add-after 'unpack 'drop-project-root-probing
+              (lambda _
+                (substitute* '("tools/run_webui.py"
+                               "fish_speech/models/dac/inference.py")
+                  (("import pyrootutils\n") "")
+                  (("pyrootutils.setup_root\\(__file__, indicator=\"\\.project-root\", pythonpath=True\\)\n")
+                   ""))))
+            (add-after 'unpack 'fail-fast-on-missing-checkpoints
+              (lambda _
+                (substitute* "fish_speech/models/text2semantic/inference.py"
+                  (("    logger.info\\(\"Loading model \\.\\.\\.\"\\)\n")
+                   (string-append
+                    "    if not (checkpoint_path / \"config.json\").exists():\n"
+                    "        raise FileNotFoundError(\n"
+                    "            f\"Missing Fish Speech config: {checkpoint_path / 'config.json'}\"\n"
+                    "        )\n"
+                    "    if (output or prompt_audio) and not (checkpoint_path / \"codec.pth\").exists():\n"
+                    "        raise FileNotFoundError(\n"
+                    "            f\"Missing Fish Speech codec checkpoint: {checkpoint_path / 'codec.pth'}\"\n"
+                    "        )\n"
+                    "    logger.info(\"Loading model ...\")\n")))
+                (substitute* "tools/run_webui.py"
+                  (("    args.precision = torch.half if args.half else torch.bfloat16\n")
+                   (string-append
+                    "    if not (args.llama_checkpoint_path / \"config.json\").exists():\n"
+                    "        raise FileNotFoundError(\n"
+                    "            f\"Missing Fish Speech config: {args.llama_checkpoint_path / 'config.json'}\"\n"
+                    "        )\n"
+                    "    if not args.decoder_checkpoint_path.exists():\n"
+                    "        raise FileNotFoundError(\n"
+                    "            f\"Missing Fish Speech codec checkpoint: {args.decoder_checkpoint_path}\"\n"
+                    "        )\n"
+                    "    args.precision = torch.half if args.half else torch.bfloat16\n")))))
+            (add-after 'install 'install-data-files
+              (lambda* (#:key outputs #:allow-other-keys)
+                (let* ((out (assoc-ref outputs "out"))
+                       (site (car (find-files (string-append out "/lib")
+                                              "site-packages$"
+                                              #:directories? #t)))
+                       (fish-site (string-append site "/fish_speech")))
+                  (copy-recursively "fish_speech/configs"
+                                    (string-append fish-site "/configs"))
+                  (copy-recursively "fish_speech/i18n/locale"
+                                    (string-append fish-site "/i18n/locale"))
+                  (copy-recursively "fish_speech/datasets/protos"
+                                    (string-append fish-site
+                                                   "/datasets/protos")))))
+            (add-after 'create-entrypoints 'install-command-wrappers
+              (lambda* (#:key outputs #:allow-other-keys)
+                (let* ((out (assoc-ref outputs "out"))
+                       (bin (string-append out "/bin"))
+                       (python (which "python"))
+                       (certs #$(file-append
+                                  nss-certs-for-test
+                                  "/etc/ssl/certs/ca-certificates.crt")))
+                  (mkdir-p bin)
+                  (for-each
+                   (lambda (script)
+                     (let ((path (string-append bin "/" (car script)))
+                           (module (cdr script)))
+                       (call-with-output-file path
+                         (lambda (port)
+                           (format port "#!~a\n" python)
+                           (format port "import os\n")
+                           (format port
+                                   "os.environ.setdefault('SSL_CERT_FILE', '~a')\n"
+                                   certs)
+                           (format port
+                                   "os.environ.setdefault('REQUESTS_CA_BUNDLE', os.environ['SSL_CERT_FILE'])\n")
+                           (format port
+                                   "os.environ.setdefault('CURL_CA_BUNDLE', os.environ['SSL_CERT_FILE'])\n")
+                           (format port "import runpy\n")
+                           (format port "runpy.run_module('~a', run_name='__main__')\n"
+                                   module)))
+                       (chmod path #o755)))
+                   '(("fish-speech-webui" . "tools.run_webui")
+                     ("fish-speech-tts" .
+                      "fish_speech.models.text2semantic.inference"))))))
+            (add-before 'sanity-check 'set-cache-dirs
+              (lambda _
+                (setenv "HOME" "/tmp")
+                (setenv "XDG_CACHE_HOME" "/tmp/.cache")
+                (setenv "HF_HOME" "/tmp/.cache/huggingface")
+                (setenv "TORCH_HOME" "/tmp/.cache/torch")
+                (let ((certs #$(file-append
+                                nss-certs-for-test
+                                "/etc/ssl/certs/ca-certificates.crt")))
+                  (setenv "SSL_CERT_FILE" certs)
+                  (setenv "REQUESTS_CA_BUNDLE" certs)
+                  (setenv "CURL_CA_BUNDLE" certs))
+                (mkdir-p "/tmp/.cache/huggingface/hub")
+                (mkdir-p "/tmp/.cache/torch")))
+            (replace 'sanity-check
+              (lambda _
+                (invoke "python" "-c"
+                        (string-append
+                         "import importlib, pkgutil\n"
+                         "import fish_speech, tools\n"
+                         "for root in (fish_speech, tools):\n"
+                         "    for mod in pkgutil.walk_packages("
+                         "root.__path__, root.__name__ + '.'):\n"
+                         "        importlib.import_module(mod.name)\n")))))))
+      (propagated-inputs (list python-click
+                               python-descript-audio-codec
+                               python-einops
+                               python-einx
+                               python-gradio
+                               python-hydra-core
+                               python-huggingface-hub
+                               python-librosa
+                               python-loguru
+                               python-loralib
+                               python-natsort
+                               python-numpy
+                               python-pydantic
+                               python-pyrootutils
+                               python-pyyaml
+                               python-rich
+                               python-safetensors
+                               python-soundfile
+                               python-tiktoken
+                               python-pytorch
+                               python-torchaudio
+                               python-tqdm
+                               python-transformers
+                               python-typing-extensions))
+      (native-inputs (list python-setuptools python-setuptools-scm python-wheel))
+      (home-page "https://github.com/fishaudio/fish-speech")
+      (synopsis "Fish Speech S2 text-to-speech inference and WebUI")
+      (description
+       "Fish Speech provides Fish Audio S2 text-to-speech inference, voice
+cloning, and a Gradio WebUI.  This package installs the Python inference
+library and command wrappers; model weights are downloaded or mounted
+separately, typically under @file{checkpoints/s2-pro}.")
+      (license (myguix-license:nonfree "file://LICENSE")))))
+
+(define-public python-fish-speech-cuda
+  (package
+    (inherit python-fish-speech)
+    (name "python-fish-speech-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-fish-speech)
+                         (replace "python-descript-audio-codec"
+                                  python-descript-audio-codec-cuda)
+                         (replace "python-loralib" python-loralib-cuda)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchaudio" python-torchaudio-cuda)
+                         (replace "python-transformers"
+                                  python-transformers-cuda)
+                         (replace "python-safetensors"
+                                  python-safetensors-cuda)))
+    (synopsis "Fish Speech S2 TTS inference and WebUI with CUDA support")
+    (description
+     "Fish Speech provides Fish Audio S2 text-to-speech inference, voice
+cloning, and a Gradio WebUI.  This variant uses CUDA-enabled PyTorch,
+TorchAudio, Transformers, Safetensors, LoRA, and DAC packages; model weights
+are downloaded or mounted separately, typically under @file{checkpoints/s2-pro}.")))
 
 (define-public python-pyloudnorm
   (package
