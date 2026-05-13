@@ -1,5 +1,7 @@
 (define-module (myguix packages nlp)
   #:use-module (gnu packages base)
+  #:use-module ((gnu packages bioinformatics)
+                #:select (python-pyahocorasick))
   #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages nss)
   #:use-module (gnu packages check)
@@ -648,6 +650,19 @@ tokenizers, @code{rust-tokenizers}.")
     (native-inputs (modify-inputs (package-native-inputs python-safetensors)
                      (replace "python-pytorch" python-pytorch-cuda)))))
 
+(define-public python-transformers-cuda
+  (package
+    (inherit python-transformers)
+    (name "python-transformers-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-transformers)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-safetensors" python-safetensors-cuda)))
+    (synopsis "Machine Learning for PyTorch and TensorFlow with CUDA PyTorch")
+    (description
+     "This package provides Transformers with dependencies adjusted to use the
+CUDA-enabled PyTorch and Safetensors packages.")))
+
 (define-public python-transformers-for-nougat
   (package
     (inherit python-transformers)
@@ -956,6 +971,221 @@ reverse-engineered PyTorch implementation of the tokenizer originally proposed
 in CosyVoice.")
     (license license:asl2.0)))
 
+(define-public python-addict
+  (package
+    (name "python-addict")
+    (version "2.4.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/mewwts/addict")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1dcqwmi6xbcc7zmsmq3djhvbybsz806lh837sgbrxppcmw2sfma3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests in the source release.
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/mewwts/addict")
+    (synopsis "Dictionary with attribute-style access")
+    (description
+     "Addict is a dictionary whose items can be set using both attribute and
+item syntax.")
+    (license license:expat)))
+
+(define-public python-textsearch
+  (package
+    (name "python-textsearch")
+    (version "0.0.24")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "textsearch" version))
+       (sha256
+        (base32 "06i4pdkbyq6cazrdb36lh22fqdn2xiqci2y1ridvc5b7271va8rd"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests in the source release.
+    (propagated-inputs (list python-anyascii python-pyahocorasick))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/kootenpv/textsearch")
+    (synopsis "Fast multi-pattern string search")
+    (description
+     "Textsearch provides fast string and word search helpers backed by an
+Aho-Corasick automaton.")
+    (license license:expat)))
+
+(define-public python-contractions
+  (let ((commit "595188a45c472957427b3a6a07b6ce0492990fad")
+        (revision "0"))
+    (package
+      (name "python-contractions")
+      (version (git-version "0.1.72" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/kootenpv/contractions")
+               (commit commit)))
+         (file-name (git-file-name name version))
+         (sha256
+          (base32 "14l1yg55w0bksd7b7xw37mnfp3s53dfrva1da7k1zc429vlihn0c"))))
+      (build-system pyproject-build-system)
+      (arguments
+       '(#:tests? #f)) ;No tests in the source tree.
+      (propagated-inputs (list python-textsearch))
+      (native-inputs (list python-setuptools python-wheel))
+      (home-page "https://github.com/kootenpv/contractions")
+      (synopsis "Expand English contractions")
+      (description
+       "This package expands English contractions and common slang forms, for
+example converting \"you're\" to \"you are\".")
+      (license license:expat))))
+
+(define-public python-kaldifst
+  (package
+    (name "python-kaldifst")
+    (version "1.8.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/k2-fsa/kaldifst")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1nw75q9rffgs0g10xsaffm93082l9rhljlggpq9gwmfb1nj8prvx"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;No installed test suite for the Python package.
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'provide-cmake-fetchcontent-sources
+            (lambda _
+              ;; Upstream CMake uses FetchContent for these tarballs.  Put the
+              ;; expected files in the source tree so the build stays hermetic.
+              (copy-file #$(this-package-native-input "openfst-source")
+                         "openfst-1.8.5-2026-04-10.tar.gz")
+              (copy-file #$(this-package-native-input "pybind11-source")
+                         "pybind11-3.0.0.tar.gz")))
+          (add-before 'build 'configure-build
+            (lambda _
+              (setenv "KALDIFST_MAKE_ARGS" "-j1"))))))
+    (native-inputs
+     `(("openfst-source"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/csukuangfj/openfst/archive/refs/tags/v1.8.5-2026-04-10.tar.gz")
+           (sha256
+            (base32 "16d1lsay7kikfjibzc6i5x4q02mxpyqwyawcy6llzgjc7109jm63"))))
+       ("pybind11-source"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/pybind/pybind11/archive/refs/tags/v3.0.0.tar.gz")
+           (sha256
+            (base32 "0310b80vgkwndli77gb3h30klsbdvg512947vblklv165cz1lfs5"))))
+       ("cmake" ,cmake)
+       ("python-setuptools" ,python-setuptools)
+       ("python-wheel" ,python-wheel)))
+    (home-page "https://github.com/k2-fsa/kaldifst")
+    (synopsis "Kaldi FST Python bindings")
+    (description
+     "Kaldifst provides Python bindings for Kaldi-style finite-state
+transducers.")
+    (license license:asl2.0)))
+
+(define-public python-wetext
+  (package
+    (name "python-wetext")
+    (version "0.1.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "wetext" version))
+       (sha256
+        (base32 "08kbfh8kb4qb2mf7sm8gz5jxfjayyqqlpzlln5c51j2aiy3m3xx9"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;No tests in the source release.
+    (propagated-inputs (list python-click python-contractions python-kaldifst))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/pengzhendong/wetext")
+    (synopsis "Runtime text normalization")
+    (description
+     "WeTextProcessing Runtime provides text normalization utilities used by
+speech models.")
+    (license license:asl2.0)))
+
+(define-public python-modelscope
+  (package
+    (name "python-modelscope")
+    (version "1.36.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/modelscope/modelscope")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0r48fjgs9ifrs45hk8r09zyjfzrig0bm58igk6zgicb6hnaa42g0"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;The upstream suite expects networked model services.
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'add-install-to-pythonpath 'prebuild-ast-index
+            (lambda _
+              ;; ModelScope lazily writes this index next to its own Python
+              ;; modules.  Generate it while the output tree is still writable.
+              (with-directory-excursion "/tmp"
+                (invoke "python" "-c"
+                        (string-append
+                         "from modelscope.utils.ast_utils import "
+                         "generate_ast_template; "
+                         "generate_ast_template()"))))))))
+    (propagated-inputs (list python-addict
+                             python-filelock
+                             python-numpy
+                             python-packaging
+                             python-pyyaml
+                             python-requests
+                             python-setuptools
+                             python-tqdm
+                             python-urllib3))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/modelscope/modelscope")
+    (synopsis "Model-as-a-service toolkit")
+    (description
+     "ModelScope provides model discovery, downloading, and pipeline utilities.")
+    (license license:asl2.0)))
+
+(define-public python-argbind
+  (package
+    (name "python-argbind")
+    (version "0.3.9")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "argbind" version))
+       (sha256
+        (base32 "0iaph74pl38573xgrmz1zjnrd7d3ksy4fylwsn8qm1anmw29q58v"))))
+    (build-system pyproject-build-system)
+    (arguments
+     '(#:tests? #f)) ;Tests pull optional torch/torchvision example deps.
+    (propagated-inputs (list python-docstring-parser python-pyyaml))
+    (native-inputs (list python-setuptools python-wheel))
+    (home-page "https://github.com/pseeth/argbind/")
+    (synopsis "Bind Python function arguments to command-line flags")
+    (description
+     "Argbind provides helpers for binding Python function arguments to command
+line interfaces.")
+    (license license:expat)))
+
 (define-public python-pyloudnorm
   (package
     (name "python-pyloudnorm")
@@ -1004,6 +1234,174 @@ in CosyVoice.")
     (synopsis "Python module to wrap rubberband")
     (description "Python module to wrap rubberband.")
     (license license:isc)))
+
+(define-public python-voxcpm
+  (package
+    (name "python-voxcpm")
+    (version "2.0.3")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/OpenBMB/VoxCPM")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "06848b4vj56iwpd2b3z6w8sir1rym0x60jwwskp52rg9vm51zfc6"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f ;Tests do not cover model inference and some require assets.
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'drop-uninstalled-webapp-dependencies
+            (lambda _
+              ;; The PyPI metadata lists dependencies for the repository-root
+              ;; Gradio/Hugging Face Space apps.  Those files are not installed
+              ;; by this package; keep the packaged dependency set focused on
+              ;; the CLI/library inference path.
+              (substitute* "pyproject.toml"
+                (("    \"gradio>=6,<7\",\\n") "")
+                (("    \"funasr\",\\n") "")
+                (("    \"spaces\",\\n") ""))))
+          (add-after 'unpack 'disable-audiovae-jit-snake
+            (lambda _
+              ;; On Guix's PyTorch build the scripted Snake activation can fail
+              ;; at runtime with a missing TorchScript static op.  Eager mode is
+              ;; slower, but it keeps the AudioVAE encode/decode path reliable.
+              (substitute* '("src/voxcpm/modules/audiovae/audio_vae.py"
+                             "src/voxcpm/modules/audiovae/audio_vae_v2.py")
+                (("# Scripting this brings model speed up 1\\.4x")
+                 "# Run Snake eagerly for compatibility with this PyTorch build.")
+                (("^@torch\\.jit\\.script") ""))))
+          (add-after 'unpack 'default-to-non-jit-inference
+            (lambda _
+              ;; VoxCPM's optimization path is opportunistic torch.compile/JIT
+              ;; work.  On this PyTorch build it can fail before inference, so
+              ;; keep the packaged CLI and library defaults on the eager path.
+              (substitute* '("src/voxcpm/core.py"
+                             "src/voxcpm/model/voxcpm.py"
+                             "src/voxcpm/model/voxcpm2.py")
+                (("optimize: bool = True,")
+                 "optimize: bool = False,")
+                (("True by default, but can be disabled for debugging\\.")
+                 "False by default in this package; enable only for debugging."))
+              (substitute* "src/voxcpm/cli.py"
+                (("        \"--no-optimize\",")
+                 (string-append
+                  "        \"--optimize\",\n"
+                  "        dest=\"no_optimize\",\n"
+                  "        action=\"store_false\",\n"
+                  "        help=\"Enable model optimization during loading\",\n"
+                  "    )\n"
+                  "    parser.add_argument(\n"
+                  "        \"--no-optimize\","))
+                (("        help=\"Disable model optimization during loading\",")
+                 (string-append
+                  "        dest=\"no_optimize\",\n"
+                  "        default=True,\n"
+                  "        help=\"Disable model optimization during loading (default)\",")))))
+          (add-after 'unpack 'default-zipenhancer-when-denoising
+            (lambda _
+              ;; Upstream's CLI overrides the library's ZipEnhancer default
+              ;; with None unless --zipenhancer-path is supplied explicitly.
+              ;; Make --denoise fire-and-forget while keeping ordinary runs
+              ;; from downloading/loading the denoiser unnecessarily.
+              (substitute* "src/voxcpm/cli.py"
+                (("    # Build LoRA config if provided\n")
+                 (string-append
+                  "    if args.denoise and zipenhancer_path is None:\n"
+                  "        zipenhancer_path = \"iic/speech_zipenhancer_ans_multiloss_16k_base\"\n"
+                  "\n"
+                  "    # Build LoRA config if provided\n")))))
+          (add-after 'unpack 'set-certificate-default
+            (lambda _
+              ;; The model download paths import Requests during module import.
+              ;; Guix build sandboxes do not expose /run/current-system, so use a
+              ;; package-local CA bundle while still respecting user overrides.
+              (let ((certs #$(file-append
+                              nss-certs-for-test
+                              "/etc/ssl/certs/ca-certificates.crt")))
+                (substitute* '("src/voxcpm/core.py"
+                               "src/voxcpm/zipenhancer.py")
+                  (("import os\n")
+                   (string-append
+                    "import os\n"
+                    "os.environ.setdefault(\"SSL_CERT_FILE\", \""
+                    certs "\")\n"
+                    "os.environ.setdefault(\"REQUESTS_CA_BUNDLE\", "
+                    "os.environ[\"SSL_CERT_FILE\"])\n"
+                    "os.environ.setdefault(\"CURL_CA_BUNDLE\", "
+                    "os.environ[\"SSL_CERT_FILE\"])\n"))))))
+          (add-before 'sanity-check 'set-cache-dirs
+            (lambda _
+              (setenv "HOME" "/tmp")
+              (setenv "XDG_CACHE_HOME" "/tmp/.cache")
+              (setenv "HF_HOME" "/tmp/.cache/huggingface")
+              (setenv "TORCH_HOME" "/tmp/.cache/torch")
+              (mkdir-p "/tmp/.cache/huggingface/hub")
+              (mkdir-p "/tmp/.cache/torch/hub")))
+          (replace 'sanity-check
+            (lambda _
+              (invoke "python" "-c"
+                      (string-append
+                       "import voxcpm, voxcpm.cli; "
+                       "from voxcpm import VoxCPM; "
+                       "from voxcpm.zipenhancer import ZipEnhancer; "
+                       "from voxcpm.utils.text_normalize import TextNormalizer")))))))
+    (propagated-inputs (list python-addict
+                             python-argbind
+                             python-datasets
+                             python-einops
+                             python-huggingface-hub
+                             python-inflect
+                             python-librosa
+                             python-matplotlib
+                             python-modelscope
+                             python-numpy
+                             python-pydantic
+                             python-regex
+                             python-safetensors
+                             python-simplejson
+                             python-sortedcontainers
+                             python-soundfile
+                             python-pytorch
+                             python-torchaudio
+                             python-torchcodec
+                             python-tqdm
+                             python-transformers
+                             python-wetext))
+    (native-inputs (list python-pytest
+                         python-setuptools
+                         python-setuptools-scm
+                         python-wheel))
+    (home-page "https://github.com/OpenBMB/VoxCPM")
+    (synopsis "Context-aware TTS and voice cloning")
+    (description
+     "VoxCPM provides tokenizer-free text-to-speech models for context-aware
+speech generation and voice cloning.  This package installs the VoxCPM Python
+library and command-line interface; model weights are downloaded separately from
+Hugging Face or supplied from a local model directory.")
+    (license license:asl2.0)))
+
+(define-public python-voxcpm-cuda
+  (package
+    (inherit python-voxcpm)
+    (name "python-voxcpm-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-voxcpm)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchaudio" python-torchaudio-cuda)
+                         (replace "python-torchcodec" python-torchcodec-cuda)
+                         (replace "python-transformers"
+                                  python-transformers-cuda)
+                         (replace "python-safetensors"
+                                  python-safetensors-cuda)))
+    (synopsis "VoxCPM TTS and voice cloning with CUDA support")
+    (description
+     "VoxCPM provides tokenizer-free text-to-speech models for context-aware
+speech generation and voice cloning.  This variant uses CUDA-enabled PyTorch,
+TorchAudio, TorchCodec, Transformers, and Safetensors packages.")))
 
 (define-public python-resemble-perth
   (package
