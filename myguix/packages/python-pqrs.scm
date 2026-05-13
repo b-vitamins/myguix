@@ -81,6 +81,62 @@
   (module-ref (resolve-interface '(myguix packages huggingface))
               'python-huggingface-hub))
 
+(define-public bibtex-parser
+  (package
+    (name "bibtex-parser")
+    (version "0.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "bibtex-parser" version))
+       (file-name (string-append name "-" version ".tar.gz"))
+       (sha256
+        (base32 "0kxkw3m2jgs8ch4gsykmnvpwx883qsf6al9hg89hhm25qws6vr70"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (inputs (myguix-cargo-inputs 'bibtex-parser))
+    (home-page "https://github.com/b-vitamins/citerra")
+    (synopsis "BibTeX parser for Rust")
+    (description "This package provides a BibTeX parser for Rust.")
+    (license (list license:expat license:asl2.0))))
+
+(define-public citerra
+  (package
+    (name "citerra")
+    (version "0.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "citerra" version))
+       (sha256
+        (base32 "1j62503qif1a6z1i032yqv12b5k69186byrhiscmsz2c1ij0d9r0"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:imported-modules `(,@%cargo-build-system-modules
+                           ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'install)
+          (add-after 'build 'build-python-module
+            (assoc-ref py:%standard-phases 'build))
+          (add-after 'build-python-module 'install-python-module
+            (assoc-ref py:%standard-phases 'install)))))
+    (inputs (cons* maturin
+                   (myguix-cargo-inputs 'citerra)))
+    (native-inputs (list python-wrapper))
+    (home-page "https://github.com/b-vitamins/citerra")
+    (synopsis "BibTeX parser for Python")
+    (description "This package provides a BibTeX parser for Python.")
+    (license (list license:expat license:asl2.0))))
+
 (define-public python-bencode-py
   (package
     (name "python-bencode-py")
