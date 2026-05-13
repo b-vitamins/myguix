@@ -609,6 +609,7 @@
         python-rich
         python-manim
         nlp:python-tiktoken
+        citerra
         python-pypdf
         python-pdfminer-six
         python-flake8
