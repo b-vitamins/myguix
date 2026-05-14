@@ -753,6 +753,81 @@ operators, relations, symbols, environments, and more. The templates work in
 both LaTeX and Org modes and support context-aware expansions.")
     (license license:gpl3+)))
 
+(define-public refbox
+  (package
+    (name "refbox")
+    (version "0.2.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/refbox")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1kh2an9ppnabxsv8zvg4f65ppblzkm7sxd7k68jywh5l9wrwr0pf"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:install-source? #f
+      #:cargo-build-flags '(list "--release")
+      #:cargo-test-flags '(list "--workspace")
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out")))
+                (mkdir-p out)
+                (setenv "CARGO_TARGET_DIR" "./target")
+                (invoke "cargo" "install" "--offline" "--no-track"
+                        "--path" "." "--root" out)))))))
+    (native-inputs
+     (list pkg-config))
+    (inputs
+     (cons sqlite
+           (lookup-cargo-inputs 'refbox)))
+    (home-page "https://github.com/b-vitamins/refbox")
+    (synopsis "Local-first bibliography engine")
+    (description
+     "Refbox is a local-first bibliography engine.  It keeps BibTeX files as
+the source of truth, builds a derived SQLite index, and serves fast search,
+lookup, source-location, resource, and formatting operations over JSON-RPC.")
+    (license license:gpl3+)))
+
+(define-public emacs-refbox
+  (package
+    (name "emacs-refbox")
+    (version "0.2.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/refbox")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1kh2an9ppnabxsv8zvg4f65ppblzkm7sxd7k68jywh5l9wrwr0pf"))))
+    (build-system emacs-build-system)
+    (arguments
+     (list
+      #:test-command
+      #~(list "emacs" "-Q" "--batch"
+              "-L" "."
+              "-l" "tests/test-init.el"
+              "-l" "refbox.el"
+              "-l" "tests/test-refbox.el"
+              "-f" "ert-run-tests-batch-and-exit")))
+    (propagated-inputs
+     (list refbox))
+    (home-page "https://github.com/b-vitamins/refbox")
+    (synopsis "Emacs interface for Refbox")
+    (description
+     "emacs-refbox provides bibliography commands for Emacs backed by the
+Refbox daemon.  It includes reference selection, citation insertion and
+editing for Org, LaTeX, and Markdown, resource and source opening, local
+bibliography export, Embark integration, and completion-at-point support.")
+    (license license:gpl3+)))
+
 (define-public slipbox
   (package
     (name "slipbox")
