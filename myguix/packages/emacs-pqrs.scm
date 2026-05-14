@@ -907,6 +907,39 @@ uses the companion slipbox daemon for indexing, querying, and structural file
 writes.")
     (license license:gpl3+)))
 
+(define-public emacs-refbox-org-slipbox
+  (package
+    (name "emacs-refbox-org-slipbox")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/b-vitamins/refbox-org-slipbox")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "11rqmp0jv4m1l2whcmv3klrzskxdy2zscrpjc20ad0dgcmb8zc3f"))))
+    (build-system emacs-build-system)
+    (arguments
+     (list
+      #:test-command
+      #~(list "emacs" "-Q" "--batch"
+              "-L" "."
+              "-l" "tests/test-refbox-org-slipbox.el"
+              "-f" "ert-run-tests-batch-and-exit")))
+    (propagated-inputs
+     (list emacs-refbox emacs-org-slipbox))
+    (home-page "https://github.com/b-vitamins/refbox-org-slipbox")
+    (synopsis "Org-slipbox note integration for Refbox")
+    (description
+     "refbox-org-slipbox connects Refbox bibliography references to
+org-slipbox notes.  It registers an org-slipbox-backed Refbox note source,
+maps bibliography keys to indexed org-slipbox refs, opens and creates notes
+through org-slipbox, and provides helpers for adding and opening current-node
+reference links.")
+    (license license:gpl3+)))
+
 (define-public emacs-consult-org-slipbox
   (package
     (name "emacs-consult-org-slipbox")
