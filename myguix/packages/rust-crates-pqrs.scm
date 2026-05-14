@@ -401,6 +401,10 @@
   (crate-source "chrono" "0.4.41"
                 "0k8wy2mph0mgipq28vv3wirivhb31pqs7jyid0dzjivz0i9djsf4"))
 
+(define rust-chrono-0.4.44
+  (crate-source "chrono" "0.4.44"
+                "1c64mk9a235271j5g3v4zrzqqmd43vp9vki7vqfllpqf5rd0fwy6"))
+
 (define rust-ciborium-0.2.2
   (crate-source "ciborium" "0.2.2"
                 "03hgfw4674im1pdqblcp77m7rc8x2v828si5570ga5q9dzyrzrj2"))
@@ -1097,6 +1101,10 @@
 (define rust-iana-time-zone-0.1.63
   (crate-source "iana-time-zone" "0.1.63"
                 "1n171f5lbc7bryzmp1h30zw86zbvl5480aq02z92lcdwvvjikjdh"))
+
+(define rust-iana-time-zone-0.1.65
+  (crate-source "iana-time-zone" "0.1.65"
+                "0w64khw5p8s4nzwcf36bwnsmqzf61vpwk9ca1920x82bk6nwj6z3"))
 
 (define rust-iana-time-zone-haiku-0.1.2
   (crate-source "iana-time-zone-haiku" "0.1.2"
@@ -3371,6 +3379,10 @@
   (crate-source "windows-core" "0.61.2"
                 "1qsa3iw14wk4ngfl7ipcvdf9xyq456ms7cx2i9iwf406p7fx7zf0"))
 
+(define rust-windows-core-0.62.2
+  (crate-source "windows-core" "0.62.2"
+                "1swxpv1a8qvn3bkxv8cn663238h2jccq35ff3nsj61jdsca3ms5q"))
+
 (define rust-windows-i686-gnu-0.48.5
   (crate-source "windows_i686_gnu" "0.48.5"
                 "0gklnglwd9ilqx7ac3cn8hbhkraqisd0n83jxzf9837nvvkiand7"))
@@ -3419,9 +3431,17 @@
   (crate-source "windows-implement" "0.60.0"
                 "0dm88k3hlaax85xkls4gf597ar4z8m5vzjjagzk910ph7b8xszx4"))
 
+(define rust-windows-implement-0.60.2
+  (crate-source "windows-implement" "0.60.2"
+                "1psxhmklzcf3wjs4b8qb42qb6znvc142cb5pa74rsyxm1822wgh5"))
+
 (define rust-windows-interface-0.59.1
   (crate-source "windows-interface" "0.59.1"
                 "1a4zr8740gyzzhq02xgl6vx8l669jwfby57xgf0zmkcdkyv134mx"))
+
+(define rust-windows-interface-0.59.3
+  (crate-source "windows-interface" "0.59.3"
+                "0n73cwrn4247d0axrk7gjp08p34x1723483jxjxjdfkh4m56qc9z"))
 
 (define rust-windows-link-0.1.1
   (crate-source "windows-link" "0.1.1"
@@ -3447,6 +3467,10 @@
   (crate-source "windows-result" "0.3.4"
                 "1il60l6idrc6hqsij0cal0mgva6n3w6gq4ziban8wv6c6b9jpx2n"))
 
+(define rust-windows-result-0.4.1
+  (crate-source "windows-result" "0.4.1"
+                "1d9yhmrmmfqh56zlj751s5wfm9a2aa7az9rd7nn5027nxa4zm0bp"))
+
 (define rust-windows-strings-0.3.1
   (crate-source "windows-strings" "0.3.1"
                 "06bkhkyclbfchcsv5bnhz77r290k20m15glj2xq60ra0bp64iyl7"))
@@ -3458,6 +3482,10 @@
 (define rust-windows-strings-0.4.2
   (crate-source "windows-strings" "0.4.2"
                 "0mrv3plibkla4v5kaakc2rfksdd0b14plcmidhbkcfqc78zwkrjn"))
+
+(define rust-windows-strings-0.5.1
+  (crate-source "windows-strings" "0.5.1"
+                "14bhng9jqv4fyl7lqjz3az7vzh8pw0w4am49fsqgcz67d67x0dvq"))
 
 (define rust-windows-sys-0.48.0
   ;; TODO: Check bundled sources.
@@ -6115,21 +6143,25 @@
                                     rust-zmij-1.0.21))
                      (slipbox =>
                               (list rust-aho-corasick-1.1.4
+                               rust-android-system-properties-0.1.5
                                rust-anstream-0.6.21
                                rust-anstyle-1.0.13
                                rust-anstyle-parse-0.2.7
                                rust-anstyle-query-1.1.5
                                rust-anstyle-wincon-3.0.11
                                rust-anyhow-1.0.102
+                               rust-autocfg-1.5.0
                                rust-bitflags-2.11.0
                                rust-bumpalo-3.20.2
                                rust-cc-1.2.56
                                rust-cfg-if-1.0.4
+                               rust-chrono-0.4.44
                                rust-clap-4.5.60
                                rust-clap-builder-4.5.60
                                rust-clap-derive-4.5.55
                                rust-clap-lex-1.0.0
                                rust-colorchoice-1.0.4
+                               rust-core-foundation-sys-0.8.7
                                rust-equivalent-1.0.2
                                rust-errno-0.3.14
                                rust-fallible-iterator-0.3.0
@@ -6143,6 +6175,8 @@
                                rust-hashlink-0.10.0
                                rust-heck-0.5.0
                                rust-id-arena-2.3.0
+                               rust-iana-time-zone-0.1.65
+                               rust-iana-time-zone-haiku-0.1.2
                                rust-indexmap-2.13.0
                                rust-is-terminal-polyfill-1.70.2
                                rust-itoa-1.0.17
@@ -6153,6 +6187,7 @@
                                rust-linux-raw-sys-0.12.1
                                rust-log-0.4.29
                                rust-memchr-2.8.0
+                               rust-num-traits-0.2.19
                                rust-once-cell-1.21.3
                                rust-once-cell-polyfill-1.70.2
                                rust-pkg-config-0.3.32
@@ -6196,7 +6231,12 @@
                                rust-wasm-metadata-0.244.0
                                rust-wasmparser-0.244.0
                                rust-winapi-util-0.1.11
+                               rust-windows-core-0.62.2
+                               rust-windows-implement-0.60.2
+                               rust-windows-interface-0.59.3
                                rust-windows-link-0.2.1
+                               rust-windows-result-0.4.1
+                               rust-windows-strings-0.5.1
                                rust-windows-sys-0.61.2
                                rust-wit-bindgen-0.51.0
                                rust-wit-bindgen-core-0.51.0

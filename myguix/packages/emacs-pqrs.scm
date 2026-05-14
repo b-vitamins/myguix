@@ -831,7 +831,7 @@ bibliography export, Embark integration, and completion-at-point support.")
 (define-public slipbox
   (package
     (name "slipbox")
-    (version "0.3.0")
+    (version "0.13.2")
     (source
      (origin
        (method git-fetch)
@@ -840,7 +840,7 @@ bibliography export, Embark integration, and completion-at-point support.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1fc1krbrfpz6zqwv85rxvnd6rfqrjk50x1minh7pvwyd4h3gpcr4"))))
+        (base32 "0w0p9cl8z3l6xv642if4a0h9fyad9ry5q6lpk8639f1y92dpvcmj"))))
     (build-system cargo-build-system)
     (arguments
      (list
@@ -875,7 +875,7 @@ JSON-RPC stdio interface.")
 (define-public emacs-org-slipbox
   (package
     (name "emacs-org-slipbox")
-    (version "0.3.0")
+    (version "0.13.2")
     (source
      (origin
        (method git-fetch)
@@ -884,7 +884,7 @@ JSON-RPC stdio interface.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1fc1krbrfpz6zqwv85rxvnd6rfqrjk50x1minh7pvwyd4h3gpcr4"))))
+        (base32 "0w0p9cl8z3l6xv642if4a0h9fyad9ry5q6lpk8639f1y92dpvcmj"))))
     (build-system emacs-build-system)
     (arguments
      (list
@@ -943,7 +943,7 @@ reference links.")
 (define-public emacs-consult-org-slipbox
   (package
     (name "emacs-consult-org-slipbox")
-    (version "0.1.0")
+    (version "0.2.0")
     (source
      (origin
        (method git-fetch)
@@ -952,7 +952,7 @@ reference links.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "12xz9w0kxlm0mzv205cr1l3n46yws1nmqhim8q88a2blrbfqg6vy"))))
+        (base32 "1yf8kqjfjpzixahd90dvlm8z9jpxn0x5wky5gwl63x90v4acp4s3"))))
     (build-system emacs-build-system)
     (arguments
      (list
@@ -967,8 +967,8 @@ reference links.")
     (synopsis "Consult integration for org-slipbox")
     (description
      "consult-org-slipbox provides Consult-powered interactive commands for
-org-slipbox.  It adds indexed node, file, ref, occurrence, backlink,
-forward-link, reflink, and unlinked-reference workflows, along with an optional
-mode that overrides org-slipbox readers and a consult-buffer source for open
-slipbox note buffers.")
+org-slipbox.  It adds indexed node, file, ref, occurrence, agenda, backlink,
+forward-link, reflink, unlinked-reference, and saved-artifact workflows, along
+with an optional mode that overrides org-slipbox readers and a consult-buffer
+source for open slipbox note buffers.")
     (license license:gpl3+)))
