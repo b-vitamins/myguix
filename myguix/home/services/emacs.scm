@@ -205,6 +205,8 @@
         emacs-rainbow-delimiters
         emacs-rainbow-identifiers
         emacs-rainbow-mode
+        emacs-refbox
+        emacs-refbox-org-slipbox
         emacs-request
         emacs-restclient
         emacs-rg
