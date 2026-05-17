@@ -2813,6 +2813,10 @@
   (crate-source "tinyvec" "1.10.0"
                 "1yhk0qdqyiaa4v2j9h8pzax5gxgwpz4da0lcphfil6g6pk1zv9dz"))
 
+(define rust-tinyvec-1.11.0
+  (crate-source "tinyvec" "1.11.0"
+                "1wvycrghzmaysnw34kzwnf0mfx6r75045s24r214wnnjadqfcq9y"))
+
 (define rust-tinyvec-1.8.1
   (crate-source "tinyvec" "1.8.1"
                 "1s41rv7n39sjsxz3kd3d4adw45ndkxz1d18rfbz2wd7s9n8bhb82"))
@@ -3028,6 +3032,10 @@
 (define rust-unicode-normalization-0.1.24
   (crate-source "unicode-normalization" "0.1.24"
                 "0mnrk809z3ix1wspcqy97ld5wxdb31f3xz6nsvg5qcv289ycjcsh"))
+
+(define rust-unicode-normalization-0.1.25
+  (crate-source "unicode-normalization" "0.1.25"
+                "1s76dcrxw7vs32yhpi0p074apdc3s7lak7809f3qvclwij3zdm2z"))
 
 (define rust-unicode-normalization-alignments-0.1.12
   (crate-source "unicode-normalization-alignments" "0.1.12"
@@ -6128,8 +6136,11 @@
                                     rust-thiserror-2.0.18
                                     rust-thiserror-impl-1.0.69
                                     rust-thiserror-impl-2.0.18
+                                    rust-tinyvec-1.11.0
+                                    rust-tinyvec-macros-0.1.1
                                     rust-typenum-1.20.0
                                     rust-unicode-ident-1.0.24
+                                    rust-unicode-normalization-0.1.25
                                     rust-utf8parse-0.2.2
                                     rust-vcpkg-0.2.15
                                     rust-version-check-0.9.5
