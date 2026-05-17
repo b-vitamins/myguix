@@ -3980,6 +3980,10 @@
   (crate-source "bibtex-parser" "0.3.1"
                 "0kxkw3m2jgs8ch4gsykmnvpwx883qsf6al9hg89hhm25qws6vr70"))
 
+(define rust-bibtex-parser-0.4.0
+  (crate-source "bibtex-parser" "0.4.0"
+                "1p8wlcbs9a8qc1dypmjfrjs94lqzkhsjjy5915phk0ga6ivqlh7l"))
+
 (define rust-bitflags-2.11.1
   (crate-source "bitflags" "2.11.1"
                 "1cvqijg3rvwgis20a66vfdxannjsxfy5fgjqkaq3l13gyfcj4lf4"))
@@ -6066,7 +6070,7 @@
                                     rust-anstyle-query-1.1.5
                                     rust-anstyle-wincon-3.0.11
                                     rust-anyhow-1.0.102
-                                    rust-bibtex-parser-0.3.1
+                                    rust-bibtex-parser-0.4.0
                                     rust-bitflags-2.11.1
                                     rust-block-buffer-0.12.0
                                     rust-bstr-1.12.1
