@@ -756,7 +756,7 @@ both LaTeX and Org modes and support context-aware expansions.")
 (define-public refbox
   (package
     (name "refbox")
-    (version "0.4.8")
+    (version "0.5.0")
     (source
      (origin
        (method git-fetch)
@@ -765,7 +765,7 @@ both LaTeX and Org modes and support context-aware expansions.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "18nvhi4wzrqnxlzc41imqg7c7wv9vzkqhs19kxgzmx7x51k5s906"))))
+        (base32 "0q81cxd78fn3n21gkwy9jwzp0l960xiyz5l8zq9fqv7n2c8188ad"))))
     (build-system cargo-build-system)
     (arguments
      (list
@@ -797,7 +797,7 @@ lookup, source-location, resource, and formatting operations over JSON-RPC.")
 (define-public emacs-refbox
   (package
     (name "emacs-refbox")
-    (version "0.4.8")
+    (version "0.5.0")
     (source
      (origin
        (method git-fetch)
@@ -806,7 +806,7 @@ lookup, source-location, resource, and formatting operations over JSON-RPC.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "18nvhi4wzrqnxlzc41imqg7c7wv9vzkqhs19kxgzmx7x51k5s906"))))
+        (base32 "0q81cxd78fn3n21gkwy9jwzp0l960xiyz5l8zq9fqv7n2c8188ad"))))
     (build-system emacs-build-system)
     (arguments
      (list
@@ -910,7 +910,7 @@ writes.")
 (define-public emacs-refbox-org-slipbox
   (package
     (name "emacs-refbox-org-slipbox")
-    (version "0.1.1")
+    (version "0.1.2")
     (source
      (origin
        (method git-fetch)
@@ -919,7 +919,7 @@ writes.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "13dgqnml92sd036hcbzkfx47av56033g79lmd2ijivkgysmh5kzn"))))
+        (base32 "1hlw3nvn19dj04hkicvkwppxifhw4l6yby9lrvd438vyrrcvcn27"))))
     (build-system emacs-build-system)
     (arguments
      (list
