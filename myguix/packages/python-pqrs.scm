@@ -84,14 +84,14 @@
 (define-public bibtex-parser
   (package
     (name "bibtex-parser")
-    (version "0.3.1")
+    (version "0.4.0")
     (source
      (origin
        (method url-fetch)
        (uri (crate-uri "bibtex-parser" version))
        (file-name (string-append name "-" version ".tar.gz"))
        (sha256
-        (base32 "0kxkw3m2jgs8ch4gsykmnvpwx883qsf6al9hg89hhm25qws6vr70"))))
+        (base32 "1p8wlcbs9a8qc1dypmjfrjs94lqzkhsjjy5915phk0ga6ivqlh7l"))))
     (build-system cargo-build-system)
     (arguments
      (list
