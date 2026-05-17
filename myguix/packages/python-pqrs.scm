@@ -105,13 +105,13 @@
 (define-public citerra
   (package
     (name "citerra")
-    (version "0.3.1")
+    (version "0.4.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "citerra" version))
        (sha256
-        (base32 "1j62503qif1a6z1i032yqv12b5k69186byrhiscmsz2c1ij0d9r0"))))
+        (base32 "1b9dijnwkaq1qglbrl0bjizfki15z36qqafzlnyr3dwg92mlwdfb"))))
     (build-system cargo-build-system)
     (arguments
      (list
