@@ -506,7 +506,6 @@
         python-lion-pytorch-cuda
         python-torchaudio-cuda
         nlp:python-chatterbox-tts-cuda
-        nlp:python-voxcpm-cuda
         python-torchcodec-cuda
         python-torchmetrics-cuda
         python-ray
