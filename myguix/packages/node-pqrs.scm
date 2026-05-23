@@ -7115,7 +7115,10 @@
        (method url-fetch)
        (uri "https://registry.npmjs.org/openclaw/-/openclaw-2026.5.20.tgz")
        (sha256
-        (base32 "0qwg22q75zx3h3r64i8d6cd6dp242p5xmz935ibm80xh1hrviki8"))))
+        (base32 "0qwg22q75zx3h3r64i8d6cd6dp242p5xmz935ibm80xh1hrviki8"))
+       (patches
+        (search-patches
+         "myguix/patches/openclaw-guix-home-shepherd-service.patch"))))
     (build-system node-build-system)
     (arguments
      (list

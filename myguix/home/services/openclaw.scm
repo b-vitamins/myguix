@@ -144,16 +144,25 @@ left alone.")
     (openclaw-non-negative-integer 30)
     "Seconds to wait for clean shutdown before Shepherd sends SIGKILL."))
 
+(define (openclaw-shepherd-service-name config)
+  (let ((provision (openclaw-gateway-configuration-provision config)))
+    (if (pair? provision)
+        (symbol->string (car provision))
+        "openclaw-gateway")))
+
 (define (openclaw-core-environment-variables config)
   "Return the shell-visible OpenClaw environment for CONFIG."
-  (let ((port (number->string (openclaw-gateway-configuration-port config))))
+  (let ((port (number->string (openclaw-gateway-configuration-port config)))
+        (service-name (openclaw-shepherd-service-name config)))
     `(("OPENCLAW_STATE_DIR" .
        ,(openclaw-gateway-configuration-state-directory config))
       ("OPENCLAW_CONFIG_PATH" .
        ,(openclaw-gateway-configuration-config-file config))
       ("OPENCLAW_WORKSPACE_DIR" .
        ,(openclaw-gateway-configuration-workspace-directory config))
-      ("OPENCLAW_GATEWAY_PORT" . ,port))))
+      ("OPENCLAW_GATEWAY_PORT" . ,port)
+      ("OPENCLAW_GATEWAY_SERVICE_MANAGER" . "guix-home-shepherd")
+      ("OPENCLAW_GATEWAY_SHEPHERD_SERVICE" . ,service-name))))
 
 (define (openclaw-profile-service config)
   (list (openclaw-gateway-configuration-package config)))
@@ -181,7 +190,8 @@ left alone.")
         (auto-onboard?
          (openclaw-gateway-configuration-auto-onboard? config))
         (onboard-extra-options
-         (openclaw-gateway-configuration-onboard-extra-options config)))
+         (openclaw-gateway-configuration-onboard-extra-options config))
+        (service-name (openclaw-shepherd-service-name config)))
     #~(begin
         (use-modules (guix build utils)
                      (srfi srfi-13))
@@ -288,7 +298,11 @@ left alone.")
                  ("OPENCLAW_STATE_DIR" . ,state-directory)
                  ("OPENCLAW_CONFIG_PATH" . ,config-file)
                  ("OPENCLAW_WORKSPACE_DIR" . ,workspace-directory)
-                 ("OPENCLAW_GATEWAY_PORT" . ,port))
+                 ("OPENCLAW_GATEWAY_PORT" . ,port)
+                 ("OPENCLAW_GATEWAY_SERVICE_MANAGER" .
+                  "guix-home-shepherd")
+                 ("OPENCLAW_GATEWAY_SHEPHERD_SERVICE" .
+                  #$service-name))
                (lambda ()
                  (let ((status
                         (apply system*
@@ -349,7 +363,8 @@ left alone.")
          (openclaw-gateway-configuration-environment-variables config))
         (respawn? (openclaw-gateway-configuration-respawn? config))
         (stop-grace-period
-         (openclaw-gateway-configuration-stop-grace-period config)))
+         (openclaw-gateway-configuration-stop-grace-period config))
+        (service-name (openclaw-shepherd-service-name config)))
     (list
      (shepherd-service
       (provision provision)
@@ -448,7 +463,12 @@ left alone.")
                         (string-append "OPENCLAW_WORKSPACE_DIR="
                                        workspace-directory)
                         (string-append "OPENCLAW_GATEWAY_PORT="
-                                       #$(number->string port))))
+                                       #$(number->string port))
+                        "OPENCLAW_GATEWAY_SERVICE_MANAGER=guix-home-shepherd"
+                        (string-append "OPENCLAW_GATEWAY_SHEPHERD_SERVICE="
+                                       #$service-name)
+                        "OPENCLAW_SERVICE_MARKER=openclaw"
+                        "OPENCLAW_SERVICE_KIND=gateway"))
                       (core-environment-variable-names
                        (map environment-variable-name
                             core-environment-variables))

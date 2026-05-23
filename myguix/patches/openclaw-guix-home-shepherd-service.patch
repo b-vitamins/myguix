@@ -1,0 +1,180 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: myguix <myguix@example.invalid>
+Date: Thu, 1 Jan 1970 00:00:00 +0000
+Subject: [PATCH] Add Guix Home Shepherd gateway service backend
+
+Teach the bundled gateway service resolver to use a Home Shepherd backend
+when OPENCLAW_GATEWAY_SERVICE_MANAGER=guix-home-shepherd is present.  This
+keeps OpenClaw status and lifecycle commands aligned with the Guix Home
+service instead of falling through to the upstream systemd backend.
+---
+ dist/service-Diz8JT6m.js | 142 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 142 insertions(+)
+
+diff --git a/dist/service-Diz8JT6m.js b/dist/service-Diz8JT6m.js
+index 1111111..2222222 100644
+--- a/dist/service-Diz8JT6m.js
++++ b/dist/service-Diz8JT6m.js
+@@ -1,4 +1,5 @@
+ import { a as normalizeLowercaseStringOrEmpty } from "./string-coerce-DyL154ka.js";
++import { r as runCommandWithTimeout } from "./exec-BfoAIu09.js";
+ import { d as stopSystemdService, l as restartSystemdService, o as readSystemdServiceExecStart, p as uninstallSystemdService, r as isSystemdServiceEnabled, s as readSystemdServiceRuntime, t as installSystemdService, u as stageSystemdService } from "./systemd-CpYh0dHU.js";
+ import { n as VERSION } from "./version-CQfgAE7_.js";
+ import { u as readConfigFileSnapshot } from "./io-8Mkqsky4.js";
+@@ -142,6 +143,144 @@ function describeGatewayServiceRestart(serviceNoun, result) {
+ 		progressMessage: `${serviceNoun} service restarted.`
+ 	};
+ }
++const GUIX_HOME_SHEPHERD_SERVICE_MANAGER = "guix-home-shepherd";
++const DEFAULT_GUIX_HOME_SHEPHERD_SERVICE = "openclaw-gateway";
++function normalizeTrimmedEnvValue(value) {
++	return typeof value === "string" ? value.trim() : "";
++}
++function useGuixHomeShepherdGatewayService(env = process.env) {
++	const manager = normalizeLowercaseStringOrEmpty(env.OPENCLAW_GATEWAY_SERVICE_MANAGER);
++	return process.platform === "linux" && (manager === GUIX_HOME_SHEPHERD_SERVICE_MANAGER || manager === "shepherd");
++}
++function resolveGuixHomeShepherdServiceName(env) {
++	return normalizeTrimmedEnvValue(env.OPENCLAW_GATEWAY_SHEPHERD_SERVICE) || DEFAULT_GUIX_HOME_SHEPHERD_SERVICE;
++}
++function resolveGuixHomeShepherdSocket(env) {
++	const explicit = normalizeTrimmedEnvValue(env.OPENCLAW_GATEWAY_SHEPHERD_SOCKET);
++	if (explicit) return explicit;
++	const runtimeDir = normalizeTrimmedEnvValue(env.XDG_RUNTIME_DIR);
++	return runtimeDir ? path.join(runtimeDir, "shepherd/socket") : "";
++}
++function resolveHerdCommand(env) {
++	return normalizeTrimmedEnvValue(env.OPENCLAW_HERD) || "herd";
++}
++function buildGuixHomeShepherdHerdArgv(env, args) {
++	const socket = resolveGuixHomeShepherdSocket(env);
++	return [
++		resolveHerdCommand(env),
++		...socket ? [
++			"-s",
++			socket
++		] : [],
++		...args
++	];
++}
++function readGuixHomeShepherdCommandDetail(result) {
++	return (result.stderr || result.stdout || "").trim();
++}
++async function runGuixHomeShepherdHerd(env, args, timeoutMs = 1e4) {
++	return await runCommandWithTimeout(buildGuixHomeShepherdHerdArgv(env, args), {
++		timeoutMs,
++		env
++	});
++}
++function formatGuixHomeShepherdFailure(action, result) {
++	const detail = readGuixHomeShepherdCommandDetail(result);
++	return `herd ${action} failed${detail ? `: ${detail}` : ""}`;
++}
++async function readGuixHomeShepherdStatus(env) {
++	return await runGuixHomeShepherdHerd(env, [
++		"status",
++		resolveGuixHomeShepherdServiceName(env)
++	]);
++}
++async function isGuixHomeShepherdServiceRegistered({ env = process.env } = {}) {
++	try {
++		return (await readGuixHomeShepherdStatus(env)).code === 0;
++	} catch {
++		return false;
++	}
++}
++async function readGuixHomeShepherdServiceCommand(_env = process.env) {
++	return null;
++}
++function parseGuixHomeShepherdRuntime(statusOutput) {
++	const output = statusOutput.trim();
++	const normalized = normalizeLowercaseStringOrEmpty(output);
++	const pidMatch = output.match(/Main PID:\s+([0-9]+)/);
++	const pid = pidMatch ? Number.parseInt(pidMatch[1], 10) : void 0;
++	if (normalized.includes("it is running")) return {
++		status: "running",
++		state: "running",
++		...Number.isSafeInteger(pid) && pid > 0 ? { pid } : {}
++	};
++	if (normalized.includes("it is stopped")) return {
++		status: "stopped",
++		state: "stopped"
++	};
++	const stateLine = output.split(/\r?\n/).map((line) => line.trim()).find((line) => line.startsWith("It is "));
++	return {
++		status: "unknown",
++		...stateLine || output ? { detail: stateLine || output.slice(0, 500) } : {}
++	};
++}
++async function readGuixHomeShepherdRuntime(env = process.env) {
++	let result;
++	try {
++		result = await readGuixHomeShepherdStatus(env);
++	} catch (error) {
++		return {
++			status: "unknown",
++			detail: String(error)
++		};
++	}
++	if (result.code !== 0) return {
++		status: "unknown",
++		detail: readGuixHomeShepherdCommandDetail(result) || "herd status failed"
++	};
++	return parseGuixHomeShepherdRuntime(result.stdout || result.stderr || "");
++}
++async function runGuixHomeShepherdServiceAction({ env = process.env, stdout }, action, label) {
++	const serviceName = resolveGuixHomeShepherdServiceName(env);
++	const result = await runGuixHomeShepherdHerd(env, [
++		action,
++		serviceName
++	], 3e4);
++	if (result.code !== 0) throw new Error(formatGuixHomeShepherdFailure(action, result));
++	stdout?.write(`${label}: ${serviceName}\n`);
++}
++async function stopGuixHomeShepherdService(args) {
++	const runtime = await readGuixHomeShepherdRuntime(args.env);
++	if (runtime.status === "stopped") return;
++	await runGuixHomeShepherdServiceAction(args, "stop", "Stopped Shepherd service");
++}
++async function restartGuixHomeShepherdService(args) {
++	const runtime = await readGuixHomeShepherdRuntime(args.env);
++	if (runtime.status === "running") {
++		if (typeof runtime.pid !== "number" || runtime.pid <= 0) throw new Error("Shepherd reports the OpenClaw gateway as running but did not expose its PID.");
++		process.kill(runtime.pid, "SIGUSR1");
++		args.stdout?.write(`Signaled Shepherd service restart: ${resolveGuixHomeShepherdServiceName(args.env)}\n`);
++		return { outcome: "completed" };
++	}
++	await runGuixHomeShepherdServiceAction(args, "start", "Started Shepherd service");
++	return { outcome: "completed" };
++}
++async function unavailableGuixHomeShepherdInstallAction() {
++	throw new Error("Guix Home manages the OpenClaw Shepherd service; edit your home configuration and run `guix home reconfigure`.");
++}
++const GUIX_HOME_SHEPHERD_GATEWAY_SERVICE = {
++	label: "Guix Home Shepherd",
++	loadedText: "registered",
++	notLoadedText: "missing",
++	stage: unavailableGuixHomeShepherdInstallAction,
++	install: unavailableGuixHomeShepherdInstallAction,
++	uninstall: unavailableGuixHomeShepherdInstallAction,
++	stop: stopGuixHomeShepherdService,
++	restart: restartGuixHomeShepherdService,
++	isLoaded: isGuixHomeShepherdServiceRegistered,
++	readCommand: readGuixHomeShepherdServiceCommand,
++	readRuntime: readGuixHomeShepherdRuntime
++};
+ const GATEWAY_SERVICE_REGISTRY = {
+ 	darwin: {
+ 		label: "LaunchAgent",
+@@ -201,6 +340,9 @@ function isSupportedGatewayServicePlatform(platform) {
+ 	return Object.hasOwn(GATEWAY_SERVICE_REGISTRY, platform);
+ }
+ function resolveGatewayService() {
++	if (useGuixHomeShepherdGatewayService()) {
++		return withFutureConfigGuard(GUIX_HOME_SHEPHERD_GATEWAY_SERVICE);
++	}
+ 	if (isSupportedGatewayServicePlatform(process.platform)) return withFutureConfigGuard(GATEWAY_SERVICE_REGISTRY[process.platform]);
+ 	throw new Error(`Gateway service install not supported on ${process.platform}`);
+ }
+-- 
+2.51.0
