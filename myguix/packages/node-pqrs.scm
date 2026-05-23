@@ -2,6 +2,10 @@
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module (gnu packages)
+  #:use-module (gnu packages base)
+  #:use-module (gnu packages bash)
+  #:use-module ((gnu packages bootstrap)
+                #:select (glibc-dynamic-linker))
   #:use-module (gnu packages fontutils)
   #:use-module (gnu packages gtk)
   #:use-module (gnu packages icu4c)
@@ -13,9 +17,12 @@
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module (gnu packages rust-apps)
+  #:use-module (gnu packages sqlite)
   #:use-module (gnu packages tls)
+  #:use-module (gnu packages version-control)
   #:use-module (gnu packages node)
   #:use-module (guix build-system cmake)
+  #:use-module (guix build-system copy)
   #:use-module (guix build-system node)
   #:use-module (guix download)
   #:use-module (guix gexp)
@@ -7319,6 +7326,81 @@
     (home-page "https://proxyline.dev")
     (synopsis "Process-global proxy routing for Node.js.")
     (description "Process-global proxy routing for Node.js.")
+    (license license:expat)))
+
+(define-public node-opencode-bin
+  (package
+    (name "node-opencode-bin")
+    (version "1.15.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (let ((system (or (%current-target-system) (%current-system))))
+              (cond
+               ((string=? system "x86_64-linux")
+                (string-append
+                 "https://registry.npmjs.org/opencode-linux-x64-baseline/"
+                 "-/opencode-linux-x64-baseline-"
+                 version ".tgz"))
+               ((string=? system "aarch64-linux")
+                (string-append
+                 "https://registry.npmjs.org/opencode-linux-arm64/-/opencode-linux-arm64-"
+                 version ".tgz"))
+               (else (error "unsupported system for node-opencode-bin"
+                            system)))))
+       (sha256
+        (base32 (let ((system (or (%current-target-system) (%current-system))))
+                  (cond
+                   ((string=? system "x86_64-linux")
+                    "1zp2rkq09q4nnmgbd6caliadzly9shqygy3fl0jyz4iqcr7cdq6k")
+                   ((string=? system "aarch64-linux")
+                    "12gj5wda5vgn7386k4x0wm0nimzyxb4zw5iqmkm233nyxv779f9h")
+                   (else (error "unsupported system for node-opencode-bin"
+                                system))))))))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:strip-binaries? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((bindir (string-append (assoc-ref outputs "out")
+                                           "/bin")))
+                (mkdir-p bindir)
+                (install-file "bin/opencode" bindir))))
+          (add-after 'install 'patch-binary
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (opencode (string-append out "/bin/opencode"))
+                     (glibc (assoc-ref inputs "glibc"))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker))))
+                (chmod opencode #o755)
+                ;; This Bun single executable segfaults if patchelf writes
+                ;; the interpreter first and RPATH second.
+                (invoke "patchelf" "--set-rpath"
+                        (string-append glibc "/lib")
+                        opencode)
+                (invoke "patchelf" "--set-interpreter" ld.so opencode))))
+          (add-after 'patch-binary 'wrap-runtime-tools
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let ((opencode (string-append (assoc-ref outputs "out")
+                                             "/bin/opencode")))
+                (wrap-program opencode
+                  `("PATH" ":" prefix
+                    ,(map (lambda (name)
+                            (string-append (assoc-ref inputs name) "/bin"))
+                          '("git-minimal" "ripgrep" "sqlite"))))))))))
+    (native-inputs (list patchelf))
+    (inputs (list bash-minimal git-minimal glibc ripgrep sqlite))
+    (supported-systems '("x86_64-linux" "aarch64-linux"))
+    (home-page "https://opencode.ai")
+    (synopsis "AI coding agent for the terminal")
+    (description
+     "OpenCode is an AI coding agent for the terminal.  This package installs
+the upstream pre-built OpenCode executable and adapts it to Guix by patching
+its dynamic linker and using Guix-provided runtime tools.")
     (license license:expat)))
 
 (define-public node-p-limit-2.3.0
