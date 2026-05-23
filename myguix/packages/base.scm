@@ -254,7 +254,10 @@
         password-store))
 
 (define %ai-assistants
-  (list node-openai-codex node-anthropic-ai-claude-code))
+  (list node-openai-codex
+        node-anthropic-ai-claude-code
+        node-openclaw
+        node-opencode-bin))
 
 ;; System Management Bundles
 (define %system-monitoring
