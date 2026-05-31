@@ -414,14 +414,14 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
 (define-public nvidia-driver-580
   (package
     (name "nvidia-driver")
-    (version "580.159.03")
+    (version "580.159.04")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "0xzshdvw0d84zp2zpi0ms2405z88sbd9vcv13x8cjh7nn2cmvj1j"))
+       (sha256 (base32 "07nappxgmp3nl40v00nihhkbwf5gx6frgdkcvwx7plc8n1hngrn1"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-580))))
     (build-system copy-build-system)
@@ -992,7 +992,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define-public nvidia-settings-580
   (package
     (name "nvidia-settings")
-    (version "580.159.03")
+    (version "580.159.04")
     (source
      (origin
        (method git-fetch)
@@ -1002,7 +1002,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "1l2zvhjn2sz8h7nqlrg254irvqg3cq9pb4vr4j7g6m4lpgrwkzch"))))
+       (sha256 (base32 "13rrsnynb64aaj8w4mc46dyv73fgq79qg71zn1bfch90rrr64j2k"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -3341,7 +3341,7 @@ See also
 (define-public nvidia-modprobe-580
   (package
     (name "nvidia-modprobe")
-    (version "580.159.03")
+    (version "580.159.04")
     (source
      (origin
        (method git-fetch)
@@ -3350,7 +3350,7 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1g4pc51xq5pzifvzdf9gzd0dndyjbdxdblh0rjrgg8w3c16n7p4y"))))
+               (base32 "127rb7qfvx7gmcwn13232r44fhb2lyamnrx9g07k8z6im3jav0kz"))))
     (build-system gnu-build-system)
     (arguments
      (list
