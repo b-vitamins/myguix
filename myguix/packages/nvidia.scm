@@ -719,6 +719,21 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))))
 
+(define-public nvidia-driver-new-feature
+  (package
+    (inherit nvidia-driver-595)
+    (name "nvidia-driver-new-feature")
+    (version "610.43.02")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
+             version "/NVIDIA-Linux-x86_64-" version ".run"))
+       (file-name (string-append "NVIDIA-Linux-x86_64-" version))
+       (sha256 (base32 "0qvllxnb20arjhw3bxdz0hw521di9ib75hldzx97gpscpdaa0d1h"))
+       (modules '((guix build utils)))
+       (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))))
+
 (define-public nvidia-driver-beta
   (package
     (inherit nvidia-driver-595)
@@ -786,6 +801,14 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
     (version (package-version nvidia-driver-595))
     (source
      (package-source nvidia-driver-595))))
+
+(define-public nvidia-firmware-new-feature
+  (package
+    (inherit nvidia-firmware-595)
+    (name "nvidia-firmware-new-feature")
+    (version (package-version nvidia-driver-new-feature))
+    (source
+     (package-source nvidia-driver-new-feature))))
 
 (define-public nvidia-firmware-beta
   (package
@@ -879,6 +902,14 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (source
      (package-source nvidia-driver-595))))
 
+(define-public nvidia-module-new-feature
+  (package
+    (inherit nvidia-module-595)
+    (name "nvidia-module-new-feature")
+    (version (package-version nvidia-driver-new-feature))
+    (source
+     (package-source nvidia-driver-new-feature))))
+
 (define-public nvidia-module-beta
   (package
     (inherit nvidia-module-580)
@@ -905,6 +936,9 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
   (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"
                         "nvidia-module-open-bsb-dsc-fix.patch"
                         "nvidia-module-open-fix-linux-6.19.patch"))
+
+(define %nvidia-module-open-new-feature-patches
+  (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"))
 
 (define (nvidia-module-open-arguments patches)
   (substitute-keyword-arguments (package-arguments nvidia-module-580)
@@ -981,6 +1015,25 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (patches %nvidia-module-open-ibt-patches)))
     (arguments
      (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))))
+
+(define-public nvidia-module-open-new-feature
+  (package
+    (inherit nvidia-module-open-595)
+    (name "nvidia-module-open-new-feature")
+    (version "610.43.02")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/open-gpu-kernel-modules")
+             (commit version)))
+       (file-name (git-file-name "nvidia-module-open" version))
+       (sha256
+        (base32
+         "06xqq2brq9r616qm37z4vyjj9rz2m8r51rkj1006pg3qjralvzl4"))
+       (patches %nvidia-module-open-new-feature-patches)))
+    (arguments
+     (nvidia-module-open-arguments %nvidia-module-open-new-feature-patches))))
 
 (define-public nvidia-module-open nvidia-module-open-580)
 
@@ -1091,6 +1144,22 @@ configuration, creating application profiles, gpu monitoring and more.")
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
        (sha256 (base32 "198hgpizzc0qzmbzfvyhh6nz86xggfp7gjp7vk0pgkmg7kgdyycr"))))))
+
+(define-public nvidia-settings-new-feature
+  (package
+    (inherit nvidia-settings-595)
+    (name "nvidia-settings-new-feature")
+    (version "610.43.02")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-settings")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (modules '((guix build utils)))
+       (snippet '(delete-file-recursively "src/jansson"))
+       (sha256 (base32 "18dh375bksq7lc80y3swpa4iz7npvfj8v90zp6z3b330yjwj306i"))))))
 
 (define-public nvidia-settings-beta
   (package
@@ -1326,6 +1395,7 @@ content.")
                        '#$(list (this-package-input "libglvnd")
                                 (this-package-input "mesa")
                                 (or (this-package-input "nvidia-driver")
+                                    (this-package-input "nvidia-driver-new-feature")
                                     (this-package-input "nvidia-driver-beta"))
                                 (this-package-input "nvidia-vaapi-driver"))))))
     (native-search-paths
@@ -1388,6 +1458,9 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
 
 (define-public nvda-595
   (make-nvda nvidia-driver-595))
+
+(define-public nvda-new-feature
+  (make-nvda nvidia-driver-new-feature))
 
 (define-public nvdb
   (make-nvda nvidia-driver-beta
@@ -3421,6 +3494,21 @@ See also
        (file-name (git-file-name name version))
        (sha256
         (base32 "0sr54fzjgjv6n46g53ggs19ri6v9hd723ks8vlhs24k48sfsymax"))))))
+
+(define-public nvidia-modprobe-new-feature
+  (package
+    (inherit nvidia-modprobe-595)
+    (name "nvidia-modprobe-new-feature")
+    (version "610.43.02")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/nvidia-modprobe")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "047iiw3y02623japn2cc4zpmn3djfgck9i8xabm6p69r3xjz2p70"))))))
 
 (define-public nvidia-modprobe-beta
   (package
