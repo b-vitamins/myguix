@@ -17,6 +17,7 @@
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module (gnu packages rust-apps)
+  #:use-module (gnu packages shells)
   #:use-module (gnu packages sqlite)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages version-control)
@@ -18580,14 +18581,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.133.0")
+    (version "0.135.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "0fl9adv1s2fz5wqk1clp87jky787rwfhbspy4by2sjwzy8qsda9n"))))
+        (base32 "19zvp386cv2crydkr6rg8gd0n6irpqrs5jmzgab5qr5d13migbaq"))))
     (build-system node-build-system)
     (native-inputs (list `("platform-source" ,(origin
                                                 (method url-fetch)
@@ -18616,14 +18617,15 @@ characters using Unicode emoji modifier bases.")
                                                                     ((string=?
                                                                       system
                                                                       "x86_64-linux")
-                                                                     "078rwgp9j7mb02mj63y3cpxnaqwyilviazxizz04nnv5nzz1k199")
+                                                                     "1gybmb5l5849qf47l50g1v36i6wlj5khk4d3pf852jfk9sjh2nq1")
                                                                     ((string=?
                                                                       system
                                                                       "aarch64-linux")
-                                                                     "1v8nii56x0dw06g9wmq9icrnzjhhd65wp24jagv8v4zkv07zpsm1")
+                                                                     "0wfsfn6gxw49qq8px8dc95i71kvix6kkcd4rx4f98jiyv9247vik")
                                                                     (else (error
                                                                            "unsupported system for node-openai-codex"
                                                                            system))))))))))
+    (inputs (list zsh))
     (arguments
      (list
       #:tests? #f
@@ -18641,7 +18643,16 @@ characters using Unicode emoji modifier bases.")
               (when (file-exists? "bin/rg")
                 (delete-file "bin/rg"))
               (for-each delete-file
-                        (find-files "vendor" "/path/rg$")) #t)))))
+                        (find-files "vendor" "^rg$")) #t))
+          (add-after 'strip 'replace-vendored-zsh
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              ;; Replace bundled dynamic zsh with the Guix build.
+              (for-each (lambda (file)
+                          (delete-file file)
+                          (symlink (search-input-file inputs "/bin/zsh")
+                                   file))
+                        (find-files (assoc-ref outputs "out")
+                                    "^zsh$")) #t)))))
     (propagated-inputs (list node ripgrep))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (home-page "https://github.com/openai/codex")
