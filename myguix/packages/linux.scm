@@ -213,7 +213,7 @@ some freedo package or an output of package-version procedure."
 
 ;; linux-lts points to the *newest* released long-term support version.
 (define-public linux-lts
-  linux-6.12)
+  linux-6.18)
 
 (define-public linux-arm64-generic-5.10
   (corrupt-linux linux-libre-arm64-generic-5.10
