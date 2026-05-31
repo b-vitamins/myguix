@@ -831,7 +831,7 @@ bibliography export, Embark integration, and completion-at-point support.")
 (define-public slipbox
   (package
     (name "slipbox")
-    (version "0.13.2")
+    (version "0.14.0")
     (source
      (origin
        (method git-fetch)
@@ -840,7 +840,7 @@ bibliography export, Embark integration, and completion-at-point support.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0w0p9cl8z3l6xv642if4a0h9fyad9ry5q6lpk8639f1y92dpvcmj"))))
+        (base32 "1aq6jqmcvn3fg0alpf977qflhw40aw5n0l4pqmzz22mw7yy5dm9x"))))
     (build-system cargo-build-system)
     (arguments
      (list
@@ -875,7 +875,7 @@ JSON-RPC stdio interface.")
 (define-public emacs-org-slipbox
   (package
     (name "emacs-org-slipbox")
-    (version "0.13.2")
+    (version "0.14.0")
     (source
      (origin
        (method git-fetch)
@@ -884,7 +884,7 @@ JSON-RPC stdio interface.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0w0p9cl8z3l6xv642if4a0h9fyad9ry5q6lpk8639f1y92dpvcmj"))))
+        (base32 "1aq6jqmcvn3fg0alpf977qflhw40aw5n0l4pqmzz22mw7yy5dm9x"))))
     (build-system emacs-build-system)
     (arguments
      (list
