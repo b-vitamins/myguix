@@ -847,9 +847,20 @@ bibliography export, Embark integration, and completion-at-point support.")
       #:install-source? #f
       #:features '(list "system-sqlite")
       #:cargo-build-flags '(list "--release" "--no-default-features")
-      #:cargo-test-flags '(list "--no-default-features" "--features=system-sqlite")
       #:phases
       #~(modify-phases %standard-phases
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                ;; This upstream test hard-codes 2026-06-01 as a range fixture
+                ;; while also generating a "today" fixture from Local::now().
+                ;; It fails when the build date is 2026-06-01.
+                (invoke "cargo" "test" "--offline"
+                        "--no-default-features"
+                        "--features=system-sqlite"
+                        "--"
+                        "--skip"
+                        "agenda_commands_query_today_date_and_ranges"))))
           (replace 'install
             (lambda* (#:key outputs #:allow-other-keys)
               (let ((out (assoc-ref outputs "out")))
@@ -910,7 +921,7 @@ writes.")
 (define-public emacs-refbox-org-slipbox
   (package
     (name "emacs-refbox-org-slipbox")
-    (version "0.1.3")
+    (version "0.2.0")
     (source
      (origin
        (method git-fetch)
@@ -919,7 +930,7 @@ writes.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0pjczx42qy4hii6s29nh53p96ikvj8kw1xqf76wr1qlp05xn6g5b"))))
+        (base32 "1wmsw9v3q4lq79z87b1xc5y99bln2dn69gm3yb6fkc33p9xsychf"))))
     (build-system emacs-build-system)
     (arguments
      (list
