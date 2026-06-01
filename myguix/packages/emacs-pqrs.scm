@@ -831,7 +831,7 @@ bibliography export, Embark integration, and completion-at-point support.")
 (define-public slipbox
   (package
     (name "slipbox")
-    (version "0.14.0")
+    (version "0.14.1")
     (source
      (origin
        (method git-fetch)
@@ -840,7 +840,7 @@ bibliography export, Embark integration, and completion-at-point support.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1aq6jqmcvn3fg0alpf977qflhw40aw5n0l4pqmzz22mw7yy5dm9x"))))
+        (base32 "089kwkngjq5h9hrhwqnchb2lh33bcch8b1l6kf6y111j1lywqi87"))))
     (build-system cargo-build-system)
     (arguments
      (list
@@ -852,15 +852,9 @@ bibliography export, Embark integration, and completion-at-point support.")
           (replace 'check
             (lambda* (#:key tests? #:allow-other-keys)
               (when tests?
-                ;; This upstream test hard-codes 2026-06-01 as a range fixture
-                ;; while also generating a "today" fixture from Local::now().
-                ;; It fails when the build date is 2026-06-01.
                 (invoke "cargo" "test" "--offline"
                         "--no-default-features"
-                        "--features=system-sqlite"
-                        "--"
-                        "--skip"
-                        "agenda_commands_query_today_date_and_ranges"))))
+                        "--features=system-sqlite"))))
           (replace 'install
             (lambda* (#:key outputs #:allow-other-keys)
               (let ((out (assoc-ref outputs "out")))
@@ -886,7 +880,7 @@ JSON-RPC stdio interface.")
 (define-public emacs-org-slipbox
   (package
     (name "emacs-org-slipbox")
-    (version "0.14.0")
+    (version "0.14.1")
     (source
      (origin
        (method git-fetch)
@@ -895,7 +889,7 @@ JSON-RPC stdio interface.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1aq6jqmcvn3fg0alpf977qflhw40aw5n0l4pqmzz22mw7yy5dm9x"))))
+        (base32 "089kwkngjq5h9hrhwqnchb2lh33bcch8b1l6kf6y111j1lywqi87"))))
     (build-system emacs-build-system)
     (arguments
      (list
