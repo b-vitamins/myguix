@@ -1,12 +1,16 @@
 (define-module (myguix packages maths)
+  #:use-module (gnu packages bison)
+  #:use-module (gnu packages)
   #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages base)
   #:use-module (gnu packages cpio)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages flex)
   #:use-module (gnu packages guile)
   #:use-module (gnu packages maths)
+  #:use-module (gnu packages multiprecision)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages package-management)
   #:use-module (gnu packages python)
@@ -22,14 +26,380 @@
   #:use-module (guix git-download)
   #:use-module (guix gexp)
   #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module ((guix licenses)
                 #:prefix license-gnu:)
   #:use-module ((myguix licenses)
                 #:prefix license:)
+  #:use-module (myguix build-system bazel)
+  #:use-module (myguix packages bazel)
   #:use-module (myguix packages nvidia)
   #:use-module ((gnu packages bootstrap)
                 #:select (glibc-dynamic-linker))
   #:use-module (srfi srfi-26))
+
+
+;;;
+;;; SMT solvers.
+;;;
+
+(define (dreal-bazel-distdir-source url hash)
+  (origin
+    (method url-fetch)
+    (uri url)
+    (sha256 (base32 hash))))
+
+(define dreal-bazel-distdir-sources
+  (list
+   (dreal-bazel-distdir-source
+    "https://github.com/bazelbuild/bazel-skylib/archive/1.0.3.tar.gz"
+    "1jvb4h8rvf7gk6xycn9nhwn4jdg2h7phjppvkxdnzbf4q24gmh3s")
+   (dreal-bazel-distdir-source
+    "https://github.com/cpplint/cpplint/archive/1.5.3.tar.gz"
+    "1wr8j17licsgzx3frlfkqfy21kl3f2nc0nv52wniq8pwcpg0hxa4")
+   (dreal-bazel-distdir-source
+    "https://github.com/PyCQA/pycodestyle/archive/2.6.0.tar.gz"
+    "15wwqcphcbj0dxvnp7w8wnj95clrkfpyih8p679sz4nc92y7yd08")
+   (dreal-bazel-distdir-source
+    "https://github.com/dreal-deps/ezoptionparser/archive/94bc81269eb500fb188727777e1ced9b15d97572.tar.gz"
+    "1yzp3fx58shivgcq31rj0z98i5fgw8pgifd33mqja73s3p16mww1")
+   (dreal-bazel-distdir-source
+    "https://github.com/google/googletest/archive/662fe38e44900c007eccb65a5d2ea19df7bd520e.tar.gz"
+    "18skbb5gqlfwvv502las6rs514m6x70zbh6cc6x4y8j5vvdl54vi")
+   (dreal-bazel-distdir-source
+    "https://github.com/bazelbuild/rules_python/releases/download/0.1.0/rules_python-0.1.0.tar.gz"
+    "1843rhjcrdz7x8lmlxm6yr93l8hkxs842m5drvrw0gisa8w69m5n")
+   (dreal-bazel-distdir-source
+    "https://github.com/bazelbuild/rules_pkg/releases/download/0.3.0/rules_pkg-0.3.0.tar.gz"
+    "0jl04fwqykyzqb6rr4f7l25vwbzkzh33nxqnz010rdnpmjknjnbb")
+   (dreal-bazel-distdir-source
+    "https://github.com/gabime/spdlog/archive/v1.8.5.tar.gz"
+    "1f5l8fjka7q6wpni0s7krrknzlay7c7vp8nwk09p5b33qzbhnkcl")
+   (dreal-bazel-distdir-source
+    "https://github.com/fmtlib/fmt/archive/7.1.3.tar.gz"
+    "1k2yq341aflrgy6kdpniv94nkdxv0ks0xmak5phl6c1b0ir71bjw")
+   (dreal-bazel-distdir-source
+    "https://github.com/dreal-deps/picosat/archive/4ee7aa1d1c645df8fa9daa07f2be17c6d03b35fc.tar.gz"
+    "18x7nvq81ldm9izsc8px4b48vhs1b4lys657az4ksklxcp9n3r0v")
+   (dreal-bazel-distdir-source
+    "https://github.com/pybind/pybind11/archive/v2.12.0.tar.gz"
+    "19w544l1jkbf5g9858hrjpbsnwgvj1s0d9qnsmsx7g0splm293xz")
+   (dreal-bazel-distdir-source
+    "https://github.com/abseil/abseil-cpp/archive/20200923.3.tar.gz"
+    "1lnyagawb9g8sagqdflyl3kda4pk5v5f44a2pzj86wyjh0aavqpb")
+   (dreal-bazel-distdir-source
+    "https://github.com/khizmax/libcds/archive/v2.3.3.tar.gz"
+    "1273wk370nqpq5yg9xvf90icnb6yc1rb5gghnb1a6qvbrl73i47h")))
+
+(define-public ibex
+  (package
+    (name "ibex")
+    (version "2.7.4-10")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/dreal-deps/ibex-lib")
+             (commit "0112b423c94515302c551c478c30e98ff442752d")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0mzw0yjmq2sfq7pwp417j74xqn0ccb84wqrjs46b8z7j9v55j346"))
+       (patches (search-patches "myguix/patches/ibex-gcc15.patch"))))
+    (supported-systems '("x86_64-linux"))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'bootstrap)
+          (replace 'configure
+            (lambda* (#:key outputs #:allow-other-keys)
+              (setenv "CXXFLAGS" "-D_GLIBCXX_HAVE_FENV_H=1")
+              (invoke "python2.7" "./waf" "configure"
+                      (string-append "--prefix=" #$output)
+                      "--enable-shared"
+                      "--interval-lib=filib"
+                      "--lp-lib=clp"
+                      "--with-optim"
+                      "--with-solver"
+                      "--with-affine")))
+          (replace 'build
+            (lambda* (#:key parallel-build? #:allow-other-keys)
+              (invoke "python2.7" "./waf" "build"
+                      (string-append
+                       "-j"
+                       (number->string
+                        (if parallel-build?
+                            (parallel-job-count)
+                            1))))))
+          (replace 'install
+            (lambda _
+              (invoke "python2.7" "./waf" "install")))
+          (add-after 'install 'move-pkg-config-file
+            (lambda _
+              (let ((pkgconfig (string-append #$output "/lib/pkgconfig")))
+                (mkdir-p pkgconfig)
+                (rename-file (string-append #$output "/share/pkgconfig/ibex.pc")
+                             (string-append pkgconfig "/ibex.pc")))))
+          (add-after 'install 'set-rpaths
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((runpath (string-join
+                              (list (string-append #$output "/lib")
+                                     (string-append #$(this-package-input "clp")
+                                                   "/lib")
+                                     (string-append #$(this-package-input "bzip2")
+                                                   "/lib")
+                                     (string-append
+                                      (assoc-ref inputs "gcc:lib") "/lib")
+                                     (string-append
+                                      (assoc-ref inputs "glibc") "/lib"))
+                              ":")))
+                (for-each
+                 (lambda (file)
+                   (invoke "patchelf" "--set-rpath" runpath file))
+                 (append (find-files (string-append #$output "/bin"))
+                         (find-files (string-append #$output "/lib")
+                                     "^libibex\\.so$"))))))
+          (add-after 'set-rpaths 'check-installed
+            (lambda _
+              (invoke (string-append #$output "/bin/ibexsolve") "--version"))))))
+    (native-inputs (list bash-minimal bison flex patchelf-0.16 pkg-config python-2))
+    (propagated-inputs (list bzip2 clp))
+    (inputs `(("gcc:lib" ,gcc "lib")
+              ("glibc" ,glibc)))
+    (home-page "https://ibex-lib.readthedocs.io/")
+    (synopsis "Interval-based solver library")
+    (description
+     "IBEX is a C++ library for interval arithmetic, constraint propagation,
+and interval-based nonlinear solving.  This package uses the dReal-maintained
+IBEX 2.7.4 branch with the Filib interval backend and CLP support.")
+    (license license-gnu:lgpl3+)))
+
+(define-public dreal
+  (package
+    (name "dreal")
+    (version "4.21.06.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/dreal/dreal4")
+             (commit "4067225cd85ae8668d8172ed5dc594f573721134")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1yyhvcwy96ygzx8zgfvfafcg0akxw77hxp57kg370g0lkl2ha3wz"))
+       (patches (search-patches "myguix/patches/dreal-guix-compat.patch"))))
+    (supported-systems '("x86_64-linux"))
+    (build-system bazel-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:bazel bazel
+      #:fetch-targets '(list "//dreal:dreal" "//:libdreal.so" "//dreal:_dreal_py.so")
+      #:build-targets '(list "//dreal:dreal" "//:libdreal.so" "//dreal:_dreal_py.so")
+      #:distdir-inputs dreal-bazel-distdir-sources
+      #:bazel-jobs 4
+      #:bazel-arguments
+      #~(list "--cxxopt=-D_GLIBCXX_HAVE_FENV_H=1"
+              "--action_env=PYTHON_BIN_PATH"
+              "--host_action_env=PYTHON_BIN_PATH"
+              (string-append "--python_path="
+                             #$(this-package-input "python")
+                             "/bin/python3"))
+      #:vendored-inputs-hash
+      "098cjvmc8rwpbsp2l8w22dnp3f7161kpx54nrvfnyh8h7icc435j"
+      #:bazel-configuration
+      #~(let* ((python (which "python3"))
+               (shell (which "sh"))
+               (pkg-config-paths
+                (list (string-append #$(this-package-input "ibex")
+                                     "/lib/pkgconfig")
+                      (string-append #$(this-package-input "clp")
+                                     "/lib/pkgconfig")
+                      (string-append #$(this-package-input "nlopt")
+                                     "/lib/pkgconfig")
+                      (string-append #$(this-package-input "gmp")
+                                     "/lib/pkgconfig"))))
+          (setenv "PYTHON_BIN_PATH" python)
+          (setenv "DREAL_GUIX_PKG_CONFIG_PATHS"
+                  (string-join pkg-config-paths ":"))
+          (setenv "DREAL_GUIX_GMP_PREFIX"
+                  #$(this-package-input "gmp"))
+          (setenv "BAZEL_SH" shell)
+          (setenv "SHELL" shell)
+          (setenv "CONFIG_SHELL" shell))
+      #:phases
+      #~(modify-phases (@ (myguix build bazel-build-system) %standard-phases)
+          (add-after 'unpack 'patch-guix-paths
+            (lambda _
+              (let* ((pkg-config-paths
+                      (list (string-append #$(this-package-input "ibex")
+                                           "/lib/pkgconfig")
+                            (string-append #$(this-package-input "clp")
+                                           "/lib/pkgconfig")
+                            (string-append #$(this-package-input "nlopt")
+                                           "/lib/pkgconfig")))
+                     (pkg-config-lines
+                      (string-append
+                       "pkg_config_paths = [\n"
+                       (string-join
+                        (map (lambda (path)
+                               (string-append "            \"" path "\","))
+                             pkg-config-paths)
+                        "\n"))))
+                (substitute* "dreal/workspace.bzl"
+                  (("pkg_config_paths = \\[") pkg-config-lines))
+                (substitute*
+                    "third_party/com_github_google_kythe/tools/build_rules/BUILD.bazel"
+                  (("/usr/bin/bison") (which "bison"))
+                  (("/usr/bin/flex") (which "flex")))
+                (substitute* "third_party/org_gmplib/repository.bzl"
+                  (("/usr/include/x86_64-linux-gnu/gmp.h")
+                   (string-append #$(this-package-input "gmp") "/include/gmp.h"))
+                  (("/usr/include/gmp.h")
+                   (string-append #$(this-package-input "gmp") "/include/gmp.h"))
+                  (("/usr/include/gmpxx.h")
+                   (string-append #$(this-package-input "gmp") "/include/gmpxx.h")))
+                (substitute* "third_party/org_gmplib/package-ubuntu.BUILD.bazel"
+                  (("-L/usr/lib/x86_64-linux-gnu")
+                   (string-append "-L" #$(this-package-input "gmp") "/lib"))))))
+          (add-after 'build 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (bin (string-append out "/bin"))
+                     (lib (string-append out "/lib"))
+                     (pkgconfig (string-append lib "/pkgconfig"))
+                     (include (string-append out "/include"))
+                     (python-version
+                      #$(version-major+minor (package-version python)))
+                     (site-packages
+                      (string-append lib "/python" python-version
+                                     "/site-packages/dreal"))
+                     (install-relative-header
+                      (lambda (root header)
+                        (let ((relative
+                               (substring header (string-length root))))
+                          (install-file
+                           header
+                           (string-append include "/" (dirname relative)))))))
+                (mkdir-p bin)
+                (mkdir-p lib)
+                (mkdir-p pkgconfig)
+                (mkdir-p include)
+                (mkdir-p site-packages)
+                (install-file "bazel-bin/dreal/dreal" bin)
+                (install-file "bazel-bin/libdreal.so" lib)
+                (for-each
+                 (lambda (header)
+                   (install-relative-header "" header))
+                 (find-files "dreal" "\\.(h|hpp)$"))
+                (for-each
+                 (lambda (root)
+                   (for-each
+                    (lambda (header)
+                      (install-relative-header root header))
+                    (find-files root "\\.(h|hpp)$")))
+                 '("third_party/com_github_pinam45_dynamic_bitset/"
+                   "third_party/com_github_robotlocomotion_drake/"
+                   "third_party/com_github_tartanllama_optional/"))
+                (install-file "bazel-bin/dreal/version.h"
+                              (string-append include "/dreal"))
+                (install-file "dreal/__init__.py" site-packages)
+                (install-file "bazel-bin/dreal/_dreal_py.so" site-packages)
+                (install-file "bazel-bin/libdreal.so" site-packages)
+                (call-with-output-file (string-append pkgconfig "/dreal.pc")
+                  (lambda (port)
+                    (format port "prefix=~a~%" out)
+                    (display "includedir=${prefix}/include\n" port)
+                    (display "libdir=${prefix}/lib\n\n" port)
+                    (display "Name: dReal\n" port)
+                    (display "Description: SMT Solver for Nonlinear Theories\n"
+                             port)
+                    (format port "Version: ~a~%" #$version)
+                    (display "Requires: ibex, nlopt\n" port)
+                    (display "Libs: -L${libdir} -ldreal\n" port)
+                    (display "Cflags: -I${includedir}\n" port))))))
+          (add-after 'install 'set-rpaths
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (python-version
+                      #$(version-major+minor (package-version python)))
+                     (site-packages
+                      (string-append out "/lib/python" python-version
+                                     "/site-packages/dreal"))
+                     (runpath
+                      (string-join
+                       (list (string-append out "/lib")
+                             (string-append #$(this-package-input "ibex") "/lib")
+                             (string-append #$(this-package-input "clp") "/lib")
+                             (string-append #$(this-package-input "bzip2") "/lib")
+                             (string-append #$(this-package-input "nlopt") "/lib")
+                             (string-append #$(this-package-input "gmp") "/lib")
+                             (string-append
+                              (assoc-ref inputs "gcc:lib") "/lib")
+                             (string-append
+                             (assoc-ref inputs "glibc") "/lib"))
+                       ":")))
+                (for-each (lambda (file)
+                            (chmod file #o755))
+                          (list (string-append out "/bin/dreal")
+                                (string-append out "/lib/libdreal.so")
+                                (string-append site-packages "/_dreal_py.so")
+                                (string-append site-packages "/libdreal.so")))
+                (invoke "patchelf" "--set-rpath" runpath
+                        (string-append out "/bin/dreal"))
+                (invoke "patchelf" "--set-rpath" runpath
+                        (string-append out "/lib/libdreal.so"))
+                (invoke "patchelf" "--set-rpath"
+                        (string-append "$ORIGIN:" runpath)
+                        (string-append site-packages "/_dreal_py.so"))
+                (invoke "patchelf" "--set-rpath"
+                        (string-append "$ORIGIN:" runpath)
+                        (string-append site-packages "/libdreal.so")))))
+          (add-after 'set-rpaths 'check-runtime
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (python-version
+                      #$(version-major+minor (package-version python)))
+                     (pythonpath
+                      (string-append out "/lib/python" python-version
+                                     "/site-packages"))
+                     (smt2 (string-append (getcwd) "/guix-smoke.smt2")))
+                (call-with-output-file smt2
+                  (lambda (port)
+                    (display "(set-logic QF_NRA)\n" port)
+                    (display "(declare-fun x () Real)\n" port)
+                    (display "(assert (and (>= x 0) (<= x 1)))\n" port)
+                    (display "(check-sat)\n" port)))
+                (invoke (string-append out "/bin/dreal") "--version")
+                (invoke (string-append out "/bin/dreal") smt2)
+                (setenv "PYTHONPATH" pythonpath)
+                (with-directory-excursion out
+                  (invoke "python3" "-c"
+                          (string-append
+                           "import dreal; "
+                           "x = dreal.Variable('x'); "
+                           "print(dreal.CheckSatisfiability("
+                           "dreal.And(x >= 0, x <= 1), 0.001)); "
+                           "print(dreal.__version__)")))))))))
+    (native-inputs (list bison flex patchelf-0.16 pkg-config))
+    (propagated-inputs (list ibex nlopt))
+    (inputs `(("bash-minimal" ,bash-minimal)
+              ("bzip2" ,bzip2)
+              ("clp" ,clp)
+              ("gcc:lib" ,gcc "lib")
+              ("gmp" ,gmp)
+              ("ibex" ,ibex)
+              ("glibc" ,glibc)
+              ("python" ,python)))
+    (home-page "https://dreal.github.io/")
+    (synopsis "SMT solver for nonlinear theories of real numbers")
+    (description
+     "dReal is an SMT solver for nonlinear theories over real numbers.  It
+implements delta-complete decision procedures and includes a command-line
+solver, shared library, and Python bindings.")
+    (license license-gnu:asl2.0)))
 
 
 ;;;

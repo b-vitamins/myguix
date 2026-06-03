@@ -1,0 +1,124 @@
+Fix IBEX 2.7.4 with GCC 15.
+
+IBEX's Waf files unconditionally add -U__STRICT_ANSI__ as an old workaround
+for Windows builds.  With GCC 15's libstdc++ this breaks standard headers such
+as <limits>.  Filib also needs fenv declarations when its interval headers are
+included by consumers.
+
+diff --git a/plugins/operators/src/ibex_atanhc.h b/plugins/operators/src/ibex_atanhc.h
+--- a/plugins/operators/src/ibex_atanhc.h
++++ b/plugins/operators/src/ibex_atanhc.h
+@@ -12,6 +12,7 @@
+ #define __IBEX_ATANHC_H__
+ 
+ #include "ibex_ExprOperators.h"
++#include <limits>
+ 
+ namespace ibex {
+ 
+diff --git a/plugins/operators/src/ibex_atanhccc.h b/plugins/operators/src/ibex_atanhccc.h
+--- a/plugins/operators/src/ibex_atanhccc.h
++++ b/plugins/operators/src/ibex_atanhccc.h
+@@ -11,6 +11,7 @@
+ #define __IBEX_ATANHCCC_H__
+ 
+ #include "ibex_ExprOperators.h"
++#include <limits>
+ 
+ namespace ibex {
+ 
+diff --git a/ibex.pc.in b/ibex.pc.in
+--- a/ibex.pc.in
++++ b/ibex.pc.in
+@@ -6,5 +6,5 @@ Description: A C++ library for interval-based algorithm design
+ Version: @VERSION@
+ Requires: clp
+-Cflags: -I${includedir} -I${includedir}/ibex -I${includedir}/ibex/3rd -frounding-math -ffloat-store -msse3
++Cflags: -I${includedir} -I${includedir}/ibex -I${includedir}/ibex/3rd -frounding-math -ffloat-store -msse3 -D_GLIBCXX_HAVE_FENV_H=1
+ Libs: -L${libdir} -libex
+
+diff --git a/plugins/optim/wscript b/plugins/optim/wscript
+--- a/plugins/optim/wscript
++++ b/plugins/optim/wscript
+@@ -34,7 +34,6 @@ def configure(conf):
+ 	conf.check_cxx(cxxflags = "--std=c++11", uselib_store="IBEXOPT")
+ 
+ 	# To fix Windows compilation problem (strdup with std=c++11, see issue #287)
+-	conf.check_cxx(cxxflags = "-U__STRICT_ANSI__", uselib_store="IBEXOPT")
+ 	
+ 	# Add information in ibex_Setting
+ 	conf.setting_define ("WITH_OPTIM", 1)
+diff --git a/plugins/solver/wscript b/plugins/solver/wscript
+--- a/plugins/solver/wscript
++++ b/plugins/solver/wscript
+@@ -34,7 +34,6 @@ def configure(conf):
+ 	conf.check_cxx(cxxflags = "-std=c++11", uselib_store="IBEXSOLVER")
+ 
+ 	# To fix Windows compilation problem (strdup with std=c++11, see issue #287)
+-	conf.check_cxx(cxxflags = "-U__STRICT_ANSI__", uselib_store="IBEXSOLVER")
+ 
+ 	# Add information in ibex_Setting
+ 	conf.setting_define ("WITH_SOLVER", 1)
+diff --git a/src/data/ibex_Cov.h b/src/data/ibex_Cov.h
+--- a/src/data/ibex_Cov.h
++++ b/src/data/ibex_Cov.h
+@@ -16,6 +16,7 @@
+ #include <list>
+ #include <vector>
+ #include <fstream>
++#include <cstdint>
+ #include <stack>
+ 
+ namespace ibex {
+diff --git a/ibexutils.py b/ibexutils.py
+--- a/ibexutils.py
++++ b/ibexutils.py
+@@ -166,6 +166,27 @@ def configure_3rd_party_with_autotools (conf, archive_name,
+     # Apply patches 
+     conf.apply_all_relevant_patches (name)
+ 
++    if not Utils.is_win32:
++        conf.find_program ("sh")
++        sh = conf.env.SH[0]
++        os.environ["CONFIG_SHELL"] = sh
++        os.environ["SHELL"] = sh
++        for root, dirs, files in os.walk(srcdir):
++            for filename in files:
++                path = os.path.join(root, filename)
++                try:
++                    f = open(path, "rb")
++                    data = f.read()
++                    f.close()
++                except IOError:
++                    continue
++                if data.startswith("#!/bin/sh") or data.startswith("#! /bin/sh"):
++                    line_end = data.find("\n")
++                    if line_end != -1:
++                        f = open(path, "wb")
++                        f.write("#! %s\n%s" % (sh, data[line_end + 1:]))
++                        f.close()
++
+     # always build static library, even if ibex is built as a shared library.
+     conf_args += " --enable-static --disable-shared"
+ 
+@@ -188,7 +188,8 @@ def configure_3rd_party_with_autotools (conf, archive_name,
+         cmd_make = conf.env.MAKE + make_args
+     else:
+         conf_args += " --prefix=%s" % destnode.abspath ()
+-        cmd_conf = "./configure %s" % (conf_args)
++        conf.find_program ("sh")
++        cmd_conf = conf.env.SH + ["./configure"] + conf_args.split()
+         cmd_make = conf.env.MAKE + ["-j%d"%conf.options.jobs] + make_args
+     cmd_install = conf.env.MAKE + ["install"] 
+ 
+diff --git a/wscript b/wscript
+--- a/wscript
++++ b/wscript
+@@ -120,7 +120,6 @@ def configure(conf):
+ 		conf.check_cxx(cxxflags=f, use="IBEX", mandatory=False, uselib_store="IBEX")
+ 	
+ 	# To fix Windows compilation problem (strdup with std=c++11, see issue #287)
+-	conf.check_cxx(cxxflags = "-U__STRICT_ANSI__", uselib_store="IBEX")
+ 
+ 	# Build as shared lib is asked
+ 	conf.start_msg ("Ibex will be built as a")

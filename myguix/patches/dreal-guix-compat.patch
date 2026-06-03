@@ -1,0 +1,194 @@
+Adjust dReal 4.21.06.2 for the Guix toolchain.
+
+Bazel 6 removed the old @bazel_tools//platforms aliases, Python 3.11 needs a
+newer pybind11 than dReal 4.21.06.2 pinned, and GCC 15 diagnoses an invalid
+member access in the vendored tl::optional<T&> specialization.
+
+diff -ruN a/dreal/workspace.bzl b/dreal/workspace.bzl
+--- a/dreal/workspace.bzl	2021-06-19 19:05:55.000000000 +0530
++++ b/dreal/workspace.bzl	2026-06-03 18:46:49.152567163 +0530
+@@ -73,9 +73,9 @@
+     github_archive(
+         name = "pybind11",  # BSD
+         build_file = str(Label("//tools:pybind11.BUILD.bazel")),
+-        commit = "v2.6.2",
++        commit = "v2.12.0",
+         repository = "pybind/pybind11",
+-        sha256 = "8ff2fff22df038f5cd02cea8af56622bc67f5b64534f1b83b9f133b8366acff2",
++        sha256 = "bf8f242abd1abcd375d516a7067490fb71abd79519a282d22b6e4d19282185a7",
+     )
+ 
+     github_archive(
+diff -ruN a/third_party/com_github_tartanllama_optional/dreal/util/optional.hpp b/third_party/com_github_tartanllama_optional/dreal/util/optional.hpp
+--- a/third_party/com_github_tartanllama_optional/dreal/util/optional.hpp	2021-06-19 19:05:55.000000000 +0530
++++ b/third_party/com_github_tartanllama_optional/dreal/util/optional.hpp	2026-06-03 18:46:49.164567276 +0530
+@@ -1982,14 +1982,10 @@
+     return *this;
+   }
+ 
+-  /// Constructs the value in-place, destroying the current one if there is
+-  /// one.
+-  template <class... Args> T &emplace(Args &&... args) noexcept {
+-    static_assert(std::is_constructible<T, Args &&...>::value,
+-                  "T must be constructible with Args");
+-
+-    *this = nullopt;
+-    this->construct(std::forward<Args>(args)...);
++  /// Rebinds the optional reference in-place.
++  template <class U = T> T &emplace(U &&u) noexcept {
++    static_assert(std::is_lvalue_reference<U>::value, "U must be an lvalue");
++    m_value = std::addressof(u);
+     return value();
+   }
+ 
+diff -ruN a/tools/BUILD b/tools/BUILD
+--- a/tools/BUILD	2021-06-19 19:05:55.000000000 +0530
++++ b/tools/BUILD	2026-06-03 18:46:49.156567200 +0530
+@@ -31,7 +31,7 @@
+ 
+ config_setting(
+     name = "apple",
+-    constraint_values = ["@bazel_tools//platforms:osx"],
++    constraint_values = ["@platforms//os:osx"],
+     visibility = ["//visibility:public"],
+ )
+ 
+@@ -58,7 +58,7 @@
+ 
+ config_setting(
+     name = "linux",
+-    constraint_values = ["@bazel_tools//platforms:linux"],
++    constraint_values = ["@platforms//os:linux"],
+     visibility = ["//visibility:public"],
+ )
+ 
+diff -ruN a/third_party/com_github_robotlocomotion_drake/tools/workspace/pkg_config.bzl b/third_party/com_github_robotlocomotion_drake/tools/workspace/pkg_config.bzl
+--- a/third_party/com_github_robotlocomotion_drake/tools/workspace/pkg_config.bzl	2021-06-19 19:05:55.000000000 +0530
++++ b/third_party/com_github_robotlocomotion_drake/tools/workspace/pkg_config.bzl	2026-06-03 19:09:49.000000000 +0530
+@@ -35,6 +35,10 @@
+     pkg_config_paths = getattr(repository_ctx.attr,
+                                "pkg_config_paths",
+                                [])
++    guix_pkg_config_paths = repository_ctx.os.environ.get(
++        "DREAL_GUIX_PKG_CONFIG_PATHS", "")
++    if guix_pkg_config_paths:
++        pkg_config_paths = pkg_config_paths + guix_pkg_config_paths.split(":")
+ 
+     # Check if we can find the required *.pc file of any version.
+     result = _run_pkg_config(repository_ctx, args, pkg_config_paths)
+@@ -202,6 +206,7 @@
+     },
+     environ = [
+         "PATH",
++        "DREAL_GUIX_PKG_CONFIG_PATHS",
+     ],
+     local = True,
+     implementation = _impl,
+ 
+diff -ruN a/third_party/org_gmplib/repository.bzl b/third_party/org_gmplib/repository.bzl
+--- a/third_party/org_gmplib/repository.bzl	2021-06-19 19:05:55.000000000 +0530
++++ b/third_party/org_gmplib/repository.bzl	2026-06-03 19:18:52.000000000 +0530
+@@ -1,3 +1,31 @@
++def _linux_build_file(libdir):
++    return """
++licenses([
++    "restricted",  # LGPL-3
++])
++
++cc_library(
++    name = "gmp",
++    hdrs = [
++        "include/gmp.h",
++        "include/gmpxx.h",
++    ],
++    includes = ["include"],
++    linkopts = [
++        "-L{}",
++        "-lgmpxx",
++        "-lgmp",
++    ],
++    visibility = ["//visibility:public"],
++)
++""".format(libdir)
++
++def _symlink_linux_build(repository_ctx, libdir = ""):
++    if libdir:
++        repository_ctx.file("BUILD.bazel", _linux_build_file(libdir))
++    else:
++        repository_ctx.symlink(Label("@dreal//third_party/org_gmplib:package-ubuntu.BUILD.bazel"), "BUILD.bazel")
++
+ def _impl(repository_ctx):
+     if repository_ctx.os.name == "mac os x":
+         repository_ctx.symlink(
+@@ -14,6 +39,13 @@
+         )
+     elif repository_ctx.os.name == "linux":
+         GMP_H_UBUNTU = "/usr/include/x86_64-linux-gnu/gmp.h"
++        guix_gmp_prefix = repository_ctx.os.environ.get("DREAL_GUIX_GMP_PREFIX", "")
++        if guix_gmp_prefix:
++            repository_ctx.symlink(guix_gmp_prefix + "/include/gmp.h", "include/gmp.h")
++            repository_ctx.symlink(guix_gmp_prefix + "/include/gmpxx.h", "include/gmpxx.h")
++            _symlink_linux_build(repository_ctx, guix_gmp_prefix + "/lib")
++            return
++
+         GMP_H_FEDORA = "/usr/include/gmp.h"
+         if repository_ctx.path(GMP_H_UBUNTU).exists:
+             repository_ctx.symlink(GMP_H_UBUNTU, "include/gmp.h")
+@@ -22,18 +54,16 @@
+         else:
+             fail("Failed to locate gmp.h")
+         repository_ctx.symlink("/usr/include/gmpxx.h", "include/gmpxx.h")
+-        repository_ctx.symlink(
+-            Label(
+-                ("@dreal//third_party/org_gmplib:package-ubuntu.BUILD.bazel"),
+-            ),
+-            "BUILD.bazel",
+-        )
++        _symlink_linux_build(repository_ctx)
+     else:
+         fail("Operating system is NOT supported", attr = repository_ctx.os.name)
+ 
+ gmp_repository = repository_rule(
+     configure = True,
++    environ = [
++        "DREAL_GUIX_GMP_PREFIX",
++    ],
+     local = True,
+     implementation = _impl,
+ )
+
+diff -ruN a/tools/pybind11.BUILD.bazel b/tools/pybind11.BUILD.bazel
+--- a/tools/pybind11.BUILD.bazel	2021-06-19 19:05:55.000000000 +0530
++++ b/tools/pybind11.BUILD.bazel	2026-06-03 18:46:49.160567240 +0530
+@@ -2,30 +2,7 @@
+ 
+ cc_library(
+     name = "pybind11",
+-    hdrs = [
+-        "include/pybind11/attr.h",
+-        "include/pybind11/buffer_info.h",
+-        "include/pybind11/cast.h",
+-        "include/pybind11/chrono.h",
+-        "include/pybind11/complex.h",
+-        "include/pybind11/detail/class.h",
+-        "include/pybind11/detail/common.h",
+-        "include/pybind11/detail/descr.h",
+-        "include/pybind11/detail/init.h",
+-        "include/pybind11/detail/internals.h",
+-        "include/pybind11/detail/typeid.h",
+-        "include/pybind11/eigen.h",
+-        "include/pybind11/embed.h",
+-        "include/pybind11/eval.h",
+-        "include/pybind11/functional.h",
+-        "include/pybind11/iostream.h",
+-        "include/pybind11/operators.h",
+-        "include/pybind11/options.h",
+-        "include/pybind11/pybind11.h",
+-        "include/pybind11/pytypes.h",
+-        "include/pybind11/stl.h",
+-        "include/pybind11/stl_bind.h",
+-    ],
++    hdrs = glob(["include/pybind11/**/*.h"]),
+     copts = [
+         "-fexceptions",
+         "-Xclang-only=-Wno-undefined-inline",
