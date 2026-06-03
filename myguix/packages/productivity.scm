@@ -247,151 +247,197 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
     (license (license:nonfree "https://obsidian.md/license"))))
 
 (define-public google-antigravity
-  (package
-    (name "google-antigravity")
-    (version "1.23.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (let* ((system (or (%current-target-system)
-                               (%current-system)))
-                   (deb-version (match system
-                                  ("x86_64-linux" "1.23.2-1776332190")
-                                  ("aarch64-linux" "1.23.2-1776332230")
-                                  (_ "unsupported")))
-                   (arch+hash (match system
-                                ("x86_64-linux"
-                                 "amd64_d29aa2e214aa69c5a7199fce43624422")
-                                ("aarch64-linux"
-                                 "arm64_cdd44fd493c967bb35c13b3b2c49e726")
-                                (_ "unsupported"))))
-              (string-append
-               "https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/"
-               "pool/antigravity-debian/antigravity_"
-               deb-version
-               "_"
-               arch+hash
-               ".deb")))
-       (file-name (string-append name "-" version ".deb"))
-       (sha256
-        (base32 (match (or (%current-target-system)
-                           (%current-system))
-                  ("x86_64-linux"
-                   "190pcfnsdzb84skjgk6357j8zrynxgsi7xyj1dj3c73r4qnz7mdx")
-                  ("aarch64-linux"
-                   "0f4xmwc3jb8hkj0f4qv64jdpg8z0lykq4lgasl54raxgbdpahyr8")
-                  (_ "0000000000000000000000000000000000000000000000000000"))))))
-    (supported-systems '("x86_64-linux" "aarch64-linux"))
-    (build-system chromium-binary-build-system)
-    (arguments
-     (list
-      #:substitutable? #f
-      #:validate-runpath? #f ;TODO: fails on wrapped binaries and bundled node modules
-      #:wrapper-plan
-      #~(let ((rpath '(("out" "/share/antigravity"))))
-          (map (lambda (file)
-                 (list (string-append "share/antigravity/" file) rpath))
-               '("antigravity" "chrome-sandbox"
-                 "chrome_crashpad_handler"
-                 "libEGL.so"
-                 "libGLESv2.so"
-                 "libffmpeg.so"
-                 "libvk_swiftshader.so"
-                 "libvulkan.so.1")))
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'binary-unpack 'setup-cwd
-            (lambda _
-              (copy-recursively "usr/" ".")
-              (delete-file-recursively "usr")
-              (substitute* '("share/applications/antigravity.desktop"
-                             "share/applications/antigravity-url-handler.desktop")
-                (("/usr/share/antigravity/antigravity")
-                 (string-append #$output "/bin/antigravity")))))
-          (add-after 'setup-cwd 'patch-browser-launcher
-            (lambda _
-              (let ((launcher
-                     "share/antigravity/resources/app/extensions/antigravity-browser-launcher/dist/extension.js"))
-                ;; The browser launcher extension was removed/moved in newer
-                ;; upstream releases.
-                (when (file-exists? launcher)
-                  (substitute* launcher
-                    (("\"/opt/google/chrome/chrome\"")
-                     "\"/opt/google/chrome/chrome\",\"/run/current-system/profile/bin/google-chrome\""))))
-              #t))
-          (add-after 'setup-cwd 'patch-language-server
-            (lambda* (#:key inputs outputs #:allow-other-keys)
-              (let* ((output (assoc-ref outputs "out"))
-                     (wrap-inputs (map cdr inputs))
-                     (lib-directories (search-path-as-list '("lib")
-                                                           wrap-inputs))
-                     (interpreter (car (find-files (assoc-ref inputs "libc")
-                                                   "ld-linux.*\\.so")))
-                     (servers (find-files
-                               "share/antigravity/resources/app/extensions/antigravity/bin"
-                               "^language_server_linux_")))
-                (unless (pair? servers)
-                  (error "No Antigravity language server binaries found"
-                   "share/antigravity/resources/app/extensions/antigravity/bin"))
-                (for-each (lambda (server)
-                            (format #t
-                             "Patching Antigravity language server: ~a~%"
-                             server)
-                            (invoke "patchelf" "--set-interpreter" interpreter
-                                    server)
-                            (invoke "patchelf" "--set-rpath"
-                                    (string-join (append lib-directories
-                                                         (list (string-append
-                                                                output
-                                                                "/share/antigravity")))
-                                                 ":") server)) servers) #t)))
-          (add-after 'patch-language-server 'patch-workbench-folder-picker
-            (lambda _
-              ;; The welcome screen's Open Folder action routes through the
-              ;; workbench file-dialog service and can stall on Linux when it
-              ;; tries to use the native picker path.  Force the simplified
-              ;; in-app picker instead.
-              (substitute*
-                  "share/antigravity/resources/app/out/vs/workbench/workbench.desktop.main.js"
-                (("this\\.g\\.getValue\\(\"files\\.simpleDialog\\.enable\"\\)===!0")
-                 "!0"))
-              #t))
-          (add-before 'install-wrapper 'install-entrypoint
-            (lambda _
-              (let* ((bin (string-append #$output "/bin"))
-                     (exe (string-append bin "/antigravity"))
-                     (target (string-append #$output
-                              "/share/antigravity/bin/antigravity")))
-                (mkdir-p bin)
-                (with-output-to-file exe
-                  (lambda _
-                    (display "#!/bin/sh\n")
-                    (display (string-append "exec \"" target "\" \"$@\"\n"))))
-                (chmod exe #o555))))
-          (add-after 'install-wrapper 'configure-runtime-wrapper
-            (lambda _
-              (substitute* (string-append #$output "/bin/.antigravity-real")
-                ;; Avoid Electron's portal-backed folder picker, which can
-                ;; leave the welcome screen's Open Folder action inert.
-                (("^exec .*$")
-                 (string-append
-                  "if [ -z \"${PLAYWRIGHT_NODEJS_PATH:-}\" ] && command -v node >/dev/null 2>&1; then"
-                  "\n"
-                  "  export PLAYWRIGHT_NODEJS_PATH=\"$(command -v node)\""
-                  "\n"
-                  "fi"
-                  "\n"
-                  "exec \""
-                  #$output
-                  "/share/antigravity/bin/antigravity\""
-                  " --xdg-portal-required-version=999 \"$@\"")))
-              #t)))))
-    (inputs (list node))
-    (home-page "https://antigravity.google")
-    (synopsis "AI-powered development environment")
-    (description
-     "Google Antigravity is an AI-powered development environment and code editor.")
-    (license (license:nonfree "https://antigravity.google/terms"))))
+  (let ((antigravity-logo (origin
+                            (method url-fetch)
+                            (uri
+                             "https://antigravity.google/assets/image/antigravity-logo.png")
+                            (file-name "antigravity-logo.png")
+                            (sha256 (base32
+                                     "169766fbb91klrpaa6kk1a83wrq58pf2y3hh9l5r7gqxsb99a2wg")))))
+    (package
+      (name "google-antigravity")
+      (version "2.0.10")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (let* ((system (or (%current-target-system)
+                                 (%current-system)))
+                     (arch (match system
+                             ("x86_64-linux" "linux-x64")
+                             ("aarch64-linux" "linux-arm")
+                             (_ "unsupported"))))
+                (string-append
+                 "https://storage.googleapis.com/antigravity-public/"
+                 "antigravity-hub/"
+                 version
+                 "-5119448496078848/"
+                 arch
+                 "/Antigravity.tar.gz")))
+         (file-name (string-append name "-" version ".tar.gz"))
+         (sha256
+          (base32 (match (or (%current-target-system)
+                             (%current-system))
+                    ("x86_64-linux"
+                     "0ckfchxyh80cc5dwph105bdizxkhmfddhr7cnn4158xf8fx61nhj")
+                    ("aarch64-linux"
+                     "1awwnqsh1qcwsw9aqiyvhn3gh2np4yzs0zvisdwqd5mydhx7xh1i")
+                    (_ "0000000000000000000000000000000000000000000000000000"))))))
+      (supported-systems '("x86_64-linux" "aarch64-linux"))
+      (build-system chromium-binary-build-system)
+      (arguments
+       (list
+        #:substitutable? #f
+        #:validate-runpath? #f ;TODO: fails on wrapped binaries and bundled node modules
+        #:wrapper-plan
+        #~(let ((rpath '(("out" "/share/antigravity"))))
+            (map (lambda (file)
+                   (list file rpath))
+                 '("antigravity" "chrome-sandbox"
+                   "chrome_crashpad_handler"
+                   "libEGL.so"
+                   "libGLESv2.so"
+                   "libffmpeg.so"
+                   "libvk_swiftshader.so"
+                   "libvulkan.so.1"
+                   "resources/bin/language_server"
+                   "resources/bin/webm_encoder")))
+        #:install-plan
+        #~'(("." "/share/antigravity"))
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'binary-unpack 'disable-auto-updates
+              (lambda _
+                (delete-file "resources/app-update.yml")))
+            (add-after 'disable-auto-updates 'disable-protocol-registration
+              (lambda _
+                ;; Guix installs the scheme handler through the desktop file.
+                ;; Avoid Electron invoking xdg-mime during startup.  Patch the
+                ;; asar payload in place with a same-length replacement so the
+                ;; archive offsets remain valid.
+                (use-modules (rnrs bytevectors)
+                             (rnrs io ports))
+                (let* ((file "resources/app.asar")
+                       (needle (string->utf8
+                                "electron_1.app.setAsDefaultProtocolClient(PROTOCOL);"))
+                       (replacement (string->utf8
+                                     "electron_1.app.isDefaultProtocolClient(PROTOCOL);   "))
+                       (data (call-with-input-file file
+                               get-bytevector-all
+                               #:binary #t)))
+                  (define (match-at? offset)
+                    (let loop
+                      ((index 0))
+                      (or (= index
+                             (bytevector-length needle))
+                          (and (= (bytevector-u8-ref data
+                                                     (+ offset index))
+                                  (bytevector-u8-ref needle index))
+                               (loop (+ index 1))))))
+                  (define (find-needle)
+                    (let ((limit (- (bytevector-length data)
+                                    (bytevector-length needle))))
+                      (let loop
+                        ((offset 0))
+                        (cond
+                          ((> offset limit)
+                           #f)
+                          ((match-at? offset)
+                           offset)
+                          (else (loop (+ offset 1)))))))
+                  (let ((offset (find-needle)))
+                    (unless offset
+                      (error
+                       "Antigravity protocol registration hook not found"))
+                    (bytevector-copy! replacement 0 data offset
+                                      (bytevector-length replacement))
+                    (call-with-output-file file
+                      (lambda (port)
+                        (put-bytevector port data))
+                      #:binary #t)))
+                #t))
+            (add-after 'disable-protocol-registration 'patch-browser-launcher
+              (lambda _
+                (let ((launcher
+                       "resources/app/extensions/antigravity-browser-launcher/dist/extension.js"))
+                  ;; The browser launcher extension was removed/moved in newer
+                  ;; upstream releases.
+                  (when (file-exists? launcher)
+                    (substitute* launcher
+                      (("\"/opt/google/chrome/chrome\"")
+                       "\"/opt/google/chrome/chrome\",\"/run/current-system/profile/bin/google-chrome\""))))
+                #t))
+            (add-after 'patch-browser-launcher 'patch-workbench-folder-picker
+              (lambda _
+                ;; The welcome screen's Open Folder action routes through the
+                ;; workbench file-dialog service and can stall on Linux when it
+                ;; tries to use the native picker path.  Force the simplified
+                ;; in-app picker instead.
+                (let ((workbench
+                       "resources/app/out/vs/workbench/workbench.desktop.main.js"))
+                  (when (file-exists? workbench)
+                    (substitute* workbench
+                      (("this\\.g\\.getValue\\(\"files\\.simpleDialog\\.enable\"\\)===!0")
+                       "!0"))))
+                #t))
+            (add-before 'install-wrapper 'install-entrypoint
+              (lambda _
+                (let* ((bin (string-append #$output "/bin"))
+                       (exe (string-append bin "/antigravity"))
+                       (target (string-append #$output
+                                "/share/antigravity/antigravity")))
+                  (mkdir-p bin)
+                  (with-output-to-file exe
+                    (lambda _
+                      (display "#!/bin/sh\n")
+                      (display (string-append "exec \"" target "\" \"$@\"\n"))))
+                  (chmod exe #o555))))
+            (add-after 'install 'install-desktop-entry
+              (lambda* (#:key inputs #:allow-other-keys)
+                (let* ((applications (string-append #$output
+                                                    "/share/applications"))
+                       (icons (string-append #$output
+                               "/share/icons/hicolor/256x256/apps"))
+                       (logo #$antigravity-logo))
+                  (mkdir-p applications)
+                  (mkdir-p icons)
+                  (copy-file logo
+                             (string-append icons "/antigravity.png"))
+                  (make-desktop-entry-file (string-append applications
+                                            "/antigravity.desktop")
+                                           #:name "Google Antigravity"
+                                           #:type "Application"
+                                           #:exec (string-append #$output
+                                                   "/bin/antigravity %U")
+                                           #:icon "antigravity"
+                                           #:categories '("Development" "IDE")
+                                           #:terminal #f
+                                           #:startup-notify #t
+                                           #:startup-w-m-class "Antigravity"
+                                           #:mime-type
+                                           "x-scheme-handler/antigravity"))))
+            (add-after 'install-wrapper 'configure-runtime-wrapper
+              (lambda _
+                (substitute* (string-append #$output "/bin/.antigravity-real")
+                  ;; Avoid Electron's portal-backed folder picker, which can
+                  ;; leave the welcome screen's Open Folder action inert.
+                  (("^exec .*$")
+                   (string-append
+                    "if [ -z \"${PLAYWRIGHT_NODEJS_PATH:-}\" ] && command -v node >/dev/null 2>&1; then"
+                    "\n"
+                    "  export PLAYWRIGHT_NODEJS_PATH=\"$(command -v node)\""
+                    "\n"
+                    "fi"
+                    "\n"
+                    "exec \""
+                    #$output
+                    "/share/antigravity/antigravity\""
+                    " --xdg-portal-required-version=999 \"$@\""))) #t)))))
+      (inputs (list node))
+      (home-page "https://antigravity.google")
+      (synopsis "AI-powered development environment")
+      (description
+       "Google Antigravity is an AI-powered development environment and code editor.")
+      (license (license:nonfree "https://antigravity.google/terms")))))
 
 (define-public zotero
   (package
