@@ -145,7 +145,7 @@ or iOS.")
 (define-public discord
   (package
     (name "discord")
-    (version "0.0.135")
+    (version "1.0.141")
     (source
      (origin
        (method url-fetch)
@@ -155,24 +155,15 @@ or iOS.")
                            version
                            ".deb"))
        (sha256
-        (base32 "01k6ns8ckznbvayfqqdmv7wfk7mxxs5ifgz6z64807m2pchh2b40"))))
+        (base32 "1jvphl1iy2jpb28nxgflvslp3d9kg4vylmbfk11s60k8wbb8sc40"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
      (list
       #:validate-runpath? #f ;TODO: fails on wrapped binary and included other files
       #:wrapper-plan
-      #~(let ((rpath '(("out" "/share/discord"))))
-          (map (lambda (file)
-                 (list (string-append "share/discord/" file) rpath))
-               '("Discord"
-                 "chrome-sandbox"
-                 "chrome_crashpad_handler"
-                 "libEGL.so"
-                 "libGLESv2.so"
-                 "libffmpeg.so"
-                 "libvk_swiftshader.so"
-                 "libvulkan.so.1")))
+      #~'(("share/discord/updater_bootstrap"
+           (("out" "/share/discord"))))
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'binary-unpack 'setup-cwd
@@ -180,10 +171,18 @@ or iOS.")
               (copy-recursively "usr/" ".")
               ;; Remove unneeded files.
               (delete-file-recursively "usr")
-              ;; Fix the .desktop file binary location.
-              (substitute* '("share/discord/discord.desktop")
+              ;; Fix the launcher and .desktop file binary locations.
+              (substitute* '("bin/discord")
+                (("bootstrap=/usr/share/\\$BOOTSTRAP_SUFFIX")
+                 (string-append "bootstrap=" #$output "/share/$BOOTSTRAP_SUFFIX")))
+              (substitute* '("share/discord/discord.desktop"
+                             "share/applications/discord.desktop")
                 (("/usr/share/discord/Discord")
-                 (string-append #$output "/bin/discord"))))))))
+                 (string-append #$output "/bin/discord"))
+                (("/usr/bin/discord")
+                 (string-append #$output "/bin/discord"))
+                (("Path=/usr/bin")
+                 (string-append "Path=" #$output "/bin"))))))))
     (home-page "https://discord.com/")
     (synopsis "Voice, video, and text chat for communities and friends")
     (description
