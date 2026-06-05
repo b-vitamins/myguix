@@ -2974,7 +2974,7 @@ learning research in IPython notebooks.")
 (define-public python-flax
   (package
     (name "python-flax")
-    (version "0.8.0")
+    (version "0.12.2")
     (source
      (origin
        (method git-fetch)
@@ -2983,7 +2983,7 @@ learning research in IPython notebooks.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1yqi7b8wmnvz0kgbb0pn1iwjr0l72crxfbch37b315g08wkwcn3z"))))
+        (base32 "0rfw0gkac2qiyg4n5j3588jqbp81laan33cm1dy1ysp2kzgxrmsr"))))
     (build-system pyproject-build-system)
     (arguments
      (list
@@ -2991,6 +2991,8 @@ learning research in IPython notebooks.")
                           "tests"
                           ;; We don't have tensorboard
                           "--ignore=tests/tensorboard_test.py"
+                          ;; This imports tensorflow at collection time.
+                          "--ignore=tests/io_test.py"
                           ;; These tests are failing bacause flax might only work
                           ;; on CPUs that have AVX support.
                           "--ignore=tests/serialization_test.py"
@@ -2999,7 +3001,9 @@ learning research in IPython notebooks.")
                           "--ignore=tests/linen/linen_dtypes_test.py"
                           ;; These tests try to use a fixed number of CPUs that may
                           ;; exceed the number of CPUs available at build time.
-                          "--ignore=tests/jax_utils_test.py")
+                          "--ignore=tests/jax_utils_test.py"
+                          ;; This test assumes a 2x2 local-device mesh.
+                          "--deselect=tests/nnx/bridge/module_test.py::TestBridgeModule::test_metadata")
       #:phases '(modify-phases %standard-phases
                   (add-after 'unpack 'ignore-deprecations
                     (lambda _
@@ -3015,8 +3019,10 @@ learning research in IPython notebooks.")
                              python-pyyaml
                              python-rich
                              python-tensorstore
+                             python-treescope
                              python-typing-extensions))
     (native-inputs (list opencv
+                         python-cloudpickle
                          python-nbstripout
                          python-ml-collections
                          python-mypy
@@ -3035,11 +3041,14 @@ designed for flexibility.")
 (define-public python-flax-cuda
   (package
     (inherit python-flax)
-    (name "python-optax-cuda")
+    (name "python-flax-cuda")
     (propagated-inputs (modify-inputs (package-propagated-inputs python-flax)
                          (replace "python-jax" python-jax-cuda)
-                         (replace "python-optax" python-optax-cuda)))
+                         (replace "python-optax" python-optax-cuda)
+                         (replace "python-orbax-checkpoint"
+                                  python-orbax-checkpoint-cuda)))
     (native-inputs (modify-inputs (package-native-inputs python-flax)
+                     (delete "python-tensorflow")
                      (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public gloo-cuda
