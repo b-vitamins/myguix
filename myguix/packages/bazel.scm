@@ -108,6 +108,20 @@
                 #$(this-package-input "java-commons-lang")
                 "/share/java/commons-lang-2.6.jar")
                "third_party/apache_commons_lang/commons-lang-2.6.jar")
+              (mkdir-p "third_party/apache_commons_lang3")
+              (ensure-jar
+               "third_party/apache_commons_lang3"
+               (find-jar
+                (string-append
+                 #$(this-package-input "java-commons-lang3")
+                 "/lib/m2/org/apache/commons/commons-lang3")
+                "commons-lang3-[0-9][^/]*\\.jar$")
+               "third_party/apache_commons_lang3/commons-lang3.jar")
+              (substitute* "third_party/BUILD"
+                (("    jars = \\[\"apache_commons_io/commons-io-2\\.4\\.jar\"\\],")
+                 "    jars = [\"apache_commons_io/commons-io-2.4.jar\"],\n)\n\njava_import(\n    name = \"apache_commons_lang3\",\n    jars = [\"apache_commons_lang3/commons-lang3.jar\"],")
+                (("jars = \\[\"apache_commons_compress/apache-commons-compress-1\\.19\\.jar\"\\],")
+                 "jars = [\"apache_commons_compress/apache-commons-compress-1.19.jar\"],\n    deps = [\":apache_commons_io\", \":apache_commons_lang3\"],"))
               (ensure-jar
                "third_party/hamcrest"
                (find-jar
@@ -245,8 +259,9 @@
                   python
                   java-commons-collections
                   java-commons-compress
-                  java-commons-io
+                  java-commons-io-latest
                   java-commons-lang
+                  java-commons-lang3
                   java-hamcrest-core
                   java-jsr305
                   java-xz
