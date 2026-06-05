@@ -2901,47 +2901,35 @@ library for JAX.")
 (define-public python-orbax-checkpoint
   (package
     (name "python-orbax-checkpoint")
-    (version "0.4.5")
+    (version "0.12.0")
     (source
      (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/google/orbax")
-             (commit "e68a1cd8c997caccc87fc5c1134847294be45ead")))
-       (file-name (git-file-name name version))
+       (method url-fetch)
+       (uri (pypi-uri "orbax_checkpoint" version))
        (sha256
-        (base32 "02njj5jkcg5j58krj6z2y6sfi49zd9ic8r7v34fnbgkr648ay87q"))))
+        (base32 "0sd7aidnbxsr6wm6hm7yxf55gmjxy22ds4x8n3wxwjsi307p6cvj"))))
     (build-system pyproject-build-system)
     (arguments
      (list
-      ;; Tests require flax, but flax needs orbax.  Luckily there's a
-      ;; goal to remove the dependency on flax as evidenced by this
-      ;; comment in utils_test.py:
-      ;;
-      ;; # TODO(b/275613424): Eliminate flax dependency in Orbax
-      ;; test suite.
-      ;;
-      ;; One can only hope.
-      #:tests? #f
-      #:phases
-      #~(modify-phases %standard-phases
-          (add-after 'unpack 'chdir
-            (lambda _
-              (chdir "checkpoint"))))))
+      ;; Tests require flax, but flax needs orbax.
+      #:tests? #f))
     (propagated-inputs (list python-absl-py
-                             python-cached-property
+                             python-aiofiles
                              python-etils
-                             python-importlib-resources
+                             python-humanize
                              python-jax
-                             python-jaxlib
                              python-msgpack
                              python-nest-asyncio
                              python-numpy
+                             python-prometheus-client
+                             python-protobuf
+                             python-psutil
                              python-pyyaml
+                             python-simplejson
                              python-tensorstore
-                             python-typing-extensions))
-    (native-inputs (list python-flit-core python-pytest python-pytest-xdist
-                         python-setuptools python-wheel))
+                             python-typing-extensions
+                             python-uvloop))
+    (native-inputs (list python-flit-core))
     (home-page "https://github.com/google/orbax")
     (synopsis "Utility libraries for JAX users")
     (description
@@ -2950,6 +2938,14 @@ libraries for JAX users.  Orbax also includes a serialization library
 for JAX users, enabling the exporting of JAX models to the TensorFlow
 SavedModel format.")
     (license license:asl2.0)))
+
+(define-public python-orbax-checkpoint-cuda
+  (package
+    (inherit python-orbax-checkpoint)
+    (name "python-orbax-checkpoint-cuda")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-orbax-checkpoint)
+       (replace "python-jax" python-jax-cuda)))))
 
 (define-public python-flax
   (package
