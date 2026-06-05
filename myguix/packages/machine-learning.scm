@@ -5287,6 +5287,332 @@ ecosystem, including PyTorch Lightning integration.")
                          (replace "python-torchmetrics"
                                   python-torchmetrics-cuda)))))
 
+(define-public python-dm-env
+  (package
+    (name "python-dm-env")
+    (version "1.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "dm-env" version))
+       (sha256
+        (base32 "1plk7pzzrd3yz5izzkhga45i99xy33icw5m5hv4y0facclffndm4"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-absl-py
+                             python-dm-tree
+                             python-numpy))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/google-deepmind/dm_env")
+    (synopsis "Python interface for reinforcement learning environments")
+    (description
+     "Dm-env defines a common Python API for reinforcement learning
+environments.")
+    (license license:asl2.0)))
+
+(define-public python-labmaze
+  (package
+    (name "python-labmaze")
+    (version "1.0.6")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "labmaze" version))
+       (sha256
+        (base32 "0wxybs10l6a3yd95f8jdngqp3yg8r7smr5pif9lpv9s2804yg39f"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'set-bazel-output-root
+            (lambda _
+              (setenv "HOME" (getcwd))
+              (setenv "JAVA_HOME" (dirname (dirname (which "javac"))))
+              (substitute* "bazel/BUILD"
+                (("@bazel_tools//platforms:linux")
+                 "@platforms//os:linux")
+                (("@bazel_tools//platforms:osx")
+                 "@platforms//os:osx")
+                (("@bazel_tools//platforms:windows")
+                 "@platforms//os:windows"))
+              (let ((distdir (string-append (getcwd) "/bazel-distdir")))
+                (mkdir-p distdir)
+                (for-each
+                 (lambda (entry)
+                   (copy-file (car entry)
+                              (string-append distdir "/" (cadr entry))))
+                 (list
+                  (list #$(this-package-native-input "bazel-skylib")
+                        "1.3.0.zip")
+                  (list #$(this-package-native-input "abseil-cpp")
+                        "20220623.1.zip")
+                  (list #$(this-package-native-input "googletest")
+                        "release-1.12.1.zip")
+                  (list #$(this-package-native-input "pybind11")
+                        "v2.10.1.zip")
+                  (list #$(this-package-native-input "rules-cc")
+                        "rules_cc-0.0.2.tar.gz")
+                  (list #$(this-package-native-input "rules-java")
+                        "rules_java-5.5.1.tar.gz"))))
+              (substitute* "setup.py"
+                (("        'build',")
+                 (string-append
+                  "        '--output_user_root=' + os.path.abspath(\n"
+                  "            os.path.join(self.build_temp, 'bazel-root')),\n"
+                  "        'build',\n"
+                  "        '--distdir=' + os.path.abspath('bazel-distdir'),\n"
+                  "        '--override_repository=platforms="
+                   #$(this-package-native-input "bazel-platforms") "',"))))))))
+    (propagated-inputs (list python-absl-py
+                             python-numpy))
+    (native-inputs
+     `(("abseil-cpp"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/abseil/abseil-cpp/archive/20220623.1.zip")
+           (sha256
+            (base32 "1wbykfga8b2wx8id1p0ff20w364hh9hgvmfsfskjcamn3i0pyw2l"))))
+       ("bazel" ,bazel)
+       ("bazel-platforms"
+        ,(origin
+           (method git-fetch)
+           (uri (git-reference
+                 (url "https://github.com/bazelbuild/platforms")
+                 (commit "0.0.8")))
+           (file-name (git-file-name "bazel-platforms" "0.0.8"))
+           (sha256
+            (base32 "1wx2348w49vxr3z9kjfls5zsrwr0div6r3irbvdlawan87sx5yfs"))))
+       ("bazel-skylib"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/bazelbuild/bazel-skylib/archive/1.3.0.zip")
+           (sha256
+            (base32 "0w9fvhyan751ncz31bs5bq0q9r7c9b9d51fnbsgdk53dqhzanmj7"))))
+       ("googletest"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/google/googletest/archive/release-1.12.1.zip")
+           (sha256
+            (base32 "1ckcszzagp97dwbaqc1p2z00rxi0szvr4pd8r45b6gidf4xlwmi4"))))
+       ("openjdk" ,openjdk11 "jdk")
+       ("pybind11"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/pybind/pybind11/archive/v2.10.1.zip")
+           (sha256
+            (base32 "0xlr5sgi3b22ccz5x00c1lwzchqwl67i3kxs52lagl6gxxjl1ygw"))))
+       ("rules-cc"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/bazelbuild/rules_cc/releases/download/0.0.2/rules_cc-0.0.2.tar.gz")
+           (sha256
+            (base32 "1qkxprimrigf1jyhmhlcmwrhsfpdacpcggqyw8nmrs5caw4z9gsq"))))
+       ("rules-java"
+        ,(origin
+           (method url-fetch)
+           (uri "https://github.com/bazelbuild/rules_java/releases/download/5.5.1/rules_java-5.5.1.tar.gz")
+           (sha256
+            (base32 "1q4jyx4c4mb8whgwhwxlslp32avcd8wfnwn4qrxww6r5vhs8zf3k"))))
+       ("python-setuptools" ,python-setuptools)))
+    (home-page "https://github.com/google-deepmind/labmaze")
+    (synopsis "Text maze generator from DeepMind Lab")
+    (description
+     "Labmaze provides maze generation utilities used by DeepMind control
+environments.")
+    (license license:asl2.0)))
+
+(define-public python-mujoco
+  (package
+    (name "python-mujoco")
+    (version (package-version mujoco))
+    (source (package-source mujoco))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'chdir
+            (lambda _
+              (setenv "MUJOCO_PATH" #$(this-package-input "mujoco"))
+              (setenv "MUJOCO_PLUGIN_PATH"
+                      (string-append #$(this-package-input "mujoco") "/lib"))
+              (setenv "MUJOCO_CMAKE_ARGS"
+                      (string-append
+                       "-DMUJOCO_PYTHON_USE_SYSTEM_PYBIND11=OFF "
+                       "-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF "
+                       "-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON "
+                       "-DCMAKE_INSTALL_RPATH="
+                       #$(this-package-input "mujoco") "/lib "
+                       "-DFETCHCONTENT_FULLY_DISCONNECTED=ON "
+                       "-DFETCHCONTENT_SOURCE_DIR_ABSEIL-CPP="
+                       #$(this-package-native-input "abseil-cpp-src") " "
+                       "-DFETCHCONTENT_SOURCE_DIR_EIGEN="
+                       #$(this-package-native-input "eigen-src") " "
+                       "-DFETCHCONTENT_SOURCE_DIR_LODEPNG="
+                       #$(this-package-native-input "lodepng-src") " "
+                       "-DFETCHCONTENT_SOURCE_DIR_PYBIND11="
+                       #$(this-package-native-input "pybind11-src") " "
+                       "-DMUJOCO_SIMULATE_USE_SYSTEM_GLFW=ON "
+                       "-Dglfw3_DIR="
+                       #$(this-package-input "glfw") "/lib/cmake/glfw3"))
+              (chdir "python")))
+          (add-after 'chdir 'copy-cmake-modules
+            (lambda _
+              ;; The PyPI sdist runs python/make_sdist.sh, which copies the
+              ;; top-level MuJoCo CMake helper modules into mujoco/cmake.  We
+              ;; build from the git checkout, so reproduce that source
+              ;; preparation step here.
+              (mkdir-p "mujoco/cmake")
+              (for-each (lambda (file)
+                          (install-file file "mujoco/cmake"))
+                        (find-files "../cmake" "\\.cmake$"))
+              (copy-recursively "../simulate" "mujoco/simulate")
+              (substitute* "mujoco/simulate/cmake/SimulateDependencies.cmake"
+                (("  TARGETS\n  glfw\n  EXCLUDE_FROM_ALL\n\\)")
+                 (string-append
+                  "  TARGETS\n  glfw\n  EXCLUDE_FROM_ALL\n)\n\n"
+                  "if(MUJOCO_SIMULATE_USE_SYSTEM_GLFW AND NOT TARGET glfw)\n"
+                  "  if(TARGET glfw3::glfw)\n"
+                  "    add_library(glfw INTERFACE IMPORTED)\n"
+                  "    set_target_properties(glfw PROPERTIES INTERFACE_LINK_LIBRARIES glfw3::glfw)\n"
+                  "  elseif(TARGET glfw3)\n"
+                  "    add_library(glfw INTERFACE IMPORTED)\n"
+                  "    set_target_properties(glfw PROPERTIES INTERFACE_LINK_LIBRARIES glfw3)\n"
+                  "  endif()\n"
+                  "endif()")))))
+          (add-after 'copy-cmake-modules 'generate-binding-sources
+            (lambda _
+              (setenv "PYTHONPATH" (string-append (getcwd) "/mujoco"))
+              (with-output-to-file "mujoco/enum_traits.h"
+                (lambda _
+                  (invoke "python" "mujoco/codegen/generate_enum_traits.py")))
+              (with-output-to-file "mujoco/function_traits.h"
+                (lambda _
+                  (invoke "python" "mujoco/codegen/generate_function_traits.py")))
+              (with-output-to-file "mujoco/specs.cc.inc"
+                (lambda _
+                  (invoke "python" "mujoco/codegen/generate_spec_bindings.py")))))
+          (add-after 'install 'set-extension-rpath
+            (lambda* (#:key outputs inputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (site (string-append out "/lib/python"
+                                          #$(version-major+minor
+                                             (package-version python))
+                                          "/site-packages/mujoco"))
+                     (gcc-lib (dirname (search-input-file
+                                        inputs "lib/libstdc++.so.6")))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (rpath (string-append site ":"
+                                           "$ORIGIN:$ORIGIN/..:"
+                                           #$(this-package-input "mujoco")
+                                           "/lib:"
+                                           #$(this-package-input "glfw")
+                                           "/lib:"
+                                           gcc-lib ":"
+                                           (dirname ld.so))))
+                (for-each (lambda (file)
+                            (make-file-writable file)
+                            (invoke "patchelf" "--set-rpath" rpath file))
+                          (find-files site "\\.so$"))))))))
+    (inputs (list `(,gcc "lib")
+                  glibc
+                  glfw
+                  mujoco
+                  patchelf))
+    (propagated-inputs (list python-absl-py
+                             python-etils
+                             python-glfw
+                             python-numpy
+                             python-pyopengl))
+    (native-inputs
+     `(("abseil-cpp-src"
+        ,(origin
+           (method git-fetch)
+           (uri (git-reference
+                 (url "https://github.com/abseil/abseil-cpp.git")
+                 (commit "d38452e1ee03523a208362186fd42248ff2609f6")))
+           (file-name (git-file-name "abseil-cpp" "20250814.1"))
+           (sha256
+            (base32 "1wm2271hwy2pnfv9b5iy0y9xvbhiwffdf9i6s3dn89k630wh6928"))))
+       ("cmake" ,cmake-minimal)
+       ("eigen-src"
+        ,(origin
+           (method git-fetch)
+           (uri (git-reference
+                 (url "https://gitlab.com/libeigen/eigen.git")
+                 (commit "4033cfcc1dd45b3cdf7285afd93556f2cfbe9425")))
+           (file-name (git-file-name "eigen" "3.4.90"))
+           (sha256
+            (base32 "1rhy6pybkd6n8dy31pzavhiqn23r3xyk5vvilaq068axg5ndyn0k"))))
+       ("lodepng-src"
+        ,(origin
+           (method git-fetch)
+           (uri (git-reference
+                 (url "https://github.com/lvandeve/lodepng.git")
+                 (commit "17d08dd26cac4d63f43af217ebd70318bfb8189c")))
+           (file-name (git-file-name "lodepng" "git"))
+           (sha256
+            (base32 "1703khw3j5v6qk989c6in96rpvvkayriywspxwwayqr5dpc3jz5y"))))
+       ("pybind11-src"
+        ,(origin
+           (method git-fetch)
+           (uri (git-reference
+                 (url "https://github.com/pybind/pybind11")
+                 (commit "e86205cb2ba070755d582856430c0f83c0af6694")))
+           (file-name (git-file-name "pybind11" "3.0.1"))
+           (sha256
+            (base32 "1gpax61ndhbr1r179bbgavh50j3aylkddzvbklhyj51mq4d0sb36"))))
+       ("python-setuptools" ,python-setuptools)))
+    (home-page "https://github.com/google-deepmind/mujoco")
+    (synopsis "Python bindings for the MuJoCo physics simulator")
+    (description
+     "This package provides Python bindings for the MuJoCo physics simulator,
+built from source against the Guix MuJoCo C/C++ library.")
+    (license license:asl2.0)))
+
+(define-public python-dm-control
+  (package
+    (name "python-dm-control")
+    (version "1.0.34")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "dm_control" version))
+       (sha256
+        (base32 "178462wfix82nsnx49wafj3cilyv2nzl2whq1s3vmizd4994yq0l"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-absl-py
+                             python-dm-env
+                             python-dm-tree
+                             python-glfw
+                             python-labmaze
+                             python-lxml
+                             python-mujoco
+                             python-numpy
+                             python-protobuf
+                             python-pyopengl
+                             python-pyparsing
+                             python-requests
+                             python-scipy
+                             python-setuptools
+                             python-tqdm))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/google-deepmind/dm_control")
+    (synopsis "Continuous control environments")
+    (description
+     "Dm-control provides continuous control tasks and reinforcement learning
+environments built on MuJoCo.")
+    (license license:asl2.0)))
+
 (define-public python-tianshou
   (package
     (name "python-tianshou")
