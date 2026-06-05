@@ -6173,6 +6173,188 @@ in Atari reinforcement learning benchmarks.")
      "Box2D-py provides Python bindings for the Box2D 2D physics engine.")
     (license license:zlib)))
 
+(define-public python-lance-namespace-urllib3-client
+  (package
+    (name "python-lance-namespace-urllib3-client")
+    (version "0.7.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "lance_namespace_urllib3_client" version))
+       (sha256
+        (base32 "1xhqkqrnzrbyg0zy89hhqhgda1j9zwgqsx1r62pdckxizxxcsgc5"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-dateutil
+                             python-pydantic
+                             python-typing-extensions
+                             python-urllib3))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/lance-format/lance-namespace")
+    (synopsis "Generated urllib3 client for Lance Namespace")
+    (description
+     "This package provides the generated urllib3 client for the Lance Namespace
+OpenAPI specification.")
+    (license license:asl2.0)))
+
+(define-public python-lance-namespace
+  (package
+    (name "python-lance-namespace")
+    (version "0.7.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "lance_namespace" version))
+       (sha256
+        (base32 "12knj82g0lh4k8illczs0q6gqrjh4kkh4rnkr2sg1i3kcyzfgmj3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-lance-namespace-urllib3-client))
+    (native-inputs (list python-hatchling))
+    (home-page "https://github.com/lance-format/lance-namespace")
+    (synopsis "Lance Namespace interface and plugin registry")
+    (description
+     "This package provides the Python interface and plugin registry for Lance
+Namespace.")
+    (license license:asl2.0)))
+
+(define-public python-pylance
+  (package
+    (name "python-pylance")
+    (version "6.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/lancedb/lance")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0s9whcd4ngjp11hz3bix473xwwzha020yfxij133vs8n5wyfjnvj"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:install-source? #f
+      #:imported-modules `(,@%cargo-build-system-modules
+                           ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'chdir
+            (lambda _
+              ;; Upstream's Python build forces Haswell/AVX2 code generation
+              ;; and LTO on x86_64.  Guix packages must remain
+              ;; baseline-portable and reasonably buildable.
+              (delete-file "python/.cargo/config.toml")
+              (setenv "CARGO_PROFILE_RELEASE_LTO" "false")
+              (setenv "CARGO_PROFILE_RELEASE_CODEGEN_UNITS" "16")
+              (chdir "python")))
+          (replace 'build
+            (assoc-ref py:%standard-phases 'build))
+          (replace 'install
+            (assoc-ref py:%standard-phases 'install)))))
+    (inputs (cons* maturin
+                   (myguix-cargo-inputs 'pylance)))
+    (propagated-inputs (list python-lance-namespace
+                             python-numpy
+                             python-pyarrow))
+    (native-inputs (list cmake
+                         pkg-config
+                         protobuf
+                         python-wrapper))
+    (home-page "https://github.com/lancedb/lance")
+    (synopsis "Python bindings for the Lance columnar data format")
+    (description
+     "This package provides Python bindings for Lance, a columnar data format
+designed for machine learning and random-access analytics workloads.")
+    (license license:asl2.0)))
+
+(define-public python-lancedb
+  (package
+    (name "python-lancedb")
+    (version "0.30.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/lancedb/lancedb")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1c3mvzpabcg2c61r8zgc2yj00xhkpcm1mc8l0sflv8cnsyxdmnhh"))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:install-source? #f
+      #:imported-modules `(,@%cargo-build-system-modules
+                           ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system)
+                   #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'patch-release-version
+            (lambda _
+              ;; The v0.30.0 tag has stale local package versions in
+              ;; python/Cargo.toml and Cargo.lock; keep the Python wheel
+              ;; metadata aligned with the release tag.
+              (substitute* "python/Cargo.toml"
+                (("version = \"0\\.33\\.0\"")
+                 "version = \"0.30.0\"")
+                (("default = \\[\"remote\",  \"lancedb/aws\", \"lancedb/gcs\", \"lancedb/azure\", \"lancedb/dynamodb\", \"lancedb/oss\", \"lancedb/huggingface\"\\]")
+                 "default = [\"remote\"]"))
+              (substitute* "Cargo.lock"
+                (("version = \"0\\.30\\.0-beta\\.1\"")
+                 "version = \"0.30.0\"")
+                (("version = \"0\\.33\\.0-beta\\.1\"")
+                 "version = \"0.30.0\""))))
+          (add-after 'patch-release-version 'chdir
+            (lambda _
+              (setenv "CARGO_PROFILE_RELEASE_LTO" "false")
+              (setenv "CARGO_PROFILE_RELEASE_CODEGEN_UNITS" "16")
+              (chdir "python")))
+          (add-after 'patch-cargo-checksums 'drop-lockfile-checksums
+            (lambda _
+              ;; Cargo rejects registry checksums in Cargo.lock after Guix
+              ;; replaces those sources with local directories.
+              (substitute* "../Cargo.lock"
+                (("checksum = \"[^\"]*\"\n")
+                 ""))))
+          (replace 'build
+            (assoc-ref py:%standard-phases 'build))
+          (replace 'install
+            (assoc-ref py:%standard-phases 'install)))))
+    (inputs (cons* maturin
+                   (myguix-cargo-inputs 'lancedb-python)))
+    (propagated-inputs (list python-deprecation
+                             python-lance-namespace
+                             python-numpy
+                             python-overrides
+                             python-packaging
+                             python-pyarrow
+                             python-pydantic
+                             python-tqdm))
+    (native-inputs (list cmake
+                         pkg-config
+                         protobuf
+                         python-wrapper))
+    (home-page "https://github.com/lancedb/lancedb")
+    (synopsis "Serverless vector database for AI applications")
+    (description
+     "LanceDB is a serverless vector database for AI applications.  This package
+provides the Python bindings built from source.")
+    (license license:asl2.0)))
+
 (define-public python-tianshou
   (package
     (name "python-tianshou")
