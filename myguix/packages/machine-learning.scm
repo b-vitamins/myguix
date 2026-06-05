@@ -1700,7 +1700,7 @@ providing utilities for various projects.")
                         (or (getenv "NIX_BUILD_TOP") (getcwd))
                         "/xla"))
       #:vendored-inputs-hash
-      "1qbvkxpj5l3lhmd8i767r36w6jm123v19a3k0j4zm0dk7hgdnf8m"
+      "178k7qj6ly89i3x79y1jdh5s264mm38xhg1jifzkn3yx4ndayg7p"
       #:bazel-configuration
       #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
                (target-repo (string-append root
@@ -2767,7 +2767,7 @@ automatically differentiate native Python and NumPy functions.")
               (install-file
                (car (find-files (assoc-ref inputs "python-jaxlib")
                                 "jaxlib-.*\\.whl$"))
-               "dist"))))))
+                "dist"))))))
     (native-inputs (list python-jaxlib/wheel))))
 
 (define-public python-jaxlib-cuda
