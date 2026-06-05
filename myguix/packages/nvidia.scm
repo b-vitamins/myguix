@@ -3148,9 +3148,9 @@ is installed from the pre-built PyPI wheel.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/85/82/02999d772e2cbdf203299d4389278c2c5f4261a10bf54fb69e26eea2b12d/nvidia_cutlass_dsl_libs_base-4.4.1-cp311-cp311-manylinux_2_28_x86_64.whl")
+        "https://files.pythonhosted.org/packages/b4/c1/acca814bc209562ef6cefbdec2ca36520f9a0380cdc7c6feaa69874bb50d/nvidia_cutlass_dsl_libs_base-4.4.1-cp312-cp312-manylinux_2_28_x86_64.whl")
        (sha256
-        (base32 "06kmfjsvc0wlrlp8ykfkb07wg2n6s6r8k86id5dr1mvb2qpl56v4"))
+        (base32 "0092av7j68fsjqnxvpvb171d34672g1m7d1wpc8jk27p91qkspms"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
