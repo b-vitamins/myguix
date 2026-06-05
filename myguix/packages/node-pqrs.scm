@@ -29,7 +29,8 @@
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
-  #:use-module (guix utils))
+  #:use-module (guix utils)
+  #:use-module (myguix packages))
 
 (define %node-next-version
   "25.8.0")
@@ -7125,8 +7126,8 @@
        (sha256
         (base32 "0qwg22q75zx3h3r64i8d6cd6dp242p5xmz935ibm80xh1hrviki8"))
        (patches
-        (search-patches
-         "myguix/patches/openclaw-guix-home-shepherd-service.patch"))))
+        (myguix-patches
+         "openclaw-guix-home-shepherd-service.patch"))))
     (build-system node-build-system)
     (arguments
      (list

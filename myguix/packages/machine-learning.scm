@@ -76,7 +76,8 @@
   #:use-module (gnu packages xml)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system cmake)
-  #:use-module (guix build-system python)
+  #:use-module ((guix build-system python)
+                #:hide (pypi-uri))
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system cargo)
   #:use-module (guix gexp)
@@ -99,8 +100,7 @@
   #:use-module (myguix packages huggingface)
   #:use-module ((myguix utils)
                 #:select (myguix-cargo-inputs))
-  #:use-module (ice-9 match)
-  #:use-module (srfi srfi-26))
+  #:use-module (ice-9 match))
 
 (define-public static-protobuf
   (package
@@ -3431,13 +3431,11 @@ the tensors contained therein.")
                         (recursive? #t)))
     (file-name (git-file-name "python-pytorch" %python-pytorch-version))
     (sha256 (base32 "056pq9c4pvn50isivdxyk0kgxbnljr5lqq54chny77a2f0n9ka24"))
-    (patches (map (lambda (patch)
-                    (search-path (map (cut string-append <> "/myguix/patches")
-                                      %load-path) patch))
-                  '("python-pytorch-system-libraries.patch"
-                    "python-pytorch-runpath.patch"
-                    "python-pytorch-without-kineto.patch"
-                    "python-pytorch-fix-codegen.patch")))
+    (patches (myguix-patches
+              "python-pytorch-system-libraries.patch"
+              "python-pytorch-runpath.patch"
+              "python-pytorch-without-kineto.patch"
+              "python-pytorch-fix-codegen.patch"))
     (modules '((guix build utils)))
     (snippet '(begin
                 ;; Bundled or unused code

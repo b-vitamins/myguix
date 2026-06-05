@@ -19,7 +19,7 @@
   #:use-module (gnu packages iso-codes)
   #:use-module (gnu packages java)
   #:use-module ((gnu packages machine-learning)
-                #:hide (python-transformers))
+                #:hide (python-tokenizers python-transformers))
   #:use-module (gnu packages build-tools)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages pkg-config)
@@ -45,12 +45,12 @@
   #:use-module (gnu packages serialization)
   #:use-module (gnu packages version-control)
   #:use-module (myguix build-system bazel)
+  #:use-module (myguix packages)
   #:use-module (myguix packages bazel)
   #:use-module (myguix packages huggingface)
   #:use-module (myguix packages python-pqrs)
   #:use-module (myguix packages machine-learning)
-  #:use-module (myguix packages nvidia)
-  #:use-module (srfi srfi-26))
+  #:use-module (myguix packages nvidia))
 
 ;; TODO: Packages that need to be packaged for vLLM:
 ;; - python-ninja
@@ -206,18 +206,15 @@
        (file-name (git-file-name name version))
        (sha256
         (base32 "1hghl14sv8kd4x4b0knq31y6yl2jj9r223q6b778rm02js7kxpsl"))
-       (patches (map (lambda (patch)
-                       (search-path (map (cut string-append <>
-                                              "/myguix/patches") %load-path)
-                                    patch))
-                     '("ray-use-system-python.patch"
-                       "ray-use-system-make.patch"
-                       "ray-skip-bazel-when-no-targets.patch"
-                       "ray-filter-missing-files.patch"
-                       "ray-tolerate-missing-generated-dirs.patch"
-                       "ray-grpc-use-host-go-toolchain.patch"
-                       "ray-avoid-bazel-distdir-basename-collision.patch"
-                       "ray-use-http-archive-for-rules-perl.patch")))))
+       (patches (myguix-patches
+                 "ray-use-system-python.patch"
+                 "ray-use-system-make.patch"
+                 "ray-skip-bazel-when-no-targets.patch"
+                 "ray-filter-missing-files.patch"
+                 "ray-tolerate-missing-generated-dirs.patch"
+                 "ray-grpc-use-host-go-toolchain.patch"
+                 "ray-avoid-bazel-distdir-basename-collision.patch"
+                 "ray-use-http-archive-for-rules-perl.patch"))))
     (build-system bazel-build-system)
     (arguments
      (list

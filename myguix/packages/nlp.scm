@@ -26,7 +26,7 @@
   #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages version-control)
   #:use-module ((guix build utils)
-                #:hide (delete))
+                #:hide (delete which))
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system pyproject)

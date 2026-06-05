@@ -32,7 +32,8 @@
   #:use-module (gnu packages linux)
   #:use-module (gnu packages protobuf)
   #:use-module (gnu packages python)
-  #:use-module (gnu packages rpc))
+  #:use-module (gnu packages rpc)
+  #:use-module (myguix packages))
 
 ;; TODO: all these jars need to be replaced with packages from Guix.
 (define-public bazel-6
@@ -50,9 +51,10 @@
                            "-dist.zip"))
        (sha256
         (base32 "0j190j7vjknlw1cgynb3r8vlv0j6i9lac6s5payf4fqrb2ngxmwc"))
-       (patches (search-patches "myguix/patches/bazel-mock-repos.patch"
-                                "myguix/patches/bazel-workspace.patch"
-                                "myguix/patches/bazel-recreate-markers.patch"))
+       (patches (myguix-patches
+                 "bazel-mock-repos.patch"
+                 "bazel-workspace.patch"
+                 "bazel-recreate-markers.patch"))
        (snippet '(for-each delete-file
                            '("third_party/apache_commons_collections/commons-collections-3.2.2.jar"
                              "third_party/apache_commons_compress/apache-commons-compress-1.19.jar"
@@ -450,9 +452,10 @@ repositories, and large numbers of users.")
                            "-dist.zip"))
        (sha256
         (base32 "07p5yj7y864gcbwpfrcccvn52b89ml96namshbp2kfwb5ihgz25x"))
-       (patches (search-patches "myguix/patches/bazel-mock-repos.patch"
-                                "myguix/patches/bazel-workspace.patch"
-                                "myguix/patches/bazel-recreate-markers.patch"))
+       (patches (myguix-patches
+                 "bazel-mock-repos.patch"
+                 "bazel-workspace.patch"
+                 "bazel-recreate-markers.patch"))
        ;; This is just a start.  There are so many more jars.
        (snippet '(for-each delete-file
                            '("third_party/apache_commons_collections/commons-collections-3.2.2.jar"
@@ -479,9 +482,10 @@ repositories, and large numbers of users.")
                            "-dist.zip"))
        (sha256
         (base32 "1liypfiw9fhqfab61jw3zskfkv3h2bhaa67zwhlrya0mjj8xm2gw"))
-       (patches (search-patches "myguix/patches/bazel-mock-repos.patch"
-                                "myguix/patches/bazel-workspace.patch"
-                                "myguix/patches/bazel-recreate-markers.patch"))
+       (patches (myguix-patches
+                 "bazel-mock-repos.patch"
+                 "bazel-workspace.patch"
+                 "bazel-recreate-markers.patch"))
        ;; This is just a start.  There are so many more jars.
        (snippet '(for-each delete-file
                            '("third_party/apache_commons_collections/commons-collections-3.2.2.jar"
@@ -506,8 +510,9 @@ repositories, and large numbers of users.")
                            "-dist.zip"))
        (sha256
         (base32 "0kgdj3va7vf4crmlrb907w7iybq88dry1l03w7hk5v5gmb5s2rmz"))
-       (patches (search-patches "myguix/patches/bazel-mock-repos.patch"
-                                "myguix/patches/bazel-8-recreate-markers.patch"))
+       (patches (myguix-patches
+                 "bazel-mock-repos.patch"
+                 "bazel-8-recreate-markers.patch"))
        (snippet '(for-each (lambda (file)
                              (when (file-exists? file)
                                (delete-file file)))

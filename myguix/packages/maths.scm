@@ -32,6 +32,7 @@
   #:use-module ((myguix licenses)
                 #:prefix license:)
   #:use-module (myguix build-system bazel)
+  #:use-module (myguix packages)
   #:use-module (myguix packages bazel)
   #:use-module (myguix packages nvidia)
   #:use-module ((gnu packages bootstrap)
@@ -104,7 +105,7 @@
        (file-name (git-file-name name version))
        (sha256
         (base32 "0mzw0yjmq2sfq7pwp417j74xqn0ccb84wqrjs46b8z7j9v55j346"))
-       (patches (search-patches "myguix/patches/ibex-gcc15.patch"))))
+       (patches (myguix-patches "ibex-gcc15.patch"))))
     (supported-systems '("x86_64-linux"))
     (build-system gnu-build-system)
     (arguments
@@ -189,7 +190,7 @@ IBEX 2.7.4 branch with the Filib interval backend and CLP support.")
        (file-name (git-file-name name version))
        (sha256
         (base32 "1yyhvcwy96ygzx8zgfvfafcg0akxw77hxp57kg370g0lkl2ha3wz"))
-       (patches (search-patches "myguix/patches/dreal-guix-compat.patch"))))
+       (patches (myguix-patches "dreal-guix-compat.patch"))))
     (supported-systems '("x86_64-linux"))
     (build-system bazel-build-system)
     (arguments

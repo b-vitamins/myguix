@@ -9,7 +9,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (myguix licenses)
-  #:use-module (srfi srfi-26))
+  #:use-module (myguix packages))
 
 (define-public unrar
   (package
@@ -48,11 +48,7 @@ freedom), but open-source.")
        (file-name (git-file-name (package-name miniz) version))
        (sha256
         (base32 "0672q35vjrpakmsr1gwj9k5fwv5ihzhahm19bq4y74wqpn91p7fw"))
-       (patches (map (lambda (patch)
-                       (search-path (map (cut string-append <>
-                                              "/myguix/patches") %load-path)
-                                    patch))
-                     '("miniz-for-pytorch-2.7.0.patch")))))
+       (patches (myguix-patches "miniz-for-pytorch-2.7.0.patch"))))
     (arguments
      (substitute-keyword-arguments (package-arguments miniz)
        ((#:configure-flags flags

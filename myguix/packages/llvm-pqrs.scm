@@ -9,6 +9,7 @@
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (guix git-download)
+  #:use-module (myguix packages)
   #:use-module ((guix licenses) #:prefix license:))
 
 (define clang-from-llvm
@@ -20,11 +21,12 @@
      (clang-from-llvm
       llvm-21
       clang-runtime-21
-             #:patches '("myguix/patches/clang-enable-explicit-cuda-path.patch"
-                         "myguix/patches/clang-cuda-13-texture-fetch.patch"
-                         "myguix/patches/clang-cuda-13-version.patch"
-                         "myguix/patches/clang-cuda-13-fatbinary.patch"
-                         "myguix/patches/clang-cuda-13-ptx88-builtins.patch")
+             #:patches (myguix-patches
+                         "clang-enable-explicit-cuda-path.patch"
+                         "clang-cuda-13-texture-fetch.patch"
+                         "clang-cuda-13-version.patch"
+                         "clang-cuda-13-fatbinary.patch"
+                         "clang-cuda-13-ptx88-builtins.patch")
              #:tools-extra (cadr (assoc "clang-tools-extra"
                                         (package-inputs clang-21)))))
     (name "clang")

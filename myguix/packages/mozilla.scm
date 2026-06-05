@@ -73,6 +73,7 @@
   #:use-module (gnu packages speech)
   #:use-module (gnu packages sqlite)
   #:use-module (gnu packages video)
+  #:use-module (myguix packages)
   #:use-module (myguix packages wasm)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xorg))
@@ -130,14 +131,11 @@
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
         (base32 "0a70qpx0grqyqxzdyaxdb2xcc5932dai05bsh0jdlvrm2whls0qv"))
-       (patches (map (lambda (patch)
-                       (search-path (map (cut string-append <>
-                                              "/myguix/patches") %load-path)
-                                    patch))
-                     '("firefox-restore-desktop-files.patch"
-                       "firefox-ge-138-compare-paths.patch"
-                       "firefox-esr-use-system-wide-dir.patch"
-                       "firefox-esr-add-store-to-rdd-allowlist.patch")))
+       (patches (myguix-patches
+                 "firefox-restore-desktop-files.patch"
+                 "firefox-ge-138-compare-paths.patch"
+                 "firefox-esr-use-system-wide-dir.patch"
+                 "firefox-esr-add-store-to-rdd-allowlist.patch"))
        (modules '((guix build utils)))
        (snippet #~(delete-file-recursively "testing/web-platform"))))
     (build-system gnu-build-system)
@@ -612,14 +610,11 @@ Release (ESR) version.")
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
         (base32 "1j7q00fwdijvg5b01jmadhqabwmwdcqd15srmkbqsqgjk5vjdi33"))
-       (patches (map (lambda (patch)
-                       (search-path (map (cut string-append <>
-                                              "/myguix/patches") %load-path)
-                                    patch))
-                     '("firefox-restore-desktop-files.patch"
-                       "firefox-ge-138-compare-paths.patch"
-                       "firefox-use-system-wide-dir.patch"
-                       "firefox-add-store-to-rdd-allowlist.patch")))
+       (patches (myguix-patches
+                 "firefox-restore-desktop-files.patch"
+                 "firefox-ge-138-compare-paths.patch"
+                 "firefox-use-system-wide-dir.patch"
+                 "firefox-add-store-to-rdd-allowlist.patch"))
        (modules '((guix build utils)))
        (snippet #~(delete-file-recursively "testing/web-platform"))))
     (arguments
