@@ -72,10 +72,10 @@ x-scheme-handler/https=firefox.desktop
 x-scheme-handler/about=firefox.desktop
 x-scheme-handler/unknown=firefox.desktop
 application/pdf=org.gnome.Evince.desktop
-image/png=org.gnome.eog.desktop
-image/jpeg=org.gnome.eog.desktop
-image/gif=org.gnome.eog.desktop
-image/webp=org.gnome.eog.desktop
+image/png=org.gnome.Loupe.desktop
+image/jpeg=org.gnome.Loupe.desktop
+image/gif=org.gnome.Loupe.desktop
+image/webp=org.gnome.Loupe.desktop
 video/mp4=mpv.desktop
 video/x-matroska=mpv.desktop
 video/webm=mpv.desktop
@@ -93,8 +93,8 @@ text/html=firefox.desktop;
 x-scheme-handler/http=firefox.desktop;
 x-scheme-handler/https=firefox.desktop;
 application/pdf=org.gnome.Evince.desktop;
-image/png=org.gnome.eog.desktop;
-image/jpeg=org.gnome.eog.desktop;"))
+image/png=org.gnome.Loupe.desktop;
+image/jpeg=org.gnome.Loupe.desktop;"))
 
 (define-public %kde-mimeapps
   (plain-file "mimeapps.list"
