@@ -1,0 +1,23 @@
+Clang 21's NVPTX target already knows PTX 8.8 and the Blackwell SM variants,
+but the Clang builtin availability table stops at PTX 8.7.  CUDA 13 JAX builds
+pass --cuda-feature=+ptx88, which makes ordinary builtins such as
+__nvvm_shfl_sync_idx_i32 appear unavailable because their "since PTX 6.0"
+feature list does not include ptx88.
+
+Make PTX 8.8 the newest Clang builtin feature so every lower minimum PTX level
+continues to include PTX 8.8.
+
+diff --git a/clang/include/clang/Basic/BuiltinsNVPTX.td b/clang/include/clang/Basic/BuiltinsNVPTX.td
+index d4e4937b9c5b..90c8f1743512 100644
+--- a/clang/include/clang/Basic/BuiltinsNVPTX.td
++++ b/clang/include/clang/Basic/BuiltinsNVPTX.td
+@@ -50,7 +50,8 @@ class PTX<string version, PTXFeatures newer> : PTXFeatures {
+   let Features = !strconcat("ptx", version, "|", newer.Features);
+ }
+ 
+-let Features = "ptx87" in def PTX87 : PTXFeatures;
++let Features = "ptx88" in def PTX88 : PTXFeatures;
++def PTX87 : PTX<"87", PTX88>;
+ 
+ def PTX86 : PTX<"86", PTX87>;
+ def PTX85 : PTX<"85", PTX86>;

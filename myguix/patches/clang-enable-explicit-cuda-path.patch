@@ -1,0 +1,22 @@
+Guix's Clang libc-search-path patch disables CUDA installation detection
+entirely to avoid probing FHS locations such as /usr/local/cuda.  That also
+breaks explicit CUDA roots passed with --cuda-path, which prevents Guix-built
+CUDA packages from using Clang as a CUDA compiler.
+
+Keep the rest of the Guix search-path patch intact, but allow Clang to honor an
+explicit --cuda-path again.
+
+diff --git a/clang/lib/Driver/ToolChains/Cuda.cpp b/clang/lib/Driver/ToolChains/Cuda.cpp
+index 1078dba8f481..1462576ca870 100644
+--- a/clang/lib/Driver/ToolChains/Cuda.cpp
++++ b/clang/lib/Driver/ToolChains/Cuda.cpp
+@@ -132,9 +132,6 @@ CudaInstallationDetector::CudaInstallationDetector(
+     const Driver &D, const llvm::Triple &HostTriple,
+     const llvm::opt::ArgList &Args)
+     : D(D) {
+-  // Don't look for CUDA in /usr.
+-  return;
+-
+   struct Candidate {
+     std::string Path;
+     bool StrictChecking;

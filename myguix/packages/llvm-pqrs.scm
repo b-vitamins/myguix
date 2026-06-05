@@ -11,6 +11,30 @@
   #:use-module (guix git-download)
   #:use-module ((guix licenses) #:prefix license:))
 
+(define clang-from-llvm
+  (@@ (gnu packages llvm) clang-from-llvm))
+
+(define-public clang-21-cuda
+  (package
+    (inherit
+     (clang-from-llvm
+      llvm-21
+      clang-runtime-21
+             #:patches '("myguix/patches/clang-enable-explicit-cuda-path.patch"
+                         "myguix/patches/clang-cuda-13-texture-fetch.patch"
+                         "myguix/patches/clang-cuda-13-version.patch"
+                         "myguix/patches/clang-cuda-13-fatbinary.patch"
+                         "myguix/patches/clang-cuda-13-ptx88-builtins.patch")
+             #:tools-extra (cadr (assoc "clang-tools-extra"
+                                        (package-inputs clang-21)))))
+    (name "clang")
+    (synopsis "C language family frontend for LLVM with Guix CUDA 13 support")
+    (description
+     "This Clang 21 variant preserves Guix's avoidance of implicit FHS CUDA
+probing while honoring an explicit @option{--cuda-path}.  It also backports
+the CUDA 13 header and fatbinary driver compatibility needed by packages that
+build CUDA sources with a Guix-provided CUDA toolkit.")))
+
 (define-public llvm-for-triton
   (let ((commit "8957e64a20fc7f4277565c6cfe3e555c119783ce")
         (revision "1"))

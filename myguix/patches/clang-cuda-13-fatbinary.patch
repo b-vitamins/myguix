@@ -1,0 +1,38 @@
+CUDA 13 removed fatbinary's deprecated -image option.  Use the image3
+spelling that records image kind and SM separately, matching upstream LLVM's
+current CUDA driver.
+
+diff --git a/clang/lib/Driver/ToolChains/Cuda.cpp b/clang/lib/Driver/ToolChains/Cuda.cpp
+index d629bd32bc32..8cf7aa6f9653 100644
+--- a/clang/lib/Driver/ToolChains/Cuda.cpp
++++ b/clang/lib/Driver/ToolChains/Cuda.cpp
+@@ -551,22 +551,17 @@
+     auto *A = II.getAction();
+     assert(A->getInputs().size() == 1 &&
+            "Device offload action is expected to have a single input");
+-    const char *gpu_arch_str = A->getOffloadingArch();
+-    assert(gpu_arch_str &&
++    StringRef GpuArch = A->getOffloadingArch();
++    assert(!GpuArch.empty() &&
+            "Device action expected to have associated a GPU architecture!");
+-    OffloadArch gpu_arch = StringToOffloadArch(gpu_arch_str);
+ 
+     if (II.getType() == types::TY_PP_Asm &&
+-        !shouldIncludePTX(Args, gpu_arch_str))
++        !shouldIncludePTX(Args, GpuArch))
+       continue;
+-    // We need to pass an Arch of the form "sm_XX" for cubin files and
+-    // "compute_XX" for ptx.
+-    const char *Arch = (II.getType() == types::TY_PP_Asm)
+-                           ? OffloadArchToVirtualArchString(gpu_arch)
+-                           : gpu_arch_str;
+-    CmdArgs.push_back(
+-        Args.MakeArgString(llvm::Twine("--image=profile=") + Arch +
+-                           ",file=" + getToolChain().getInputFilename(II)));
++    StringRef Kind = (II.getType() == types::TY_PP_Asm) ? "ptx" : "elf";
++    CmdArgs.push_back(Args.MakeArgString(
++        "--image3=kind=" + Kind + ",sm=" + GpuArch.drop_front(3) +
++        ",file=" + getToolChain().getInputFilename(II)));
+   }
+ 
+   for (const auto &A : Args.getAllArgValues(options::OPT_Xcuda_fatbinary))

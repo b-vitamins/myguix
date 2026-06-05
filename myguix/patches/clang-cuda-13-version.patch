@@ -1,0 +1,49 @@
+Recognize CUDA 12.9 and 13.0 so CUDA 13.0 builds do not go through Clang's
+"newer than known CUDA" diagnostic path.
+
+diff --git a/clang/include/clang/Basic/Cuda.h b/clang/include/clang/Basic/Cuda.h
+index 51355d6be27b..7845c7391df8 100644
+--- a/clang/include/clang/Basic/Cuda.h
++++ b/clang/include/clang/Basic/Cuda.h
+@@ -47,9 +47,11 @@
+   CUDA_125,
+   CUDA_126,
+   CUDA_128,
+-  FULLY_SUPPORTED = CUDA_123,
++  CUDA_129,
++  CUDA_130,
++  FULLY_SUPPORTED = CUDA_130,
+   PARTIALLY_SUPPORTED =
+-      CUDA_128, // Partially supported. Proceed with a warning.
++      CUDA_130, // Partially supported. Proceed with a warning.
+   NEW = 10000,  // Too new. Issue a warning, but allow using it.
+ };
+ const char *CudaVersionToString(CudaVersion V);
+diff --git a/clang/lib/Basic/Cuda.cpp b/clang/lib/Basic/Cuda.cpp
+index 779d57ef1d97..0d5272b5ea85 100644
+--- a/clang/lib/Basic/Cuda.cpp
++++ b/clang/lib/Basic/Cuda.cpp
+@@ -44,6 +44,8 @@
+     CUDA_ENTRY(12, 5),
+     CUDA_ENTRY(12, 6),
+     CUDA_ENTRY(12, 8),
++    CUDA_ENTRY(12, 9),
++    CUDA_ENTRY(13, 0),
+     {"", CudaVersion::NEW, llvm::VersionTuple(std::numeric_limits<int>::max())},
+     {"unknown", CudaVersion::UNKNOWN, {}} // End of list tombstone.
+ };
+diff --git a/clang/lib/Driver/ToolChains/Cuda.cpp b/clang/lib/Driver/ToolChains/Cuda.cpp
+index 1462576ca870..d629bd32bc32 100644
+--- a/clang/lib/Driver/ToolChains/Cuda.cpp
++++ b/clang/lib/Driver/ToolChains/Cuda.cpp
+@@ -88,6 +88,10 @@
+     return CudaVersion::CUDA_126;
+   if (raw_version < 12090)
+     return CudaVersion::CUDA_128;
++  if (raw_version < 13000)
++    return CudaVersion::CUDA_129;
++  if (raw_version < 13010)
++    return CudaVersion::CUDA_130;
+   return CudaVersion::NEW;
+ }
+ 
