@@ -2638,9 +2638,9 @@ wheel.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/a0/f2/60433698e461f226772bbb39769cbb30803dc2d640009b8d4be92c1393ff/cuda_tile-1.0.1-cp311-cp311-manylinux2014_x86_64.whl")
+        "https://files.pythonhosted.org/packages/63/7a/bcbcb783bb07bfbdc3e9c4ed28da9603d6a1c71f59e79ac25e974ec3d7e2/cuda_tile-1.0.1-cp312-cp312-manylinux2014_x86_64.whl")
        (sha256
-        (base32 "1w95lf38iqj241i83bpinhksdi1gqxx07xaihrd69j8ah6qwh4vi"))
+        (base32 "1kb6by7i4yf66d3qf13icinhwr6dkr7c8i5hqs57j0bb1gchh5vx"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
