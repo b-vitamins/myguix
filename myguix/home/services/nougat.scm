@@ -153,84 +153,81 @@ Each option should be a string. For example:
                             (documentation
                              "Run nougat OCR in API mode for PDF to markdown conversion")
                             (requirement '())
-                            (start #~(make-forkexec-constructor (append (if (= #$port
-                                                                             8503)
-                                                                            (list #$
-                                                                             (file-append
-                                                                              package
-                                                                              "/bin/nougat_api"))
-                                                                            (list #$
-                                                                             (file-append
-                                                                              package
-                                                                              "/bin/uvicorn")
-                                                                             "nougat.app:app"
-                                                                             "--host"
-                                                                             #$host
-                                                                             "--port"
-                                                                             #$
-                                                                             (number->string
-                                                                              port)
-                                                                             "--workers"
-                                                                             #$
-                                                                             (number->string
-                                                                              workers)))
-                                                                        #$@extra-options)
-                                                                #:log-file (string-append
-                                                                            (or
-                                                                             (getenv
-                                                                              "XDG_LOG_HOME")
-                                                                             (string-append
-                                                                              (getenv
-                                                                               "HOME")
-                                                                              "/.local/var/log"))
-                                                                            "/nougat-api.log")
-                                                                #:environment-variables (let 
-                                                                                             (
-                                                                                              (xdg-cache
-                                                                                               (or
-                                                                                                (getenv
-                                                                                                 "XDG_CACHE_HOME")
-                                                                                                
-                                                                                                (string-append
-                                                                                                 (getenv
-                                                                                                  "HOME")
-                                                                                                 "/.cache"))))
-                                                                                          
-                                                                                          (list
-                                                                                           (string-append
-                                                                                            "HOME="
-                                                                                            xdg-cache
-                                                                                            "/nougat/models")
-                                                                                           
-                                                                                           (string-append
-                                                                                            "NOUGAT_CACHE_DIR="
-                                                                                            xdg-cache
-                                                                                            "/nougat")
-                                                                                           
-                                                                                           (string-append
-                                                                                            "NOUGAT_CHECKPOINT="
-                                                                                            #$model)
-                                                                                           
-                                                                                           (string-append
-                                                                                            "NOUGAT_BATCHSIZE="
-                                                                                            #$
-                                                                                            (number->string
-                                                                                             batch-size))
-                                                                                           
-                                                                                           (string-append
-                                                                                            "PYTHONPATH="
-                                                                                            #$
-                                                                                            (file-append
-                                                                                             package
-                                                                                             "/lib/python3.11/site-packages"))
-                                                                                           
-                                                                                           (string-append
-                                                                                            "LD_LIBRARY_PATH="
-                                                                                            
-                                                                                            (or
-                                                                                             (getenv
-                                                                                              "LIBRARY_PATH")
-                                                                                             ""))))))
+                            (start
+                             #~(begin
+                                 (use-modules (ice-9 ftw)
+                                              (srfi srfi-1)
+                                              (srfi srfi-13))
+                                 (define (python-site-packages package)
+                                   (let* ((lib (string-append package "/lib"))
+                                          (entries
+                                           (if (file-exists? lib)
+                                               (scandir
+                                                lib
+                                                (lambda (entry)
+                                                  (and (not (member entry
+                                                                    '("." "..")))
+                                                       (string-prefix?
+                                                        "python" entry))))
+                                               '()))
+                                          (sites
+                                           (filter file-exists?
+                                                   (map (lambda (entry)
+                                                          (string-append
+                                                           lib "/" entry
+                                                           "/site-packages"))
+                                                        entries))))
+                                     (string-join sites ":")))
+                                 (make-forkexec-constructor
+                                  (append
+                                   (if (= #$port 8503)
+                                       (list #$(file-append package
+                                                            "/bin/nougat_api"))
+                                       (list #$(file-append package
+                                                            "/bin/uvicorn")
+                                             "nougat.app:app"
+                                             "--host"
+                                             #$host
+                                             "--port"
+                                             #$(number->string port)
+                                             "--workers"
+                                             #$(number->string workers)))
+                                   #$@extra-options)
+                                  #:log-file
+                                  (string-append
+                                   (or (getenv "XDG_LOG_HOME")
+                                       (string-append (getenv "HOME")
+                                                      "/.local/var/log"))
+                                   "/nougat-api.log")
+                                  #:environment-variables
+                                  (let* ((xdg-cache
+                                          (or (getenv "XDG_CACHE_HOME")
+                                              (string-append (getenv "HOME")
+                                                             "/.cache")))
+                                         (python-path
+                                          (python-site-packages #$package)))
+                                    (append
+                                     (list
+                                      (string-append "HOME="
+                                                     xdg-cache
+                                                     "/nougat/models")
+                                      (string-append "NOUGAT_CACHE_DIR="
+                                                     xdg-cache
+                                                     "/nougat")
+                                      (string-append "NOUGAT_CHECKPOINT="
+                                                     #$model)
+                                      (string-append "NOUGAT_BATCHSIZE="
+                                                     #$(number->string
+                                                        batch-size)))
+                                     (if (string=? python-path "")
+                                         '()
+                                         (list (string-append "PYTHONPATH="
+                                                              python-path)))
+                                     (list
+                                      (string-append "LD_LIBRARY_PATH="
+                                                     (or (getenv
+                                                          "LIBRARY_PATH")
+                                                         ""))))))))
                             (stop #~(make-kill-destructor))
                             (actions (list (shepherd-action (name 'status-api)
                                                             (documentation
