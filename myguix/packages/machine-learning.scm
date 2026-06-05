@@ -1385,7 +1385,7 @@ for monitoring training progress, visualizing computational graphs, and analyzin
 (define-public python-etils
   (package
     (name "python-etils")
-    (version "1.5.2")
+    (version "1.14.0")
     (source
      (origin
        (method git-fetch)
@@ -1394,7 +1394,7 @@ for monitoring training progress, visualizing computational graphs, and analyzin
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1xhnsr4n6dxsn25jiblf5qpk8jj9rgm4yb3gq4zyxffqxd1nlplg"))))
+        (base32 "0lypn97www8k4b8159gk46syz4k42kwcbhhw71k2hpjx5pxq0dc2"))))
     (build-system pyproject-build-system)
     (arguments
      (list
@@ -1411,7 +1411,7 @@ for monitoring training progress, visualizing computational graphs, and analyzin
                              python-packaging
                              python-protobuf
                              python-pylint
-                             python-pytorch
+                             python-pytorch-cuda
                              python-simple-parsing
                              python-tqdm
                              python-typing-extensions
