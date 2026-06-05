@@ -6355,6 +6355,99 @@ designed for machine learning and random-access analytics workloads.")
 provides the Python bindings built from source.")
     (license license:asl2.0)))
 
+(define-public python-stable-worldmodel
+  (package
+    (name "python-stable-worldmodel")
+    (version "0.1.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/galilai-group/stable-worldmodel")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1z8snvn3ywpw0wia1h4kcyyz192msb0w665hadw3j60fl8ypnqyp"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'use-setuptools
+            (lambda _
+              (substitute* "pyproject.toml"
+                (("version = \"0\\.0\\.6\"")
+                 (string-append "version = \"" #$version "\""))
+                (("  \"License :: OSI Approved :: MIT License\",\n")
+                 "")
+                (("requires = \\[\"uv_build>=0\\.9\\.21,<0\\.10\\.0\"\\]")
+                 "requires = [\"setuptools\"]")
+                (("build-backend = \"uv_build\"")
+                 "build-backend = \"setuptools.build_meta\""))
+              (call-with-output-file "setup.cfg"
+                (lambda (port)
+                  (display
+                   (string-append
+                    "[options]\n"
+                    "packages = find:\n\n"
+                    "[options.packages.find]\n"
+                    "include = stable_worldmodel*\n")
+                   port))))))))
+    (propagated-inputs (list python-ale-py
+                             python-array-api-compat
+                             python-box2d-py
+                             python-craftax-cuda
+                             python-decord
+                             python-dm-control
+                             python-einops
+                             python-flax-cuda
+                             python-gymnasium
+                             python-gymnasium-robotics
+                             python-h5py
+                             python-hdf5plugin
+                             python-hydra-core
+                             python-hydra-submitit-launcher
+                             python-imageio
+                             python-imageio-ffmpeg
+                             python-jax-cuda
+                             python-jaxlib-cuda
+                             python-lancedb
+                             python-loguru
+                             python-minigrid
+                             python-moviepy
+                             python-mujoco
+                             python-matplotlib
+                             python-numpy
+                             python-ogbench
+                             python-opencv-python-headless
+                             python-packaging
+                             python-pillow
+                             python-pyarrow
+                             python-pygame
+                             python-pymunk
+                             python-pylance
+                             python-pytorch-cuda
+                             python-rich
+                             python-shapely
+                             python-stable-baselines3-cuda
+                             python-stable-pretraining
+                             python-tabulate
+                             python-torchvision-cuda
+                             python-tqdm
+                             python-transformers
+                             python-typer
+                             python-wandb
+                             swig))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/galilai-group/stable-worldmodel")
+    (synopsis
+     "Stable world model library for control and reinforcement learning")
+    (description
+     "Stable World Model provides tools for building, evaluating, and using world
+models for control and reinforcement learning workflows.")
+    (license license:expat)))
+
 (define-public python-tianshou
   (package
     (name "python-tianshou")
