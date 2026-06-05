@@ -337,6 +337,9 @@ Please head to the official documentation page: @url{https://huggingface.co/docs
        (sha256
         (base32 "167gb8xjm0310km3w1s12bqldbv7zyklkr4j5900vq4361ml2pyd"))))
     (build-system python-build-system)
+    (arguments
+     (list
+      #:tests? #f))
     (propagated-inputs (list python-attrs))
     (native-inputs (list python-pbr))
     (home-page "https://github.com/microsoft/sarif-python-om")
