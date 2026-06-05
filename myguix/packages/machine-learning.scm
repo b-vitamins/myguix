@@ -5287,6 +5287,36 @@ ecosystem, including PyTorch Lightning integration.")
                          (replace "python-torchmetrics"
                                   python-torchmetrics-cuda)))))
 
+(define-public python-richuru
+  (package
+    (name "python-richuru")
+    (version "0.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "richuru" version))
+       (sha256
+        (base32 "1slhdnxppz27zwf311jk9c8a26l2s37gq96l7g2nfaqll3ricn41"))
+       (modules '((guix build utils)))
+       (snippet
+        '(substitute* "pyproject.toml"
+           (("pdm-pep517>=0.12.0")
+            "pdm-backend")
+           (("pdm\\.pep517\\.api")
+            "pdm.backend")))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-loguru
+                             python-rich))
+    (native-inputs (list python-pdm-backend))
+    (home-page "https://pypi.org/project/richuru/")
+    (synopsis "Bridge Loguru logging with Rich rendering")
+    (description
+     "Richuru integrates Loguru logging with Rich console rendering.")
+    (license license:expat)))
+
 (define-public python-minari
   (package
     (name "python-minari")
@@ -5328,6 +5358,122 @@ ecosystem, including PyTorch Lightning integration.")
     (description
      "Minari provides a standard format for offline reinforcement learning
 datasets and related utilities.")
+    (license license:expat)))
+
+(define-public python-stable-pretraining
+  (package
+    (name "python-stable-pretraining")
+    (version "0.1.7")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "stable_pretraining" version))
+       (sha256
+        (base32 "1hfknkd1dyar3scip67ridsp12aw6zag4s4j7ckf75yxcdci97j3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'relax-version-pins
+            (lambda _
+              ;; Guix carries Pillow 11.1 and Transformers 4.50.3, both
+              ;; adequate for the APIs Stable Pretraining uses here.
+              (substitute* "pyproject.toml"
+                (("pillow>=11\\.3\\.0")
+                 "pillow>=11.1.0")))))))
+    (propagated-inputs (list python-datasets
+                             python-hydra-core
+                             python-hydra-submitit-launcher
+                             python-lightning-cuda
+                             python-loguru
+                             python-matplotlib
+                             python-minari
+                             python-omegaconf-2.2
+                             python-opencv-python-headless
+                             python-opt-einsum
+                             python-pandas
+                             python-pillow
+                             python-prettytable
+                             python-pyarrow
+                             python-pylance
+                             python-pytorch-cuda
+                             python-requests-cache
+                             python-rich
+                             python-richuru
+                             python-scikit-learn
+                             python-submitit
+                             python-tabulate
+                             python-timm
+                             python-torchmetrics-cuda
+                             python-torchvision-cuda
+                             python-transformers
+                             python-typer
+                             python-wandb
+                             python-zstandard))
+    (native-inputs (list python-setuptools
+                         python-setuptools-scm))
+    (home-page "https://github.com/facebookresearch/stable-pretraining")
+    (synopsis "Library for stable self-supervised pretraining")
+    (description
+     "Stable Pretraining provides training utilities and dataset transforms for
+self-supervised learning workflows.")
+    (license license:expat)))
+
+(define-public python-proglog
+  (package
+    (name "python-proglog")
+    (version "0.1.12")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/Edinburgh-Genome-Foundry/proglog")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1wpnay6x01417wdi2m7mkvgwflgh1bmhn15anqq8nwiqclrx5l24"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-tqdm))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/Edinburgh-Genome-Foundry/proglog")
+    (synopsis "Progress bar and logging manager")
+    (description
+     "Proglog provides progress bar and logging helpers for console, notebook,
+and web applications.")
+    (license license:expat)))
+
+(define-public python-moviepy
+  (package
+    (name "python-moviepy")
+    (version "2.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "moviepy" version))
+       (sha256
+        (base32 "1cdcvqb3xl44wv228fnj145b7vkh02j1ldid7rg4xsgc2mlba368"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-decorator
+                             python-dotenv
+                             python-imageio
+                             python-imageio-ffmpeg
+                             python-numpy
+                             python-pillow
+                             python-proglog))
+    (native-inputs (list python-setuptools))
+    (home-page "https://zulko.github.io/moviepy/")
+    (synopsis "Video editing with Python")
+    (description
+     "MoviePy is a Python library for scripted video editing, compositing, and
+format conversion.")
     (license license:expat)))
 
 (define-public python-dm-env
@@ -5917,6 +6063,46 @@ reinforcement learning algorithms.")
      "ALE-Py provides Python bindings for the Arcade Learning Environment used
 in Atari reinforcement learning benchmarks.")
     (license license:gpl2+)))
+
+(define-public python-hdf5plugin
+  (package
+    (name "python-hdf5plugin")
+    (version "6.0.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/silx-kit/hdf5plugin")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "08njd3nn1f41q4fxzzns8ik51md0hm475lal4j4qir6hpdmkfyvn"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'disable-host-cpu-tuning
+            (lambda _
+              (substitute* "setup.py"
+                (("self\\.native_compile_args = \\(\"-march=native\",\\)")
+                 "self.native_compile_args = ()")
+                (("self\\.native_compile_args = \\(\"-mcpu=native\",\\)")
+                 "self.native_compile_args = ()"))
+              (setenv "HDF5PLUGIN_NATIVE" "False")
+              (setenv "HDF5PLUGIN_SSSE3" "False")
+              (setenv "HDF5PLUGIN_AVX2" "False")
+              (setenv "HDF5PLUGIN_AVX512" "False"))))))
+    (propagated-inputs (list python-h5py))
+    (native-inputs (list python-numpy
+                         python-py-cpuinfo
+                         python-setuptools))
+    (home-page "https://github.com/silx-kit/hdf5plugin")
+    (synopsis "HDF5 compression filters for h5py")
+    (description
+     "Hdf5plugin provides dynamically loaded HDF5 compression filters for h5py.")
+    (license license:expat)))
 
 (define-public python-pymunk
   (package
