@@ -133,13 +133,13 @@
 (define-public python-ml-dtypes
   (package
     (name "python-ml-dtypes")
-    (version "0.3.1")
+    (version "0.5.4")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "ml_dtypes" version))
        (sha256
-        (base32 "04f61zkizfgmf2pqlsdgskj1r1gg6l5j1nj2p8v4yk2b36cqyxv0"))
+        (base32 "0lrl0qnf5y1sdhmggkqyyg00lazsfr3gnpgys1nndycvzd86mc4a"))
        (modules '((guix build utils)))
        (snippet
         ;; Do not use bundled eigen.
