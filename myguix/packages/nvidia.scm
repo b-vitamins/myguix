@@ -2570,9 +2570,9 @@ like vLLM that import CUTLASS' Python tooling during their build.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/f0/dd/026e79e69f5e6ec2f9f06bc66cc7519f4014bd06e9454e5d0718d646d863/cuda_core-0.3.2-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
+        "https://files.pythonhosted.org/packages/b2/75/cb52e7d8c44ef4bf1313251685adc0c6568d51b9790edf7a1ecdf0135394/cuda_core-0.3.2-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
        (sha256
-        (base32 "0jk3r90rnnpifjvjskxwsiiax7dagv7mcvam6vf0vq05963rqcwx"))
+        (base32 "0klyi5wgjvg3n4ym7md0dzkp8vndf4js3i13wv6szcr99lranf0k"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
