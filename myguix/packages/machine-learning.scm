@@ -4116,29 +4116,16 @@ datasets and models, and collaborate with your team.")
                          (replace "python-pytorch" python-pytorch-cuda)))))
 
 (define-public python-pytorch-lightning-cuda
-  (let ((commit "1617f70428a791b2d81c392d6a0b8a078d8e7fb1")
-        (revision "0"))
-    (package
-      (inherit python-pytorch-lightning)
-      (name "python-pytorch-lightning-cuda")
-      (version (git-version "2.5.2" revision commit))
-      (source
-       (origin
-         (method git-fetch)
-         (uri (git-reference
-               (url "https://github.com/Lightning-AI/pytorch-lightning")
-               (commit commit)))
-         (file-name (git-file-name name version))
-         (sha256
-          (base32 "1i11n4094a8ysb7cj1lww23nh0mk3d9licw9c9pgzws2m0qy70yd"))))
-      (build-system pyproject-build-system)
-      (propagated-inputs (modify-inputs (package-propagated-inputs
-                                         python-pytorch-lightning)
-                           (replace "python-pytorch" python-pytorch-cuda)
-                           (replace "python-torchvision"
-                                    python-torchvision-cuda)
-                           (replace "python-torchmetrics"
-                                    python-torchmetrics-cuda))))))
+  (package
+    (inherit python-pytorch-lightning)
+    (name "python-pytorch-lightning-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-pytorch-lightning)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-torchvision"
+                                  python-torchvision-cuda)
+                         (replace "python-torchmetrics"
+                                  python-torchmetrics-cuda)))))
 
 (define-public python-xformers
   (package
