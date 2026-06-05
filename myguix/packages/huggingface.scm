@@ -248,7 +248,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
 (define-public python-datasets
   (package
     (name "python-datasets")
-    (version "3.3.2")
+    (version "4.8.5")
     (source
      (origin
        (method git-fetch)
@@ -257,7 +257,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0r6rnrsk7cwcrc1ixiqajrj1mnpka0p8hndz8gapzy2dijnxkj5i"))))
+        (base32 "0ijxjwm8hj6qf7br5c2vz3d3b8w8fdvi5cz2x8l3ah635snmf4vh"))))
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f
@@ -272,6 +272,7 @@ datasets and other repos on the @url{huggingface.co} hub.")
                              python-dill
                              python-filelock
                              python-fsspec
+                             python-httpx
                              python-huggingface-hub
                              python-multiprocess
                              python-numpy
