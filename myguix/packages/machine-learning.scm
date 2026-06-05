@@ -2947,6 +2947,30 @@ SavedModel format.")
      (modify-inputs (package-propagated-inputs python-orbax-checkpoint)
        (replace "python-jax" python-jax-cuda)))))
 
+(define-public python-treescope
+  (package
+    (name "python-treescope")
+    (version "0.1.10")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "treescope" version))
+       (sha256
+        (base32 "15ga4w6wawii0baick2mqaypknm0cf0kw08mcxqxicjaydb4dxr0"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      ;; The sdist does not include tests.
+      #:tests? #f))
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list python-flit-core))
+    (home-page "https://github.com/google-deepmind/treescope")
+    (synopsis "Interactive HTML pretty-printer for ML research")
+    (description
+     "Treescope is an interactive HTML pretty-printer for machine
+learning research in IPython notebooks.")
+    (license license:asl2.0)))
+
 (define-public python-flax
   (package
     (name "python-flax")
