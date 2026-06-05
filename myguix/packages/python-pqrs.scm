@@ -292,7 +292,7 @@
                         (chdir "python")))))))
     (build-system python-build-system)
     (inputs (list python-numpy))
-    (native-inputs (list (decord-package)))
+    (native-inputs (list (decord-package) python-setuptools))
     (home-page "https://github.com/dmlc/decord")
     (synopsis
      "@code{Decord} is a reverse procedure of @code{Record}. It provides convenient video slicing methods based on a thin wrapper on top of hardware accelerated video decoders, e.g. 1) FFMPEG/LibAV, 2) NVIDEA Codecs, 3) Intel Codecs")
