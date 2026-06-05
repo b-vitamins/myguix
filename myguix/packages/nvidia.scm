@@ -1890,6 +1890,19 @@ NVIDIA.")
                                              "nsys-ui"))))
                 (symlink (string-append #$output "/lib/stubs")
                          (string-append #$output "/lib64/stubs")))))
+          (add-after 'install 'fix-cccl-placement-new-header
+            (lambda _
+              (let ((block-load (string-append
+                                  #$output
+                                  "/include/cccl/cub/block/block_load.cuh")))
+                ;; CUDA 13.0's CUB block_load.cuh uses placement new but does
+                ;; not include a header that declares the placement form when
+                ;; compiled with Clang.  Newer CCCL includes an internal
+                ;; placement-new header here, but CUDA 13.0 lacks that header.
+                (make-file-writable block-load)
+                (substitute* block-load
+                  (("#include <cub/util_type\\.cuh>\n")
+                   "#include <cub/util_type.cuh>\n\n#include <new>\n")))))
           (add-after 'install 'symlink-cicc
             (lambda _
               (let* ((bin (string-append #$output "/bin"))
