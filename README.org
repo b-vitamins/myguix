@@ -95,7 +95,7 @@ Per-driver kernel coverage in myguix follows the package definitions carried her
 | =nvda-590= | yes*      | yes        | yes        | yes        | yes       | yes       |
 | =nvda=     | yes*      | yes        | yes        | yes        | yes       | yes       |
 
-* =linux-7.0= is defined in this channel, but it requires a Guix base that already provides =linux-libre-7.0=.
+- =linux-7.0= is defined in this channel, but it requires a Guix base that already provides =linux-libre-7.0=.
 
 To configure your system:
 
