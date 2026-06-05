@@ -2814,34 +2814,32 @@ automatically differentiate native Python and NumPy functions.")
 (define-public python-chex
   (package
     (name "python-chex")
-    ;; A newer version exists but is not compatible with our numpy.
-    (version "0.1.8")
+    (version "0.1.91")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "chex" version))
        (sha256
-        (base32 "0y9a2jjbjih2g4dn8q66y0b2b5kzxjrnir8x68cj0fcgnkyr80sr"))))
+        (base32 "0xlzvnavsbcrzjv1z6ppmpy3g0x68452n8n0p02skb8m2i97ldk5"))))
     (build-system pyproject-build-system)
-    ;; Our version of np.testing.assert_array_equal does not support
-    ;; the "strict" argument.
     (arguments
      (list
-      #:test-flags '(list "-k" "not test_assert_trees_all_equal_strict_mode")
-      #:phases '(modify-phases %standard-phases
-                  (add-after 'unpack 'compatibility
-                    (lambda _
-                      (substitute* "chex/_src/asserts.py"
-                        (("strict=strict")
-                         "")))))))
+      #:test-flags
+      #~(list "-k"
+              (string-append
+               "not test_assert_tree_is_on_device"
+               " and not test_assert_tree_is_on_host"
+               " and not test_assert_tree_is_sharded"))))
     (propagated-inputs (list python-absl-py
                              python-jax
                              python-jaxlib
                              python-numpy
                              python-toolz
                              python-typing-extensions))
-    (native-inputs (list python-cloudpickle python-dm-tree python-pytest
-                         python-setuptools python-wheel))
+    (native-inputs (list python-cloudpickle
+                         python-dm-tree
+                         python-flit-core
+                         python-pytest))
     (home-page "https://github.com/deepmind/chex")
     (synopsis "Chex: Testing made fun, in JAX!")
     (description
