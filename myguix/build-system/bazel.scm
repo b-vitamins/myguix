@@ -40,6 +40,7 @@
 (define %bazel-build-system-modules
   ;; Build-side modules imported by default.
   `((myguix build bazel-build-system)
+    (myguix build jax-cuda)
     ,@%default-gnu-imported-modules))
 
 (define %default-modules
@@ -73,15 +74,13 @@
                                 (bazel-arguments '())
                                 bazel-configuration)
   (computed-file name
-                 (with-imported-modules (source-module-closure '((guix build
-                                                                       utils)
-                                                                 (myguix build
-                                                                  bazel-build-system)))
+                 (with-imported-modules %bazel-build-system-modules
                                         #~(begin
                                             (use-modules (guix build utils)
                                                          (ice-9 ftw)
                                                          (ice-9 match)
-                                                         (ice-9 string-fun))
+                                                         (ice-9 string-fun)
+                                                         (myguix build jax-cuda))
                                             (define input-directories
                                               '#$(map cadr inputs))
                                             (define %build-directory
@@ -132,8 +131,29 @@
                                                           #:pattern pattern)))
                                                       '#$search-paths)
 
+                                            ;; Bazel repository configuration
+                                            ;; often patches WORKSPACE or
+                                            ;; generated repository files, so
+                                            ;; run it on a writable copy rather
+                                            ;; than the immutable store item.
                                             ;; TODO: only works for directories
-                                            (chdir #$source)
+                                            (let ((source-directory
+                                                   (string-append
+                                                    %build-directory
+                                                    "/source")))
+                                              (copy-recursively #$source
+                                                                source-directory
+                                                                #:log
+                                                                (%make-void-port
+                                                                 "w"))
+                                              (for-each make-file-writable
+                                                        (cons source-directory
+                                                              (find-files
+                                                               source-directory
+                                                               "."
+                                                               #:directories?
+                                                               #t)))
+                                              (chdir source-directory))
                                             (setenv "SOURCE_DATE_EPOCH" "1")
                                             (setenv "HOME" %build-directory)
                                             (setenv "USER" "homeless-shelter")
@@ -177,11 +197,13 @@
                                              "--subcommands"
                                              "--action_env=PATH"
                                              "--action_env=LIBRARY_PATH"
+                                             "--action_env=LD_LIBRARY_PATH"
                                              "--action_env=C_INCLUDE_PATH"
                                              "--action_env=CPLUS_INCLUDE_PATH"
                                              "--action_env=GUIX_LOCPATH"
                                              "--host_action_env=PATH"
                                              "--host_action_env=LIBRARY_PATH"
+                                             "--host_action_env=LD_LIBRARY_PATH"
                                              "--host_action_env=C_INCLUDE_PATH"
                                              "--host_action_env=CPLUS_INCLUDE_PATH"
                                              "--host_action_env=GUIX_LOCPATH"
@@ -288,6 +310,16 @@
                                                                   file-name)
                                                                  %build-directory)))
                                                          #:stat lstat))
+                                              ;; Python bytecode embeds build paths in code
+                                              ;; objects, which makes the vendored archive
+                                              ;; nondeterministic.
+                                              (for-each delete-file-recursively
+                                                        (find-files "external"
+                                                                    "^__pycache__$"
+                                                                    #:directories? #t))
+                                              (for-each delete-file
+                                                        (find-files "external"
+                                                                    "\\.(pyc|pyo)$"))
                                               (invoke "du" "-s" "external")
                                               (invoke "tar"
                                                       "cfa"

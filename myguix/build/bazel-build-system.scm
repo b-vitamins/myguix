@@ -22,6 +22,8 @@
   #:use-module ((guix build utils)
                 #:hide (delete))
   #:use-module (ice-9 match)
+  #:use-module (ice-9 popen)
+  #:use-module (ice-9 rdelim)
   #:use-module (ice-9 string-fun)
   #:use-module (srfi srfi-1)
   #:export (%standard-phases bazel-build))
@@ -82,6 +84,23 @@
     (string-append %build-directory "/tmp"))
   (define %bazel-distdir
     (string-append %build-directory "/distdir"))
+  (define (prepend-search-path variable directory)
+    (when (and directory (file-exists? directory))
+      (let ((current (getenv variable)))
+        (setenv variable
+                (if (and current (not (string-null? current)))
+                    (string-append directory ":" current)
+                    directory)))))
+  (define (gcc-libstdc++-directory)
+    (let ((compiler (or (which "g++") (which "c++"))))
+      (and compiler
+           (let* ((pipe (open-pipe* OPEN_READ compiler
+                                    "-print-file-name=libstdc++.so.6"))
+                  (file (read-line pipe)))
+             (close-pipe pipe)
+             (and (not (eof-object? file))
+                  (not (string=? file "libstdc++.so.6"))
+                  (dirname file))))))
   (when (pair? distdir)
     (mkdir-p %bazel-distdir)
     (for-each (lambda (file)
@@ -91,6 +110,7 @@
                     (symlink file target))))
               distdir))
   (setenv "USER" "homeless-shelter")
+  (prepend-search-path "LD_LIBRARY_PATH" (gcc-libstdc++-directory))
   (apply invoke
          "bazel"
          "--batch"
@@ -102,6 +122,7 @@
          "--subcommands"
          "--action_env=PATH"
          "--action_env=LIBRARY_PATH"
+         "--action_env=LD_LIBRARY_PATH"
          "--action_env=C_INCLUDE_PATH"
          "--action_env=CPLUS_INCLUDE_PATH"
          "--action_env=GUIX_LOCPATH"
@@ -111,6 +132,7 @@
          "--host_action_env=TF_SYSTEM_LIBS"
          "--host_action_env=PATH"
          "--host_action_env=LIBRARY_PATH"
+         "--host_action_env=LD_LIBRARY_PATH"
          "--host_action_env=C_INCLUDE_PATH"
          "--host_action_env=CPLUS_INCLUDE_PATH"
          "--host_action_env=GUIX_LOCPATH"
