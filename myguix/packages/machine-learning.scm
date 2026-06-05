@@ -2745,10 +2745,171 @@ numerical computing.  With its updated version of Autograd, JAX can
 automatically differentiate native Python and NumPy functions.")
     (license license:asl2.0)))
 
-(define python-jaxlib/wheel-cuda
+(define python-jax-cuda13/wheels
   (package
     (inherit python-jaxlib/wheel)
-    (name "python-jaxlib-cuda")))
+    (name "python-jax-cuda13-wheels")
+    (arguments
+     (substitute-keyword-arguments (package-arguments python-jaxlib/wheel)
+       ((#:fetch-targets fetch-targets #f)
+        #~(list "//jaxlib/tools:jax_cuda13_pjrt_wheel"
+                "//jaxlib/tools:jax_cuda13_plugin_wheel"))
+       ((#:build-targets build-targets #f)
+        #~(list "//jaxlib/tools:jax_cuda13_pjrt_wheel"
+                "//jaxlib/tools:jax_cuda13_plugin_wheel"))
+       ((#:vendored-inputs-hash hash)
+        "0cpk6f8djxml6kflwqkgn7v2y4va19gv95djnak4qh665qmx9l83")
+       ((#:bazel-arguments bazel-arguments #f)
+        #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
+                 (override
+                  (lambda (name)
+                    (string-append "--override_repository=" name "="
+                                   root "/" name))))
+            (list
+             "--config=mkl_open_source_only"
+             "--config=cuda13"
+             "--config=cuda_clang_local"
+             "--config=build_cuda_with_clang"
+             "--@local_config_cuda//cuda:override_include_cuda_libs=true"
+             "--//jaxlib/tools:add_pypi_cuda_wheel_deps=false"
+             "--cxxopt=-Wno-dangling-reference"
+             "--repo_env=HERMETIC_PYTHON_VERSION=3.11"
+             "--repo_env=ML_WHEEL_TYPE=release"
+             "--repo_env=TF_NEED_CUDA=1"
+             "--repo_env=TF_NCCL_USE_STUB=0"
+             "--repo_env=HERMETIC_CUDA_VERSION=13.0.0"
+             "--repo_env=HERMETIC_CUDA_COMPUTE_CAPABILITIES=sm_75,sm_80,sm_86,sm_89,sm_90,sm_100,compute_120"
+             (string-append "--repo_env=CC="
+                            #$(this-package-native-input "clang")
+                            "/bin/clang")
+             (string-append "--repo_env=CLANG_CUDA_COMPILER_PATH="
+                            #$(this-package-native-input "clang")
+                            "/bin/clang")
+             (string-append
+              "--override_repository=python_3_11_x86_64-unknown-linux-gnu="
+              root "/python_3_11_x86_64-unknown-linux-gnu")
+             (string-append "--override_repository=python_3_11_host="
+                            root "/python_3_11_host")
+             (string-append "--override_repository=local_config_rocm="
+                            root "/local_config_rocm")
+             (string-append "--override_repository=local_config_sycl="
+                            root "/local_config_sycl")
+             (string-append "--override_repository=rules_ml_toolchain="
+                            root "/rules_ml_toolchain")
+             (string-append "--override_repository=host_platform="
+                            root "/host_platform")
+             (string-append "--override_repository=llvm-raw="
+                            root "/llvm-raw")
+             (string-append "--override_repository=pypi="
+                            root "/pypi")
+             (string-append
+              "--override_repository=com_google_googleapis_imports="
+              root "/com_google_googleapis_imports")
+             (string-append "--override_repository=xla="
+                            root "/xla")
+             (override "cuda_cccl")
+             (override "cuda_crt")
+             (override "cuda_cublas")
+             (override "cuda_cudart")
+             (override "cuda_cudnn")
+             (override "cuda_cufft")
+             (override "cuda_cupti")
+             (override "cuda_curand")
+             (override "cuda_cusolver")
+             (override "cuda_cusparse")
+             (override "cuda_driver")
+             (override "cuda_nccl")
+             (override "cuda_nvcc")
+             (override "cuda_nvdisasm")
+             (override "cuda_nvjitlink")
+             (override "cuda_nvml")
+             (override "cuda_nvprune")
+             (override "cuda_nvrtc")
+             (override "cuda_nvtx")
+             (override "cuda_nvvm")
+             (override "cuda_profiler_api")
+             (override "nvidia_nvshmem")
+             (override "llvm_linux_aarch64")
+             (override "llvm_linux_x86_64")
+             (override "nccl_archive"))))
+       ((#:bazel-configuration conf)
+        #~(begin
+            #$conf
+            (use-modules (myguix build jax-cuda))
+            (prepare-jax-cuda13-repositories
+             #:root (or (getenv "NIX_BUILD_TOP") (getcwd))
+             #:cuda #$(this-package-native-input "cuda-toolkit")
+             #:cuda-nvvm #$(this-package-native-input "cuda-nvvm")
+             #:cccl #$(this-package-native-input "cccl-source-archive")
+             #:cudnn #$(this-package-native-input "cudnn")
+             #:nccl #$(this-package-native-input "nccl")
+             #:nvshmem #$(this-package-native-input "nvshmem")
+             #:clang #$(this-package-native-input "clang")
+             #:rules-ml-toolchain #$(this-package-native-input
+                                      "rules-ml-toolchain")
+             #:binutils #$(this-package-native-input "binutils"))))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'prepare-python-repository-override
+                'configure-cuda-repositories
+              (lambda _
+                (use-modules (myguix build jax-cuda))
+                (prepare-jax-cuda13-repositories
+                 #:root (or (getenv "NIX_BUILD_TOP") (getcwd))
+                 #:cuda #$(this-package-native-input "cuda-toolkit")
+                 #:cuda-nvvm #$(this-package-native-input "cuda-nvvm")
+                 #:cccl #$(this-package-native-input "cccl-source-archive")
+                 #:cudnn #$(this-package-native-input "cudnn")
+                 #:nccl #$(this-package-native-input "nccl")
+                 #:nvshmem #$(this-package-native-input "nvshmem")
+                 #:clang #$(this-package-native-input "clang")
+                 #:rules-ml-toolchain #$(this-package-native-input
+                                          "rules-ml-toolchain")
+                 #:binutils #$(this-package-native-input "binutils"))))
+            (replace 'install-wheel
+              (lambda _
+                (let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
+                       (search-dirs
+                        (list "dist"
+                              "bazel-bin"
+                              "bazel-out"
+                              (string-append
+                               root "/output/execroot/__main__/bazel-bin")
+                              (string-append
+                               root "/output/execroot/__main__/bazel-out")
+                              (string-append root "/output/bazel-bin")
+                              (string-append root "/output/bazel-out")))
+                       (wheels
+                        (apply append
+                               (map (lambda (dir)
+                                      (if (file-exists? dir)
+                                          (find-files
+                                           dir
+                                           "jax_cuda13_(pjrt|plugin)-.*\\.whl$")
+                                          '()))
+                                    search-dirs))))
+                  (unless wheels
+                    (error "JAX CUDA wheels not found"))
+                  (mkdir-p #$output)
+                  (for-each (lambda (wheel)
+                              (install-file wheel #$output))
+                            wheels))))))))
+    (native-inputs
+     (modify-inputs (package-native-inputs python-jaxlib/wheel)
+       (append
+        (origin
+          (method url-fetch)
+          (uri "https://github.com/NVIDIA/cccl/releases/download/v3.2.0/cccl-src-v3.2.0.tar.gz")
+          (file-name "cccl-source-archive")
+          (sha256
+           (base32 "11l0gw1s1bb9ylzs7bgd54wcd9h5vzzylx9amw35l7r083i6dkdm")))
+        clang-21-cuda
+        binutils
+        cuda-toolkit
+        cuda-nvvm
+        cudnn
+        nccl
+        nvshmem)))))
 
 (define-public python-jaxlib
   (package
@@ -2770,10 +2931,116 @@ automatically differentiate native Python and NumPy functions.")
                 "dist"))))))
     (native-inputs (list python-jaxlib/wheel))))
 
+(define (python-jax-cuda13-wheel-installer name wheel-pattern)
+  (package
+    (name name)
+    (version (package-version python-jaxlib/wheel))
+    (source #f)
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'unpack)
+          (replace 'build
+            (lambda* (#:key inputs #:allow-other-keys)
+              (mkdir-p "dist")
+              (install-file
+               (car (find-files (assoc-ref inputs
+                                           "python-jax-cuda13-wheels")
+                                #$wheel-pattern))
+               "dist")))
+          (add-after 'install 'patch-rpaths
+            (lambda* (#:key outputs inputs #:allow-other-keys)
+              (define (lookup-input name)
+                (or (assoc-ref inputs name)
+                    (error "missing input" name (map car inputs))))
+              (let* ((cuda (lookup-input "cuda-toolkit"))
+                     (nvvm (lookup-input "cuda-nvvm"))
+                     (cudnn (lookup-input "cudnn"))
+                     (nccl (lookup-input "nccl"))
+                     (nvshmem (lookup-input "nvshmem"))
+                     (nvidia-driver (lookup-input "nvidia-driver"))
+                     (gcc-lib (dirname (search-input-file
+                                        inputs "lib/libstdc++.so.6")))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (rpath (string-append
+                             "$ORIGIN:"
+                             cuda "/lib:"
+                             cuda "/lib64:"
+                             nvvm "/nvvm/lib64:"
+                             cudnn "/lib:"
+                             nccl "/lib:"
+                             nvshmem "/lib:"
+                             nvidia-driver "/lib:"
+                             gcc-lib ":"
+                             (dirname ld.so))))
+                (for-each
+                 (lambda (file)
+                   (invoke "patchelf" "--set-rpath" rpath file))
+                 (find-files (assoc-ref outputs "out") "\\.so$"))
+                (let* ((site-packages
+                        (car (find-files (string-append
+                                          (assoc-ref outputs "out") "/lib")
+                                         "^site-packages$"
+                                         #:directories? #t)))
+                       (nvidia-cu13 (string-append site-packages
+                                                   "/nvidia/cu13"))
+                       (nvvm-link (string-append nvidia-cu13 "/nvvm")))
+                  (mkdir-p nvidia-cu13)
+                  (unless (file-exists? nvvm-link)
+                    (symlink (string-append nvvm "/nvvm") nvvm-link)))))))))
+    (native-inputs (list patchelf
+                         python-jax-cuda13/wheels
+                         cuda-toolkit
+                         cuda-nvvm
+                         cudnn
+                         nccl
+                         nvshmem
+                         nvidia-driver
+                         `(,gcc "lib")))
+    (propagated-inputs
+     (list cuda-toolkit
+           cuda-nvvm
+           cudnn
+           nccl
+           nvshmem
+           nvidia-driver))
+    (home-page "https://github.com/jax-ml/jax")
+    (synopsis "JAX CUDA 13 wheel component")
+    (description "This package installs a CUDA 13 component wheel built from
+the JAX source tree.")
+    (license license:asl2.0)))
+
+(define-public python-jax-cuda13-pjrt
+  (python-jax-cuda13-wheel-installer
+   "python-jax-cuda13-pjrt"
+   "jax_cuda13_pjrt-.*\\.whl$"))
+
+(define-public python-jax-cuda13-plugin
+  (package
+    (inherit
+     (python-jax-cuda13-wheel-installer
+      "python-jax-cuda13-plugin"
+      "jax_cuda13_plugin-.*\\.whl$"))
+    (propagated-inputs
+     (list python-jax-cuda13-pjrt
+           cuda-toolkit
+           cuda-nvvm
+           cudnn
+           nccl
+           nvshmem
+           nvidia-driver))))
+
 (define-public python-jaxlib-cuda
   (package
     (inherit python-jaxlib)
-    (name "python-jaxlib-cuda")))
+    (name "python-jaxlib-cuda")
+    (propagated-inputs
+     (append (package-propagated-inputs python-jaxlib)
+             `(("python-jax-cuda13-plugin" ,python-jax-cuda13-plugin))))))
 
 ;; Keep in sync with jaxlib above.
 (define-public python-jax
