@@ -3097,9 +3097,9 @@ environments just as it would be when installed with pip.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/e4/3b/6cfc82a3ab5d9e501bbcee5df36eebe09da1c384461d7a55e2a17776d117/apache_tvm_ffi-0.1.9-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
+        "https://files.pythonhosted.org/packages/70/ef/5402da5d37f5270fd88ea0348acca78dba9be8bdbf6c2bcae0935eb03ef1/apache_tvm_ffi-0.1.9-cp312-abi3-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
        (sha256
-        (base32 "1iqasckwrwq76q6495d7ryz2a4b5161h8kvf9qxns6ia5aymldi1"))
+        (base32 "0rac1cfdanffavyl1manjsv2gjnky87lymlkdkzlbb5ck4sb8ppl"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
