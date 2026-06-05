@@ -2026,6 +2026,114 @@ libraries for NVIDIA GPUs, all of which are proprietary.")
     (license (license:nonfree
               "https://developer.nvidia.com/nvidia-cuda-license"))))
 
+(define-public cuda-nvvm
+  (package
+    (name "cuda-nvvm")
+    (version "13.0.48")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cuda/redist/"
+             "libnvvm/linux-x86_64/libnvvm-linux-x86_64-"
+             version "-archive.tar.xz"))
+       (sha256
+        (base32 "16xik2khy81jx4prjxqd49nf8zb732pjbw19qbii6v9fbak7cmlc"))))
+    (supported-systems '("x86_64-linux"))
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:install-plan
+      #~'(("nvvm" "nvvm")
+          ("LICENSE" "share/doc/cuda-nvvm/LICENSE"))))
+    (home-page "https://developer.nvidia.com/cuda-toolkit")
+    (synopsis "NVIDIA CUDA NVVM compiler library and libdevice")
+    (description
+     "This package provides NVIDIA's NVVM compiler support files, including
+@file{libnvvm.so} and @file{nvvm/libdevice/libdevice.10.bc}.")
+    (license (license:nonfree
+              "https://developer.nvidia.com/nvidia-cuda-license"))))
+
+(define-public nvshmem
+  (package
+    (name "nvshmem")
+    (version "3.3.20")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://storage.googleapis.com/mirror.tensorflow.org/"
+             "developer.download.nvidia.com/compute/nvshmem/redist/"
+             "libnvshmem/linux-x86_64/libnvshmem-linux-x86_64-"
+             version "_cuda13-archive.tar"))
+       (sha256
+        (base32 "1fvajfp1w8f4hmwvv9x0ra5dz5as229lfbqzi4aqrk4r44gshrkd"))))
+    (supported-systems '("x86_64-linux"))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:modules '((guix build utils)
+                  (guix build gnu-build-system))
+      #:substitutable? #t
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'check)
+          (delete 'make-dynamic-linker-cache)
+          (replace 'build
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let* ((libc (assoc-ref inputs "libc"))
+                     (gcc-lib (assoc-ref inputs "gcc:lib"))
+                     (cuda (assoc-ref inputs "cuda-toolkit"))
+                     (ld.so (search-input-file inputs
+                                               #$(glibc-dynamic-linker)))
+                     (rpath (string-join
+                             (list "$ORIGIN"
+                                   (string-append #$output "/lib")
+                                   (string-append cuda "/lib")
+                                   (string-append cuda "/lib64")
+                                   (string-append libc "/lib")
+                                   (string-append gcc-lib "/lib"))
+                             ":")))
+                (define (patch-elf file)
+                  (make-file-writable file)
+                  (unless (string-contains file ".so")
+                    (format #t "Setting interpreter on '~a'...~%" file)
+                    (invoke "patchelf" "--set-interpreter" ld.so file))
+                  (format #t "Setting RPATH on '~a'...~%" file)
+                  (invoke "patchelf" "--set-rpath" rpath "--force-rpath" file))
+
+                (for-each (lambda (file)
+                            (when (and (elf-file? file)
+                                       ;; CUDA device images are ELF-like
+                                       ;; inputs consumed by the driver, not
+                                       ;; host binaries with an interpreter.
+                                       (not (string-contains file ".cubin")))
+                              (patch-elf file)))
+                          (find-files "."
+                                      (lambda (file stat)
+                                        (eq? 'regular (stat:type stat))))))))
+          (replace 'install
+            (lambda _
+              (for-each (lambda (dir)
+                          (copy-recursively
+                           dir
+                           (string-append #$output "/" dir)))
+                        '("bin" "include" "lib" "share"))
+              (install-file "LICENSE" #$output))))))
+    (native-inputs (list patchelf-0.16))
+    (inputs `(("cuda-toolkit" ,cuda-toolkit)
+              ("gcc:lib" ,gcc "lib")))
+    (home-page "https://developer.nvidia.com/nvshmem")
+    (synopsis "NVIDIA OpenSHMEM implementation for NVIDIA GPUs")
+    (description
+     "NVSHMEM is NVIDIA's OpenSHMEM implementation for clusters of NVIDIA
+GPUs.  This package provides the CUDA 13 NVSHMEM runtime, headers, device
+libraries, plugins, examples, and performance test binaries.")
+    (license (license:nonfree "https://developer.nvidia.com/nvshmem"))))
+
 (define-public cuda-toolkit-11.8
   (package
     (inherit cuda-toolkit)
