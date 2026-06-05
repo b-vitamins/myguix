@@ -506,7 +506,8 @@
   (list nccl
         python-pytorch-cuda
         python-torchvision-cuda
-        python-lion-pytorch-cuda
+        python-jax-cuda
+        python-flax-cuda
         python-torchaudio-cuda
         nlp:python-chatterbox-tts-cuda
         python-torchcodec-cuda
