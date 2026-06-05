@@ -2977,9 +2977,9 @@ components installed in the user's Python environment.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/17/af/710403f76f2d608d483d87089465e1f666351641dbd73d19bd025e652bad/cuda_bindings-13.1.1-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
+        "https://files.pythonhosted.org/packages/4a/8e/368295623ee43fba622909d780fbb6863efc1638dff55f67a0f04eac6470/cuda_bindings-13.1.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl")
        (sha256
-        (base32 "10pxbrhpg3vbdz39c7nq5cn74fg12nb8ck6xb5qz0mxj0fdzcj4k"))
+        (base32 "126l94bj8ad9wbg1g8i0cyd322an0bymxza028aqznfw7hd5sy15"))
        (file-name (string-append "cuda-bindings-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
