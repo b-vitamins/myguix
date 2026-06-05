@@ -1684,64 +1684,71 @@ providing utilities for various projects.")
       #:build-targets '(list "//jaxlib/tools:jaxlib_wheel")
       #:distdir-inputs jax-bazel-distdir-sources
       #:bazel-arguments
-      #~(list
-         "--config=mkl_open_source_only"
-         "--cxxopt=-Wno-dangling-reference"
-         "--repo_env=HERMETIC_PYTHON_VERSION=3.11"
-         "--repo_env=ML_WHEEL_TYPE=release"
-         (string-append
-          "--override_repository=python_3_11_x86_64-unknown-linux-gnu="
-          (or (getenv "NIX_BUILD_TOP") (getcwd))
-          "/python_3_11_x86_64-unknown-linux-gnu")
-         (string-append
-          "--override_repository=python_3_11_host="
-          (or (getenv "NIX_BUILD_TOP") (getcwd))
-          "/python_3_11_host")
-         (string-append
-          "--override_repository=local_config_cuda="
-          (or (getenv "NIX_BUILD_TOP") (getcwd))
-          "/local_config_cuda")
-         (string-append
-          "--override_repository=local_config_rocm="
-          (or (getenv "NIX_BUILD_TOP") (getcwd))
-          "/local_config_rocm")
-         (string-append
-          "--override_repository=local_config_sycl="
-          (or (getenv "NIX_BUILD_TOP") (getcwd))
-          "/local_config_sycl")
-         (string-append "--override_repository=rules_ml_toolchain="
-                        #$(this-package-native-input "rules-ml-toolchain"))
-         (string-append "--override_repository=host_platform="
-                        (or (getenv "NIX_BUILD_TOP") (getcwd))
-                        "/host_platform")
-         (string-append "--override_repository=llvm-raw="
-                        (or (getenv "NIX_BUILD_TOP") (getcwd))
-                        "/llvm-raw")
-         (string-append "--override_repository=pypi="
-                        (or (getenv "NIX_BUILD_TOP") (getcwd))
-                        "/pypi")
-         (string-append "--override_repository=com_google_googleapis_imports="
-                        (or (getenv "NIX_BUILD_TOP") (getcwd))
-                        "/com_google_googleapis_imports")
-         (string-append "--override_repository=xla="
-                        (or (getenv "NIX_BUILD_TOP") (getcwd))
-                        "/xla"))
+      #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
+               (python-version #$(version-major+minor
+                                  (package-version
+                                   (this-package-input "python"))))
+               (python-repo-version
+                (string-map (lambda (char)
+                              (if (char=? char #\.) #\_ char))
+                            python-version))
+               (target-repo-name
+                (string-append "python_" python-repo-version
+                               "_x86_64-unknown-linux-gnu"))
+               (host-repo-name
+                (string-append "python_" python-repo-version "_host")))
+          (list
+           "--config=mkl_open_source_only"
+           "--cxxopt=-Wno-dangling-reference"
+           (string-append "--repo_env=HERMETIC_PYTHON_VERSION="
+                          python-version)
+           "--repo_env=ML_WHEEL_TYPE=release"
+           (string-append "--override_repository=" target-repo-name "="
+                          root "/" target-repo-name)
+           (string-append "--override_repository=" host-repo-name "="
+                          root "/" host-repo-name)
+           (string-append "--override_repository=local_config_cuda="
+                          root "/local_config_cuda")
+           (string-append "--override_repository=local_config_rocm="
+                          root "/local_config_rocm")
+           (string-append "--override_repository=local_config_sycl="
+                          root "/local_config_sycl")
+           (string-append "--override_repository=rules_ml_toolchain="
+                          #$(this-package-native-input "rules-ml-toolchain"))
+           (string-append "--override_repository=host_platform="
+                          root "/host_platform")
+           (string-append "--override_repository=llvm-raw="
+                          root "/llvm-raw")
+           (string-append "--override_repository=pypi="
+                          root "/pypi")
+           (string-append "--override_repository=com_google_googleapis_imports="
+                          root "/com_google_googleapis_imports")
+           (string-append "--override_repository=xla="
+                          root "/xla")))
       #:vendored-inputs-hash
       "178k7qj6ly89i3x79y1jdh5s264mm38xhg1jifzkn3yx4ndayg7p"
       #:bazel-configuration
       #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
-               (target-repo (string-append root
-                                           "/python_3_11_x86_64-unknown-linux-gnu"))
-               (host-repo (string-append root "/python_3_11_host"))
+               (python-version #$(version-major+minor
+                                  (package-version
+                                   (this-package-input "python"))))
+               (python-repo-version
+                (string-map (lambda (char)
+                              (if (char=? char #\.) #\_ char))
+                            python-version))
+               (target-repo-name
+                (string-append "python_" python-repo-version
+                               "_x86_64-unknown-linux-gnu"))
+               (host-repo-name
+                (string-append "python_" python-repo-version "_host"))
+               (target-repo (string-append root "/" target-repo-name))
+               (host-repo (string-append root "/" host-repo-name))
                (cuda-repo (string-append root "/local_config_cuda"))
                (rocm-repo (string-append root "/local_config_rocm"))
                (sycl-repo (string-append root "/local_config_sycl"))
                (python (string-append #$(this-package-input "python")
                                       "/bin/python3"))
                (prefix #$(this-package-input "python"))
-               (python-version #$(version-major+minor
-                                  (package-version
-                                   (this-package-input "python"))))
                (numpy-site-packages
                 (string-append #$(this-package-input "python-numpy")
                                "/lib/python" python-version
@@ -1796,7 +1803,7 @@ providing utilities for various projects.")
                          "cc_library(\n"
                          "    name = \"_python_headers\",\n"
                          "    srcs = glob([\"include/**/*.h\"], allow_empty = True),\n"
-                         "    includes = [\"include\", \"include/python3.11\"],\n"
+                         "    includes = [\"include\", \"include/python" python-version "\"],\n"
                          ")\n\n"
                          "cc_library(\n"
                          "    name = \"_libpython\",\n"
@@ -1826,9 +1833,8 @@ providing utilities for various projects.")
                          "    precompiler = \"@rules_python//tools/precompiler:precompiler\",\n"
                          ")\n")
                         port))))))
-            (prepare-python-repo target-repo
-                                 "python_3_11_x86_64-unknown-linux-gnu")
-            (prepare-python-repo host-repo "python_3_11_host"))
+            (prepare-python-repo target-repo target-repo-name)
+            (prepare-python-repo host-repo host-repo-name))
 
           ;; Provide a stub SYCL configuration repository so XLA BUILD files
           ;; can load symbols without enabling SYCL.
@@ -2143,17 +2149,23 @@ providing utilities for various projects.")
           ;; Execute mpitrampoline generators with our explicitly overridden Python.
           (substitute* (string-append xla-repo "/third_party/mpitrampoline/mpitrampoline.BUILD")
             (("cmd = \"\\$\\(location :gen_decl\\)")
-             "cmd = \"$(location @python_3_11_host//:python) $(location :gen_decl)")
+             (string-append "cmd = \"$(location @" host-repo-name
+                            "//:python) $(location :gen_decl)"))
             (("cmd = \"\\$\\(location :gen_defn\\)")
-             "cmd = \"$(location @python_3_11_host//:python) $(location :gen_defn)")
+             (string-append "cmd = \"$(location @" host-repo-name
+                            "//:python) $(location :gen_defn)"))
             (("cmd = \"\\$\\(location :gen_init\\)")
-             "cmd = \"$(location @python_3_11_host//:python) $(location :gen_init)")
+             (string-append "cmd = \"$(location @" host-repo-name
+                            "//:python) $(location :gen_init)"))
             (("tools = \\[\":gen_decl\"\\],")
-             "tools = [\":gen_decl\", \"@python_3_11_host//:python\"],")
+             (string-append "tools = [\":gen_decl\", \"@" host-repo-name
+                            "//:python\"],"))
             (("tools = \\[\":gen_defn\"\\],")
-             "tools = [\":gen_defn\", \"@python_3_11_host//:python\"],")
+             (string-append "tools = [\":gen_defn\", \"@" host-repo-name
+                            "//:python\"],"))
             (("tools = \\[\":gen_init\"\\],")
-             "tools = [\":gen_init\", \"@python_3_11_host//:python\"],"))
+             (string-append "tools = [\":gen_init\", \"@" host-repo-name
+                            "//:python\"],")))
           ;; GCC 14 rejects out-of-class member template definitions for this
           ;; enable_if non-type parameter pattern. Use return-type SFINAE.
           (substitute* (string-append xla-repo "/xla/tsl/concurrency/future.h")
@@ -2216,18 +2228,26 @@ providing utilities for various projects.")
           (add-after 'unpack-vendored-inputs 'prepare-python-repository-override
             (lambda _
               (let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
-                     (target-repo (string-append root
-                                                 "/python_3_11_x86_64-unknown-linux-gnu"))
-                     (host-repo (string-append root "/python_3_11_host"))
+                     (python-version #$(version-major+minor
+                                        (package-version
+                                         (this-package-input "python"))))
+                     (python-repo-version
+                      (string-map (lambda (char)
+                                    (if (char=? char #\.) #\_ char))
+                                  python-version))
+                     (target-repo-name
+                      (string-append "python_" python-repo-version
+                                     "_x86_64-unknown-linux-gnu"))
+                     (host-repo-name
+                      (string-append "python_" python-repo-version "_host"))
+                     (target-repo (string-append root "/" target-repo-name))
+                     (host-repo (string-append root "/" host-repo-name))
                      (cuda-repo (string-append root "/local_config_cuda"))
                      (rocm-repo (string-append root "/local_config_rocm"))
                      (sycl-repo (string-append root "/local_config_sycl"))
                      (python (string-append #$(this-package-input "python")
                                             "/bin/python3"))
                      (prefix #$(this-package-input "python"))
-                     (python-version #$(version-major+minor
-                                        (package-version
-                                         (this-package-input "python"))))
                      (numpy-site-packages
                       (string-append #$(this-package-input "python-numpy")
                                      "/lib/python" python-version
@@ -2282,7 +2302,7 @@ providing utilities for various projects.")
                                "cc_library(\n"
                                "    name = \"_python_headers\",\n"
                                "    srcs = glob([\"include/**/*.h\"], allow_empty = True),\n"
-                               "    includes = [\"include\", \"include/python3.11\"],\n"
+                               "    includes = [\"include\", \"include/python" python-version "\"],\n"
                                ")\n\n"
                                "cc_library(\n"
                                "    name = \"_libpython\",\n"
@@ -2312,9 +2332,8 @@ providing utilities for various projects.")
                                "    precompiler = \"@rules_python//tools/precompiler:precompiler\",\n"
                                ")\n")
                               port))))))
-                  (prepare-python-repo target-repo
-                                       "python_3_11_x86_64-unknown-linux-gnu")
-                  (prepare-python-repo host-repo "python_3_11_host"))
+                  (prepare-python-repo target-repo target-repo-name)
+                  (prepare-python-repo host-repo host-repo-name))
 
                 (mkdir-p (string-append sycl-repo "/sycl"))
                 (call-with-output-file (string-append sycl-repo "/WORKSPACE")
@@ -2608,17 +2627,23 @@ providing utilities for various projects.")
                    ""))
                 (substitute* (string-append xla-repo "/third_party/mpitrampoline/mpitrampoline.BUILD")
                   (("cmd = \"\\$\\(location :gen_decl\\)")
-                   "cmd = \"$(location @python_3_11_host//:python) $(location :gen_decl)")
+                   (string-append "cmd = \"$(location @" host-repo-name
+                                  "//:python) $(location :gen_decl)"))
                   (("cmd = \"\\$\\(location :gen_defn\\)")
-                   "cmd = \"$(location @python_3_11_host//:python) $(location :gen_defn)")
+                   (string-append "cmd = \"$(location @" host-repo-name
+                                  "//:python) $(location :gen_defn)"))
                   (("cmd = \"\\$\\(location :gen_init\\)")
-                   "cmd = \"$(location @python_3_11_host//:python) $(location :gen_init)")
+                   (string-append "cmd = \"$(location @" host-repo-name
+                                  "//:python) $(location :gen_init)"))
                   (("tools = \\[\":gen_decl\"\\],")
-                   "tools = [\":gen_decl\", \"@python_3_11_host//:python\"],")
+                   (string-append "tools = [\":gen_decl\", \"@" host-repo-name
+                                  "//:python\"],"))
                   (("tools = \\[\":gen_defn\"\\],")
-                   "tools = [\":gen_defn\", \"@python_3_11_host//:python\"],")
+                   (string-append "tools = [\":gen_defn\", \"@" host-repo-name
+                                  "//:python\"],"))
                   (("tools = \\[\":gen_init\"\\],")
-                   "tools = [\":gen_init\", \"@python_3_11_host//:python\"],"))
+                   (string-append "tools = [\":gen_init\", \"@" host-repo-name
+                                  "//:python\"],")))
                 (substitute* (string-append xla-repo "/xla/tsl/concurrency/future.h")
                   ;; Declarations.
                   (("template <typename U = T, std::enable_if_t<internal::IsFuture<U>::value &&")
@@ -2667,7 +2692,11 @@ providing utilities for various projects.")
                         "\"$(location \" + output_hdr + \") \" + \" \".join(generator_args),")))))
                 (substitute* "jaxlib/mlir/_mlir_libs/stubgen.bzl"
                   (("def py_stubgen\\(name, module, outs = None, stubgen = \"//jaxlib/mlir/_mlir_libs:stubgen\", normalize = \"//jaxlib/mlir/_mlir_libs:normalize_stubs\"\\):")
-                   "def py_stubgen(name, module, outs = None, stubgen = \"//jaxlib/mlir/_mlir_libs:stubgen\", normalize = \"//jaxlib/mlir/_mlir_libs:normalize_stubs\", python = \"@python_3_11_host//:python\"):")
+                   (string-append
+                    "def py_stubgen(name, module, outs = None, "
+                    "stubgen = \"//jaxlib/mlir/_mlir_libs:stubgen\", "
+                    "normalize = \"//jaxlib/mlir/_mlir_libs:normalize_stubs\", "
+                    "python = \"@" host-repo-name "//:python\"):"))
                   (("\\$\\(location \\{stubgen\\}\\) -m \\{module\\} -O \\$\\(RULEDIR\\)")
                    "$(location {python}) $(location {stubgen}) -m {module} -O $(RULEDIR)")
                   (("\\$\\(location \\{normalize\\}\\) --jaxlib-build \\$\\(OUTS\\)")
