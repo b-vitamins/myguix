@@ -37,7 +37,7 @@
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
   #:use-module (gnu packages monitoring)
-  #:use-module (gnu packages ninja)
+  #:use-module (gnu packages build-tools)
   #:use-module (gnu packages oneapi)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages xorg)

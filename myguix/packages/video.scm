@@ -43,8 +43,6 @@
   #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module (guix packages)
-  #:use-module ((guix build-system python)
-                #:select (pypi-uri))
   #:use-module (guix gexp)
   #:use-module (guix modules)
   #:use-module (guix utils)

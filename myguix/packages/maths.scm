@@ -7,7 +7,7 @@
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages compression)
-  #:use-module (gnu packages flex)
+  #:use-module (gnu packages compiler-tools)
   #:use-module (gnu packages guile)
   #:use-module (gnu packages maths)
   #:use-module (gnu packages multiprecision)
