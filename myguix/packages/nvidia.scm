@@ -2880,9 +2880,9 @@ kernel profiling and performance analysis across multiple configurations.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/78/39/fc8bcd90dce4e6d3e228df1914d640dfe2ffa3559078d6beb0f9b4c23e5e/cupti_python-13.0.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl")
+        "https://files.pythonhosted.org/packages/5b/03/8ac5665795e995ab37e0be132a2ea32088c6a6294da709039b11a9029c25/cupti_python-13.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl")
        (sha256
-        (base32 "0wmfw5yn9idfypsibsx0avn8qbmc4xg747j14sscz0cg3x957z8k"))
+        (base32 "0vmrfbwg450dnaa0q9cai0b6famq9nj9jwsflahix2y4kb8h0sc6"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
