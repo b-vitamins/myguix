@@ -5851,6 +5851,45 @@ learning agents.")
                          (replace "python-gymnax" python-gymnax-cuda)
                          (replace "python-jax" python-jax-cuda)))))
 
+(define-public python-stable-baselines3
+  (package
+    (name "python-stable-baselines3")
+    (version "2.8.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/DLR-RM/stable-baselines3")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "17jsqkl2mj4pkgdd01y4n3kbql661lzhi7d7hasdrdfkzdq69jvq"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-cloudpickle
+                             python-gymnasium
+                             python-matplotlib
+                             python-numpy
+                             python-pandas
+                             python-pytorch))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/DLR-RM/stable-baselines3")
+    (synopsis "PyTorch reinforcement learning algorithms")
+    (description
+     "Stable-Baselines3 provides reliable PyTorch implementations of
+reinforcement learning algorithms.")
+    (license license:expat)))
+
+(define-public python-stable-baselines3-cuda
+  (package
+    (inherit python-stable-baselines3)
+    (name "python-stable-baselines3-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-stable-baselines3)
+                         (replace "python-pytorch" python-pytorch-cuda)))))
+
 (define-public python-tianshou
   (package
     (name "python-tianshou")
