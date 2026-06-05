@@ -1271,7 +1271,13 @@ a delightful developer experience.")
           (add-after 'unpack 'find-tensorflow-libraries
             (lambda _
               ;; XXX: not all .so files need this.
-              (let ((libraries (find-files "." ".*\\.so$")))
+              (let* ((python-version
+                      #$(version-major+minor (package-version python)))
+                     (bfloat16-directory
+                      (string-append
+                       #$output "/lib/python" python-version
+                       "/site-packages/tensorflow/tsl/python/lib/core/"))
+                     (libraries (find-files "." ".*\\.so$")))
                 (for-each (lambda (lib)
                             (make-file-writable lib)
                             (system (format #f
@@ -1281,16 +1287,17 @@ a delightful developer experience.")
                                                        "tensorflow-cuda")
                                                     "/lib")
                                      ;; for libbfloat16.so.so
-                                     (string-append #$output
-                                      "/lib/python3.10/site-packages/tensorflow/tsl/python/lib/core/")
+                                     bfloat16-directory
                                      lib
                                      lib))) libraries))))
           (add-after 'install 'install-missing-libraries
             (lambda _
               ;; libtensorflow_cc.so.2 is not installed.  See
               ;; https://github.com/tensorflow/tensorflow/issues/60326.
-              (let ((dir (string-append #$output
-                          "/lib/python3.10/site-packages/tensorflow/"))
+              (let ((dir (string-append
+                          #$output "/lib/python"
+                          #$(version-major+minor (package-version python))
+                          "/site-packages/tensorflow/"))
                     (lib (string-append "libtensorflow_cc.so."
                                         #$(package-version this-package))))
                 (install-file (string-append "tensorflow/" lib) dir)
