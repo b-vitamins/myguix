@@ -5287,6 +5287,49 @@ ecosystem, including PyTorch Lightning integration.")
                          (replace "python-torchmetrics"
                                   python-torchmetrics-cuda)))))
 
+(define-public python-minari
+  (package
+    (name "python-minari")
+    (version "0.5.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "minari" version))
+       (sha256
+        (base32 "0jych19jsms9lbv7p02zyr1a2kx4lljds8vd9f0xbrhc7439nx4b"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'relax-typer-extra
+            (lambda _
+              (for-each
+               (lambda (file)
+                 (when (file-exists? file)
+                   (substitute* file
+                     (("typer\\[all\\]")
+                      "typer"))))
+               '("pyproject.toml"
+                 "setup.cfg"
+                 "PKG-INFO"
+                 "minari.egg-info/PKG-INFO"
+                 "minari.egg-info/requires.txt")))))))
+    (propagated-inputs (list python-gymnasium
+                             python-h5py
+                             python-numpy
+                             python-packaging
+                             python-typer
+                             python-typing-extensions))
+    (native-inputs (list python-setuptools))
+    (home-page "https://farama.org")
+    (synopsis "Format for offline reinforcement learning datasets")
+    (description
+     "Minari provides a standard format for offline reinforcement learning
+datasets and related utilities.")
+    (license license:expat)))
+
 (define-public python-dm-env
   (package
     (name "python-dm-env")
@@ -5612,6 +5655,201 @@ built from source against the Guix MuJoCo C/C++ library.")
      "Dm-control provides continuous control tasks and reinforcement learning
 environments built on MuJoCo.")
     (license license:asl2.0)))
+
+(define-public python-ogbench
+  (package
+    (name "python-ogbench")
+    (version "1.2.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ogbench" version))
+       (sha256
+        (base32 "0pqwm2fb43zw70k8nddaag7lwsvwvkrvm0bvzf37fwf94mcrls6i"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-dm-control
+                             python-gymnasium
+                             python-imageio
+                             python-mujoco))
+    (native-inputs (list python-flit-core))
+    (home-page "https://github.com/seohongpark/ogbench")
+    (synopsis "Benchmark for offline goal-conditioned reinforcement learning")
+    (description
+     "OGBench provides environments and datasets for benchmarking offline
+goal-conditioned reinforcement learning.")
+    (license license:expat)))
+
+(define-public python-pettingzoo
+  (package
+    (name "python-pettingzoo")
+    (version "1.26.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pettingzoo" version))
+       (sha256
+        (base32 "084qci8sv2c1gzwbzjvnvs3cgvhz46dmifra5qph7gsi7iyhrbhv"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-gymnasium
+                             python-numpy))
+    (native-inputs (list python-setuptools))
+    (home-page "https://farama.org")
+    (synopsis "Gymnasium API for multi-agent reinforcement learning")
+    (description
+     "PettingZoo provides multi-agent reinforcement learning environments with
+a Gymnasium-style API.")
+    (license license:expat)))
+
+(define-public python-gymnasium-robotics
+  (package
+    (name "python-gymnasium-robotics")
+    (version "1.4.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "gymnasium_robotics" version))
+       (sha256
+        (base32 "043049m76n423gdfkzns3djqxa325r7gfdkmx54r07j87nzlj7ni"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-gymnasium
+                             python-imageio
+                             python-jinja2
+                             python-mujoco
+                             python-numpy
+                             python-packaging
+                             python-pettingzoo
+                             python-setuptools))
+    (native-inputs (list python-setuptools))
+    (home-page "https://farama.org")
+    (synopsis "Robotics environments with the Gymnasium API")
+    (description
+     "Gymnasium Robotics provides MuJoCo robotics environments with the
+Gymnasium API.")
+    (license license:expat)))
+
+(define-public python-minigrid
+  (package
+    (name "python-minigrid")
+    (version "3.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "minigrid" version))
+       (sha256
+        (base32 "1bjnqcxsz04ysxb51dxz161zfhyr317xb5s5gmm9vabzb80q0fbb"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-gymnasium
+                             python-numpy
+                             python-pygame-ce))
+    (native-inputs (list python-setuptools))
+    (home-page "https://farama.org")
+    (synopsis "Minimalistic gridworld reinforcement learning environments")
+    (description
+     "Minigrid provides small gridworld environments for reinforcement learning
+experiments.")
+    (license license:expat)))
+
+(define-public python-gymnax
+  (package
+    (name "python-gymnax")
+    (version "0.0.9")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/RobertTLange/gymnax")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ryfjb04lgq74qng4c1a3mwjnlh8gx5fhvkmnlh2bzd503sg6y59"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-flax
+                             python-gymnasium
+                             python-jax
+                             python-matplotlib
+                             python-seaborn))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/RobertTLange/gymnax")
+    (synopsis "JAX implementations of Gym environments")
+    (description
+     "Gymnax provides JAX implementations of common Gym reinforcement learning
+environments.")
+    (license license:asl2.0)))
+
+(define-public python-gymnax-cuda
+  (package
+    (inherit python-gymnax)
+    (name "python-gymnax-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-gymnax)
+                         (replace "python-flax" python-flax-cuda)
+                         (replace "python-jax" python-jax-cuda)))))
+
+(define-public python-craftax
+  (package
+    (name "python-craftax")
+    (version "1.5.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/MichaelTMatthews/Craftax")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1i0bp8m1y5sxxmljnxafyl0gjw72d79l4phgfdkf5jmig7fjjyq1"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-chex
+                             python-flax
+                             python-gymnax
+                             python-imageio
+                             python-jax
+                             python-matplotlib
+                             python-numpy
+                             python-pygame))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/MichaelTMatthews/Craftax")
+    (synopsis "Open-world reinforcement learning environment")
+    (description
+     "Craftax provides an open-world environment for training reinforcement
+learning agents.")
+    (license license:expat)))
+
+(define-public python-craftax-cuda
+  (package
+    (inherit python-craftax)
+    (name "python-craftax-cuda")
+    (arguments
+     (substitute-keyword-arguments (package-arguments python-craftax)
+       ((#:phases phases #~%standard-phases)
+        #~(modify-phases #$phases
+            ;; Importing Craftax imports JAX, which initializes the CUDA
+            ;; plugin and probes for a device.  Build sandboxes need not have
+            ;; a CUDA device visible, so validate this variant with runtime
+            ;; smoke tests instead of the generic build-time import.
+            (delete 'sanity-check)))))
+    (propagated-inputs (modify-inputs (package-propagated-inputs python-craftax)
+                         (replace "python-chex" python-chex-cuda)
+                         (replace "python-flax" python-flax-cuda)
+                         (replace "python-gymnax" python-gymnax-cuda)
+                         (replace "python-jax" python-jax-cuda)))))
 
 (define-public python-tianshou
   (package
