@@ -5890,6 +5890,103 @@ reinforcement learning algorithms.")
                                        python-stable-baselines3)
                          (replace "python-pytorch" python-pytorch-cuda)))))
 
+(define-public python-ale-py
+  (package
+    (name "python-ale-py")
+    (version "0.12.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "ale_py" version))
+       (sha256
+        (base32 "1g0d0037livvs9s2fl0v0n1qzsphvcpss82lz6dkk784d9ml2c30"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (inputs (list opencv
+                  sdl2
+                  zlib))
+    (propagated-inputs (list python-numpy))
+    (native-inputs (list cmake
+                         python-nanobind
+                         python-scikit-build-core))
+    (home-page "https://ale.farama.org/")
+    (synopsis "Arcade Learning Environment Python interface")
+    (description
+     "ALE-Py provides Python bindings for the Arcade Learning Environment used
+in Atari reinforcement learning benchmarks.")
+    (license license:gpl2+)))
+
+(define-public python-pymunk
+  (package
+    (name "python-pymunk")
+    (version "7.2.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/viblo/pymunk")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0d0fk4y2xvbz51qdd6vrw7dg04ans5phk4papz4qnj9yg8995qjq"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'unpack-munk2d
+            (lambda _
+              (when (file-exists? "Munk2D")
+                (delete-file-recursively "Munk2D"))
+              (copy-recursively #$(this-package-native-input "munk2d-source")
+                                "Munk2D"))))))
+    (propagated-inputs (list python-cffi))
+    (native-inputs
+     `(("python-cffi" ,python-cffi)
+       ("python-setuptools" ,python-setuptools)
+       ("munk2d-source" ,(origin
+                           (method git-fetch)
+                           (uri (git-reference
+                                 (url "https://github.com/viblo/Munk2D")
+                                 (commit "ade7ed72849e60289eefb7a41e79ae6322fefaf3")))
+                           (file-name (git-file-name "munk2d" version))
+                           (sha256
+                            (base32
+                             "09wh8yg2mp5y9cinv6a92i4lxy3rj4yylz85b58pcbacaqcih764"))))))
+    (home-page "https://www.pymunk.org")
+    (synopsis "Pythonic 2D physics library")
+    (description
+     "Pymunk is a Pythonic 2D rigid-body physics library based on Chipmunk.")
+    (license license:expat)))
+
+(define-public python-box2d-py
+  (package
+    (name "python-box2d-py")
+    (version "2.3.5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/openai/box2d-py")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0cmh10kd5vbcwfx7gd2zsrmx1kvdjhwrgvcrx2qdlr0z33wgxz7d"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools
+                         swig))
+    (home-page "https://github.com/openai/box2d-py")
+    (synopsis "Python bindings for Box2D")
+    (description
+     "Box2D-py provides Python bindings for the Box2D 2D physics engine.")
+    (license license:zlib)))
+
 (define-public python-tianshou
   (package
     (name "python-tianshou")
