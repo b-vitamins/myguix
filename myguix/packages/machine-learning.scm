@@ -3475,7 +3475,17 @@ the tensors contained therein.")
        ((#:phases phases)
         #~(modify-phases #$phases
             (add-after 'cmake-patches 'cuda-cmake-patches
-              (lambda _
+              (lambda* (#:key inputs #:allow-other-keys)
+                ;; Keep the flatc used for regenerated sources aligned with
+                ;; the headers used while compiling them.
+                (substitute* "cmake/FlatBuffers.cmake"
+                  (("set\\(FlatBuffers_Include \\$\\{PROJECT_SOURCE_DIR\\}/third_party/flatbuffers/include\\)")
+                   (string-append
+                    "set(FlatBuffers_Include "
+                    (dirname
+                     (search-input-directory inputs
+                                             "include/flatbuffers"))
+                    ")")))
                 ;; XXX: Currently nvidia-cudnn-frontend doesn't install CMake
                 ;; configuration files, we must add unbundled nlohmann-json.
                 ;; Additionally, it won't work without CUDNN_INCLUDE_DIR.
