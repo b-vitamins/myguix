@@ -2727,9 +2727,9 @@ Tile programming model, installed from the pre-built wheel.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/94/06/3ab72e5a463af1b95934638cb8377e99f58e5ef21a47cbf69b92267d6602/nvtx-0.2.14-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl")
+        "https://files.pythonhosted.org/packages/81/94/b37d634fef8677ce525b5bfd2886737ea2c064bc3576fc84423973ff5b97/nvtx-0.2.14-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl")
        (sha256
-        (base32 "0zq1qv5r6bfwhnf2i5115xjj18f8x54jr98gvnmx0ajfn9sslr06"))
+        (base32 "1n5b3apsbhlfknyj6nc9xvkvwrlvza0awb51r2qcwswr0gcybvqp"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
