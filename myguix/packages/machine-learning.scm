@@ -1,6 +1,7 @@
 (define-module (myguix packages machine-learning)
   #:use-module (gnu packages)
   #:use-module (gnu packages base)
+  #:use-module (gnu packages bootstrap)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages algebra)
   #:use-module (gnu packages assembly)
@@ -18,7 +19,9 @@
   #:use-module (gnu packages documentation)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
+  #:use-module (gnu packages game-development)
   #:use-module (gnu packages golang)
+  #:use-module (gnu packages guile)
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages image-processing)
@@ -33,6 +36,7 @@
                 #:hide (dlpack python-safetensors python-transformers))
   #:use-module (gnu packages maths)
   #:use-module (gnu packages mpi)
+  #:use-module (gnu packages monitoring)
   #:use-module (gnu packages ninja)
   #:use-module (gnu packages oneapi)
   #:use-module (gnu packages gl)
@@ -58,8 +62,10 @@
   #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust)
   #:use-module (gnu packages rust-apps)
+  #:use-module (gnu packages sdl)
   #:use-module (gnu packages serialization)
   #:use-module (gnu packages sphinx)
+  #:use-module (gnu packages swig)
   #:use-module (gnu packages time)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages valgrind)
@@ -91,6 +97,8 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages bazel)
   #:use-module (myguix packages huggingface)
+  #:use-module ((myguix utils)
+                #:select (myguix-cargo-inputs))
   #:use-module (ice-9 match)
   #:use-module (srfi srfi-26))
 
@@ -351,130 +359,9 @@ Interchange Format (SARIF)} file format.")
     (license license:expat)))
 
 (define-public python-tensorstore
-  (let ((tensorstore-python-packages (list "absl_py"
-                                           ;; "alabaster"
-                                           ;; "annotated_types"
-                                           "appdirs"
-                                           ;; "appnope"
-                                           "asttokens"
-                                           "attrs"
-                                           "aws_sam_translator"
-                                           "aws_xray_sdk"
-                                           "babel"
-                                           "blinker"
-                                           "boto3"
-                                           "botocore"
-                                           "certifi"
-                                           "cffi"
-                                           "cfn_lint"
-                                           "charset_normalizer"
-                                           "click"
-                                           "cloudpickle"
-                                           "colorama"
-                                           ;; "crc32c"
-                                           "cryptography"
-                                           "decorator"
-                                           "docker"
-                                           "docutils"
-                                           "ecdsa"
-                                           "executing"
-                                           "flask"
-                                           "flask_cors"
-                                           "googleapis_common_protos"
-                                           "graphql_core"
-                                           "grpcio"
-                                           "idna"
-                                           "imagesize"
-                                           "importlib_metadata"
-                                           "iniconfig"
-                                           "ipython"
-                                           "itsdangerous"
-                                           "jedi"
-                                           "jinja2"
-                                           "jmespath"
-                                           ;; "jschema_to_python"
-                                           "jsondiff"
-                                           "jsonpatch"
-                                           "jsonpickle"
-                                           "jsonpointer"
-                                           "jsonschema"
-                                           ;; "jsonschema_path"
-                                           ;; "jsonschema_specifications"
-                                           "junit_xml"
-                                           "lazy_object_proxy"
-                                           "markupsafe"
-                                           "matplotlib_inline"
-                                           "ml_dtypes"
-                                           "moto"
-                                           "mpmath"
-                                           "networkx"
-                                           "numpy"
-                                           "openapi_schema_validator"
-                                           "openapi_spec_validator"
-                                           "packaging"
-                                           "parso"
-                                           ;; "pathable"
-                                           "pbr"
-                                           "pexpect"
-                                           "platformdirs"
-                                           "pluggy"
-                                           "prompt_toolkit"
-                                           "protobuf"
-                                           "ptyprocess"
-                                           "pure_eval"
-                                           ;; "py_partiql_parser"
-                                           "pyasn1"
-                                           "pycparser"
-                                           "pydantic"
-                                           ;; "pydantic_core"
-                                           ;; "pydantic_extra_types"
-                                           "pygments"
-                                           "pyparsing"
-                                           "pytest"
-                                           "pytest_asyncio"
-                                           "python_dateutil"
-                                           "python_jose"
-                                           ;; "pywin32"
-                                           "pyyaml"
-                                           ;; "referencing"
-                                           "regex"
-                                           "requests"
-                                           "requests_toolbelt"
-                                           "responses"
-                                           "rfc3339_validator"
-                                           "rpds_py"
-                                           "rsa"
-                                           "s3transfer"
-                                           "sarif_om"
-                                           ;; "scalpl"
-                                           "setuptools"
-                                           "six"
-                                           "snowballstemmer"
-                                           "sphinx"
-                                           ;; "sphinx_immaterial"
-                                           "sphinxcontrib_applehelp"
-                                           "sphinxcontrib_devhelp"
-                                           "sphinxcontrib_htmlhelp"
-                                           "sphinxcontrib_jsmath"
-                                           "sphinxcontrib_qthelp"
-                                           "sphinxcontrib_serializinghtml"
-                                           "sshpubkeys"
-                                           "stack_data"
-                                           "sympy"
-                                           "tomli"
-                                           "traitlets"
-                                           "typing_extensions"
-                                           "urllib3"
-                                           "wcwidth"
-                                           "websocket_client"
-                                           "werkzeug"
-                                           "wrapt"
-                                           "xmltodict"
-                                           "yapf"
-                                           "zipp")))
-    (package
+  (package
       (name "python-tensorstore")
-      (version "0.1.52")
+      (version "0.1.84")
       (source
        (origin
          (method git-fetch)
@@ -483,14 +370,80 @@ Interchange Format (SARIF)} file format.")
                (commit (string-append "v" version))))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "1hapkxnxcmn90xnk9ldb6nkszbnmb5zyw8x4m10wd605zxapmlhd"))
-         (modules '((guix build utils)))
+          (base32 "1dp188j50vq6cjg77hla7n6yd0q5iqivw0bx6ryc15riw6qdp8xc"))
+         (modules '((guix build utils)
+                    (ice-9 textual-ports)
+                    (srfi srfi-13)))
          (snippet
           ;; We need to patch the build system to avoid embedding
           ;; /gnu/store locations for a handful of numpy headers.
-          '(substitute* "third_party/python/python_configure.bzl"
-             (("numpy_include = _get_numpy_include.*")
-              "numpy_include = \"/tmp/numpy-include\"\n")))))
+          '(begin
+             (substitute* "bazel/repo_rules/py_utils.bzl"
+               (("numpy_include = exec_result.stdout.splitlines\\(\\)\\[0\\],")
+                "numpy_include = \"/tmp/numpy-include\","))
+             (substitute* "bazel/repo_rules/local_python_runtime.bzl"
+               (("include_path\\.exists and include_path\\.is_dir")
+                "include_path.exists"))
+             (substitute* ".bazelrc"
+               (("^common +--downloader_config=.*")
+                ""))
+             (substitute* "WORKSPACE"
+               (("tensorstore_dependencies\\(\\)\n")
+                (string-append
+                 "tensorstore_dependencies()\n\n"
+                 "load(\"@platforms//host:extension.bzl\", "
+                 "\"host_platform_repo\")\n"
+                 "host_platform_repo(name = \"host_platform\")\n")))
+             (chmod "third_party/rules_python" #o755)
+             (call-with-output-file
+                 "third_party/rules_python/bazel6-py-internal.patch"
+               (lambda (port)
+                 (display
+                  (string-append
+                   "diff --git a/python/private/internal_config_repo.bzl b/python/private/internal_config_repo.bzl\n"
+                   "--- a/python/private/internal_config_repo.bzl\n"
+                   "+++ b/python/private/internal_config_repo.bzl\n"
+                   "@@ -124,2 +124,6 @@ def _internal_config_repo_impl(rctx):\n"
+                   "-    shim_content = _PY_INTERNAL_SHIM\n"
+                   "-    py_internal_dep = '\"@rules_python//tools/build_defs/python/private:py_internal_renamed_bzl\"'\n"
+                   "+    if bazel_major_version >= 7:\n"
+                   "+        shim_content = _PY_INTERNAL_SHIM\n"
+                   "+        py_internal_dep = '\"@rules_python//tools/build_defs/python/private:py_internal_renamed_bzl\"'\n"
+                   "+    else:\n"
+                   "+        shim_content = \"py_internal_impl = None\\n\"\n"
+                   "+        py_internal_dep = \"\"\n")
+                  port)))
+             (make-file-writable "third_party/rules_python/workspace.bzl")
+             (substitute* "third_party/rules_python/workspace.bzl"
+               (("        sha256 = \"94a2b4c5d9c45323a9737f8de8f841923bb628cace1e8e51fec5525ed9ccfb2d\",")
+                (string-append
+                 "        sha256 = \"94a2b4c5d9c45323a9737f8de8f841923bb628cace1e8e51fec5525ed9ccfb2d\",\n"
+                 "        patches = [Label(\"//third_party:rules_python/bazel6-py-internal.patch\")],\n"
+                 "        patch_args = [\"-p1\"],")))
+             ;; The LLVM toolchain is only used for extracting C++ API
+             ;; documentation.  Registering it still causes Bazel to fetch and
+             ;; configure it for the Python extension target, and the repository
+             ;; rule expects /etc/os-release to exist.
+             (let* ((workspace (call-with-input-file "WORKSPACE"
+                                 get-string-all))
+                    (start (string-contains
+                            workspace
+                            "# Define LLVM toolchain used for extracting C++ API documentation information"))
+                    (end-marker "llvm_register_toolchains()\n")
+                    (end (and start
+                              (string-contains (substring workspace start)
+                                               end-marker))))
+               (unless (and start end)
+                 (error "failed to locate LLVM toolchain block"))
+               (make-file-writable "WORKSPACE")
+               (call-with-output-file "WORKSPACE"
+                 (lambda (port)
+                   (display
+                    (string-append
+                     (substring workspace 0 start)
+                     (substring workspace
+                                (+ start end (string-length end-marker))))
+                    port))))))))
       (build-system bazel-build-system)
       (arguments
        (list
@@ -500,7 +453,8 @@ Interchange Format (SARIF)} file format.")
                     (guix build utils))
         #:imported-modules `(,@%bazel-build-system-modules ,@%pyproject-build-system-modules)
         #:tests? #f ;there are none
-        #:bazel bazel-6.4
+        #:bazel bazel-8.5.1
+        #:jdk openjdk21
         #:fetch-targets '(list
                           "//python/tensorstore:_tensorstore__shared_objects")
         #:build-targets '(list
@@ -514,15 +468,14 @@ Interchange Format (SARIF)} file format.")
               (copy-recursively (string-append #$(this-package-input
                                                   "python-numpy")
                                  "/lib/python" python-version
-                                 "/site-packages/numpy/core/include/numpy")
+                                 "/site-packages/numpy/_core/include/numpy")
                                 "/tmp/numpy-include"))
             ;; You can get the list of possible values of
             ;; TENSORSTORE_SYSTEM_PYTHON_LIBS and
             ;; TENSORSTORE_SYSTEM_LIBS by searching the tensorstore
             ;; checkout for system_build_file.  Any match is a possible
             ;; replacement.
-            (setenv "TENSORSTORE_SYSTEM_PYTHON_LIBS"
-                    (string-join '#$tensorstore-python-packages ","))
+            (setenv "TENSORSTORE_SYSTEM_PYTHON_LIBS" "numpy")
             (setenv "TENSORSTORE_SYSTEM_LIBS"
                     (string-join (list
                                   ;; We don't seem to have a
@@ -535,13 +488,12 @@ Interchange Format (SARIF)} file format.")
                                   ;; ‘basic_json’ is ambiguous
                                   ;; "com_github_nlohmann_json"
                                   "com_github_pybind_pybind11"
-                                  ;; "com_google_boringssl"
+                                  "boringssl"
                                   "com_google_brotli"
                                   "com_google_snappy"
                                   "jpeg"
                                   "libtiff"
                                   "libwebp"
-                                  "nasm"
                                   "net_zlib"
                                   "net_zstd"
                                   "org_aomedia_avif"
@@ -559,7 +511,6 @@ Interchange Format (SARIF)} file format.")
            ;; included cpu package does not define cpu:wasm32.
            (string-append "--override_repository=platforms="
                           #$(this-package-native-input "bazel-platforms"))
-           "--extra_toolchains=@bazel_tools//tools/python:autodetecting_toolchain_nonstrict"
            "--action_env=GUIX_PYTHONPATH"
            "--host_action_env=GUIX_PYTHONPATH"
            "--action_env=TENSORSTORE_SYSTEM_PYTHON_LIBS"
@@ -574,23 +525,45 @@ Interchange Format (SARIF)} file format.")
                           #$(this-package-input "python-wrapper")
                           "/bin/python"))
         #:vendored-inputs-hash
-        "1sdwk3fnf0gfk1h2fb5082r87ahzhswznj21p9d1y0g0x97hw6zk"
+        "0rk0il707bdvk47fr243px81rqiagy9n7f7mrkjjbl2pp85f4dvq"
         #:phases
         #~(modify-phases (@ (myguix build bazel-build-system) %standard-phases)
             (add-after 'unpack 'patch-python-build-system
               (lambda _
+                (substitute* "python/tensorstore/numpy.h"
+                  (("#include \"numpy/ufuncobject\\.h\"")
+                   (string-append
+                    "#include \"numpy/ufuncobject.h\"\n\n"
+                    "#ifndef NPY_NTYPES\n"
+                    "#define NPY_NTYPES NPY_NTYPES_LEGACY\n"
+                    "#endif\n"
+                    "#ifdef NPY_MAXDIMS_LEGACY_ITERS\n"
+                    "#define TENSORSTORE_NPY_MAXDIMS NPY_MAXDIMS_LEGACY_ITERS\n"
+                    "#else\n"
+                    "#define TENSORSTORE_NPY_MAXDIMS NPY_MAXDIMS\n"
+                    "#endif")))
+                (substitute* "python/tensorstore/array_type_caster.cc"
+                  (("NPY_MAXDIMS")
+                   "TENSORSTORE_NPY_MAXDIMS"))
+                (substitute* "python/tensorstore/index_space.cc"
+                  (("\\[\\]\\(const OutputIndexMap& self\\) \\{")
+                   "[](const OutputIndexMap& self) -> py::tuple {")
+                  (("\"method\", \\[\\]\\(const OutputIndexMap& self\\) -> py::tuple \\{ return self\\.method; \\}\\);")
+                   "\"method\", [](const OutputIndexMap& self) -> OutputIndexMethod { return self.method; });")
+                  (("\"offset\", \\[\\]\\(const OutputIndexMap& self\\) -> py::tuple \\{ return self\\.offset; \\}\\);")
+                   "\"offset\", [](const OutputIndexMap& self) -> Index { return self.offset; });"))
                 (substitute* "pyproject.toml"
                   (("oldest-supported-numpy")
-                   "numpy"))
+                   "numpy")
+                  (("fallback_version = \"0\\.0\\.0\"")
+                   (string-append "fallback_version = \""
+                                  #$version "\"")))
                 ;; This rule expects that
                 ;; _tensorstore.cpython-310-x86_64-linux-gnu.so exists,
                 ;; but we've only built _tensorstore.so.
                 (substitute* "setup.py"
                   (("os.path.basename\\(ext_full_path\\)")
-                   "'_tensorstore.so'")
-                  (("'fallback_version': '0.0.0'")
-                   (string-append "'fallback_version': '"
-                                  #$version "'")))
+                   "'_tensorstore.so'"))
                 ;; Make numpy headers available at expected location.  See
                 ;; snippet above for more information.
                 (let ((python-version #$(version-major+minor (package-version (this-package-input
@@ -598,15 +571,26 @@ Interchange Format (SARIF)} file format.")
                   (copy-recursively (string-append #$(this-package-input
                                                       "python-numpy")
                                      "/lib/python" python-version
-                                     "/site-packages/numpy/core/include/numpy")
+                                     "/site-packages/numpy/_core/include/numpy")
                                     "/tmp/numpy-include"))))
             (add-after 'build 'prepare-python
               (lambda _
                 (setenv "TENSORSTORE_PREBUILT_DIR"
                         (string-append (getcwd) "/bazel-bin/python/"))))
             (add-after 'prepare-python 'build-python
-              (assoc-ref pyproject:%standard-phases
-                         'build))
+              (lambda args
+                (let ((guile-json #$(this-package-native-input "guile-json")))
+                  (set! %load-path
+                        (cons (string-append guile-json
+                                             "/share/guile/site/3.0")
+                              %load-path))
+                  (set! %load-compiled-path
+                        (cons (string-append guile-json
+                                             "/lib/guile/3.0/site-ccache")
+                              %load-compiled-path)))
+                (apply (assoc-ref pyproject:%standard-phases
+                                  'build)
+                       args)))
             (add-after 'build-python 'install-python
               (assoc-ref pyproject:%standard-phases
                          'install))
@@ -616,112 +600,8 @@ Interchange Format (SARIF)} file format.")
             (add-after 'create-entrypoints 'compile-bytecode
               (assoc-ref pyproject:%standard-phases
                          'compile-bytecode)))))
-      (propagated-inputs (list python-absl-py
-                               python-appdirs
-                               python-asttokens
-                               python-attrs
-                               python-aws-sam-translator
-                               python-aws-xray-sdk
-                               python-babel
-                               python-blinker
-                               python-boto3
-                               python-botocore
-                               python-certifi
-                               python-cffi
-                               python-cfn-lint
-                               python-charset-normalizer
-                               python-click
-                               python-cloudpickle
-                               python-colorama
-                               python-cryptography
-                               python-dateutil
-                               python-decorator
-                               python-docker
-                               python-docutils
-                               python-ecdsa
-                               python-executing
-                               python-flask
-                               python-flask-cors
-                               python-googleapis-common-protos
-                               python-graphql-core
-                               python-grpcio
-                               python-idna
-                               python-imagesize
-                               python-importlib-metadata
-                               python-iniconfig
-                               python-ipython
-                               python-itsdangerous
-                               python-jedi
-                               python-jinja2
-                               python-jmespath
-                               python-jose
-                               python-jsondiff
-                               python-jsonpatch
-                               python-jsonpickle
-                               python-jsonpointer
-                               python-jsonschema
-                               python-junit-xml
-                               python-lazy-object-proxy
-                               python-markupsafe
-                               python-matplotlib-inline
-                               python-ml-dtypes
-                               python-moto
-                               python-mpmath
-                               python-networkx
-                               python-numpy
-                               python-openapi-schema-validator
-                               python-openapi-spec-validator
-                               python-packaging
-                               python-parso
-                               python-pbr
-                               python-pexpect
-                               python-platformdirs
-                               python-pluggy
-                               python-prompt-toolkit
-                               python-protobuf
-                               python-ptyprocess
-                               python-pure-eval
-                               python-pyasn1
-                               python-pycparser
-                               ;; python-pydantic ;we don't have *core and *extra_types
-                               python-pygments
-                               python-pyparsing
-                               python-pytest
-                               python-pytest-asyncio
-                               python-pyyaml
-                               python-regex
-                               python-requests
-                               python-requests-toolbelt
-                               python-responses
-                               python-rfc3339-validator
-                               python-rpds-py
-                               python-rsa
-                               python-s3transfer
-                               python-sarif-om
-                               python-setuptools
-                               python-six
-                               python-snowballstemmer
-                               python-sphinx
-                               python-sphinxcontrib-applehelp
-                               python-sphinxcontrib-devhelp
-                               python-sphinxcontrib-htmlhelp
-                               python-sphinxcontrib-jsmath
-                               python-sphinxcontrib-qthelp
-                               python-sphinxcontrib-serializinghtml
-                               python-sshpubkeys
-                               python-stack-data
-                               python-sympy
-                               python-tomli
-                               python-traitlets
-                               python-typing-extensions
-                               python-urllib3
-                               python-wcwidth
-                               python-websocket-client
-                               python-werkzeug
-                               python-wrapt
-                               python-xmltodict
-                               python-yapf
-                               python-zipp))
+      (propagated-inputs (list python-ml-dtypes
+                               python-numpy))
       (inputs (list brotli
                     c-blosc
                     curl
@@ -732,13 +612,15 @@ Interchange Format (SARIF)} file format.")
                     libwebp
                     lz4
                     nasm
-                    nghttp2
+                    `(,nghttp2 "lib")
+                    openssl
                     ;; nlohmann-json ;our version seems to be too old
                     python-wrapper
                     snappy
                     xz
                     `(,zstd "lib")))
       (native-inputs `(("pybind11" ,pybind11)
+                       ("guile-json" ,guile-json-4)
                        ("python-pytest" ,python-pytest)
                        ("python-setuptools" ,python-setuptools)
                        ("python-setuptools-scm" ,python-setuptools-scm)
@@ -748,12 +630,12 @@ Interchange Format (SARIF)} file format.")
                                              (uri (git-reference (url
                                                                   "https://github.com/bazelbuild/platforms")
                                                                  (commit
-                                                                  "0.0.8")))
+                                                                  "0.0.11")))
                                              (file-name (git-file-name
                                                          "bazel-platforms"
-                                                         "0.0.8"))
+                                                         "0.0.11"))
                                              (sha256 (base32
-                                                      "1wx2348w49vxr3z9kjfls5zsrwr0div6r3irbvdlawan87sx5yfs"))))))
+                                                      "133rps8zq0xg8bl794b3vli7aj71l086xzalmm419si261zm5ry8"))))))
       (home-page "https://github.com/google/tensorstore")
       (synopsis
        "Library for reading and writing large multi-dimensional arrays")
@@ -778,7 +660,7 @@ arrays that:
   machines via optimistic concurrency.
 @end itemize
 ")
-      (license license:asl2.0))))
+      (license license:asl2.0)))
 
 ;; Remember to update python-keras-for-tensorflow when upgrading this
 ;; package.  The versions must match.
