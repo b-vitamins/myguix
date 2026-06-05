@@ -5164,6 +5164,129 @@ models; examples and Python bindings are not built.")
 set of reference environments (formerly Gym).")
     (license license:expat)))
 
+(define-public python-submitit
+  (package
+    (name "python-submitit")
+    (version "1.5.4")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/facebookincubator/submitit")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0p2kpws925nxgi7ic48va7vzb936kq5vbp8ygxy8jbg2pc5sdza3"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-cloudpickle
+                             python-typing-extensions))
+    (native-inputs (list python-flit-core))
+    (home-page "https://github.com/facebookincubator/submitit")
+    (synopsis "Python toolbox for submitting jobs to Slurm")
+    (description
+     "Submitit provides a Python interface for submitting and managing jobs on
+Slurm clusters, with local execution support for development.")
+    (license license:expat)))
+
+(define-public python-read-version
+  (package
+    (name "python-read-version")
+    (version "0.3.2")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/jwodder/read_version")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1klbdfyhxc3yz0dhmabag6dism7k5qc83b92a64d3y6n75bxlzcd"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/jwodder/read_version")
+    (synopsis "Extract a project's __version__ variable")
+    (description
+     "Read-version extracts a Python project's @code{__version__} variable for
+build tooling.")
+    (license license:expat)))
+
+(define-public python-hydra-submitit-launcher
+  (package
+    (name "python-hydra-submitit-launcher")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hydra-submitit-launcher" version))
+       (sha256
+        (base32 "0d2abvqzq7v3i1fcjgb8s98miicd6v62py15p9haq3q2dns8wk71"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-hydra-core
+                             python-submitit))
+    (native-inputs (list python-read-version
+                         python-setuptools))
+    (home-page "https://github.com/facebookincubator/submitit")
+    (synopsis "Submitit launcher plugin for Hydra applications")
+    (description
+     "Hydra-submitit-launcher adds Submitit-backed local and Slurm launchers to
+Hydra applications.")
+    (license license:expat)))
+
+(define-public python-lightning
+  (package
+    (name "python-lightning")
+    (version "2.6.5")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/Lightning-AI/lightning")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "09j373vm049za6crb50gnm4mh3jzdd3dw8xc1vp1zyg60sym8vwg"))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:tests? #f))
+    (propagated-inputs (list python-fsspec
+                             python-lightning-utilities
+                             python-packaging
+                             python-pytorch
+                             python-pytorch-lightning
+                             python-pyyaml
+                             python-torchmetrics
+                             python-tqdm
+                             python-typing-extensions))
+    (native-inputs (list python-setuptools))
+    (home-page "https://github.com/Lightning-AI/lightning")
+    (synopsis "Deep learning framework for PyTorch workflows")
+    (description
+     "Lightning provides the top-level Python package for the Lightning
+ecosystem, including PyTorch Lightning integration.")
+    (license license:asl2.0)))
+
+(define-public python-lightning-cuda
+  (package
+    (inherit python-lightning)
+    (name "python-lightning-cuda")
+    (propagated-inputs (modify-inputs (package-propagated-inputs
+                                       python-lightning)
+                         (replace "python-pytorch" python-pytorch-cuda)
+                         (replace "python-pytorch-lightning"
+                                  python-pytorch-lightning-cuda)
+                         (replace "python-torchmetrics"
+                                  python-torchmetrics-cuda)))))
+
 (define-public python-tianshou
   (package
     (name "python-tianshou")
