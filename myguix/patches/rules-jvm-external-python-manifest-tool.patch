@@ -1,0 +1,394 @@
+diff --git a/private/rules/jvm_import.bzl b/private/rules/jvm_import.bzl
+--- a/private/rules/jvm_import.bzl
++++ b/private/rules/jvm_import.bzl
+@@ -27,9 +27,9 @@ def _jvm_import_impl(ctx):
+         args.add_all(["--source", injar, "--output", outjar])
+         args.add_all(["--manifest-entry", "Target-Label:{target_label}".format(target_label = label)])
+-        ctx.actions.run(
+-            executable = ctx.executable._add_jar_manifest_entry,
+-            arguments = [args],
+-            inputs = [injar],
++        ctx.actions.run_shell(
++            command = "tool=\"$1\"; shift; exec @PYTHON3@ \"$tool\" \"$@\"",
++            arguments = [ctx.file._add_jar_manifest_entry.path, args],
++            inputs = [injar, ctx.file._add_jar_manifest_entry],
+             outputs = [outjar],
+             mnemonic = "StampJarManifest",
+             progress_message = "Stamping the manifest of %s" % ctx.label,
+@@ -48,10 +48,10 @@ def _jvm_import_impl(ctx):
+     # Make sure the compile jar is safe to compile with
+     args.add("--make-safe")
+ 
+-    ctx.actions.run(
+-        executable = ctx.executable._add_jar_manifest_entry,
+-        arguments = [args],
+-        inputs = [outjar],
++    ctx.actions.run_shell(
++        command = "tool=\"$1\"; shift; exec @PYTHON3@ \"$tool\" \"$@\"",
++        arguments = [ctx.file._add_jar_manifest_entry.path, args],
++        inputs = [outjar, ctx.file._add_jar_manifest_entry],
+         outputs = [compilejar],
+         mnemonic = "CreateCompileJar",
+         progress_message = "Creating compile jar for %s" % ctx.label,
+@@ -89,9 +89,9 @@ jvm_import = rule(
+             default = False,
+         ),
+         "_add_jar_manifest_entry": attr.label(
+-            executable = True,
+             cfg = "exec",
+-            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry",
++            allow_single_file = True,
++            default = "//private/tools/java/com/github/bazelbuild/rules_jvm_external/jar:AddJarManifestEntry.py",
+         ),
+         "_stamp_manifest": attr.label(
+             default = "@rules_jvm_external//settings:stamp_manifest",
+diff --git a/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/BUILD b/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/BUILD
+--- a/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/BUILD
++++ b/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/BUILD
+@@ -1,5 +1,10 @@
+ load("@rules_jvm_external//:defs.bzl", "artifact")
+ 
++exports_files(
++    ["AddJarManifestEntry.py"],
++    visibility = ["//visibility:public"],
++)
++
+ java_binary(
+     name = "AddJarManifestEntry",
+     srcs = ["AddJarManifestEntry.java"],
+diff --git a/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/AddJarManifestEntry.py b/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/AddJarManifestEntry.py
+new file mode 100755
+--- /dev/null
++++ b/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/AddJarManifestEntry.py
+@@ -0,0 +1,331 @@
++#!/usr/bin/env python3
++import os
++import shutil
++import sys
++import zipfile
++
++
++MANIFEST = "META-INF/MANIFEST.MF"
++AUTOMATIC_MODULE_NAME = "Automatic-Module-Name"
++ILLEGAL_PACKAGE_NAMES = {
++    "abstract",
++    "assert",
++    "boolean",
++    "break",
++    "byte",
++    "case",
++    "catch",
++    "char",
++    "class",
++    "const",
++    "continue",
++    "default",
++    "do",
++    "double",
++    "else",
++    "enum",
++    "extends",
++    "final",
++    "finally",
++    "float",
++    "for",
++    "goto",
++    "if",
++    "implements",
++    "import",
++    "instanceof",
++    "int",
++    "interface",
++    "long",
++    "native",
++    "new",
++    "package",
++    "private",
++    "protected",
++    "public",
++    "return",
++    "short",
++    "static",
++    "strictfp",
++    "super",
++    "switch",
++    "synchronized",
++    "this",
++    "throw",
++    "throws",
++    "transient",
++    "try",
++    "void",
++    "volatile",
++    "while",
++    "_",
++    "false",
++    "true",
++    "null",
++    "var",
++}
++
++
++def parse_args(argv):
++    source = None
++    output = None
++    make_safe = False
++    to_add = []
++    to_remove = []
++    index = 0
++    while index < len(argv):
++        arg = argv[index]
++        if arg == "--make-safe":
++            make_safe = True
++            index += 1
++        elif arg == "--manifest-entry":
++            to_add.append(argv[index + 1])
++            index += 2
++        elif arg == "--output":
++            output = argv[index + 1]
++            index += 2
++        elif arg == "--remove-entry":
++            to_remove.append(argv[index + 1])
++            index += 2
++        elif arg == "--source":
++            source = argv[index + 1]
++            index += 2
++        else:
++            raise SystemExit("Unable to parse command line: %r" % argv)
++    if source is None:
++        raise SystemExit("Source jar must be set.")
++    if output is None:
++        raise SystemExit("Output path must be set.")
++    return source, output, to_add, to_remove, make_safe
++
++
++def is_signed(source):
++    with zipfile.ZipFile(source) as jar:
++        for name in jar.namelist():
++            upper = name.upper()
++            if upper.startswith("META-INF/") and upper.endswith(".SF"):
++                return True
++    return False
++
++
++def decode_manifest(data):
++    try:
++        return data.decode("utf-8")
++    except UnicodeDecodeError:
++        return data.decode("latin-1")
++
++
++def parse_manifest(data):
++    text = decode_manifest(data).replace("\r\n", "\n").replace("\r", "\n")
++    unfolded = []
++    for line in text.split("\n"):
++        if line.startswith(" ") and unfolded:
++            unfolded[-1] += line[1:]
++        else:
++            unfolded.append(line)
++
++    sections = [[]]
++    for line in unfolded:
++        if line == "":
++            if sections[-1]:
++                sections.append([])
++            continue
++        if ": " in line:
++            key, value = line.split(": ", 1)
++        elif ":" in line:
++            key, value = line.split(":", 1)
++            if value.startswith(" "):
++                value = value[1:]
++        else:
++            continue
++        sections[-1].append([key, value])
++
++    if sections and not sections[-1]:
++        sections.pop()
++    return sections or [[]]
++
++
++def find_attr(section, name):
++    wanted = name.lower()
++    for index, item in enumerate(section):
++        if item[0].lower() == wanted:
++            return index
++    return None
++
++
++def set_attr(section, name, value):
++    index = find_attr(section, name)
++    if index is None:
++        section.append([name, value])
++    else:
++        section[index] = [name, value]
++
++
++def remove_attr(section, name):
++    index = find_attr(section, name)
++    if index is not None:
++        del section[index]
++
++
++def get_attr(section, name):
++    index = find_attr(section, name)
++    if index is None:
++        return None
++    return section[index][1]
++
++
++def java_identifier_start(char):
++    return char == "_" or char == "$" or char.isalpha()
++
++
++def java_identifier_part(char):
++    return char == "_" or char == "$" or char.isalnum()
++
++
++def remove_automatic_module_name(section, warning):
++    remove_attr(section, AUTOMATIC_MODULE_NAME)
++    print(warning, file=sys.stderr)
++
++
++def make_automatic_module_name_safe(source, section):
++    value = get_attr(section, AUTOMATIC_MODULE_NAME)
++    if not value:
++        if value == "":
++            remove_automatic_module_name(
++                section,
++                "An empty automatic module was detected. This is not allowed by the java module system: %s"
++                % os.path.basename(source),
++            )
++        return
++
++    for part in value.split("."):
++        part = part.strip()
++        if not part:
++            remove_automatic_module_name(
++                section,
++                "Automatic module name '%s' contains an empty part: %s"
++                % (value, os.path.basename(source)),
++            )
++            return
++        if part in ILLEGAL_PACKAGE_NAMES:
++            remove_automatic_module_name(
++                section,
++                "Automatic module name '%s' contains reserved java keyword ('%s'): %s"
++                % (value, part, os.path.basename(source)),
++            )
++            return
++        if not java_identifier_start(part[0]):
++            remove_automatic_module_name(
++                section,
++                "Automatic module name '%s' does not start with a character a java package name can start with ('%s'): %s"
++                % (value, part, os.path.basename(source)),
++            )
++            return
++        for char in part[1:]:
++            if not java_identifier_part(char):
++                remove_automatic_module_name(
++                    section,
++                    "Automatic module name '%s' contains a character ('%s') that may not be used in a java identifier: %s"
++                    % (value, char, os.path.basename(source)),
++                )
++                return
++
++
++def amend_manifest(source, sections, to_add, to_remove, make_safe):
++    main = sections[0]
++    set_attr(main, "Created-By", "AddJarManifestEntry")
++    for entry in to_add:
++        key, value = entry.split(":", 1)
++        set_attr(main, key, value)
++    for name in to_remove:
++        remove_attr(main, name)
++    if make_safe:
++        make_automatic_module_name_safe(source, main)
++
++
++def fold_manifest_line(line):
++    data = line.encode("utf-8")
++    if len(data) <= 72:
++        return [line]
++
++    chunks = []
++    first = True
++    while data:
++        limit = 72 if first else 71
++        chunk = data[:limit]
++        while chunk:
++            try:
++                text = chunk.decode("utf-8")
++                break
++            except UnicodeDecodeError:
++                chunk = chunk[:-1]
++        if not chunk:
++            text = data[:limit].decode("utf-8", "ignore")
++            chunk = data[:limit]
++        chunks.append(text if first else " " + text)
++        data = data[len(chunk) :]
++        first = False
++    return chunks
++
++
++def render_manifest(sections):
++    output = []
++    for section in sections:
++        for key, value in section:
++            for line in fold_manifest_line("%s: %s" % (key, value)):
++                output.append(line + "\r\n")
++        output.append("\r\n")
++    return "".join(output).encode("utf-8")
++
++
++def copy_zip_info(info):
++    copied = zipfile.ZipInfo(info.filename, date_time=info.date_time)
++    copied.comment = info.comment
++    copied.extra = info.extra
++    copied.internal_attr = info.internal_attr
++    copied.external_attr = info.external_attr
++    copied.create_system = info.create_system
++    copied.compress_type = info.compress_type
++    return copied
++
++
++def rewrite_jar(source, output, to_add, to_remove, make_safe):
++    output_directory = os.path.dirname(output)
++    if output_directory:
++        os.makedirs(output_directory, exist_ok=True)
++
++    with zipfile.ZipFile(source) as injar:
++        try:
++            manifest_data = injar.read(MANIFEST)
++            sections = parse_manifest(manifest_data)
++        except KeyError:
++            sections = [[["Manifest-Version", "1.0"]]]
++
++        amend_manifest(source, sections, to_add, to_remove, make_safe)
++        manifest = render_manifest(sections)
++
++        with zipfile.ZipFile(output, "w") as outjar:
++            manifest_info = zipfile.ZipInfo(MANIFEST, date_time=(1980, 1, 1, 0, 0, 0))
++            manifest_info.compress_type = zipfile.ZIP_DEFLATED
++            outjar.writestr(manifest_info, manifest)
++            seen = {MANIFEST}
++            for info in injar.infolist():
++                if info.filename in seen:
++                    continue
++                seen.add(info.filename)
++                outjar.writestr(copy_zip_info(info), injar.read(info))
++
++
++def main(argv):
++    source, output, to_add, to_remove, make_safe = parse_args(argv)
++    output_directory = os.path.dirname(output)
++    if output_directory:
++        os.makedirs(output_directory, exist_ok=True)
++    if is_signed(source):
++        shutil.copyfile(source, output)
++        return
++    rewrite_jar(source, output, to_add, to_remove, make_safe)
++
++
++if __name__ == "__main__":
++    main(sys.argv[1:])

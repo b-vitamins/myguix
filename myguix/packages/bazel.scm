@@ -490,3 +490,231 @@ repositories, and large numbers of users.")
                              "third_party/hamcrest/hamcrest-core-1.3.jar"
                              "third_party/jsr305/jsr-305.jar"
                              "third_party/xz/xz-1.9.jar")))))))
+(define-public bazel-8.5.1
+  (package
+    (inherit bazel)
+    (name "bazel")
+    (version "8.5.1")
+    (source
+     (origin
+       (inherit (package-source bazel))
+       (uri (string-append "https://github.com/bazelbuild/bazel/"
+                           "releases/download/"
+                           version
+                           "/bazel-"
+                           version
+                           "-dist.zip"))
+       (sha256
+        (base32 "0kgdj3va7vf4crmlrb907w7iybq88dry1l03w7hk5v5gmb5s2rmz"))
+       (patches (search-patches "myguix/patches/bazel-mock-repos.patch"
+                                "myguix/patches/bazel-8-recreate-markers.patch"))
+       (snippet '(for-each (lambda (file)
+                             (when (file-exists? file)
+                               (delete-file file)))
+                           '("third_party/apache_commons_collections/commons-collections-3.2.2.jar"
+                             "third_party/apache_commons_io/commons-io-2.4.jar"
+                             "third_party/apache_commons_lang/commons-lang-2.6.jar"
+                             "third_party/hamcrest/hamcrest-core-1.3.jar"
+                             "third_party/jsr305/jsr-305.jar"
+                             "third_party/xz/xz-1.9.jar")))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments bazel)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (delete 'prepare-jars)
+            (replace 'build
+              (lambda _
+                (setenv "JAVA_HOME" #$openjdk21:jdk)
+                (setenv "VERBOSE" "no")
+                (substitute* "scripts/bootstrap/compile.sh"
+                  (("#!/bin/bash")
+                   (string-append "#!" (which "bash"))))
+                (substitute* (filter file-exists?
+                                      '("src/main/java/com/google/devtools/build/lib/analysis/BashCommandConstructor.java"
+                                        "tools/build_rules/java_rules_skylark.bzl"
+                                        "tools/build_rules/test_rules.bzl"
+                                        "tools/android/android_sdk_repository_template.bzl"))
+                  (("#!/bin/bash")
+                   (string-append "#!" (which "bash"))))
+                (substitute* (filter file-exists?
+                                      '("src/main/java/com/google/devtools/build/lib/analysis/CommandHelper.java"
+                                        "src/main/java/com/google/devtools/build/lib/analysis/ShellConfiguration.java"
+                                        "src/main/java/com/google/devtools/build/lib/bazel/rules/BazelRuleClassProvider.java"
+                                        "src/main/java/com/google/devtools/build/lib/bazel/rules/sh/BazelShRuleClasses.java"
+                                        "src/main/java/com/google/devtools/build/lib/util/CommandBuilder.java"))
+                  (("\"/bin/bash\"")
+                   (string-append "\"" (which "bash") "\"")))
+		                (substitute* (filter file-exists?
+		                                      '("src/main/java/com/google/devtools/build/lib/bazel/rules/python/BazelPythonSemantics.java"
+		                                        "src/main/java/com/google/devtools/build/lib/starlarkbuildapi/python/PyRuntimeInfoApi.java"
+		                                        "src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt"
+		                                        "src/test/java/com/google/devtools/build/lib/standalone/StandaloneSpawnStrategyTest.java"
+		                                        "src/test/java/com/google/devtools/build/lib/bazel/rules/python/BazelPyBinaryConfiguredTargetTest.java"
+		                                        "tools/python/toolchain.bzl"))
+		                  (("/usr/bin/env")
+		                   (which "env")))
+		                (substitute* "src/BUILD"
+		                  (("\\$\\(location :create_embedded_tools\\) \\\\\\\"\\$@\\\\\\\"")
+		                   "PYTHONPATH=. python3 $(location :create_embedded_tools.py) \\\"$@\\\"")
+		                  (("tools = \\[\":create_embedded_tools\"\\],")
+		                   "tools = [\"create_embedded_tools.py\", \"create_embedded_tools_lib.py\"],"))
+		                (substitute* "third_party/BUILD"
+		                  (("\\$\\(location :proguard\\) \\\\")
+		                   (string-append #$openjdk21:jdk
+                                          "/bin/java -Dlog4j.rootLogger=OFF -jar $(location :proguard_deploy.jar) \\"))
+		                  (("        \":proguard\",")
+		                   "        \":proguard_deploy.jar\","))
+		                (let* ((rules-pkg-archive
+		                        "derived/repository_cache/content_addressable/sha256/d20c951960ed77cb7b341c2a59488534e494d5ad1d30c4818c736d57772a9fef/file")
+			                       (rules-pkg-directory
+			                        (string-append (getcwd) "/mock_repos/rules_pkg"))
+			                       (rules-pkg-tar
+			                        (string-append rules-pkg-directory
+			                                       "/pkg/private/tar/tar.bzl"))
+			                       (rules-jvm-external-archive
+			                        "derived/repository_cache/content_addressable/sha256/85fd6bad58ac76cc3a27c8e051e4255ff9ccd8c92ba879670d195622e7c0a9b7/file")
+			                       (rules-jvm-external-directory
+			                        (string-append (getcwd) "/mock_repos/rules_jvm_external"))
+			                       (rules-jvm-external-jvm-import
+			                        (string-append rules-jvm-external-directory
+			                                       "/private/rules/jvm_import.bzl"))
+                               (rules-jvm-external-add-jar-manifest-entry
+                                (string-append rules-jvm-external-directory
+                                               "/private/tools/java/com/github/bazelbuild/rules_jvm_external/jar/AddJarManifestEntry.py")))
+		                  (delete-file-recursively rules-pkg-directory)
+		                  (mkdir-p rules-pkg-directory)
+		                  (invoke "tar" "-xf" rules-pkg-archive
+		                          "-C" rules-pkg-directory
+		                          "--strip-components=1")
+		                  (unless (file-exists? rules-pkg-tar)
+		                    (error "failed to extract rules_pkg" rules-pkg-directory))
+		                  (substitute* rules-pkg-tar
+		                    (("tools = \\[ctx\\.executable\\.compressor\\] if ctx\\.executable\\.compressor else \\[\\],")
+		                     "tools = ([ctx.executable.compressor] if ctx.executable.compressor else []) + [ctx.executable._build_tar],"))
+		                  (invoke "patch" "--batch" "-p1"
+		                          "-d" rules-pkg-directory
+		                          "-i"
+		                          #$(plain-file
+		                             "rules-pkg-build-tar-with-python.patch"
+		                             "diff --git a/pkg/private/BUILD b/pkg/private/BUILD
+--- a/pkg/private/BUILD
++++ b/pkg/private/BUILD
+@@ -38,8 +38,15 @@
+ exports_files(
+     glob([
+         \"*.bzl\",
+-    ]),
++    ]) + [
++        \"__init__.py\",
++        \"archive.py\",
++        \"build_info.py\",
++        \"helpers.py\",
++        \"manifest.py\",
++    ],
+     visibility = [
+         \"//distro:__pkg__\",
+         \"//doc_build:__pkg__\",
++        \"//pkg/private/tar:__pkg__\",
+         \"//pkg:__pkg__\",
+diff --git a/pkg/private/tar/BUILD b/pkg/private/tar/BUILD
+--- a/pkg/private/tar/BUILD
++++ b/pkg/private/tar/BUILD
+@@ -37,7 +37,10 @@
+ )
+ 
+ exports_files(
+-    glob([\"*.bzl\"]),
++    glob([\"*.bzl\"]) + [
++        \"build_tar.py\",
++        \"tar_writer.py\",
++    ],
+     visibility = [
+         \"//distro:__pkg__\",
+         \"//doc_build:__pkg__\",
+diff --git a/pkg/private/tar/tar.bzl b/pkg/private/tar/tar.bzl
+--- a/pkg/private/tar/tar.bzl
++++ b/pkg/private/tar/tar.bzl
+@@ -180,17 +180,21 @@
+         args.add(\"--allow_dups_from_deps\")
+ 
+     inputs = depset(
+-        direct = ctx.files.deps + files,
++        direct = ctx.files.deps + files + [ctx.file._build_tar] + ctx.files._build_tar_sources,
+         transitive = mapping_context.file_deps,
+     )
+ 
+-    ctx.actions.run(
++    ctx.actions.run_shell(
+         mnemonic = \"PackageTar\",
+         progress_message = \"Writing: %s\" % output_file.path,
+         inputs = inputs,
+-        tools = ([ctx.executable.compressor] if ctx.executable.compressor else []) + [ctx.executable._build_tar],
+-        executable = ctx.executable._build_tar,
+-        arguments = [args],
++        tools = [ctx.executable.compressor] if ctx.executable.compressor else [],
++        command = \" \".join([
++            'tool=\"$1\"; shift;',
++            'root=\"$(dirname \"$tool\")/../../..\";',
++            'PYTHONPATH=\"$root${PYTHONPATH:+:$PYTHONPATH}\" exec python3 \"$tool\" \"$@\"',
++        ]),
++        arguments = [ctx.file._build_tar.path, args],
+         outputs = [output_file],
+         env = {
+             \"LANG\": \"en_US.UTF-8\",
+@@ -303,9 +307,18 @@
+ 
+         # Implicit dependencies.
+         \"_build_tar\": attr.label(
+-            default = Label(\"//pkg/private/tar:build_tar\"),
+-            cfg = \"exec\",
+-            executable = True,
++            default = Label(\"//pkg/private/tar:build_tar.py\"),
++            allow_single_file = True,
++        ),
++        \"_build_tar_sources\": attr.label_list(
++            default = [
++                Label(\"//pkg/private:__init__.py\"),
++                Label(\"//pkg/private:archive.py\"),
++                Label(\"//pkg/private:build_info.py\"),
++                Label(\"//pkg/private:helpers.py\"),
++                Label(\"//pkg/private:manifest.py\"),
++                Label(\"//pkg/private/tar:tar_writer.py\"),
++            ],
+             allow_files = True,
+         ),
+     },
+	"))
+			                  (when (file-exists? rules-jvm-external-directory)
+			                    (delete-file-recursively rules-jvm-external-directory))
+			                  (mkdir-p rules-jvm-external-directory)
+			                  (invoke "tar" "-xf" rules-jvm-external-archive
+			                          "-C" rules-jvm-external-directory
+			                          "--strip-components=1")
+			                  (unless (file-exists? rules-jvm-external-jvm-import)
+			                    (error "failed to extract rules_jvm_external"
+			                           rules-jvm-external-directory))
+			                  (invoke "patch" "--batch" "-p1"
+                                      "-d" rules-jvm-external-directory
+                                      "-i"
+                                      #$(local-file
+                                         "../patches/rules-jvm-external-python-manifest-tool.patch"))
+			                  (substitute* (list rules-jvm-external-jvm-import
+                                                 rules-jvm-external-add-jar-manifest-entry)
+			                    (("@PYTHON3@")
+                                 (which "python3"))
+                                (("#!/usr/bin/env python3")
+                                 (string-append "#!" (which "python3"))))
+                              (chmod rules-jvm-external-add-jar-manifest-entry #o555)
+			                  (setenv "EXTRA_BAZEL_ARGS"
+		                          (string-append (or (getenv "EXTRA_BAZEL_ARGS") "")
+			                                         " --override_repository=rules_pkg="
+			                                         rules-pkg-directory
+			                                         " --override_module=rules_pkg="
+			                                         rules-pkg-directory
+			                                         " --override_repository=rules_jvm_external="
+			                                         rules-jvm-external-directory
+			                                         " --override_module=rules_jvm_external="
+			                                         rules-jvm-external-directory)))
+	                (invoke "bash" "compile.sh")))))))
+    (inputs (modify-inputs (package-inputs bazel)
+              (replace "openjdk" `(,openjdk21 "jdk"))))))

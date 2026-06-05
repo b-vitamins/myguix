@@ -1,0 +1,57 @@
+Accept pre-vendored repositories with existing marker files, reuse those
+repositories even when Bazel classifies their repository rules as local,
+and keep Bazel's subprocess environment instead of clearing it before
+adding the requested action environment.  Guix uses store paths in the
+inherited environment to make tools executable during bootstrap.
+
+diff --git a/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java b/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java
+index d970e8ca6d4..1aecb55eec 100644
+--- a/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java
++++ b/src/main/java/com/google/devtools/build/lib/rules/repository/RepositoryDelegatorFunction.java
+@@ -462,13 +462,6 @@ public final class RepositoryDelegatorFunction implements SkyFunction {
+     boolean forceFetchConfigureEnabled =
+         handler.isConfigure(rule) && !FORCE_FETCH_CONFIGURE.get(env).isEmpty();
+ 
+-    /* If fetching is enabled & this is a local repo: do NOT use cache!
+-     * Local repository are generally fast and do not rely on non-local data, making caching them
+-     * across server instances impractical. */
+-    if (isFetch.get() && handler.isLocal(rule)) {
+-      return false;
+-    }
+-
+     /* For the non-local repositories, do NOT use cache if:
+      * 1) Force fetch is enabled (bazel sync, or bazel fetch --force), OR
+      * 2) Force fetch configure is enabled (bazel sync --configure) */
+@@ -737,17 +730,7 @@ public final class RepositoryDelegatorFunction implements SkyFunction {
+       }
+
+       try {
+-        String content = FileSystemUtils.readContent(markerPath, ISO_8859_1);
+-        Map<RepoRecordedInput, String> recordedInputValues =
+-            readMarkerFile(content, Preconditions.checkNotNull(ruleKey));
+-        Optional<String> outdatedReason =
+-            handler.isAnyRecordedInputOutdated(directories, recordedInputValues, env);
+-        if (env.valuesMissing()) {
+-          return null;
+-        }
+-        if (outdatedReason.isPresent()) {
+-          return new RepoDirectoryState.OutOfDate(outdatedReason.get());
+-        }
++        FileSystemUtils.readContent(markerPath, ISO_8859_1);
+         return new RepoDirectoryState.UpToDate();
+       } catch (IOException e) {
+         throw new RepositoryFunctionException(e, Transience.TRANSIENT);
+       }
+
+diff --git a/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java b/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java
+index 9defe7f747..429c535872 100644
+--- a/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java
++++ b/src/main/java/com/google/devtools/build/lib/shell/JavaSubprocessFactory.java
+@@ -157,7 +157,6 @@ public class JavaSubprocessFactory implements SubprocessFactory {
+     ProcessBuilder builder = new ProcessBuilder();
+     builder.command(Lists.transform(params.getArgv(), StringEncoding::internalToPlatform));
+     if (params.getEnv() != null) {
+-      builder.environment().clear();
+       params
+           .getEnv()
+           .forEach(
