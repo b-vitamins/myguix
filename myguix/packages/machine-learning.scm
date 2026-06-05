@@ -2817,6 +2817,18 @@ automatically differentiate native Python and NumPy functions.")
         "0cpk6f8djxml6kflwqkgn7v2y4va19gv95djnak4qh665qmx9l83")
        ((#:bazel-arguments bazel-arguments #f)
         #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
+                 (python-version #$(version-major+minor
+                                    (package-version
+                                     (this-package-input "python"))))
+                 (python-repo-version
+                  (string-map (lambda (char)
+                                (if (char=? char #\.) #\_ char))
+                              python-version))
+                 (target-repo-name
+                  (string-append "python_" python-repo-version
+                                 "_x86_64-unknown-linux-gnu"))
+                 (host-repo-name
+                  (string-append "python_" python-repo-version "_host"))
                  (override
                   (lambda (name)
                     (string-append "--override_repository=" name "="
@@ -2829,7 +2841,8 @@ automatically differentiate native Python and NumPy functions.")
              "--@local_config_cuda//cuda:override_include_cuda_libs=true"
              "--//jaxlib/tools:add_pypi_cuda_wheel_deps=false"
              "--cxxopt=-Wno-dangling-reference"
-             "--repo_env=HERMETIC_PYTHON_VERSION=3.11"
+             (string-append "--repo_env=HERMETIC_PYTHON_VERSION="
+                            python-version)
              "--repo_env=ML_WHEEL_TYPE=release"
              "--repo_env=TF_NEED_CUDA=1"
              "--repo_env=TF_NCCL_USE_STUB=0"
@@ -2841,11 +2854,10 @@ automatically differentiate native Python and NumPy functions.")
              (string-append "--repo_env=CLANG_CUDA_COMPILER_PATH="
                             #$(this-package-native-input "clang")
                             "/bin/clang")
-             (string-append
-              "--override_repository=python_3_11_x86_64-unknown-linux-gnu="
-              root "/python_3_11_x86_64-unknown-linux-gnu")
-             (string-append "--override_repository=python_3_11_host="
-                            root "/python_3_11_host")
+             (string-append "--override_repository=" target-repo-name "="
+                            root "/" target-repo-name)
+             (string-append "--override_repository=" host-repo-name "="
+                            root "/" host-repo-name)
              (string-append "--override_repository=local_config_rocm="
                             root "/local_config_rocm")
              (string-append "--override_repository=local_config_sycl="
