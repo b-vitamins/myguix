@@ -3217,9 +3217,9 @@ wheel.")
      (origin
        (method url-fetch)
        (uri
-        "https://files.pythonhosted.org/packages/52/8c/3a64f59d282f1d8077c5c5dc8691bf33673a66ba4abec78ffbb3224c1472/nvidia_cutlass_dsl_libs_cu13-4.4.1-cp311-cp311-manylinux_2_28_x86_64.whl")
+        "https://files.pythonhosted.org/packages/81/36/a8ea89547d3a7a73e1bde28010e744b10f4c866f43532b286b1e62ac50d5/nvidia_cutlass_dsl_libs_cu13-4.4.1-cp312-cp312-manylinux_2_28_x86_64.whl")
        (sha256
-        (base32 "0h7ylrwvd0md3xc2d822yh23idxw48fry7ifyiw409x5jag2my2l"))
+        (base32 "1iya07jn6zla0701r4idfqnvs7q9kl0d397cggz0m5lkq8ayvzir"))
        (file-name (string-append name "-" version ".whl"))))
     (build-system pyproject-build-system)
     (arguments
