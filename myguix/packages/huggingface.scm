@@ -9,6 +9,7 @@
   #:use-module (gnu packages databases)
   #:use-module (gnu packages check)
   #:use-module (gnu packages graph)
+  #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages python)
   #:use-module ((gnu packages python-web)
                 #:hide (python-huggingface-hub))
@@ -19,8 +20,9 @@
   #:use-module (gnu packages python-science)
   #:use-module (gnu packages python-compression)
   #:use-module (gnu packages rust-apps)
+  #:use-module (gnu packages textutils)
   #:use-module ((gnu packages machine-learning)
-                #:hide (python-safetensors python-transformers))
+                #:hide (python-safetensors python-tokenizers python-transformers))
   #:use-module (guix build-system cargo)
   #:use-module (guix build-system python)
   #:use-module (guix build-system pyproject)
@@ -229,6 +231,82 @@ datasets and other repos on the @url{huggingface.co} hub.")
     (home-page "https://github.com/huggingface/accelerate")
     (synopsis "Accelerate")
     (description "Accelerate.")
+    (license license:asl2.0)))
+
+(define-public python-tokenizers
+  (package
+    (name "python-tokenizers")
+    (version "0.21.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "tokenizers" version))
+       (sha256
+        (base32 "1av505560aih5adijch55k5rg3asgx00ajyddvw8b2a4bgf09fx1"))
+       (modules '((guix build utils)
+                  (ice-9 ftw)))
+       (snippet
+        #~(begin
+            ;; Only keep the Python bindings.  The core Rust crate is provided
+            ;; through cargo inputs below.
+            (for-each (lambda (file)
+                        (unless (member file '("." ".." "bindings" "PKG-INFO"))
+                          (delete-file-recursively file)))
+                      (scandir "."))
+            (for-each (lambda (file)
+                        (unless (member file '("." ".."))
+                          (rename-file (string-append "bindings/python/" file)
+                                       file)))
+                      (scandir "bindings/python"))
+            (delete-file-recursively ".cargo")
+            (substitute* "Cargo.toml"
+              (("^path = .*")
+               (format #f "version = ~s~%" #$version)))))))
+    (build-system cargo-build-system)
+    (arguments
+     (list
+      #:install-source? #f
+      #:cargo-test-flags ''("--no-default-features")
+      #:imported-modules `(,@%cargo-build-system-modules
+                           ,@%pyproject-build-system-modules)
+      #:modules '((guix build cargo-build-system)
+                  ((guix build pyproject-build-system) #:prefix py:)
+                  (guix build utils))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'check 'python-check
+            (lambda _
+              (copy-file "target/release/libtokenizers.so"
+                         "py_src/tokenizers/tokenizers.so")
+              (invoke "python3"
+                      "-c" (format #f
+                                   "import sys; sys.path.append(\"~a/py_src\")"
+                                   (getcwd))
+                      "-m" "pytest"
+                      "-s" "-v" "./tests/")))
+          (add-after 'install 'install-python
+            (lambda _
+              (let* ((pversion #$(version-major+minor (package-version python)))
+                     (lib (string-append #$output "/lib/python" pversion
+                                         "/site-packages/"))
+                     (info (string-append lib "tokenizers-"
+                                          #$(package-version this-package)
+                                          ".dist-info")))
+                (mkdir-p info)
+                (copy-file "PKG-INFO" (string-append info "/METADATA"))
+                (copy-recursively
+                 "py_src/tokenizers"
+                 (string-append lib "tokenizers"))))))))
+    (native-inputs (list pkg-config
+                         python-minimal
+                         python-pytest))
+    (inputs (cons oniguruma
+                  (myguix-cargo-inputs 'python-tokenizers)))
+    (home-page "https://huggingface.co/docs/tokenizers")
+    (synopsis "Implementation of various popular tokenizers")
+    (description
+     "This package provides an implementation of today's most used tokenizers,
+with a focus on performance and versatility.")
     (license license:asl2.0)))
 
 (define python-requests-for-datasets
