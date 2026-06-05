@@ -508,25 +508,22 @@ and interface with their specific functionality.")
 (define-public python-transformers
   (package
     (name "python-transformers")
-    (version "4.44.1")
+    (version "4.50.3")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "transformers" version))
        (sha256
-        (base32 "18kkw2wyg4k89sqrm3dm1g8q888qfvdbf2b1pz3nbik5r83im6iv"))))
+        (base32 "0kv8vhydhxmadql34w5q5rqc4j3k9xz0fzb8cf75lqayj8j5sy8x"))))
     (build-system pyproject-build-system)
     (arguments
-     ;; Missing inputs.
      (list
-      #:test-flags '(list "--ignore=tests/test_modeling_tf_common.py"
-                     "--ignore=tests/test_configuration_common.py"
-                     "--ignore=tests/test_pipeline_mixin.py"
-                     "--ignore=tests/test_sequence_feature_extraction_common.py")))
+      #:tests? #f))
     (propagated-inputs (list python-filelock
                              python-huggingface-hub
                              python-numpy
-                             python-pytorch
+                             python-packaging
+                             python-pytorch-cuda
                              python-pyyaml
                              python-regex
                              python-requests
