@@ -3631,12 +3631,16 @@ Note: This package provides NVIDIA GPU support.")
       #~(modify-phases %standard-phases
           (add-after 'unpack 'setenv
             (lambda _
-              (let ((jpegdir #$(this-package-input "libjpeg-turbo")))
+              (let ((cuda #$(this-package-input "cuda-toolkit"))
+                    (jpegdir #$(this-package-input "libjpeg-turbo")))
+                (setenv "CUDA_HOME" cuda)
+                (setenv "FORCE_CUDA" "1")
+                (setenv "TORCH_CUDA_ARCH_LIST" "8.6")
                 (setenv "TORCHVISION_INCLUDE"
                         (string-append jpegdir "/include/"))
                 (setenv "TORCHVISION_LIBRARY"
                         (string-append jpegdir "/lib/"))))))))
-    (inputs (list ffmpeg-nvidia libpng libjpeg-turbo))
+    (inputs (list cuda-toolkit ffmpeg-nvidia libpng libjpeg-turbo))
     (propagated-inputs (list python-numpy
                              python-typing-extensions
                              python-requests
