@@ -5550,7 +5550,19 @@ and web applications.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'relax-pillow-requirement
+            (lambda _
+              (substitute* '("pyproject.toml"
+                             "PKG-INFO"
+                             "moviepy.egg-info/PKG-INFO"
+                             "moviepy.egg-info/requires.txt")
+                (("pillow>=9\\.2\\.0,<12\\.0")
+                 "pillow>=9.2.0,<13.0")
+                (("pillow<12\\.0,>=9\\.2\\.0")
+                 "pillow<13.0,>=9.2.0")))))))
     (propagated-inputs (list python-decorator
                              python-dotenv
                              python-imageio
