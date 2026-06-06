@@ -116,8 +116,7 @@
     (arguments
      (list
       #:tests? #f
-      #:imported-modules `(,@%cargo-build-system-modules
-                           ,@%pyproject-build-system-modules)
+      #:imported-modules `(,@%cargo-build-system-modules ,@%pyproject-build-system-modules)
       #:modules '((guix build cargo-build-system)
                   ((guix build pyproject-build-system)
                    #:prefix py:)
@@ -126,9 +125,11 @@
       #~(modify-phases %standard-phases
           (delete 'install)
           (add-after 'build 'build-python-module
-            (assoc-ref py:%standard-phases 'build))
+            (assoc-ref py:%standard-phases
+                       'build))
           (add-after 'build-python-module 'install-python-module
-            (assoc-ref py:%standard-phases 'install)))))
+            (assoc-ref py:%standard-phases
+                       'install)))))
     (inputs (cons* maturin
                    (myguix-cargo-inputs 'citerra)))
     (native-inputs (list python-wrapper))
@@ -642,8 +643,7 @@ writing them to disk during site builds.")
     (build-system pyproject-build-system)
     (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
                          python-hatch-vcs))
-    (propagated-inputs (list python-attrs
-                             python-typing-extensions))
+    (propagated-inputs (list python-attrs python-typing-extensions))
     (arguments
      (list
       #:tests? #f))
@@ -771,7 +771,7 @@ glass')")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:tests? #f))    
+      #:tests? #f))
     (propagated-inputs (list python-pyparsing))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/sciunto-org/python-bibtexparser")
@@ -922,7 +922,8 @@ glass')")
     (name "python-wrapt-1")
     (version "1.17.3")
     (arguments
-     (list #:tests? #f))
+     (list
+      #:tests? #f))
     (source
      (origin
        (method url-fetch)
@@ -1188,7 +1189,8 @@ ctypes.")
                             (add-before 'check 'extend-test-timeout
                               (lambda _
                                 (setenv "WEBSOCKETS_TESTS_TIMEOUT_FACTOR" "10"))))))
-                      (native-inputs (list python-setuptools python-wheel python-pytest))
+                      (native-inputs (list python-setuptools python-wheel
+                                           python-pytest))
                       (home-page "https://github.com/aaugustin/websockets")
                       (synopsis
                        "Python implementation of the WebSocket Protocol (RFC 6455 & 7692)")
@@ -1746,13 +1748,9 @@ parallelism.")))
     (arguments
      (list
       #:tests? #f))
-    (native-inputs
-     (list pkg-config
-           python-cython
-           python-setuptools
-           python-wheel))
-    (inputs
-     (list pango))
+    (native-inputs (list pkg-config python-cython python-setuptools
+                         python-wheel))
+    (inputs (list pango))
     (home-page "https://manimpango.manim.community/")
     (synopsis "Bindings for Pango for using with Manim")
     (description
@@ -1832,7 +1830,14 @@ ManimPango is internally used in Manim to render non-LaTeX text.")
       (build-system pyproject-build-system)
       (arguments
        (list
-        #:tests? #f))
+        #:tests? #f
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'unpack 'relax-pyarrow-compatibility
+              (lambda _
+                (substitute* "pyproject.toml"
+                  (("pyarrow >= 18.0, < 24.0")
+                   "pyarrow >= 18.0, < 25.0")))))))
       (propagated-inputs (list python-multimethod
                                python-neo4j
                                python-numpy
@@ -2656,8 +2661,8 @@ and YAML-based configuration files with dot-accessible dictionaries.")
                 (substitute* "setup.py"
                   (("build_cmd = \\[sys\\.executable, build_skia_py, build_dir\\]")
                    (format #f
-                           "build_cmd = [sys.executable, build_skia_py, build_dir, \"--no-virtualenv\", \"--no-fetch-gn\", \"--gn-path\", ~s]"
-                           gn))))))
+                    "build_cmd = [sys.executable, build_skia_py, build_dir, \"--no-virtualenv\", \"--no-fetch-gn\", \"--gn-path\", ~s]"
+                    gn))))))
           (add-after 'unpack 'set-skia-toolchain
             (lambda _
               (setenv "CC" "gcc")
@@ -2668,14 +2673,13 @@ and YAML-based configuration files with dot-accessible dictionaries.")
               (substitute* '("pyproject.toml" "setup.py")
                 (("3\\.2\\.0")
                  "3.1.7")))))))
-    (native-inputs
-     (list gn
-           ninja
-           python-cython
-           python-packaging
-           python-setuptools
-           python-setuptools-scm
-           python-wheel))
+    (native-inputs (list gn
+                         ninja
+                         python-cython
+                         python-packaging
+                         python-setuptools
+                         python-setuptools-scm
+                         python-wheel))
     (home-page "https://github.com/fonttools/skia-pathops")
     (synopsis "Python access to operations on paths using the Skia library")
     (description
@@ -2802,9 +2806,9 @@ Skia library, performing boolean operations on paths.")
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f)) ;Tests require network
-    (propagated-inputs (list python-httpx (python-huggingface-hub-package)
-                             python-packaging python-typing-extensions
-                             python-websockets))
+    (propagated-inputs (list python-httpx
+                             (python-huggingface-hub-package) python-packaging
+                             python-typing-extensions python-websockets))
     (native-inputs (list python-hatchling python-hatch-fancy-pypi-readme
                          python-hatch-requirements-txt))
     (home-page "https://github.com/gradio-app/gradio")
@@ -2824,13 +2828,13 @@ Skia library, performing boolean operations on paths.")
        (sha256
         (base32 "13c1zabw8spwdvdd03hld7dcksp3r2m1pcfsk0ihsjyylrx869w5"))
        (modules '((guix build utils)))
-       (snippet '(begin
-                   ;; Remove examples with syntax errors
-                   (when (file-exists? "gradio/_frontend_code/lite/examples")
-                     (delete-file-recursively
-                      "gradio/_frontend_code/lite/examples"))
-                   (when (file-exists? "js/lite/examples")
-                     (delete-file-recursively "js/lite/examples")) #t))))
+       (snippet
+        '(begin
+           ;; Remove examples with syntax errors
+           (when (file-exists? "gradio/_frontend_code/lite/examples")
+             (delete-file-recursively "gradio/_frontend_code/lite/examples"))
+           (when (file-exists? "js/lite/examples")
+             (delete-file-recursively "js/lite/examples")) #t))))
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f)) ;Tests require network access
@@ -3127,8 +3131,7 @@ build-backend = \"poetry.core.masonry.api\"
        (method url-fetch)
        (uri (pypi-uri "sphinx_basic_ng" version))
        (sha256
-        (base32
-         "1jaihs22d8jfvk1fnv5j7hcza89hxj979ib0b4mh130cr53mmicy"))))
+        (base32 "1jaihs22d8jfvk1fnv5j7hcza89hxj979ib0b4mh130cr53mmicy"))))
     (build-system pyproject-build-system)
     (arguments
      '(#:tests? #f))
@@ -3136,8 +3139,7 @@ build-backend = \"poetry.core.masonry.api\"
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://github.com/pradyunsg/sphinx-basic-ng")
     (synopsis "Modernised skeleton for Sphinx themes")
-    (description
-     "This package provides a modern skeleton for Sphinx themes.")
+    (description "This package provides a modern skeleton for Sphinx themes.")
     (license license:expat)))
 
 (define-public python-furo
@@ -3483,10 +3485,11 @@ limiting, circuit breaker for resilience, and in-memory caching.")
        (sha256
         (base32 "02fnjgiw9avjqxzrx3bgy828l5g7ngp4nysgx9yb1k3zmd1z0lz8"))
        (modules '((guix build utils)))
-       (snippet '(begin
-                   (substitute* "crates/jiter/Cargo.toml"
-                     (("version = \\{ workspace = true \\}")
-                      "version = \"0.8.2\""))))))
+       (snippet
+        '(begin
+           (substitute* "crates/jiter/Cargo.toml"
+             (("version = \\{ workspace = true \\}")
+              "version = \"0.8.2\""))))))
     (build-system cargo-build-system)
     (arguments
      (list
