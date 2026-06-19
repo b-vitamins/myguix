@@ -1561,6 +1561,49 @@ parallelism.")))
       (description "@code{DataStax} Driver for Apache Cassandra.")
       (license license:asl2.0))))
 
+(define %python-aenum-for-gremlinpython
+  (package
+    (name "python-aenum")
+    (version "3.1.15")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/ethanfurman/aenum")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1yf656gigzn76yin8f6n6rbjq5d7l0sklni7pmm6nb5bzv84ml4v"))
+       (modules '((guix build utils)))
+       (snippet
+        '(for-each delete-file
+                   (find-files "." "_py2.py$")))))
+    (build-system pyproject-build-system)
+    (arguments
+     (list
+      #:test-flags
+      #~(list "-k" (string-join
+                    (list "not test_pickle_enum_function_with_qualname"
+                          "test_class_nested_enum_and_pickle_protocol_four"
+                          "test_subclasses_with_getnewargs_ex"
+                          "test_extend_enum_shadow_property_stdlib")
+                    " and not "))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'unpack 'fix-tests
+            (lambda _
+              (substitute* "aenum/test_v3.py"
+                (("import tempfile.*")
+                 (format #f "import tempfile~%tempdir = tempfile.mkdtemp()~%"))))))))
+    (native-inputs
+     (list python-pytest python-setuptools))
+    (home-page "https://github.com/ethanfurman/aenum")
+    (synopsis "Advanced enumerations, namedtuples and constants for Python")
+    (description
+     "The aenum library includes an @code{Enum} base class, a metaclass-based
+@code{NamedTuple} implementation and a @code{NamedConstant} class.")
+    (license license:bsd-3)))
+
 (define-public python-gremlinpython
   (package
     (name "python-gremlinpython")
@@ -1575,7 +1618,8 @@ parallelism.")))
     (arguments
      (list
       #:tests? #f))
-    (propagated-inputs (list python-aenum python-aiohttp python-async-timeout
+    (propagated-inputs (list %python-aenum-for-gremlinpython
+                             python-aiohttp python-async-timeout
                              python-isodate python-nest-asyncio))
     (native-inputs (list python-setuptools python-wheel))
     (home-page "https://tinkerpop.apache.org")
