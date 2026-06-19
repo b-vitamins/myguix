@@ -826,7 +826,8 @@ To enable GSP mode manually, add @code{\"NVreg_EnableGpuFirmware=1\"} to
               (invoke "tar" "xvf" source)))
           (add-after 'unpack 'apply-module-patches
             (lambda _
-              (when (string=? #$(package-version this-package) "580.159.03")
+              (when (member #$(package-version this-package)
+                            '("580.159.03" "580.159.04"))
                 (for-each
                  (lambda (patch)
                    (invoke "patch" "--force" "--no-backup-if-mismatch" "-p1"
