@@ -256,7 +256,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "169766fbb91klrpaa6kk1a83wrq58pf2y3hh9l5r7gqxsb99a2wg")))))
     (package
       (name "google-antigravity")
-      (version "2.0.10")
+      (version "2.0.11")
       (source
        (origin
          (method url-fetch)
@@ -270,7 +270,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-5119448496078848/"
+                 "-6560309696135168/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -278,9 +278,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "0ckfchxyh80cc5dwph105bdizxkhmfddhr7cnn4158xf8fx61nhj")
+                     "0lfr5g3yp1skp5iajw4mlbl5d36bd6m82zw955631x751nzvbcm1")
                     ("aarch64-linux"
-                     "1awwnqsh1qcwsw9aqiyvhn3gh2np4yzs0zvisdwqd5mydhx7xh1i")
+                     "1k7klvsd3hgzb6a17bzds14vsgjh1nxk2k0jn20a8s2wp87pwpar")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
