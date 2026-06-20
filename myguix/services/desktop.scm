@@ -17,8 +17,23 @@
   #:use-module (gnu services pm)
   #:use-module (gnu system)
   #:use-module (gnu system privilege)
+  #:use-module (guix gexp)
   #:use-module (myguix services base)
-  #:export (%my-desktop-services))
+  #:export (%my-desktop-services
+            %my-network-manager-configuration))
+
+(define %network-manager-rc-manager-file
+  (plain-file "10-rc-manager-file.conf"
+              (string-append
+               "[main]\n"
+               "rc-manager=file\n")))
+
+(define %my-network-manager-configuration
+  (network-manager-configuration
+   (vpn-plugins (list network-manager-openvpn
+                      network-manager-openconnect))
+   (extra-configuration-files
+    `(("10-rc-manager-file.conf" ,%network-manager-rc-manager-file)))))
 
 (define %my-desktop-services
   (append (list
@@ -68,9 +83,7 @@
 
            ;; NetworkManager and its applet.
            (service network-manager-service-type
-                    (network-manager-configuration (vpn-plugins (list
-                                                                 network-manager-openvpn
-                                                                 network-manager-openconnect))))
+                    %my-network-manager-configuration)
            (service wpa-supplicant-service-type) ;needed by NetworkManager
            (simple-service 'network-manager-applet profile-service-type
                            (list network-manager-applet))
