@@ -109,7 +109,8 @@ some freedo package or an output of package-version procedure."
                         (configs "")
                         (defconfig "myguix_defconfig")
                         (get-extra-configs myguix-extra-linux-options)
-                        modconfig)
+                        modconfig
+                        (extra-patches '()))
   
   ;; TODO: This very directly depends on guix internals.
   ;; Throw it all out when we manage kernel hashes.
@@ -138,8 +139,10 @@ some freedo package or an output of package-version procedure."
          (sources (filter origin? inputs))
          (hash (find-source-hash sources url))
          (patches
-          (delete (@@ (gnu packages linux) %boot-logo-patch)
-                  (origin-patches pristine-source))))
+          (append
+           (delete (@@ (gnu packages linux) %boot-logo-patch)
+                   (origin-patches pristine-source))
+           extra-patches)))
     (package
       (inherit (customize-linux #:name name
                                 #:linux (package
@@ -191,7 +194,11 @@ some freedo package or an output of package-version procedure."
   (corrupt-linux linux-libre-6.19))
 
 (define-public linux-6.18
-  (corrupt-linux linux-libre-6.18))
+  (corrupt-linux linux-libre-6.18
+                 #:extra-patches
+                 (list
+                  (search-patch
+                   "linux-6.18-amdgpu-fix-gem-open-eviction-fence-order.patch"))))
 
 (define-public linux-6.12
   (corrupt-linux linux-libre-6.12))

@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Ayan Das <bvits@riseup.net>
+Date: Sat, 20 Jun 2026 15:24:00 +0530
+Subject: [PATCH] drm/amdgpu: Attach eviction fence before mutating VM BO state
+
+amdgpu_gem_object_open creates or refcounts a bo_va before attaching the
+eviction fence.  If amdgpu_eviction_fence_attach fails, the error path returns
+without undoing the amdgpu_vm_bo_add or refcount bump, leaving stale VM state
+behind.
+
+Attach the eviction fence first and only mutate the VM BO state after that
+operation succeeds.
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+index 1cd4fd1f6ccf..8c19050eecaa 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+@@ -287,19 +287,18 @@ static int amdgpu_gem_object_open(struct drm_gem_object *obj,
+ 	if (r)
+ 		return r;
+ 
+-	amdgpu_vm_bo_update_shared(abo);
+-	bo_va = amdgpu_vm_bo_find(vm, abo);
+-	if (!bo_va)
+-		bo_va = amdgpu_vm_bo_add(adev, vm, abo);
+-	else
+-		++bo_va->ref_count;
+-
+-	/* attach gfx eviction fence */
+ 	r = amdgpu_eviction_fence_attach(&fpriv->evf_mgr, abo);
+ 	if (r) {
+ 		DRM_DEBUG_DRIVER("Failed to attach eviction fence to BO\n");
+ 		amdgpu_bo_unreserve(abo);
+ 		return r;
+ 	}
+ 
++	amdgpu_vm_bo_update_shared(abo);
++	bo_va = amdgpu_vm_bo_find(vm, abo);
++	if (!bo_va)
++		bo_va = amdgpu_vm_bo_add(adev, vm, abo);
++	else
++		++bo_va->ref_count;
++
+ 	amdgpu_bo_unreserve(abo);
+ 
+ 	/* Validate and add eviction fence to DMABuf imports with dynamic
+-- 
+2.50.0
+
