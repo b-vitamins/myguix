@@ -28,6 +28,8 @@
           (default nvidia-module)) ;file-like
   (powerd nvidia-configuration-powerd
           (default #f)) ;boolean
+  (mutter-primary? nvidia-configuration-mutter-primary?
+                   (default #f)) ;boolean
   (non-admin-profiling? nvidia-configuration-non-admin-profiling?
                         (default #t)))
 
@@ -38,6 +40,20 @@
                 "nvidia.conf"
                 "options nvidia NVreg_RestrictProfilingToAdminUsers=0\n")))
       '()))
+
+(define %nvidia-mutter-primary-gpu-udev-rule
+  (udev-rule
+   "61-mutter-nvidia-primary-gpu.rules"
+   (string-append
+    "# Prefer NVIDIA as Mutter's primary GPU on hybrid systems.\n"
+    "SUBSYSTEM==\"drm\", KERNEL==\"card[0-9]*\", SUBSYSTEMS==\"pci\", "
+    "ATTRS{vendor}==\"0x10de\", TAG+=\"mutter-device-preferred-primary\"\n")))
+
+(define (nvidia-udev-rules config)
+  (cons (nvidia-configuration-driver config)
+        (if (nvidia-configuration-mutter-primary? config)
+            (list %nvidia-mutter-primary-gpu-udev-rule)
+            '())))
 
 (define (nvidia-shepherd-service config)
   (let* ((nvidia-driver (nvidia-configuration-driver config))
@@ -98,8 +114,7 @@
                                                      (compose list
                                                       nvidia-configuration-driver))
                                   (service-extension udev-service-type
-                                                     (compose list
-                                                      nvidia-configuration-driver))
+                                                     nvidia-udev-rules)
                                   (service-extension firmware-service-type
                                                      (compose list
                                                       nvidia-configuration-firmware))
