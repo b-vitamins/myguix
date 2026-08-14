@@ -7,6 +7,7 @@
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-build)
   #:use-module (gnu packages emacs-xyz)
+  #:use-module (gnu packages linux)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages sqlite)
   #:use-module (guix build-system glib-or-gtk)
@@ -831,7 +832,7 @@ bibliography export, Embark integration, and completion-at-point support.")
 (define-public slipbox
   (package
     (name "slipbox")
-    (version "0.14.4")
+    (version "0.17.0")
     (source
      (origin
        (method git-fetch)
@@ -840,7 +841,7 @@ bibliography export, Embark integration, and completion-at-point support.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1lvb2damh8wr45srshq6j8zkgpnwxyk8ms3ybgjcx6jsk5nnaks5"))))
+        (base32 "12rg4pgmzzdfr1fxnibxxzxqcnm4wryymgwqa30cwsk7l6jvys19"))))
     (build-system cargo-build-system)
     (arguments
      (list
@@ -865,7 +866,7 @@ bibliography export, Embark integration, and completion-at-point support.")
                         "--no-default-features"
                         "--features" "system-sqlite")))))))
     (native-inputs
-     (list pkg-config))
+     (list pkg-config procps))
     (inputs
      (cons sqlite
            (lookup-cargo-inputs 'slipbox)))
@@ -880,7 +881,7 @@ JSON-RPC stdio interface.")
 (define-public emacs-org-slipbox
   (package
     (name "emacs-org-slipbox")
-    (version "0.14.4")
+    (version "0.17.0")
     (source
      (origin
        (method git-fetch)
@@ -889,7 +890,7 @@ JSON-RPC stdio interface.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1lvb2damh8wr45srshq6j8zkgpnwxyk8ms3ybgjcx6jsk5nnaks5"))))
+        (base32 "12rg4pgmzzdfr1fxnibxxzxqcnm4wryymgwqa30cwsk7l6jvys19"))))
     (build-system emacs-build-system)
     (arguments
      (list
