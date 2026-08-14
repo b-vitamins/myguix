@@ -39,7 +39,7 @@
 (define-public element-desktop
   (package
     (name "element-desktop")
-    (version "1.12.24")
+    (version "1.12.25")
     (source
      (origin
        (method url-fetch)
@@ -51,7 +51,7 @@
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "1rx3m6bavpnlw7bymin2ipsncii4rr229pr6v9l8i881sx9g7wsn"))))
+        (base32 "0n3184inpgn7g256nw4ywgk7qayr6h99pdfn2pighdx5074y5xlp"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
@@ -95,7 +95,7 @@ its core.")
 (define-public signal-desktop
   (package
     (name "signal-desktop")
-    (version "8.22.0")
+    (version "8.23.0")
     (source
      (origin
        (method url-fetch)
@@ -107,7 +107,7 @@ its core.")
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "0w78dvib8qdjfw20j78yc9y6577nhmp74bhy7bs9a64vdacf14hx"))))
+        (base32 "0a7gzw65larfbz9f2w885j65s9c7aisgy9hfnyzs0xa9wgqz1q0d"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
@@ -151,7 +151,7 @@ or iOS.")
 (define-public discord
   (package
     (name "discord")
-    (version "1.0.141")
+    (version "1.0.153")
     (source
      (origin
        (method url-fetch)
@@ -161,7 +161,7 @@ or iOS.")
                            version
                            ".deb"))
        (sha256
-        (base32 "1jvphl1iy2jpb28nxgflvslp3d9kg4vylmbfk11s60k8wbb8sc40"))))
+        (base32 "1zzclkg95nf3v9j3xm7wh5v0gsk7j2d2w2w7bza5i8lpp9qmrw63"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
