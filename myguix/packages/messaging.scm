@@ -39,7 +39,7 @@
 (define-public element-desktop
   (package
     (name "element-desktop")
-    (version "1.12.2")
+    (version "1.12.24")
     (source
      (origin
        (method url-fetch)
@@ -51,7 +51,7 @@
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "0q0hk1mkh3s7wdmzjdp5w35g2pdx24pivx2h9zxfdilg78nzdpxw"))))
+        (base32 "1rx3m6bavpnlw7bymin2ipsncii4rr229pr6v9l8i881sx9g7wsn"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
@@ -71,7 +71,13 @@
               ;; Fix the .desktop file binary location.
               (substitute* '("share/applications/element-desktop.desktop")
                 (("/opt/Element/")
-                 (string-append #$output "/bin/")))))
+                 (string-append #$output "/bin/"))
+                ;; Use a lowercase 'element' WMClass, to match the
+                ;; application ID, otherwise the icon is not displayed
+                ;; correctly when using Wayland (see:
+                ;; <https://github.com/element-hq/element-web/pull/33635>).
+                (("StartupWMClass=Element")
+                 "StartupWMClass=element"))))
           (add-after 'install 'symlink-binary-file
             (lambda _
               (mkdir-p (string-append #$output "/bin"))
