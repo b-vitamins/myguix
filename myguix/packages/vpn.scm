@@ -1,8 +1,7 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
-;;; Copyright © 2020 Alexey Abramov <levenson@mmer.org>
+;;; Copyright © 2020, 2026 Alexey Abramov <levenson@mmer.org>
 
 (define-module (myguix packages vpn)
-  #:use-module (guix build utils)
   #:use-module (guix build-system gnu)
   #:use-module (guix download)
   #:use-module (guix git-download)
@@ -13,7 +12,7 @@
 (define-public zerotier
   (package
     (name "zerotier")
-    (version "1.12.2")
+    (version "1.16.2")
     (source
      (origin
        (method git-fetch)
@@ -22,7 +21,7 @@
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0p5rpvh137gf5y9ylip7kxfl4argv34sr4wiiygvfk670rifnk57"))))
+        (base32 "1gsc1dbbwa2z5qydavdn6xx7wdshbjzlxaz30iqp26iyrgs9icx1"))))
     (build-system gnu-build-system)
     (arguments
      `(#:make-flags (list "ZT_SSO_SUPPORTED=0") ;We don't need SSO/OIDC
