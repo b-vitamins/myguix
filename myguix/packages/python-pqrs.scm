@@ -1469,10 +1469,15 @@ Note: A known limitation of scihub.py is that captchas show up every now and the
     (build-system python-build-system)
     (arguments
      `(#:phases (modify-phases %standard-phases
+                  (add-after 'unpack 'drop-pytest-runner-requirement
+                    (lambda _
+                      (substitute* "setup.py"
+                        (("        \"pytest-runner\",\n") ""))))
                   (delete 'check))))
-    (native-inputs (list ;All native inputs are for tests.
-                         python-pyasn1 python-pytest python-pytest-cov
-                         python-pytest-runner))
+    (native-inputs (list python-setuptools
+                         python-wheel
+                         ;; All remaining native inputs are for tests.
+                         python-pyasn1 python-pytest python-pytest-cov))
     (propagated-inputs (list python-cryptography python-ecdsa python-rsa
                              python-six))
     (synopsis "JOSE implementation in Python")
