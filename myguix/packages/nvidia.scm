@@ -69,6 +69,7 @@
   #:use-module (guix download)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
+  #:use-module (guix search-paths)
   #:use-module ((guix licenses)
                 #:prefix license-gnu:)
   #:use-module ((myguix licenses)
@@ -415,14 +416,14 @@ support XWayland via xlib (using @code{EGL_KHR_platform_x11}) or xcb (using
 (define-public nvidia-driver-580
   (package
     (name "nvidia-driver")
-    (version "580.159.04")
+    (version "580.178.04")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "07nappxgmp3nl40v00nihhkbwf5gx6frgdkcvwx7plc8n1hngrn1"))
+       (sha256 (base32 "1yfnnsj3zwbj3rjssizala38244v2v8k7bjidxicpzsvwipahxar"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-580))))
     (build-system copy-build-system)
@@ -677,14 +678,14 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
   (package
     (inherit nvidia-driver-580)
     (name "nvidia-driver")
-    (version "595.80")
+    (version "595.91.07")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "0y6lqns2ndxfhasxpjw77psy0ck1q1s8bfnfy0zmglvzw0zwhm1x"))
+       (sha256 (base32 "04v3bq4qn0c0z50ayjap60vpbpdwnz7i27jfcj8s21sbsa6wh8ya"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))
     (arguments
@@ -709,14 +710,14 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
   (package
     (inherit nvidia-driver-595)
     (name "nvidia-driver-new-feature")
-    (version "610.43.02")
+    (version "610.57.04")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "0qvllxnb20arjhw3bxdz0hw521di9ib75hldzx97gpscpdaa0d1h"))
+       (sha256 (base32 "0v8ixgkpr6n2xv0rq35lhs9dwlpxw078xg2pr3001fw3dg33bsdj"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))))
 
@@ -908,30 +909,57 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define %nvidia-module-open-new-feature-patches
   (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"))
 
-(define (nvidia-module-open-arguments patches)
-  (substitute-keyword-arguments (package-arguments nvidia-module-580)
-    ((#:source-directory _)
-     "kernel-open")
-    ((#:phases phases)
-     #~(modify-phases #$phases
-         (add-after 'apply-module-patches 'apply-open-module-patches
-           (lambda _
-             (for-each
-              (lambda (patch)
-                (invoke "patch" "--force" "--no-backup-if-mismatch" "-p1"
-                        "--input" patch))
-              (list #$@patches))))))))
+(define (nvidia-module-open-arguments)
+  (list
+   #:linux linux-lts
+   #:source-directory "kernel-open"
+   #:tests? #f
+   #:make-flags
+   #~(list (string-append "CC="
+                          #$(cc-for-target)))
+   #:phases
+   #~(modify-phases %standard-phases
+       (delete 'strip)
+       (add-before 'configure 'fixpath
+         (lambda* (#:key (source-directory ".") #:allow-other-keys)
+           (substitute* (string-append source-directory "/Kbuild")
+             (("/bin/sh")
+              (which "sh")))))
+       (replace 'build
+         (lambda* (#:key (make-flags '())
+                   (parallel-build? #t)
+                   inputs #:allow-other-keys)
+           (apply invoke
+                  "make"
+                  (string-append "SYSSRC="
+                                 (search-input-directory inputs
+                                  "/lib/modules/build"))
+                  `(,@(if parallel-build?
+                          `("-j" ,(number->string (parallel-job-count)))
+                          '()) ,@make-flags "modules")))))))
 
 (define-public nvidia-module-open-580
   (package
     (inherit nvidia-module-580)
     (name "nvidia-module-open")
+    (version (package-version nvidia-driver-580))
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/open-gpu-kernel-modules")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32
+         "1x3497404278s885aydglyffnlwcp1qyldh8z2yh5bdnw52c9rgd"))
+       (patches %nvidia-module-open-ibt-patches)))
     (arguments
      ;; NOTE: Kernels compiled with CONFIG_LTO_CLANG_THIN would cause an
      ;; error here.  See also:
      ;; <https://github.com/NVIDIA/open-gpu-kernel-modules/issues/214>
      ;; <https://github.com/llvm/llvm-project/issues/55820>
-     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))
+     (nvidia-module-open-arguments))
     (home-page "https://github.com/NVIDIA/open-gpu-kernel-modules")
     (synopsis "Open source NVIDIA kernel modules")
     (description
@@ -954,14 +982,22 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
     (inherit nvidia-module-open-580)
     (name "nvidia-module-open-beta")
     (version (package-version nvidia-driver-beta))
-    (source (package-source nvidia-driver-beta))
-    (arguments
-     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))))
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/NVIDIA/open-gpu-kernel-modules")
+             (commit version)))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32
+         "108faqi446ck42gc9q10dbl0779yagyp853phay14ahkdhi5z8xs"))
+       (patches %nvidia-module-open-ibt-patches)))))
 
 (define-public nvidia-module-open-595
   (package
     (inherit nvidia-module-open-580)
-    (version "595.80")
+    (version "595.91.07")
     (source
      (origin
        (method git-fetch)
@@ -971,16 +1007,14 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name "nvidia-module-open" version))
        (sha256
         (base32
-         "0vvxkc7j4q6qm35q7fqgsdsy462swpscfkpy1f67gd68hdhz12cy"))
-       (patches %nvidia-module-open-ibt-patches)))
-    (arguments
-     (nvidia-module-open-arguments %nvidia-module-open-ibt-patches))))
+         "0ngg4npxs58sr598vs4vkaa37q0hf5d8h3qvqfrgb7xavyjh87rq"))
+       (patches %nvidia-module-open-ibt-patches)))))
 
 (define-public nvidia-module-open-new-feature
   (package
     (inherit nvidia-module-open-595)
     (name "nvidia-module-open-new-feature")
-    (version "610.43.02")
+    (version "610.57.04")
     (source
      (origin
        (method git-fetch)
@@ -990,10 +1024,8 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name "nvidia-module-open" version))
        (sha256
         (base32
-         "06xqq2brq9r616qm37z4vyjj9rz2m8r51rkj1006pg3qjralvzl4"))
-       (patches %nvidia-module-open-new-feature-patches)))
-    (arguments
-     (nvidia-module-open-arguments %nvidia-module-open-new-feature-patches))))
+         "1ylwhl4yfhnnp85py00dp99qd1wggq40zjhdbdvbya1qwqwcw0dd"))
+       (patches %nvidia-module-open-new-feature-patches)))))
 
 (define-public nvidia-module-open nvidia-module-open-580)
 
@@ -1005,7 +1037,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define-public nvidia-settings-580
   (package
     (name "nvidia-settings")
-    (version "580.159.04")
+    (version "580.178.04")
     (source
      (origin
        (method git-fetch)
@@ -1015,7 +1047,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "13rrsnynb64aaj8w4mc46dyv73fgq79qg71zn1bfch90rrr64j2k"))))
+       (sha256 (base32 "08vpcxv2dxpqbx9466pwcyrnbrgx7hjrnf122xncfr3yhhgcdji9"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -1077,7 +1109,7 @@ configuration, creating application profiles, gpu monitoring and more.")
   (package
     (inherit nvidia-settings-580)
     (name "nvidia-settings")
-    (version "595.80")
+    (version "595.91.07")
     (source
      (origin
        (method git-fetch)
@@ -1087,13 +1119,13 @@ configuration, creating application profiles, gpu monitoring and more.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "11gm4zfsnwfpsrr9znw8ppfwq23qnhq4308rpzvnhvp47r7xip02"))))))
+       (sha256 (base32 "1717cp63xsp6iw8pba5j4s12gz9pqznqvm6h7x3fdfk51l5zqd23"))))))
 
 (define-public nvidia-settings-new-feature
   (package
     (inherit nvidia-settings-595)
     (name "nvidia-settings-new-feature")
-    (version "610.43.02")
+    (version "610.57.04")
     (source
      (origin
        (method git-fetch)
@@ -1103,7 +1135,7 @@ configuration, creating application profiles, gpu monitoring and more.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "18dh375bksq7lc80y3swpa4iz7npvfj8v90zp6z3b330yjwj306i"))))))
+       (sha256 (base32 "04ld92lpzfggm20rhsalhzvz9rqz8253ahqmx7m68wqrizq2hhv4"))))))
 
 (define-public nvidia-settings-beta
   (package
@@ -1369,10 +1401,19 @@ content.")
        (variable "VDPAU_DRIVER_PATH")
        (files '("lib/vdpau"))
        (separator #f))
-      ;; https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderLayerInterface.md
+      ;; https://github.com/KhronosGroup/Vulkan-Loader/blob/main/docs/LoaderInterfaceArchitecture.md#active-environment-variables
+      $XDG_DATA_DIRS
       (search-path-specification
-       (variable "XDG_DATA_DIRS")
-       (files '("share")))))
+       (variable "VK_ADD_DRIVER_FILES")
+       (files '("share/vulkan/icd.d"))
+       (file-type 'regular)
+       (file-pattern "^.*\\.json$"))
+      (search-path-specification
+       (variable "VK_ADD_LAYER_PATH")
+       (files '("share/vulkan/explicit_layer.d")))
+      (search-path-specification
+       (variable "VK_ADD_IMPLICIT_LAYER_PATH")
+       (files '("share/vulkan/implicit_layer.d")))))
     (synopsis "Nonguix's user-facing NVIDIA driver package")
     (description
      "This package provides a drop-in replacement for @code{mesa} and is
@@ -3476,7 +3517,7 @@ See also
 (define-public nvidia-modprobe-580
   (package
     (name "nvidia-modprobe")
-    (version "580.159.04")
+    (version "580.178.04")
     (source
      (origin
        (method git-fetch)
@@ -3485,7 +3526,7 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-               (base32 "127rb7qfvx7gmcwn13232r44fhb2lyamnrx9g07k8z6im3jav0kz"))))
+        (base32 "08h8r5w0z9y854yp8k0c75rnigjh78wi8xk4jfibj3hhq08m6dyv"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -3531,7 +3572,7 @@ See also
   (package
     (inherit nvidia-modprobe-580)
     (name "nvidia-modprobe")
-    (version "595.80")
+    (version "595.91.07")
     (source
      (origin
        (method git-fetch)
@@ -3540,13 +3581,13 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1qqaddc55gwhhp30qifchy4mmlbw5lby23sawscdgi8ar5dczn3b"))))))
+        (base32 "13zcvj5l5d04kaz4spp4jqa910500i6ffxy7gv14pfnh935gvcnc"))))))
 
 (define-public nvidia-modprobe-new-feature
   (package
     (inherit nvidia-modprobe-595)
     (name "nvidia-modprobe-new-feature")
-    (version "610.43.02")
+    (version "610.57.04")
     (source
      (origin
        (method git-fetch)
@@ -3555,7 +3596,7 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "047iiw3y02623japn2cc4zpmn3djfgck9i8xabm6p69r3xjz2p70"))))))
+        (base32 "0hvb1n5741zhxf4j3yplcna0krpnhmcvwshskp4z37yhb5ba17il"))))))
 
 (define-public nvidia-modprobe-beta
   (package
