@@ -193,8 +193,8 @@
                       "0aij3x5dnxky7azcgda5ij32arz9bl2bazn0d5zhi6yyh6r54j1a"))
 
 (define-public google-chrome-unstable
-  (make-google-chrome "unstable" "150.0.7846.4"
-                      "02js9266yagzl0b575zdn0830bvk17jsqwjrgga9kg3mbn18a8wn"))
+  (make-google-chrome "unstable" "153.0.7979.3"
+                      "0xw5ki99ix6bpil36jy0bdg3k9j5ighzf19h3x107jjdn6jjmkw5"))
 
 (define-public google-chrome-canary
   (make-google-chrome "canary" "150.0.7862.0"
