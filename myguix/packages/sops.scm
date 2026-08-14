@@ -41,16 +41,16 @@
 (define-public sops
   (package
     (name "sops")
-    (version "3.9.4")
+    (version "3.13.3")
     (source
      #f)
     (native-inputs (cond
                      ((target-aarch64?)
                       `(("binary-source" ,(sops-source version "arm64"
-                                           "0jqpxsg8ahx8n7cq8n6ybkc96hl9f4kzdzhdkrfm120x31mlqmhn"))))
+                                           "0xsdp4w79prxwy0izn8qw3ycxfcicsah1hfncqmb3wcfsfnapc2k"))))
                      ((target-x86-64?)
                       `(("binary-source" ,(sops-source version "amd64"
-                                           "11afdrifjla52ck884bs84fbjfmbpdad0pc9mn17kpkiqhmy722l"))))
+                                           "0szggzhzs98gwj0a0qplmxidkan1k3kg6l0mhwfyjfl7d8sc7gp5"))))
                      (else '())))
     (build-system trivial-build-system)
     (arguments

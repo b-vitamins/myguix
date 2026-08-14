@@ -18666,13 +18666,13 @@ characters using Unicode emoji modifier bases.")
 (define-public node-pyright
   (package
     (name "node-pyright")
-    (version "1.1.403")
+    (version "1.1.412")
     (source
      (origin
        (method url-fetch)
-       (uri "https://registry.npmjs.org/pyright/-/pyright-1.1.403.tgz")
+       (uri "https://registry.npmjs.org/pyright/-/pyright-1.1.412.tgz")
        (sha256
-        (base32 "17gcgvaa7fydhddf54s5f45qwai3phc5cny2ryw6fpqazzy3cayn"))))
+        (base32 "02nmmfidrnc4gik4ila2bh95pb6vh5sz23ma3hqkw7rx4nvmqd5n"))))
     (build-system node-build-system)
     (arguments
      (list
@@ -18682,7 +18682,9 @@ characters using Unicode emoji modifier bases.")
           (delete 'build)
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
-              (modify-json (delete-dependencies '("@types/node"
+              (modify-json (delete-dependencies '("@rspack/cli"
+                                                  "@rspack/core"
+                                                  "@types/node"
                                                   "copy-webpack-plugin"
                                                   "esbuild-loader"
                                                   "shx"
