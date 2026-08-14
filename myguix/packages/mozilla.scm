@@ -118,19 +118,19 @@
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-esr-build-id
-  "20260615135810")
+  "20260720102539")
 
 (define-public firefox-esr
   (package
     (name "firefox-esr")
-    (version "140.12.0esr")
+    (version "140.13.0esr")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "0qnfmkasmnjkk2hia95h3i3qr34mbm4fys495cqb8lhi0bvbkpw5"))
+        (base32 "00adf648nrhzngb4ssx31l17bh4zym491mx7b8ca3g9ajk39sfzm"))
        (patches (myguix-patches
                  "firefox-restore-desktop-files.patch"
                  "firefox-ge-138-compare-paths.patch"
@@ -596,20 +596,20 @@ Release (ESR) version.")
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-build-id
-  "20260615135901")
+  "20260714035250")
 
 (define-public firefox
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "152.0")
+    (version "152.0.6")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "09si591nnh2pywyxd6pwcrr2zhiyxl8ws3sfjd1ml1hdap5rlpsy"))
+        (base32 "03hgcrhdc56qiy1f5b8ps2z7vc5fqk9xznp642mfvm0rim7hq8pa"))
        (patches (myguix-patches
                  "firefox-restore-desktop-files.patch"
                  "firefox-ge-138-compare-paths.patch"
