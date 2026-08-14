@@ -61,8 +61,6 @@
                    (string-append path file))
                  '("chrome" "chrome-sandbox"
                    "chrome_crashpad_handler"
-                   "libEGL.so"
-                   "libGLESv2.so"
                    "liboptimization_guide_internal.so"
                    "libqt5_shim.so"
                    "libqt6_shim.so"
@@ -187,8 +185,8 @@
 ;; TODO: write a nice importer for this in Scheme.
 
 (define-public google-chrome-stable
-  (make-google-chrome "stable" "148.0.7778.215"
-                      "091d2hk0dvxnpmiq0hmdc389sdg87h0zl9d001yv5h70v2i8q8i3"))
+  (make-google-chrome "stable" "151.0.7922.75"
+                      "044dj4biccgb09yvzs40z501p3203gbbvmgnpr0y9yq86fjmjwyb"))
 
 (define-public google-chrome-beta
   (make-google-chrome "beta" "149.0.7827.22"
