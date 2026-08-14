@@ -197,5 +197,5 @@
                       "0xw5ki99ix6bpil36jy0bdg3k9j5ighzf19h3x107jjdn6jjmkw5"))
 
 (define-public google-chrome-canary
-  (make-google-chrome "canary" "150.0.7862.0"
-                      "1qg4bdh0wgb62indh62glrq2qfsa0p7jn883w5sf76dywf44d9hr"))
+  (make-google-chrome "canary" "152.0.7976.0"
+                      "1fyw52agpx6bzsi8kmv231ipy2wsndhynks4y1basbbm56hnzhb4"))
