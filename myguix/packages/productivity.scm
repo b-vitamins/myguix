@@ -439,6 +439,85 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
        "Google Antigravity is an AI-powered development environment and code editor.")
       (license (license:nonfree "https://antigravity.google/terms")))))
 
+(define-public chatgpt-desktop
+  (package
+    (name "chatgpt-desktop")
+    (version "26.810.41047")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (let* ((system (or (%current-target-system)
+                               (%current-system)))
+                   (arch (match system
+                           ("x86_64-linux" "amd64")
+                           ("aarch64-linux" "arm64")
+                           (_ "unsupported"))))
+              (string-append
+               "https://persistent.oaistatic.com/codex-app-prod/linux/deb/"
+               "pool/main/c/chatgpt/chatgpt_"
+               version
+               "_"
+               arch
+               ".deb")))
+       (file-name (string-append name "-" version ".deb"))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "1wrapwgwwpb4b6b5alcqx515pk5fmlcni9ysf1qgcvqkrnimywbq")
+                  ("aarch64-linux"
+                   "0kha1k3zdp2xgw7l0z4h84vwqmbpr4a2206dp7y7cxirl0y7jvwr")
+                  (_ "0000000000000000000000000000000000000000000000000000"))))))
+    (supported-systems '("x86_64-linux" "aarch64-linux"))
+    (build-system chromium-binary-build-system)
+    (arguments
+     (list
+      ;; ~374 MiB for x86_64.
+      #:substitutable? #f
+      #:validate-runpath? #f ;TODO: fails on bundled node modules and wrapped binary
+      #:wrapper-plan
+      #~(let ((rpath '(("out" "/lib/chatgpt"))))
+          (map (lambda (file)
+                 (list file rpath))
+               '("usr/lib/chatgpt/ChatGPT"
+                 "usr/lib/chatgpt/browser_crashpad_handler"
+                 "usr/lib/chatgpt/libEGL.so"
+                 "usr/lib/chatgpt/libGLESv2.so"
+                 "usr/lib/chatgpt/libqt5_shim.so"
+                 "usr/lib/chatgpt/libqt6_shim.so"
+                 "usr/lib/chatgpt/libvk_swiftshader.so"
+                 "usr/lib/chatgpt/libvulkan.so.1"
+                 "usr/lib/chatgpt/resources/cua_node/bin/node")))
+      #:install-plan
+      #~'(("usr/lib/" "/lib")
+          ("usr/share/" "/share"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'install 'patch-desktop-entry
+            (lambda _
+              (substitute* "usr/share/applications/chatgpt.desktop"
+                (("^Exec=chatgpt %U")
+                 (string-append "Exec=" #$output "/bin/chatgpt %U")))
+              #t))
+          (add-before 'install-wrapper 'install-entrypoint
+            (lambda _
+              (let* ((bin (string-append #$output "/bin"))
+                     (exe (string-append bin "/chatgpt"))
+                     (target (string-append #$output
+                              "/lib/chatgpt/codex-launcher")))
+                (mkdir-p bin)
+                (with-output-to-file exe
+                  (lambda _
+                    (display "#!/bin/sh\n")
+                    (display (string-append "exec \"" target "\" \"$@\"\n"))))
+                (chmod exe #o555)))))))
+    (home-page "https://developers.openai.com/codex/app")
+    (synopsis "OpenAI ChatGPT desktop app with Codex integration")
+    (description
+     "ChatGPT Desktop is OpenAI's Electron-based desktop application for
+ChatGPT, including local Codex integration for software development workflows.")
+    (license (license:nonfree "https://openai.com/policies/terms-of-use"))))
+
 (define-public zotero
   (package
     (name "zotero")

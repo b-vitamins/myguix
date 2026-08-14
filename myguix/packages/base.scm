@@ -255,6 +255,7 @@
 
 (define %ai-assistants
   (list node-openai-codex
+        chatgpt-desktop
         node-anthropic-ai-claude-code
         node-openclaw
         node-opencode-bin))
