@@ -189,8 +189,8 @@
                       "044dj4biccgb09yvzs40z501p3203gbbvmgnpr0y9yq86fjmjwyb"))
 
 (define-public google-chrome-beta
-  (make-google-chrome "beta" "149.0.7827.22"
-                      "1sa41cly7vckpyc7f72yrkjrcm02vahvlfcjn3ng8z8sci18yglr"))
+  (make-google-chrome "beta" "152.0.7977.13"
+                      "0aij3x5dnxky7azcgda5ij32arz9bl2bazn0d5zhi6yyh6r54j1a"))
 
 (define-public google-chrome-unstable
   (make-google-chrome "unstable" "150.0.7846.4"
