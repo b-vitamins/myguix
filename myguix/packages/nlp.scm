@@ -56,6 +56,19 @@
   #:use-module (myguix packages machine-learning)
   #:use-module (myguix packages huggingface))
 
+(define (%package-from modules name)
+  (if (null? modules)
+      (error "package not found" name)
+      (let ((variable (module-variable (resolve-interface (car modules)) name)))
+        (if variable
+            (variable-ref variable)
+            (%package-from (cdr modules) name)))))
+
+(define oniguruma
+  (%package-from '((gnu packages regex)
+                   (gnu packages textutils))
+                 'oniguruma))
+
 ;; Helper function to use myguix cargo inputs
 (define (myguix-cargo-inputs name)
   "Lookup Cargo inputs for NAME from myguix rust-crates-pqrs."

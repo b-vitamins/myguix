@@ -69,6 +69,24 @@
                 #:select (myguix-cargo-inputs))
   #:use-module (myguix build-system binary))
 
+(define (%package-from modules name)
+  (if (null? modules)
+      (error "package not found" name)
+      (let ((variable (module-variable (resolve-interface (car modules)) name)))
+        (if variable
+            (variable-ref variable)
+            (%package-from (cdr modules) name)))))
+
+(define maturin
+  (%package-from '((gnu packages build-tools)
+                   (gnu packages rust-apps))
+                 'maturin))
+
+(define oniguruma
+  (%package-from '((gnu packages regex)
+                   (gnu packages textutils))
+                 'oniguruma))
+
 (define (decord-package)
   (module-ref (resolve-interface '(myguix packages video))
               'decord))
