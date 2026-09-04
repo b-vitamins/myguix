@@ -39,7 +39,7 @@
 (define-public element-desktop
   (package
     (name "element-desktop")
-    (version "1.12.25")
+    (version "1.12.27")
     (source
      (origin
        (method url-fetch)
@@ -51,7 +51,7 @@
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "0n3184inpgn7g256nw4ywgk7qayr6h99pdfn2pighdx5074y5xlp"))))
+        (base32 "1b1qfryls2v3y02mchn4ya6xii9x7y42kgliwdabkz2k9i8gx088"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
@@ -95,7 +95,7 @@ its core.")
 (define-public signal-desktop
   (package
     (name "signal-desktop")
-    (version "8.23.0")
+    (version "8.26.0")
     (source
      (origin
        (method url-fetch)
@@ -107,7 +107,7 @@ its core.")
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "0a7gzw65larfbz9f2w885j65s9c7aisgy9hfnyzs0xa9wgqz1q0d"))))
+        (base32 "0g9b0cdj5qhxw085iyvyf7p093b543bzhivm7hwqb5qa17ix6raj"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
