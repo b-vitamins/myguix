@@ -156,7 +156,7 @@
         emacs-nerd-icons-completion
         emacs-nerd-icons-dired
         emacs-nerd-icons-ibuffer
-        emacs-nov-el
+        emacs-nov
         emacs-ol-notmuch
         emacs-olivetti
         emacs-orderless
