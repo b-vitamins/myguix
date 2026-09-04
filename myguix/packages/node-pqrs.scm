@@ -3185,6 +3185,34 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/@earendil-works/pi-agent-core"))
+                     (node-modules (string-append lib "/node_modules"))
+                     (earendil-modules
+                      (string-append node-modules "/@earendil-works")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (mkdir-p earendil-modules)
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-earendil-works-pi-ai")
+                                        "/lib/node_modules/@earendil-works/pi-ai")
+                         (string-append earendil-modules "/pi-ai"))
+                (symlink (string-append (assoc-ref inputs "node-ignore")
+                                        "/lib/node_modules/ignore")
+                         (string-append node-modules "/ignore"))
+                (symlink (string-append (assoc-ref inputs "node-typebox")
+                                        "/lib/node_modules/typebox")
+                         (string-append node-modules "/typebox"))
+                (symlink (string-append (assoc-ref inputs "node-yaml")
+                                        "/lib/node_modules/yaml")
+                         (string-append node-modules "/yaml")) #t)))
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
               (modify-json (delete-dependencies '("vitest" "typescript"
@@ -3217,6 +3245,68 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/@earendil-works/pi-ai"))
+                     (bin (string-append out "/bin"))
+                     (node-modules (string-append lib "/node_modules"))
+                     (anthropic-ai-modules
+                      (string-append node-modules "/@anthropic-ai"))
+                     (aws-sdk-modules
+                      (string-append node-modules "/@aws-sdk"))
+                     (google-modules
+                      (string-append node-modules "/@google"))
+                     (mistralai-modules
+                      (string-append node-modules "/@mistralai")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p bin)
+                (mkdir-p node-modules)
+                (mkdir-p anthropic-ai-modules)
+                (mkdir-p aws-sdk-modules)
+                (mkdir-p google-modules)
+                (mkdir-p mistralai-modules)
+                (chmod (string-append lib "/dist/cli.js") #o555)
+                (symlink (string-append lib "/dist/cli.js")
+                         (string-append bin "/pi-ai"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-anthropic-ai-sdk")
+                                        "/lib/node_modules/@anthropic-ai/sdk")
+                         (string-append anthropic-ai-modules "/sdk"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-aws-sdk-client-bedrock-runtime")
+                                        "/lib/node_modules/@aws-sdk/client-bedrock-runtime")
+                         (string-append aws-sdk-modules
+                                        "/client-bedrock-runtime"))
+                (symlink (string-append (assoc-ref inputs "node-google-genai")
+                                        "/lib/node_modules/@google/genai")
+                         (string-append google-modules "/genai"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-mistralai-mistralai")
+                                        "/lib/node_modules/@mistralai/mistralai")
+                         (string-append mistralai-modules "/mistralai"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-http-proxy-agent")
+                                        "/lib/node_modules/http-proxy-agent")
+                         (string-append node-modules "/http-proxy-agent"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-https-proxy-agent")
+                                        "/lib/node_modules/https-proxy-agent")
+                         (string-append node-modules "/https-proxy-agent"))
+                (symlink (string-append (assoc-ref inputs "node-openai")
+                                        "/lib/node_modules/openai")
+                         (string-append node-modules "/openai"))
+                (symlink (string-append (assoc-ref inputs "node-partial-json")
+                                        "/lib/node_modules/partial-json")
+                         (string-append node-modules "/partial-json"))
+                (symlink (string-append (assoc-ref inputs "node-typebox")
+                                        "/lib/node_modules/typebox")
+                         (string-append node-modules "/typebox")) #t)))
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
               (modify-json (delete-dependencies '("canvas" "vitest"
@@ -3377,6 +3467,86 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/@earendil-works/pi-coding-agent"))
+                     (bin (string-append out "/bin"))
+                     (node-modules (string-append lib "/node_modules"))
+                     (earendil-modules
+                      (string-append node-modules "/@earendil-works"))
+                     (silvia-odwyer-modules
+                      (string-append node-modules "/@silvia-odwyer")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p bin)
+                (mkdir-p node-modules)
+                (mkdir-p earendil-modules)
+                (mkdir-p silvia-odwyer-modules)
+                (chmod (string-append lib "/dist/cli.js") #o555)
+                (symlink (string-append lib "/dist/cli.js")
+                         (string-append bin "/pi"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-earendil-works-pi-agent-core")
+                                        "/lib/node_modules/@earendil-works/pi-agent-core")
+                         (string-append earendil-modules "/pi-agent-core"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-earendil-works-pi-ai")
+                                        "/lib/node_modules/@earendil-works/pi-ai")
+                         (string-append earendil-modules "/pi-ai"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-earendil-works-pi-tui")
+                                        "/lib/node_modules/@earendil-works/pi-tui")
+                         (string-append earendil-modules "/pi-tui"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-silvia-odwyer-photon-node")
+                                        "/lib/node_modules/@silvia-odwyer/photon-node")
+                         (string-append silvia-odwyer-modules "/photon-node"))
+                (symlink (string-append (assoc-ref inputs "node-chalk")
+                                        "/lib/node_modules/chalk")
+                         (string-append node-modules "/chalk"))
+                (symlink (string-append (assoc-ref inputs "node-cross-spawn")
+                                        "/lib/node_modules/cross-spawn")
+                         (string-append node-modules "/cross-spawn"))
+                (symlink (string-append (assoc-ref inputs "node-diff")
+                                        "/lib/node_modules/diff")
+                         (string-append node-modules "/diff"))
+                (symlink (string-append (assoc-ref inputs "node-glob")
+                                        "/lib/node_modules/glob")
+                         (string-append node-modules "/glob"))
+                (symlink (string-append (assoc-ref inputs "node-highlight-js")
+                                        "/lib/node_modules/highlight.js")
+                         (string-append node-modules "/highlight.js"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-hosted-git-info")
+                                        "/lib/node_modules/hosted-git-info")
+                         (string-append node-modules "/hosted-git-info"))
+                (symlink (string-append (assoc-ref inputs "node-ignore")
+                                        "/lib/node_modules/ignore")
+                         (string-append node-modules "/ignore"))
+                (symlink (string-append (assoc-ref inputs "node-jiti")
+                                        "/lib/node_modules/jiti")
+                         (string-append node-modules "/jiti"))
+                (symlink (string-append (assoc-ref inputs "node-minimatch")
+                                        "/lib/node_modules/minimatch")
+                         (string-append node-modules "/minimatch"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-proper-lockfile")
+                                        "/lib/node_modules/proper-lockfile")
+                         (string-append node-modules "/proper-lockfile"))
+                (symlink (string-append (assoc-ref inputs "node-typebox")
+                                        "/lib/node_modules/typebox")
+                         (string-append node-modules "/typebox"))
+                (symlink (string-append (assoc-ref inputs "node-undici")
+                                        "/lib/node_modules/undici")
+                         (string-append node-modules "/undici"))
+                (symlink (string-append (assoc-ref inputs "node-yaml")
+                                        "/lib/node_modules/yaml")
+                         (string-append node-modules "/yaml")) #t)))
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
               (modify-json (delete-dependencies '("shx" "vitest"
@@ -3429,6 +3599,24 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/@earendil-works/pi-tui"))
+                     (node-modules (string-append lib "/node_modules")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (symlink (string-append (assoc-ref inputs "node-get-east-asian-width")
+                                        "/lib/node_modules/get-east-asian-width")
+                         (string-append node-modules "/get-east-asian-width"))
+                (symlink (string-append (assoc-ref inputs "node-marked")
+                                        "/lib/node_modules/marked")
+                         (string-append node-modules "/marked")) #t)))
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
               (modify-json (delete-dependencies '("chalk" "@xterm/xterm"
@@ -4470,6 +4658,26 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib/node_modules/glob"))
+                     (node-modules (string-append lib "/node_modules")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (symlink (string-append (assoc-ref inputs "node-minimatch")
+                                        "/lib/node_modules/minimatch")
+                         (string-append node-modules "/minimatch"))
+                (symlink (string-append (assoc-ref inputs "node-minipass")
+                                        "/lib/node_modules/minipass")
+                         (string-append node-modules "/minipass"))
+                (symlink (string-append (assoc-ref inputs "node-path-scurry")
+                                        "/lib/node_modules/path-scurry")
+                         (string-append node-modules "/path-scurry")) #t)))
           (add-after 'unpack 'delete-scripts
             (lambda _
               (modify-json
@@ -4586,6 +4794,37 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib/node_modules/@google/genai"))
+                     (node-modules (string-append lib "/node_modules"))
+                     (modelcontextprotocol-modules
+                      (string-append node-modules "/@modelcontextprotocol")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (mkdir-p modelcontextprotocol-modules)
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-google-auth-library")
+                                        "/lib/node_modules/google-auth-library")
+                         (string-append node-modules "/google-auth-library"))
+                (symlink (string-append (assoc-ref inputs "node-p-retry")
+                                        "/lib/node_modules/p-retry")
+                         (string-append node-modules "/p-retry"))
+                (symlink (string-append (assoc-ref inputs "node-protobufjs")
+                                        "/lib/node_modules/protobufjs")
+                         (string-append node-modules "/protobufjs"))
+                (symlink (string-append (assoc-ref inputs "node-ws")
+                                        "/lib/node_modules/ws")
+                         (string-append node-modules "/ws"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-modelcontextprotocol-sdk")
+                                        "/lib/node_modules/@modelcontextprotocol/sdk")
+                         (string-append modelcontextprotocol-modules "/sdk")) #t)))
           (add-after 'unpack 'delete-scripts
             (lambda _
               (modify-json
@@ -4655,6 +4894,37 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib/node_modules/@google/genai"))
+                     (node-modules (string-append lib "/node_modules"))
+                     (modelcontextprotocol-modules
+                      (string-append node-modules "/@modelcontextprotocol")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (mkdir-p modelcontextprotocol-modules)
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-google-auth-library")
+                                        "/lib/node_modules/google-auth-library")
+                         (string-append node-modules "/google-auth-library"))
+                (symlink (string-append (assoc-ref inputs "node-p-retry")
+                                        "/lib/node_modules/p-retry")
+                         (string-append node-modules "/p-retry"))
+                (symlink (string-append (assoc-ref inputs "node-protobufjs")
+                                        "/lib/node_modules/protobufjs")
+                         (string-append node-modules "/protobufjs"))
+                (symlink (string-append (assoc-ref inputs "node-ws")
+                                        "/lib/node_modules/ws")
+                         (string-append node-modules "/ws"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-modelcontextprotocol-sdk")
+                                        "/lib/node_modules/@modelcontextprotocol/sdk")
+                         (string-append modelcontextprotocol-modules "/sdk")) #t)))
           (add-after 'patch-dependencies 'delete-scripts
             (lambda _
               (modify-json
@@ -5042,6 +5312,21 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/hosted-git-info"))
+                     (node-modules (string-append lib "/node_modules")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (symlink (string-append (assoc-ref inputs "node-lru-cache")
+                                        "/lib/node_modules/lru-cache")
+                         (string-append node-modules "/lru-cache")) #t)))
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
               (modify-json (delete-dependencies '("@npmcli/template-oss"
@@ -5452,6 +5737,21 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/@isaacs/fs-minipass"))
+                     (node-modules (string-append lib "/node_modules")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (symlink (string-append (assoc-ref inputs "node-minipass")
+                                        "/lib/node_modules/minipass")
+                         (string-append node-modules "/minipass")) #t)))
           (add-after 'unpack 'delete-scripts
             (lambda _
               (modify-json
@@ -6491,6 +6791,21 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/minizlib"))
+                     (node-modules (string-append lib "/node_modules")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (symlink (string-append (assoc-ref inputs "node-minipass")
+                                        "/lib/node_modules/minipass")
+                         (string-append node-modules "/minipass")) #t)))
           (add-after 'unpack 'delete-scripts
             (lambda _
               (modify-json
@@ -7136,6 +7451,94 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib/node_modules/openclaw"))
+                     (bin (string-append out "/bin"))
+                     (node-modules (string-append lib "/node_modules")))
+                (define (link input module)
+                  (symlink
+                   (string-append (assoc-ref inputs input)
+                                  "/lib/node_modules/" module)
+                   (string-append node-modules "/" module)))
+
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p bin)
+                (mkdir-p node-modules)
+                (for-each
+                 (lambda (scope)
+                   (mkdir-p (string-append node-modules "/" scope)))
+                 '("@agentclientprotocol" "@clack" "@earendil-works"
+                   "@google" "@grammyjs" "@homebridge" "@lydell"
+                   "@modelcontextprotocol" "@mozilla" "@openclaw"))
+                (chmod (string-append lib "/openclaw.mjs") #o555)
+                (symlink (string-append lib "/openclaw.mjs")
+                         (string-append bin "/openclaw"))
+                (link "node-agentclientprotocol-sdk"
+                      "@agentclientprotocol/sdk")
+                (link "node-clack-core" "@clack/core")
+                (link "node-clack-prompts" "@clack/prompts")
+                (link "node-earendil-works-pi-agent-core"
+                      "@earendil-works/pi-agent-core")
+                (link "node-earendil-works-pi-ai"
+                      "@earendil-works/pi-ai")
+                (link "node-earendil-works-pi-coding-agent"
+                      "@earendil-works/pi-coding-agent")
+                (link "node-earendil-works-pi-tui"
+                      "@earendil-works/pi-tui")
+                (link "node-google-genai" "@google/genai")
+                (link "node-grammyjs-runner" "@grammyjs/runner")
+                (link "node-grammyjs-transformer-throttler"
+                      "@grammyjs/transformer-throttler")
+                (link "node-homebridge-ciao" "@homebridge/ciao")
+                (link "node-lydell-node-pty" "@lydell/node-pty")
+                (link "node-modelcontextprotocol-sdk"
+                      "@modelcontextprotocol/sdk")
+                (link "node-mozilla-readability" "@mozilla/readability")
+                (link "node-openclaw-fs-safe" "@openclaw/fs-safe")
+                (link "node-openclaw-proxyline" "@openclaw/proxyline")
+                (link "node-ajv" "ajv")
+                (link "node-chalk" "chalk")
+                (link "node-chokidar" "chokidar")
+                (link "node-commander" "commander")
+                (link "node-croner" "croner")
+                (link "node-dotenv" "dotenv")
+                (link "node-express" "express")
+                (link "node-fast-uri" "fast-uri")
+                (link "node-file-type" "file-type")
+                (link "node-grammy" "grammy")
+                (link "node-ip-address" "ip-address")
+                (link "node-ipaddr-js" "ipaddr.js")
+                (link "node-jiti" "jiti")
+                (link "node-json5" "json5")
+                (link "node-jszip" "jszip")
+                (link "node-kysely" "kysely")
+                (link "node-linkedom" "linkedom")
+                (link "node-markdown-it" "markdown-it")
+                (link "node-node-domexception" "node-domexception")
+                (link "node-node-edge-tts" "node-edge-tts")
+                (link "node-openai" "openai")
+                (link "node-pdfjs-dist" "pdfjs-dist")
+                (link "node-playwright-core" "playwright-core")
+                (link "node-qrcode" "qrcode")
+                (link "node-quickjs-wasi" "quickjs-wasi")
+                (link "node-tar" "tar")
+                (link "node-tokenjuice" "tokenjuice")
+                (link "node-tree-sitter-bash" "tree-sitter-bash")
+                (link "node-tslog" "tslog")
+                (link "node-typebox" "typebox")
+                (link "node-typescript" "typescript")
+                (link "node-undici" "undici")
+                (link "node-web-push" "web-push")
+                (link "node-web-tree-sitter" "web-tree-sitter")
+                (link "node-ws" "ws")
+                (link "node-yaml" "yaml")
+                (link "node-zod" "zod") #t)))
           (add-after 'unpack 'allow-guix-node
             (lambda _
               (substitute* (cons "openclaw.mjs" (find-files "dist" "\\.js$"))
@@ -7690,6 +8093,24 @@ its dynamic linker and using Guix-provided runtime tools.")
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out
+                                          "/lib/node_modules/path-scurry"))
+                     (node-modules (string-append lib "/node_modules")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p node-modules)
+                (symlink (string-append (assoc-ref inputs "node-lru-cache")
+                                        "/lib/node_modules/lru-cache")
+                         (string-append node-modules "/lru-cache"))
+                (symlink (string-append (assoc-ref inputs "node-minipass")
+                                        "/lib/node_modules/minipass")
+                         (string-append node-modules "/minipass")) #t)))
           (add-after 'unpack 'delete-scripts
             (lambda _
               (modify-json
@@ -7922,6 +8343,67 @@ its dynamic linker and using Guix-provided runtime tools.")
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib/node_modules/protobufjs"))
+                     (node-modules (string-append lib "/node_modules"))
+                     (protobufjs-modules (string-append node-modules
+                                                        "/@protobufjs"))
+                     (types-modules (string-append node-modules "/@types")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p protobufjs-modules)
+                (mkdir-p types-modules)
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-aspromise")
+                                        "/lib/node_modules/@protobufjs/aspromise")
+                         (string-append protobufjs-modules "/aspromise"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-base64")
+                                        "/lib/node_modules/@protobufjs/base64")
+                         (string-append protobufjs-modules "/base64"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-codegen")
+                                        "/lib/node_modules/@protobufjs/codegen")
+                         (string-append protobufjs-modules "/codegen"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-eventemitter")
+                                        "/lib/node_modules/@protobufjs/eventemitter")
+                         (string-append protobufjs-modules "/eventemitter"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-fetch")
+                                        "/lib/node_modules/@protobufjs/fetch")
+                         (string-append protobufjs-modules "/fetch"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-float")
+                                        "/lib/node_modules/@protobufjs/float")
+                         (string-append protobufjs-modules "/float"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-inquire")
+                                        "/lib/node_modules/@protobufjs/inquire")
+                         (string-append protobufjs-modules "/inquire"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-path")
+                                        "/lib/node_modules/@protobufjs/path")
+                         (string-append protobufjs-modules "/path"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-pool")
+                                        "/lib/node_modules/@protobufjs/pool")
+                         (string-append protobufjs-modules "/pool"))
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-protobufjs-utf8")
+                                        "/lib/node_modules/@protobufjs/utf8")
+                         (string-append protobufjs-modules "/utf8"))
+                (symlink (string-append (assoc-ref inputs "node-long")
+                                        "/lib/node_modules/long")
+                         (string-append node-modules "/long"))
+                (symlink (string-append (assoc-ref inputs "node-types-node")
+                                        "/lib/node_modules/@types/node")
+                         (string-append types-modules "/node")) #t)))
           (add-after 'patch-dependencies 'delete-scripts
             (lambda _
               (modify-json
@@ -10092,6 +10574,34 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (replace 'configure
+            (lambda _
+              #t))
+          (replace 'install
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib/node_modules/tar"))
+                     (node-modules (string-append lib "/node_modules"))
+                     (isaacs-modules (string-append node-modules "/@isaacs")))
+                (mkdir-p lib)
+                (copy-recursively "." lib)
+                (mkdir-p isaacs-modules)
+                (symlink (string-append (assoc-ref inputs
+                                                   "node-isaacs-fs-minipass")
+                                        "/lib/node_modules/@isaacs/fs-minipass")
+                         (string-append isaacs-modules "/fs-minipass"))
+                (symlink (string-append (assoc-ref inputs "node-chownr")
+                                        "/lib/node_modules/chownr")
+                         (string-append node-modules "/chownr"))
+                (symlink (string-append (assoc-ref inputs "node-minipass")
+                                        "/lib/node_modules/minipass")
+                         (string-append node-modules "/minipass"))
+                (symlink (string-append (assoc-ref inputs "node-minizlib")
+                                        "/lib/node_modules/minizlib")
+                         (string-append node-modules "/minizlib"))
+                (symlink (string-append (assoc-ref inputs "node-yallist")
+                                        "/lib/node_modules/yallist")
+                         (string-append node-modules "/yallist")) #t)))
           (add-after 'unpack 'delete-scripts
             (lambda _
               (modify-json
@@ -10295,16 +10805,16 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
     (description "Lean output compaction for terminal-heavy agent workflows.")
     (license license:expat)))
 
-(define-public node-tree-sitter-0.25.0
+(define-public node-tree-sitter-0.25.1
   (package
     (name "node-tree-sitter")
-    (version "0.25.0")
+    (version "0.25.1")
     (source
      (origin
        (method url-fetch)
-       (uri "https://registry.npmjs.org/tree-sitter/-/tree-sitter-0.25.0.tgz")
+       (uri "https://registry.npmjs.org/tree-sitter/-/tree-sitter-0.25.1.tgz")
        (sha256
-        (base32 "0jmakazk0vb0yfrr8wvg8gk2dl3css612p0mw7bsw8rcivp4hr01"))))
+        (base32 "1lxns1p8mrs4zzmwa30h4hc4ghw04sys6k1d5gkyfc0nsy6vmbh7"))))
     (build-system node-build-system)
     (arguments
      (list
@@ -10312,6 +10822,9 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (add-after 'unpack 'delete-prebuilds
+            (lambda _
+              (delete-file-recursively "prebuilds")))
           (add-after 'set-home 'set-compiler
             (lambda _
               (setenv "CC" "gcc")
@@ -10382,7 +10895,7 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
                                                   "prebuildify" "tree-sitter"))))))))
     (native-inputs (list python))
     (inputs (list node-node-gyp-build node-node-addon-api-8.8.0
-                  node-tree-sitter-0.25.0))
+                  node-tree-sitter-0.25.1))
     (home-page "https://github.com/tree-sitter/tree-sitter-bash#readme")
     (synopsis "Bash grammar for tree-sitter")
     (description "Bash grammar for tree-sitter")
@@ -17459,13 +17972,11 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
                                                   "typescript")))))
           (add-after 'delete-dev-dependencies 'remove-scripts
             (lambda _
-              (substitute* "package.json"
-                (("\"scripts\":[[:space:]]*\\{[^}]*\\},?")
-                 "\"scripts\": {},")
-                (("\"postinstall\":[[:space:]]*\"[^\"]*\",?")
-                 "")
-                (("\"prepare\":[[:space:]]*\"[^\"]*\",?")
-                 "")))))))
+              (modify-json
+               (lambda (pkg-meta)
+                 (filter (lambda (field)
+                           (not (equal? (car field) "scripts")))
+                         pkg-meta))))))))
     (home-page "https://github.com/yargs/y18n")
     (synopsis "the bare-bones internationalization library used by yargs")
     (description "the bare-bones internationalization library used by yargs")
