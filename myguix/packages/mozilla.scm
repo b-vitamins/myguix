@@ -89,53 +89,27 @@
 (define-public rust-firefox
   rust)
 
-(define-public rust-cbindgen-0.29
-  (package
-    (inherit rust-cbindgen-0.28)
-    (name "rust-cbindgen")
-    (version "0.29.2")
-    (inputs
-     (modify-inputs (package-inputs rust-cbindgen-0.28)
-       (append (@@ (gnu packages rust-crates) rust-heck-0.5.0))
-       (append (@@ (gnu packages rust-crates) rust-indexmap-2.11.4))
-       (append (@@ (gnu packages rust-crates) rust-serde-1.0.228))
-       (append (@@ (gnu packages rust-crates) rust-serde-core-1.0.228))
-       (append (@@ (gnu packages rust-crates) rust-serde-derive-1.0.228))
-       (append (@@ (gnu packages rust-crates) rust-serde-spanned-1.0.3))
-       (append (@@ (gnu packages rust-crates) rust-toml-0.9.8))
-       (append (@@ (gnu packages rust-crates) rust-toml-datetime-0.7.3))
-       (append (@@ (gnu packages rust-crates) rust-toml-parser-1.0.4))
-       (append (@@ (gnu packages rust-crates) rust-toml-writer-1.0.4))
-       (append (@@ (gnu packages rust-crates) rust-winnow-0.7.13))))
-    (source
-     (origin
-       (method url-fetch)
-       (uri (crate-uri "cbindgen" version))
-       (file-name (string-append name "-" version ".tar.gz"))
-       (sha256
-        (base32 "168pl7jrz6zw7yi4hggqa78fgr8z8g7fyyjhihpw10cf583zvyxy"))))))
-
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-esr-build-id
-  "20260720102539")
+  "20260817120339")
 
 (define-public firefox-esr
   (package
     (name "firefox-esr")
-    (version "140.13.0esr")
+    (version "153.1.0esr")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "00adf648nrhzngb4ssx31l17bh4zym491mx7b8ca3g9ajk39sfzm"))
+        (base32 "1bf70xj9an9iy726i8k42h50mvcmwrd7jnhzy2hmr8nxchkcpbbp"))
        (patches (myguix-patches
+                 "firefox-add-store-to-rdd-allowlist.patch"
+                 "firefox-compare-paths.patch"
                  "firefox-restore-desktop-files.patch"
-                 "firefox-ge-138-compare-paths.patch"
-                 "firefox-esr-use-system-wide-dir.patch"
-                 "firefox-esr-add-store-to-rdd-allowlist.patch"))
+                 "firefox-use-system-wide-dir.patch"))
        (modules '((guix build utils)))
        (snippet #~(delete-file-recursively "testing/web-platform"))))
     (build-system gnu-build-system)
@@ -531,7 +505,7 @@ StartupWMClass=Firefox"))
                   gtk+
                   gtk+-2
                   hunspell
-                  icu4c-76
+                  icu4c-78
                   jemalloc
                   libcanberra
                   libevent
@@ -567,7 +541,7 @@ StartupWMClass=Firefox"))
     (native-inputs (list alsa-lib
                          autoconf-2.13
                          `(,rust-firefox-esr "cargo")
-                         clang-18
+                         clang-19
                          llvm
                          wasm32-wasi-clang-toolchain
                          m4
@@ -577,7 +551,7 @@ StartupWMClass=Firefox"))
                          pkg-config
                          python
                          rust-firefox-esr
-                         rust-cbindgen-0.28
+                         rust-cbindgen-0.29
                          which
                          yasm))
     (native-search-paths
@@ -596,25 +570,25 @@ Release (ESR) version.")
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-build-id
-  "20260714035250")
+  "20260817115642")
 
 (define-public firefox
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "152.0.6")
+    (version "154.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "03hgcrhdc56qiy1f5b8ps2z7vc5fqk9xznp642mfvm0rim7hq8pa"))
+        (base32 "16mrk2s6rbdfarq5ixk67kh893srbghsxp10dn5gfq4ad2rwbkin"))
        (patches (myguix-patches
+                 "firefox-add-store-to-rdd-allowlist.patch"
+                 "firefox-compare-paths.patch"
                  "firefox-restore-desktop-files.patch"
-                 "firefox-ge-138-compare-paths.patch"
-                 "firefox-use-system-wide-dir.patch"
-                 "firefox-add-store-to-rdd-allowlist.patch"))
+                 "firefox-use-system-wide-dir.patch"))
        (modules '((guix build utils)))
        (snippet #~(delete-file-recursively "testing/web-platform"))))
     (arguments
@@ -626,21 +600,10 @@ Release (ESR) version.")
                 (setenv "MOZ_BUILD_DATE"
                         #$%firefox-build-id)))
 ))))
-    (inputs
-     (modify-inputs (package-inputs firefox-esr)
-       (replace "icu4c" icu4c-78)))
     (native-inputs (modify-inputs (package-native-inputs firefox-esr)
                      (replace "rust" rust-firefox)
                      (replace "rust:cargo"
-                              `(,rust-firefox "cargo"))
-                     (replace "rust-cbindgen" rust-cbindgen-0.29)))
+                              `(,rust-firefox "cargo"))))
     (description
      "Full-featured browser client built from Firefox source tree, without
 the official icon and the name \"firefox\".")))
-
-;; As of Firefox 121.0, Firefox uses Wayland by default. This means we no
-;; longer need a seperate package for Firefox on Wayland.
-(define-public firefox-esr/wayland
-  (deprecated-package "firefox-esr-wayland" firefox-esr))
-(define-public firefox-wayland
-  (deprecated-package "firefox-wayland" firefox))
