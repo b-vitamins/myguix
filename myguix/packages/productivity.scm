@@ -256,7 +256,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "169766fbb91klrpaa6kk1a83wrq58pf2y3hh9l5r7gqxsb99a2wg")))))
     (package
       (name "google-antigravity")
-      (version "2.8.1")
+      (version "2.12.2")
       (source
        (origin
          (method url-fetch)
@@ -270,7 +270,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-6512087774658560/"
+                 "-6298742303883264/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -278,9 +278,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "1wzgg1k3r1ls7ghf8dh4501cf09lp8arxka7nzw2ccrbxyzw7xi3")
+                     "0cyd8gfsjd5qy5x3am6kc3ah1pmvljm5dklbaplzxbj5kbs2lbpw")
                     ("aarch64-linux"
-                     "0v1jpnr6m49bl6pgkgffd83jlijp5kfyf3fjgp3racdy8b1v2wfl")
+                     "06792bqzgq3x8pf5z14xb6xcpn469wyg3p544j2rl5qwglh9n13j")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -442,7 +442,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.810.41047")
+    (version "26.901.31953")
     (source
      (origin
        (method url-fetch)
@@ -464,9 +464,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "1wrapwgwwpb4b6b5alcqx515pk5fmlcni9ysf1qgcvqkrnimywbq")
+                   "173dfnmj7w2a42yz1a09vnqq4j66dsq73h7lwlbnrpkpx0mm5d1b")
                   ("aarch64-linux"
-                   "0kha1k3zdp2xgw7l0z4h84vwqmbpr4a2206dp7y7cxirl0y7jvwr")
+                   "0x29qy22yp4nzmm793q62015v0hkraaw4m1p0n7hd5kqwxp29p0c")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
