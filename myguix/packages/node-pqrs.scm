@@ -18582,14 +18582,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.147.0")
+    (version "0.153.2")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "0mbj5r1qblx6k35ch2y1sjxwx5cmaw6c831x11qyl1wzppa4z2yj"))))
+        (base32 "1z7mqlwnp2n95jz9kp0dv8f5vhs34q5z7yiqi8vx2cvpx102g9xg"))))
     (build-system node-build-system)
     (native-inputs (list `("platform-source" ,(origin
                                                 (method url-fetch)
@@ -18618,11 +18618,11 @@ characters using Unicode emoji modifier bases.")
                                                                     ((string=?
                                                                       system
                                                                       "x86_64-linux")
-                                                                     "16hka2r9hmc2vxmj6b61h18az69cxgpm3mawj0qlqzi9z0678sf9")
+                                                                     "1875m4k5i828czyi5wc6h3id3sfmp5yan30ida9wjya9549j3m8z")
                                                                     ((string=?
                                                                       system
                                                                       "aarch64-linux")
-                                                                     "0il5j5gn5sh405blwdmbgyn5ihhg5xhpq3hb0zx8sxlp0l0by2ad")
+                                                                     "1hzsk7yl3494iwg9v6nf9d7c5lnbdml3gk3i3pjylspq9dv8ybyz")
                                                                     (else (error
                                                                            "unsupported system for node-openai-codex"
                                                                            system))))))))))
