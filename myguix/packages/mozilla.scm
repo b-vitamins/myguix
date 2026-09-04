@@ -70,7 +70,7 @@
   #:use-module (gnu packages python)
   #:use-module (gnu packages rust)
   #:use-module ((gnu packages rust-apps)
-                #:hide (maturin uv))
+                #:select (rust-cbindgen-0.29))
   #:use-module (gnu packages speech)
   #:use-module (gnu packages sqlite)
   #:use-module (gnu packages video)

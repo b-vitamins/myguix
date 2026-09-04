@@ -62,7 +62,7 @@
   #:use-module (gnu packages rpc)
   #:use-module (gnu packages rust)
   #:use-module ((gnu packages rust-apps)
-                #:hide (maturin uv))
+                #:select (just))
   #:use-module (gnu packages sdl)
   #:use-module (gnu packages serialization)
   #:use-module (gnu packages sphinx)

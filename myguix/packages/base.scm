@@ -73,7 +73,8 @@
   #:use-module (gnu packages rsync)
   #:use-module (gnu packages rust)
   #:use-module ((gnu packages rust-apps)
-                #:hide (maturin uv))
+                #:select (aardvark-dns bat eza fd hyperfine netavark
+                          py-spy ripgrep tokei zoxide))
   #:use-module (gnu packages samba)
   #:use-module (gnu packages scsi)
   #:use-module (gnu packages search)
@@ -82,7 +83,7 @@
   #:use-module (gnu packages ssh)
   #:use-module (gnu packages terminals)
   #:use-module ((gnu packages textutils)
-                #:hide (oniguruma))
+                #:select (yq))
   #:use-module (gnu packages tex)
   #:use-module (gnu packages texinfo)
   #:use-module (gnu packages texlive)
