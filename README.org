@@ -88,14 +88,14 @@ Available driver streams:
 
 Per-driver kernel coverage in myguix follows the package definitions carried here. Hardware reports are still welcome.
 
-| Driver     | linux-7.0 | linux-6.19 | linux-6.18 | linux-6.12 | linux-6.6 | linux-6.1 |
-|------------+-----------+------------+------------+------------+-----------+-----------|
-| =nvdb=     | yes*      | yes        | yes        | yes        | yes       | yes       |
-| =nvda-595= | yes*      | yes        | yes        | yes        | yes       | yes       |
-| =nvda-590= | yes*      | yes        | yes        | yes        | yes       | yes       |
-| =nvda=     | yes*      | yes        | yes        | yes        | yes       | yes       |
+| Driver     | linux-7.2* | linux-7.1 | linux-6.18 | linux-6.12 | linux-6.6 | linux-6.1 |
+|------------+------------+-----------+------------+------------+-----------+-----------|
+| =nvdb=     | yes        | yes       | yes        | yes        | yes       | yes       |
+| =nvda-595= | yes        | yes       | yes        | yes        | yes       | yes       |
+| =nvda-590= | yes        | yes       | yes        | yes        | yes       | yes       |
+| =nvda=     | yes        | yes       | yes        | yes        | yes       | yes       |
 
-- =linux-7.0= is defined in this channel, but it requires a Guix base that already provides =linux-libre-7.0=.
+- =linux-7.2= is defined in this channel when the Guix base already provides =linux-libre-7.2=.
 
 To configure your system:
 

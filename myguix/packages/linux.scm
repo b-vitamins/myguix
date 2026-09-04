@@ -123,21 +123,28 @@ some freedo package or an output of package-version procedure."
   (define extract-gexp-inputs
     (compose gexp-inputs force origin-uri))
 
-  (define (find-source-hash sources url)
-    (let ((versioned-origin (find (lambda (source)
-                                    (let ((uri (origin-uri source)))
-                                      (and (string? uri)
-                                           (string=? uri url)))) sources)))
-      (if versioned-origin
-          (origin-hash versioned-origin) #f)))
+  (define (origin->input-things origin)
+    (map gexp-input-thing (extract-gexp-inputs origin)))
+
+  (define (extract-sources inputs)
+    (fold (lambda (input sources)
+            (if (origin? input)
+                (if (string? (origin-uri input))
+                    (acons (origin-uri input) (origin-hash input) sources)
+                    (append sources
+                            (extract-sources (origin->input-things input))))
+                sources))
+          '()
+          inputs))
 
   (let* ((version (package-version freedo))
          (url (linux-url version))
          (pristine-source (package-source freedo))
          (inputs (map gexp-input-thing
                       (extract-gexp-inputs pristine-source)))
-         (sources (filter origin? inputs))
-         (hash (find-source-hash sources url))
+         (sources (extract-sources inputs))
+         (hash (or (assoc-ref sources url)
+                   (error "fail to find hash for" freedo)))
          (patches
           (append
            (delete (@@ (gnu packages linux) %boot-logo-patch)
@@ -187,11 +194,17 @@ some freedo package or an output of package-version procedure."
        "The unmodified Linux kernel, including nonfree blobs, for running Guix System
 (on hardware which requires nonfree software to function."))))
 
-(define-public linux-7.0
-  (corrupt-linux linux-libre-7.0))
+(define (%gnu-linux-package name)
+  (let ((variable (module-variable (resolve-interface '(gnu packages linux))
+                                   name)))
+    (and variable (variable-ref variable))))
 
-(define-public linux-6.19
-  (corrupt-linux linux-libre-6.19))
+(define-public linux-7.2
+  (let ((freedo (%gnu-linux-package 'linux-libre-7.2)))
+    (and freedo (corrupt-linux freedo))))
+
+(define-public linux-7.1
+  (corrupt-linux linux-libre-7.1))
 
 (define-public linux-6.18
   (corrupt-linux linux-libre-6.18
@@ -209,22 +222,12 @@ some freedo package or an output of package-version procedure."
 (define-public linux-6.1
   (corrupt-linux linux-libre-6.1))
 
-(define-public linux-5.15
-  (corrupt-linux linux-libre-5.15))
-
-(define-public linux-5.10
-  (corrupt-linux linux-libre-5.10))
-
 (define-public linux
-  linux-7.0)
+  linux-7.1)
 
 ;; linux-lts points to the *newest* released long-term support version.
 (define-public linux-lts
   linux-6.18)
-
-(define-public linux-arm64-generic-5.10
-  (corrupt-linux linux-libre-arm64-generic-5.10
-                 #:name "linux-arm64-generic"))
 
 (define-public linux-arm64-generic
   (corrupt-linux linux-libre-arm64-generic
@@ -391,14 +394,14 @@ stable, responsive and smooth desktop experience.")))
 (define-public linux-firmware
   (package
     (name "linux-firmware")
-    (version "20260622")
+    (version "20260810")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "mirror://kernel.org/linux/kernel/firmware/"
                            "linux-firmware-" version ".tar.xz"))
        (sha256
-        (base32 "1fqdwqjnzwijxqrsxnjiql1bjj557zjkb4b0i1jpdsvniqsqm79b"))))
+        (base32 "16m42k3m0pgvl0qymx6j5nys61wgipgzmfhzjrm94mipwx7w65xc"))))
     (build-system gnu-build-system)
     (arguments
      (list
