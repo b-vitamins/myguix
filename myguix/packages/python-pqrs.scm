@@ -1885,24 +1885,15 @@ ManimPango is internally used in Manim to render non-LaTeX text.")
                                                       "1"))))))))))
     (package
       (name "python-graphdatascience")
-      (version "1.20")
+      (version "2.0a5")
       (source
        (origin
          (method url-fetch)
          (uri (pypi-uri "graphdatascience" version))
          (sha256
-          (base32 "0sg0g2d6wv2l4xzq8906gmviisnyvk78afa6aikwznka34jkp68v"))))
+          (base32 "1llznqkgc46jr5xgracm79sz4h5q8mn0hhjqvq6i48mgcqhsfwgv"))))
       (build-system pyproject-build-system)
-      (arguments
-       (list
-        #:tests? #f
-        #:phases
-        #~(modify-phases %standard-phases
-            (add-after 'unpack 'relax-pyarrow-compatibility
-              (lambda _
-                (substitute* "pyproject.toml"
-                  (("pyarrow >= 18.0, < 24.0")
-                   "pyarrow >= 18.0, < 25.0")))))))
+      (arguments (list #:tests? #f))
       (propagated-inputs (list python-multimethod
                                python-neo4j
                                python-numpy
