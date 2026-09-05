@@ -442,7 +442,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.901.31953")
+    (version "26.901.41600")
     (source
      (origin
        (method url-fetch)
@@ -464,9 +464,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "173dfnmj7w2a42yz1a09vnqq4j66dsq73h7lwlbnrpkpx0mm5d1b")
+                   "0xyaxy9xwb6ph967hhd17129jjkqfa60n66kadsqmwp8fwm45kqm")
                   ("aarch64-linux"
-                   "0x29qy22yp4nzmm793q62015v0hkraaw4m1p0n7hd5kqwxp29p0c")
+                   "1gx3q8dagpr2r0l7a685qdy96xa3x2ahhxi5z9ak4nfak6r42lcd")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
