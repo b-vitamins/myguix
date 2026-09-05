@@ -3435,6 +3435,7 @@ designed for flexibility.")
       (build-system cmake-build-system)
       (native-inputs (list googletest))
       (inputs (modify-inputs (package-inputs gloo)
+                (replace "openssl" openssl-1.1)
                 (append cuda-toolkit nccl)))
       (arguments
        (substitute-keyword-arguments (package-arguments gloo)
