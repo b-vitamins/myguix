@@ -6928,8 +6928,7 @@
                                                   "typescript"
                                                   "typescript-eslint"
                                                   "vitest"
-                                                  "ws"
-                                                  "zod"))))))))
+                                                  "ws"))))))))
     (inputs (list node-zod-to-json-schema-3.25.2
                   node-zod-4.4.3
                   node-raw-body-3.0.2
@@ -6948,7 +6947,6 @@
                   node-ajv-formats-3.0.1
                   node-ajv-8.20.0
                   node-hono-node-server-1.19.14
-                  node-zod-4.4.3
                   node-cfworker-json-schema-4.1.1))
     (home-page "https://modelcontextprotocol.io")
     (synopsis "Model Context Protocol implementation for TypeScript")
@@ -7711,6 +7709,8 @@
        (sha256
         (base32 "1czxlkbd8875k3wjmv7zd9vfrxc447plwgbw5yagv76i3i0qcxr3"))))
     (build-system node-build-system)
+    (inputs
+     (list node-undici-8.3.0))
     (arguments
      (list
       #:tests? #f
@@ -7727,8 +7727,7 @@
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
               (modify-json (delete-dependencies '("@types/node" "@types/ws"
-                                                  "tsx" "typescript" "undici"
-                                                  "ws"))))))))
+                                                  "tsx" "typescript" "ws"))))))))
     (home-page "https://proxyline.dev")
     (synopsis "Process-global proxy routing for Node.js.")
     (description "Process-global proxy routing for Node.js.")
