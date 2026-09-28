@@ -93,19 +93,19 @@
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-esr-build-id
-  "20260817120339")
+  "20260914131223")
 
 (define-public firefox-esr
   (package
     (name "firefox-esr")
-    (version "153.1.0esr")
+    (version "153.3.0esr")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "1bf70xj9an9iy726i8k42h50mvcmwrd7jnhzy2hmr8nxchkcpbbp"))
+        (base32 "1xbd4ck1fzg7kvad9jblhzgy5p1blz06bwpw2gy418yjg1g37wb9"))
        (patches (myguix-patches
                  "firefox-add-store-to-rdd-allowlist.patch"
                  "firefox-compare-paths.patch"
@@ -571,20 +571,20 @@ Release (ESR) version.")
 ;; Update this id with every firefox update to its release date.
 ;; It's used for cache validation and therefore can lead to strange bugs.
 (define %firefox-build-id
-  "20260817115642")
+  "20260914133932")
 
 (define-public firefox
   (package
     (inherit firefox-esr)
     (name "firefox")
-    (version "154.0")
+    (version "156.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://archive.mozilla.org/pub/firefox/releases/"
              version "/source/firefox-" version ".source.tar.xz"))
        (sha256
-        (base32 "16mrk2s6rbdfarq5ixk67kh893srbghsxp10dn5gfq4ad2rwbkin"))
+        (base32 "1fda8lhnpncsh78pbknzp4x6s42fcqiq21rzmamhj02i8g06h9qz"))
        (patches (myguix-patches
                  "firefox-add-store-to-rdd-allowlist.patch"
                  "firefox-compare-paths.patch"
@@ -596,6 +596,18 @@ Release (ESR) version.")
      (substitute-keyword-arguments (package-arguments firefox-esr)
        ((#:phases phases)
         #~(modify-phases #$phases
+            (replace 'wrap-glxtest
+              (lambda* (#:key inputs outputs #:allow-other-keys)
+                (let* ((out (assoc-ref outputs "out"))
+                       (lib (string-append out "/lib"))
+                       (libs (map
+                              (lambda (lib-name)
+                                (string-append (assoc-ref inputs
+                                                          lib-name)
+                                               "/lib"))
+                              '("mesa" "pciutils"))))
+                  (wrap-program (car (find-files lib "^gfxtest$"))
+                    `("LD_LIBRARY_PATH" prefix ,libs)))))
             (replace 'set-build-id
               (lambda _
                 (setenv "MOZ_BUILD_DATE"
