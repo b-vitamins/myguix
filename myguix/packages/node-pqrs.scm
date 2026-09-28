@@ -19094,50 +19094,49 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.153.4")
+    (version "0.158.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "0fpvnb23qxwzm60ap7pf28q8sl5bgjlqdbf0qs2x58fz38y2c17x"))))
+        (base32 "06xq6sy66gc44yl0fjziabzy5yr9fz7iaydz21jvg1brgkqsq80g"))))
     (build-system node-build-system)
-    (native-inputs (list `("platform-source" ,(origin
-                                                (method url-fetch)
-                                                (uri (let ((system (or (%current-target-system)
-                                                                       (%current-system))))
-                                                       (cond
-                                                         ((string=? system
-                                                           "x86_64-linux")
-                                                          (string-append
-                                                           "https://registry.npmjs.org/@openai/codex/-/codex-"
-                                                           version
-                                                           "-linux-x64.tgz"))
-                                                         ((string=? system
-                                                           "aarch64-linux")
-                                                          (string-append
-                                                           "https://registry.npmjs.org/@openai/codex/-/codex-"
-                                                           version
-                                                           "-linux-arm64.tgz"))
-                                                         (else (error
-                                                                "unsupported system for node-openai-codex"
-                                                                system)))))
-                                                (sha256 (base32 (let ((system (or
-                                                                               (%current-target-system)
-                                                                               (%current-system))))
-                                                                  (cond
-                                                                    ((string=?
-                                                                      system
-                                                                      "x86_64-linux")
-                                                                     "021ycs2dl7g1i3jcnhzv7qjc3m9cjnb5mz2cwk30qdp3zjwqr0al")
-                                                                    ((string=?
-                                                                      system
-                                                                      "aarch64-linux")
-                                                                     "1fbv5mgd4skx6xzg01shdrpviw0jkh3y7law9rxn0gwjsv80v723")
-                                                                    (else (error
-                                                                           "unsupported system for node-openai-codex"
-                                                                           system))))))))))
+    (native-inputs
+     (list `("patchelf" ,patchelf)
+           `("platform-source"
+             ,(origin
+                (method url-fetch)
+                (uri
+                 (let ((system (or (%current-target-system)
+                                   (%current-system))))
+                   (cond
+                    ((string=? system "x86_64-linux")
+                     (string-append
+                      "https://registry.npmjs.org/@openai/codex/-/codex-"
+                      version
+                      "-linux-x64.tgz"))
+                    ((string=? system "aarch64-linux")
+                     (string-append
+                      "https://registry.npmjs.org/@openai/codex/-/codex-"
+                      version
+                      "-linux-arm64.tgz"))
+                    (else
+                     (error "unsupported system for node-openai-codex"
+                            system)))))
+                (sha256
+                 (base32
+                  (let ((system (or (%current-target-system)
+                                    (%current-system))))
+                    (cond
+                     ((string=? system "x86_64-linux")
+                      "1fx6hps1cm6gx1xv7x4sxdz1bl5k6h6m2s4h549zryzjm8343s1z")
+                     ((string=? system "aarch64-linux")
+                      "08izyn62d6fzclj9543xblz7sw0wjir6x48c5w5hw50hgrsl5kpl")
+                     (else
+                      (error "unsupported system for node-openai-codex"
+                             system))))))))))
     (inputs (list zsh))
     (arguments
      (list
@@ -19150,6 +19149,44 @@ characters using Unicode emoji modifier bases.")
               (invoke "tar" "-xf"
                       (assoc-ref inputs "platform-source")
                       "--strip-components=1" "package/vendor") #t))
+          (add-after 'add-platform-vendor 'patch-voice-host-elf
+            (lambda _
+              (define glibc-lib #$(file-append glibc "/lib"))
+              (define (voice-rpath-entries file)
+                (cond
+                 ((string-contains file "/voice/bin/")
+                  '("$ORIGIN/../lib" "$ORIGIN/../lib/gstreamer-1.0"))
+                 ((string-contains file "/voice/lib/gstreamer-1.0/")
+                  '("$ORIGIN" "$ORIGIN/.."))
+                 ((string-contains file "/voice/lib/")
+                  '("$ORIGIN" "$ORIGIN/gstreamer-1.0"))
+                 (else
+                  '("$ORIGIN"))))
+              (define (patch-voice-rpath file)
+                (let* ((rpath (string-trim-right
+                               (with-output-to-string
+                                 (lambda _
+                                   (invoke "patchelf" "--print-rpath" file)))
+                               #\newline))
+                       (new-rpath (string-join
+                                   (append (if (string-null? rpath)
+                                               '()
+                                               (list rpath))
+                                           (voice-rpath-entries file)
+                                           (list glibc-lib))
+                                   ":")))
+                  (invoke "patchelf" "--set-rpath" new-rpath file)))
+              (for-each (lambda (file)
+                          (patch-voice-rpath file)
+                          (when (string=? (basename file) "codex-voice-host")
+                            (invoke "patchelf" "--set-interpreter"
+                                    #$(glibc-dynamic-linker)
+                                    file)))
+                        (filter (lambda (file)
+                                  (string-contains file
+                                                   "/codex-resources/voice/"))
+                                (find-files "vendor"
+                                            "^(codex-voice-host|.*\\.so(\\..*)?)$")))))
           (add-after 'add-platform-vendor 'remove-precompiled-binaries
             (lambda _
               ;; Avoid bundled network-fetching ripgrep.

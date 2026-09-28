@@ -256,7 +256,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "169766fbb91klrpaa6kk1a83wrq58pf2y3hh9l5r7gqxsb99a2wg")))))
     (package
       (name "google-antigravity")
-      (version "2.12.2")
+      (version "2.17.0")
       (source
        (origin
          (method url-fetch)
@@ -270,7 +270,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-6298742303883264/"
+                 "-5217732355031040/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -278,9 +278,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "0cyd8gfsjd5qy5x3am6kc3ah1pmvljm5dklbaplzxbj5kbs2lbpw")
+                     "00dbw9h8grnqvvz38qf55b7v1cs7n3csld1009jx3l3v1zv0z6va")
                     ("aarch64-linux"
-                     "06792bqzgq3x8pf5z14xb6xcpn469wyg3p544j2rl5qwglh9n13j")
+                     "0flwgsb0ia58b9w0pmvb3ky0pv3ny9p1q9a34d2vffsz19jjxhym")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -294,8 +294,6 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                    (list file rpath))
                  '("antigravity" "chrome-sandbox"
                    "chrome_crashpad_handler"
-                   "libEGL.so"
-                   "libGLESv2.so"
                    "libffmpeg.so"
                    "libvk_swiftshader.so"
                    "libvulkan.so.1"
@@ -442,7 +440,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.901.41600")
+    (version "26.924.22138")
     (source
      (origin
        (method url-fetch)
@@ -464,9 +462,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "0xyaxy9xwb6ph967hhd17129jjkqfa60n66kadsqmwp8fwm45kqm")
+                   "1rqlf25wxbf89q71s0zdsnha8vkrhz8xhbysg81y7pychamb2fyf")
                   ("aarch64-linux"
-                   "1gx3q8dagpr2r0l7a685qdy96xa3x2ahhxi5z9ak4nfak6r42lcd")
+                   "0gsy5fv2vlh1qwvr5yinf5qmwv6xlwgy7ch3w4f4c9gaqmwg0w35")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
