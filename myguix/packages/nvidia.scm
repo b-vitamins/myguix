@@ -362,6 +362,9 @@ GBM EGL support.")
                     (("libnvidia-egl-.*\\.so\\.." lib)
                      (search-input-file
                       outputs (in-vicinity "lib" lib)))))))))))
+    (inputs
+     (modify-inputs (package-inputs egl-wayland)
+       (replace "mesa" mesa-for-nvda)))
     (synopsis "Dma-buf-based Wayland external platform library")
     (description
      "This is a new implementation of the EGL External Platform Library for
@@ -678,14 +681,14 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
   (package
     (inherit nvidia-driver-580)
     (name "nvidia-driver")
-    (version "595.91.07")
+    (version "595.104.02")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "04v3bq4qn0c0z50ayjap60vpbpdwnz7i27jfcj8s21sbsa6wh8ya"))
+       (sha256 (base32 "1jjr9k87qchfb8h8hvwki0yvnkj5f6z1n5pkqz1mi7y7wh1c48g4"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))
     (arguments
@@ -710,14 +713,14 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
   (package
     (inherit nvidia-driver-595)
     (name "nvidia-driver-new-feature")
-    (version "610.57.04")
+    (version "615.71.09")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "0v8ixgkpr6n2xv0rq35lhs9dwlpxw078xg2pr3001fw3dg33bsdj"))
+       (sha256 (base32 "1zkh7f7w5zfjr0dfg3k905jklgk7jqjvrskd3a6j8qgbpcifvknd"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))))
 
@@ -906,9 +909,6 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
   (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"
                         "nvidia-module-open-bsb-dsc-fix.patch"))
 
-(define %nvidia-module-open-new-feature-patches
-  (myguix-local-patches "nvidia-module-open-add-ibt-support.patch"))
-
 (define (nvidia-module-open-arguments)
   (list
    #:linux linux-lts
@@ -1000,7 +1000,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
 (define-public nvidia-module-open-595
   (package
     (inherit nvidia-module-open-580)
-    (version "595.91.07")
+    (version "595.104.02")
     (source
      (origin
        (method git-fetch)
@@ -1010,14 +1010,14 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name "nvidia-module-open" version))
        (sha256
         (base32
-         "0ngg4npxs58sr598vs4vkaa37q0hf5d8h3qvqfrgb7xavyjh87rq"))
+         "10cf7lfjj0dbn2pi5m62yn7q31saxdjz000h0cakz3xjmnnkjs8m"))
        (patches %nvidia-module-open-ibt-patches)))))
 
 (define-public nvidia-module-open-new-feature
   (package
     (inherit nvidia-module-open-595)
     (name "nvidia-module-open-new-feature")
-    (version "610.57.04")
+    (version "615.71.09")
     (source
      (origin
        (method git-fetch)
@@ -1027,8 +1027,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name "nvidia-module-open" version))
        (sha256
         (base32
-         "1ylwhl4yfhnnp85py00dp99qd1wggq40zjhdbdvbya1qwqwcw0dd"))
-       (patches %nvidia-module-open-new-feature-patches)))))
+         "1cwaacb9sjq9yk35ibj3292qmsqh0axgminh5md385rhh8qp406y"))))))
 
 (define-public nvidia-module-open nvidia-module-open-580)
 
@@ -1112,7 +1111,7 @@ configuration, creating application profiles, gpu monitoring and more.")
   (package
     (inherit nvidia-settings-580)
     (name "nvidia-settings")
-    (version "595.91.07")
+    (version "595.104.02")
     (source
      (origin
        (method git-fetch)
@@ -1122,13 +1121,13 @@ configuration, creating application profiles, gpu monitoring and more.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "1717cp63xsp6iw8pba5j4s12gz9pqznqvm6h7x3fdfk51l5zqd23"))))))
+       (sha256 (base32 "09acfdkm1f8490imdzdpkbw1c6y8c354ddkvwabrc8vgmfinpb70"))))))
 
 (define-public nvidia-settings-new-feature
   (package
     (inherit nvidia-settings-595)
     (name "nvidia-settings-new-feature")
-    (version "610.57.04")
+    (version "615.71.09")
     (source
      (origin
        (method git-fetch)
@@ -1138,7 +1137,7 @@ configuration, creating application profiles, gpu monitoring and more.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "04ld92lpzfggm20rhsalhzvz9rqz8253ahqmx7m68wqrizq2hhv4"))))))
+       (sha256 (base32 "064fzi2v16kr4v054675zwh6f7v6ivdhd3qjapbwz443r59lpb9c"))))))
 
 (define-public nvidia-settings-beta
   (package
@@ -3575,7 +3574,7 @@ See also
   (package
     (inherit nvidia-modprobe-580)
     (name "nvidia-modprobe")
-    (version "595.91.07")
+    (version "595.104.02")
     (source
      (origin
        (method git-fetch)
@@ -3584,13 +3583,13 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "13zcvj5l5d04kaz4spp4jqa910500i6ffxy7gv14pfnh935gvcnc"))))))
+        (base32 "1vxih3mkhz2gcz76r46knblpxyh4bfbs4ida0ff4v9524i3za8sd"))))))
 
 (define-public nvidia-modprobe-new-feature
   (package
     (inherit nvidia-modprobe-595)
     (name "nvidia-modprobe-new-feature")
-    (version "610.57.04")
+    (version "615.71.09")
     (source
      (origin
        (method git-fetch)
@@ -3599,7 +3598,7 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0hvb1n5741zhxf4j3yplcna0krpnhmcvwshskp4z37yhb5ba17il"))))))
+        (base32 "1swl10a00al1sq3v2ismk1p2afafqjknmr11rmzpxaai0xw0cgva"))))))
 
 (define-public nvidia-modprobe-beta
   (package
