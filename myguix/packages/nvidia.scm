@@ -929,14 +929,17 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
          (lambda* (#:key (make-flags '())
                    (parallel-build? #t)
                    inputs #:allow-other-keys)
-           (apply invoke
-                  "make"
-                  (string-append "SYSSRC="
-                                 (search-input-directory inputs
-                                  "/lib/modules/build"))
-                  `(,@(if parallel-build?
-                          `("-j" ,(number->string (parallel-job-count)))
-                          '()) ,@make-flags "modules")))))))
+           (let ((kernel-dir
+                  (search-input-directory inputs "lib/modules/build")))
+             (apply invoke
+                    "make"
+                    (string-append "SYSSRC=" kernel-dir)
+                    ;; Avoid introducing store paths into the build output.
+                    ;; https://codeberg.org/guix/guix/issues/10409
+                    (format #f "KCFLAGS=-ffile-prefix-map=~a=" kernel-dir)
+                    `(,@(if parallel-build?
+                            `("-j" ,(number->string (parallel-job-count)))
+                            '()) ,@make-flags "modules"))))))))
 
 (define-public nvidia-module-open-580
   (package
