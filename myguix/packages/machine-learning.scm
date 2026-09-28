@@ -1471,8 +1471,7 @@ for monitoring training progress, visualizing computational graphs, and analyzin
                              python-tqdm
                              python-typing-extensions
                              python-zipp))
-    (native-inputs (list python-flit-core python-pytest python-pytest-subtests
-                         python-pytest-xdist))
+    (native-inputs (list python-flit-core python-pytest python-pytest-xdist))
     (home-page "https://github.com/google/etils/")
     (synopsis "Collection of common Python utils")
     (description "This is a collection of independent Python modules

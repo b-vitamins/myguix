@@ -237,7 +237,6 @@ datasets and other repos on the @url{huggingface.co} hub.")
     (native-inputs (list python-black
                          python-parameterized
                          python-pytest
-                         python-pytest-subtests
                          python-pytest-xdist
                          python-rich
                          python-ruff
