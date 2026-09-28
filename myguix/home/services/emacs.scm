@@ -42,7 +42,6 @@
         emacs-citar-denote
         emacs-citar-embark
         emacs-citar-org-roam
-        emacs-csharp-mode
         emacs-clang-format
         emacs-cmake-mode
         emacs-combobulate
@@ -236,7 +235,6 @@
         emacs-webpaste
         emacs-websocket
         emacs-wgrep
-        emacs-which-key
         emacs-writegood-mode
         emacs-ws-butler
         emacs-yaml-mode
