@@ -223,7 +223,7 @@ some freedo package or an output of package-version procedure."
   (corrupt-linux linux-libre-6.1))
 
 (define-public linux
-  linux-7.1)
+  linux-7.2)
 
 ;; linux-lts points to the *newest* released long-term support version.
 (define-public linux-lts
@@ -394,14 +394,14 @@ stable, responsive and smooth desktop experience.")))
 (define-public linux-firmware
   (package
     (name "linux-firmware")
-    (version "20260810")
+    (version "20260916")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "mirror://kernel.org/linux/kernel/firmware/"
                            "linux-firmware-" version ".tar.xz"))
        (sha256
-        (base32 "16m42k3m0pgvl0qymx6j5nys61wgipgzmfhzjrm94mipwx7w65xc"))))
+        (base32 "1ifcj0fdlx7s6ldz6r29nnv6ziw83878xh004akfsgb2g9swn3gq"))))
     (build-system gnu-build-system)
     (arguments
      (list
