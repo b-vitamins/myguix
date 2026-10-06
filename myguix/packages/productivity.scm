@@ -564,6 +564,69 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                (find-files (string-append (assoc-ref outputs "out")
                                           "/lib/chatgpt")
                            "\\.node$"))))
+          (add-after 'patch-native-node-modules 'patch-helper-executables
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (define system
+                (or #$(%current-target-system)
+                    #$(%current-system)))
+              (define interpreter
+                (car (find-files (assoc-ref inputs "libc")
+                                 "ld-linux.*\\.so")))
+              (define (input-library-directories)
+                (let ((directories '()))
+                  (for-each
+                   (lambda (input)
+                     (let ((lib (string-append (cdr input) "/lib")))
+                       (when (directory-exists? lib)
+                         (set! directories (cons lib directories))))
+                     (when (string=? (car input) "nss")
+                       (let ((nss (string-append (cdr input) "/lib/nss")))
+                         (when (directory-exists? nss)
+                           (set! directories (cons nss directories))))))
+                   inputs)
+                  (reverse directories)))
+              (define runtime-rpath
+                (string-join (input-library-directories) ":"))
+              (define (current-rpath file)
+                (catch #t
+                  (lambda _
+                    (string-trim-right
+                     (with-output-to-string
+                       (lambda _
+                         (invoke "patchelf" "--print-rpath" file)))
+                     #\newline))
+                  (lambda _
+                    "")))
+              (define (patch-executable file)
+                (when (file-exists? file)
+                  (let* ((old-rpath (current-rpath file))
+                         (new-rpath
+                          (if (string-null? old-rpath)
+                              runtime-rpath
+                              (string-append old-rpath ":" runtime-rpath))))
+                    (format #t "Patching helper executable: ~a~%" file)
+                    (invoke "patchelf" "--set-interpreter" interpreter file)
+                    (invoke "patchelf" "--set-rpath" new-rpath file))))
+              (define helper-paths
+                (cond
+                 ((string=? system "x86_64-linux")
+                  '("resources/cua_node/lib/node_modules/.bin/sky_linux_x64"
+                    "resources/cua_node/lib/node_modules/@oai/cua/bin/linux/sky_linux_x64"
+                    "resources/cua_node/lib/node_modules/@oai/sky/bin/linux/sky_linux_x64"
+                    "resources/plugins/openai-bundled/plugins/chrome/extension-host/linux/x64/extension-host"))
+                 ((string=? system "aarch64-linux")
+                  '("resources/cua_node/lib/node_modules/.bin/sky_linux_arm64"
+                    "resources/cua_node/lib/node_modules/@oai/cua/bin/linux/sky_linux_arm64"
+                    "resources/cua_node/lib/node_modules/@oai/sky/bin/linux/sky_linux_arm64"
+                    "resources/plugins/openai-bundled/plugins/chrome/extension-host/linux/arm64/extension-host"))
+                 (else '())))
+              (for-each
+               (lambda (path)
+                 (patch-executable
+                  (string-append (assoc-ref outputs "out")
+                                 "/lib/chatgpt/"
+                                 path)))
+               helper-paths)))
           (add-before 'install-wrapper 'install-entrypoint
             (lambda* (#:key inputs #:allow-other-keys)
               (define (input-library-directories)
