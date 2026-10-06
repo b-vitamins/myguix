@@ -515,7 +515,6 @@
         nlp:python-chatterbox-tts-cuda
         python-torchcodec-cuda
         python-torchmetrics-cuda
-        python-ray
         python-neo4j
         python-graphdatascience
         cypher-shell
