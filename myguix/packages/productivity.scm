@@ -498,27 +498,41 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
       #~(modify-phases %standard-phases
           (add-after 'patchelf 'patch-cua-node-interpreter
             (lambda* (#:key inputs #:allow-other-keys)
+              (define (input-library-directories)
+                (let ((directories '()))
+                  (for-each
+                   (lambda (input)
+                     (let ((lib (string-append (cdr input) "/lib")))
+                       (when (directory-exists? lib)
+                         (set! directories (cons lib directories))))
+                     (when (string=? (car input) "nss")
+                       (let ((nss (string-append (cdr input) "/lib/nss")))
+                         (when (directory-exists? nss)
+                           (set! directories (cons nss directories))))))
+                   inputs)
+                  (reverse directories)))
               (let ((interpreter
                      (car (find-files (assoc-ref inputs "libc")
                                       "ld-linux.*\\.so")))
+                    (rpath (string-join (input-library-directories) ":"))
                     (node "usr/lib/chatgpt/resources/cua_node/bin/node"))
-                (invoke "patchelf" "--set-interpreter" interpreter node))))
+                (invoke "patchelf" "--set-interpreter" interpreter node)
+                (invoke "patchelf" "--set-rpath" rpath node))))
           (add-before 'install 'patch-desktop-entry
             (lambda _
               (substitute* "usr/share/applications/chatgpt.desktop"
                 (("^Exec=chatgpt %U")
                  (string-append "Exec=" #$output "/bin/chatgpt %U")))
               #t))
-          (add-after 'install 'patch-native-node-modules
+          (add-after 'strip 'patch-native-node-modules
             (lambda* (#:key inputs outputs #:allow-other-keys)
+              (use-modules (ice-9 popen)
+                           (ice-9 rdelim)
+                           (rnrs bytevectors)
+                           (rnrs io ports))
               (define system
                 (or #$(%current-target-system)
                     #$(%current-system)))
-              (define machine-token
-                (cond
-                 ((string=? system "x86_64-linux") "x86-64")
-                 ((string=? system "aarch64-linux") "ARM aarch64")
-                 (else "")))
               (define (input-library-directories)
                 (let ((directories '()))
                   (for-each
@@ -534,38 +548,66 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                   (reverse directories)))
               (define runtime-rpath
                 (string-join (input-library-directories) ":"))
-              (define (file-description file)
-                (string-trim-right
-                 (with-output-to-string
-                   (lambda _
-                     (invoke "file" "-b" file)))
-                 #\newline))
+              (define (elf-file? file)
+                (catch #t
+                  (lambda _
+                    (call-with-input-file file
+                      (lambda (port)
+                        (let ((magic (get-bytevector-n port 4)))
+                          (and (= (bytevector-length magic) 4)
+                               (= (bytevector-u8-ref magic 0) #x7f)
+                               (= (bytevector-u8-ref magic 1) (char->integer #\E))
+                               (= (bytevector-u8-ref magic 2) (char->integer #\L))
+                               (= (bytevector-u8-ref magic 3) (char->integer #\F)))))
+                      #:binary #t))
+                  (lambda _
+                    #f)))
+              (define (foreign-node-module? file)
+                (or (string-contains file "darwin")
+                    (string-contains file "win32")
+                    (string-contains file "android")
+                    (string-contains file "musl")
+                    (and (string=? system "x86_64-linux")
+                         (or (string-contains file "linux-arm")
+                             (string-contains file "arm64")
+                             (string-contains file "armv")))
+                    (and (string=? system "aarch64-linux")
+                         (or (string-contains file "linux-x64")
+                             (string-contains file "x64")
+                             (string-contains file "x86")))))
               (define (native-module-for-system? file)
-                (let ((description (file-description file)))
-                  (and (string-contains description "ELF")
-                       (string-contains description machine-token)
-                       (not (string-contains file "musl")))))
+                (and (elf-file? file)
+                     (not (foreign-node-module? file))))
+              (define (command-output . command)
+                (let* ((port (apply open-pipe* OPEN_READ command))
+                       (output (read-string port)))
+                  (close-pipe port)
+                  (string-trim-right output #\newline)))
+              (define (current-rpath file)
+                (catch #t
+                  (lambda _
+                    (command-output "patchelf" "--print-rpath" file))
+                  (lambda _
+                    "")))
               (define (patch-rpath file)
-                (let* ((current-rpath
-                        (string-trim-right
-                         (with-output-to-string
-                           (lambda _
-                             (invoke "patchelf" "--print-rpath" file)))
-                         #\newline))
+                (let* ((old-rpath (current-rpath file))
                        (new-rpath
-                        (if (string-null? current-rpath)
+                        (if (string-null? old-rpath)
                             runtime-rpath
-                            (string-append current-rpath ":" runtime-rpath))))
+                            (string-append old-rpath ":" runtime-rpath))))
                   (invoke "patchelf" "--set-rpath" new-rpath file)))
               (for-each
                (lambda (file)
                  (when (native-module-for-system? file)
+                   (format #t "Patching native Node module: ~a~%" file)
                    (patch-rpath file)))
                (find-files (string-append (assoc-ref outputs "out")
                                           "/lib/chatgpt")
                            "\\.node$"))))
           (add-after 'patch-native-node-modules 'patch-helper-executables
             (lambda* (#:key inputs outputs #:allow-other-keys)
+              (use-modules (ice-9 popen)
+                           (ice-9 rdelim))
               (define system
                 (or #$(%current-target-system)
                     #$(%current-system)))
@@ -587,14 +629,15 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                   (reverse directories)))
               (define runtime-rpath
                 (string-join (input-library-directories) ":"))
+              (define (command-output . command)
+                (let* ((port (apply open-pipe* OPEN_READ command))
+                       (output (read-string port)))
+                  (close-pipe port)
+                  (string-trim-right output #\newline)))
               (define (current-rpath file)
                 (catch #t
                   (lambda _
-                    (string-trim-right
-                     (with-output-to-string
-                       (lambda _
-                         (invoke "patchelf" "--print-rpath" file)))
-                     #\newline))
+                    (command-output "patchelf" "--print-rpath" file))
                   (lambda _
                     "")))
               (define (patch-executable file)
@@ -610,12 +653,14 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
               (define helper-paths
                 (cond
                  ((string=? system "x86_64-linux")
-                  '("resources/cua_node/lib/node_modules/.bin/sky_linux_x64"
+                  '("resources/cua_node/bin/node"
+                    "resources/cua_node/lib/node_modules/.bin/sky_linux_x64"
                     "resources/cua_node/lib/node_modules/@oai/cua/bin/linux/sky_linux_x64"
                     "resources/cua_node/lib/node_modules/@oai/sky/bin/linux/sky_linux_x64"
                     "resources/plugins/openai-bundled/plugins/chrome/extension-host/linux/x64/extension-host"))
                  ((string=? system "aarch64-linux")
-                  '("resources/cua_node/lib/node_modules/.bin/sky_linux_arm64"
+                  '("resources/cua_node/bin/node"
+                    "resources/cua_node/lib/node_modules/.bin/sky_linux_arm64"
                     "resources/cua_node/lib/node_modules/@oai/cua/bin/linux/sky_linux_arm64"
                     "resources/cua_node/lib/node_modules/@oai/sky/bin/linux/sky_linux_arm64"
                     "resources/plugins/openai-bundled/plugins/chrome/extension-host/linux/arm64/extension-host"))
@@ -646,6 +691,8 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                      (exe (string-append bin "/chatgpt"))
                      (resources (string-append #$output
                                   "/lib/chatgpt/resources"))
+                     (chatgpt-binary (string-append #$output
+                                      "/lib/chatgpt/ChatGPT"))
                      (codex (string-append resources "/codex"))
                      (node (string-append resources "/cua_node/bin/node"))
                      (node-wrapper (string-append resources
@@ -688,6 +735,15 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display node)
                     (display "\" \"$@\"\n")))
                 (chmod node-wrapper #o555)
+                (with-output-to-file target
+                  (lambda _
+                    (display "#!")
+                    (display sh)
+                    (display "\n")
+                    (display "exec \"")
+                    (display chatgpt-binary)
+                    (display "\" \"$@\"\n")))
+                (chmod target #o555)
                 (mkdir-p runtime-bin)
                 (symlink node-wrapper (string-append runtime-bin "/node"))
                 (symlink (string-append python-bin "/python")
@@ -790,7 +846,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display "    if [ \"$source_id\" != \"$target_id\" ]; then\n")
                     (display "      \"$mkdir_cmd\" -p \"$resources_copy/plugins\"\n")
                     (display "      staging=$(\"$mktemp_cmd\" -d \"$bundled_target.staging.XXXXXX\") || exit 1\n")
-                    (display "      if \"$cp_cmd\" -R --no-preserve=mode,ownership \"$bundled_source/.\" \"$staging/\"; then\n")
+                    (display "      if \"$cp_cmd\" -R --no-preserve=ownership \"$bundled_source/.\" \"$staging/\"; then\n")
                     (display "        \"$chmod_cmd\" -R u+rwX \"$staging\" 2>/dev/null || true\n")
                     (display "        \"$rm_cmd\" -rf \"$bundled_target\"\n")
                     (display "        \"$mv_cmd\" \"$staging\" \"$bundled_target\"\n")
