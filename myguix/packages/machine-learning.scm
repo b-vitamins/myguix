@@ -566,7 +566,7 @@ Interchange Format (SARIF)} file format.")
                           #$(this-package-input "python-wrapper")
                           "/bin/python"))
         #:vendored-inputs-hash
-        "0rk0il707bdvk47fr243px81rqiagy9n7f7mrkjjbl2pp85f4dvq"
+        "1v321yfzrf6qv6af6rn8fdvgih55gr3y43xr7v1wi61iis5n43id"
         #:phases
         #~(modify-phases (@ (myguix build bazel-build-system) %standard-phases)
             (add-after 'unpack 'patch-python-build-system
@@ -1753,7 +1753,7 @@ providing utilities for various projects.")
            (string-append "--override_repository=xla="
                           root "/xla")))
       #:vendored-inputs-hash
-      "178k7qj6ly89i3x79y1jdh5s264mm38xhg1jifzkn3yx4ndayg7p"
+      "1sdcy7ra3gqpl4ii65a7wvcyfg8i4rfxqbv3w37gzhfkpykdnc5s"
       #:bazel-configuration
       #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
                (python-version #$(version-major+minor
@@ -2841,7 +2841,7 @@ automatically differentiate native Python and NumPy functions.")
         #~(list "//jaxlib/tools:jax_cuda13_pjrt_wheel"
                 "//jaxlib/tools:jax_cuda13_plugin_wheel"))
        ((#:vendored-inputs-hash hash)
-        "0cpk6f8djxml6kflwqkgn7v2y4va19gv95djnak4qh665qmx9l83")
+        "0vravm3ndfglbq7l8z2pvwd9gdch1i18d36grmhhzipkchw791np")
        ((#:bazel-arguments bazel-arguments #f)
         #~(let* ((root (or (getenv "NIX_BUILD_TOP") (getcwd)))
                  (python-version #$(version-major+minor

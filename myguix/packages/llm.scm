@@ -240,7 +240,7 @@
       #:bazel-jobs 4
       #:bazel-arguments '(list "--cxxopt=-Wno-dangling-reference")
       #:vendored-inputs-hash
-      "0nij5f2hp3v8r9c0nxll1zqhnnqb3c2d7f6jaa539a64faklgjmm"
+      "1my4c39jmsnbfjj1d40igg3vqdc13ia1zlrcg5ww0cxivbcdm9sv"
       #:modules '((myguix build bazel-build-system)
                   ((guix build python-build-system)
                    #:prefix python:)
