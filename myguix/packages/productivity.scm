@@ -23,6 +23,7 @@
   #:use-module (gnu packages photo)
   #:use-module (gnu packages polkit)
   #:use-module (gnu packages pulseaudio)
+  #:use-module (gnu packages python)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages xiph)
@@ -444,7 +445,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.930.41038")
+    (version "26.930.61225")
     (source
      (origin
        (method url-fetch)
@@ -466,9 +467,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "0z549nb0yvkx16n4fgx9lh5ixfpn8iys67nh75r8swalala58y7f")
+                   "1f2vd7g01mclw208h71p9b2s752piqm50sc4bdd2mh9v6pwq02mr")
                   ("aarch64-linux"
-                   "0sxird8r2asz9qabvlvi7jca5d3kk78xsci9qgbakvq0n19nirx4")
+                   "1gfn8s1yhpxgphspv0c777nl0qv29xyqh685vfyp4y9sl524f6sl")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
@@ -590,6 +591,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                                "/cua_node/bin/node_repl"))
                      (plugins (string-append resources
                                "/plugins/openai-bundled"))
+                     (runtime-bin (string-append resources "/guix-bin"))
                      (target (string-append #$output
                               "/lib/chatgpt/codex-launcher"))
                      (bash (string-append (assoc-ref inputs "bash-minimal")
@@ -606,6 +608,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                      (rm* #$(file-append coreutils "/bin/rm"))
                      (sh (string-append (assoc-ref inputs "bash-minimal")
                                         "/bin/sh"))
+                     (python-bin (string-append
+                                  (assoc-ref inputs "python-wrapper")
+                                  "/bin"))
                      (runtime-library-path
                       (string-join (input-library-directories) ":")))
                 (with-output-to-file node-wrapper
@@ -620,6 +625,15 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display node)
                     (display "\" \"$@\"\n")))
                 (chmod node-wrapper #o555)
+                (mkdir-p runtime-bin)
+                (symlink node-wrapper (string-append runtime-bin "/node"))
+                (symlink (string-append python-bin "/python")
+                         (string-append runtime-bin "/python"))
+                (symlink (string-append python-bin "/python3")
+                         (string-append runtime-bin "/python3"))
+                (setenv "PATH"
+                        (string-append runtime-bin ":" python-bin ":"
+                                       (getenv "PATH")))
                 (mkdir-p bin)
                 (with-output-to-file exe
                   (lambda _
@@ -661,6 +675,10 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display "fi\n")
                     (display "system_profile_path=/run/privileged/bin:/run/current-system/profile/bin:/run/current-system/profile/sbin\n")
                     (display "package_path=")
+                    (display runtime-bin)
+                    (display ":")
+                    (display python-bin)
+                    (display ":")
                     (display git-bin)
                     (display ":")
                     (display (string-append (assoc-ref inputs "bash-minimal")
@@ -739,8 +757,48 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display "}\"\n")
                     (display "export CODEX_NODE_REPL_PATH\n")
                     (display (string-append "exec \"" target "\" \"$@\"\n"))))
-                (chmod exe #o555)))))))
-    (inputs (list git-minimal libusb openssl tpm2-tss))
+                (chmod exe #o555))))
+          (add-after 'install-entrypoint 'patch-installed-node-shebangs
+            (lambda* (#:key outputs #:allow-other-keys)
+              (define read-line (@ (ice-9 rdelim) read-line))
+              (define node-wrapper
+                (string-append (assoc-ref outputs "out")
+                               "/lib/chatgpt/resources/cua_node/bin/node-guix"))
+              (define (starts-with? prefix string)
+                (and (>= (string-length string) (string-length prefix))
+                     (string=? prefix
+                               (substring string 0 (string-length prefix)))))
+              (define (node-shebang? line)
+                (and (string? line)
+                     (or (starts-with? "#!/usr/bin/env node" line)
+                         (starts-with? "#! /usr/bin/env node" line)
+                         (starts-with? "#!/usr/bin/env -S node" line)
+                         (starts-with? "#! /usr/bin/env -S node" line)
+                         (starts-with? "#!/usr/bin/node" line)
+                         (starts-with? "#! /usr/bin/node" line)
+                         (starts-with? "#!/bin/node" line)
+                         (starts-with? "#! /bin/node" line))))
+              (define (first-line file)
+                (catch #t
+                  (lambda _
+                    (call-with-input-file file read-line))
+                  (lambda _
+                    #f)))
+              (for-each
+               (lambda (file)
+                 (when (node-shebang? (first-line file))
+                   (substitute* file
+                     (("^#! */usr/bin/env node(.*)$" _ arguments)
+                      (string-append "#!" node-wrapper arguments))
+                     (("^#! */usr/bin/env -S node(.*)$" _ arguments)
+                      (string-append "#!" node-wrapper arguments))
+                     (("^#! */usr/bin/node(.*)$" _ arguments)
+                      (string-append "#!" node-wrapper arguments))
+                     (("^#! */bin/node(.*)$" _ arguments)
+                      (string-append "#!" node-wrapper arguments)))))
+               (find-files (string-append (assoc-ref outputs "out")
+                                          "/lib/chatgpt"))))))))
+    (inputs (list git-minimal libusb openssl python-wrapper tpm2-tss))
     (home-page "https://developers.openai.com/codex/app")
     (synopsis "OpenAI ChatGPT desktop app with Codex integration")
     (description
