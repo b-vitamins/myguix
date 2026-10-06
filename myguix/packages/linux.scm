@@ -38,6 +38,7 @@
   #:use-module (gnu packages parallel)
   #:use-module ((guix licenses)
                 #:prefix license:)
+  #:use-module (guix deprecation)
   #:use-module (guix packages)
   #:use-module (guix utils)
   #:use-module (guix download)
@@ -960,7 +961,7 @@ network adapters.")
       ;; hal/rtl8192e/hal8192e_fw.c
       (license license:gpl2))))
 
-(define-public rtl8821ce-linux-module
+(define-deprecated/public rtl8821ce-linux-module #f
   (let ((commit "4e6b887f0d8c4091a4df9da9fcead9a8294b41ad")
         (revision "15"))
     (package
