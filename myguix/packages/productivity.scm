@@ -923,13 +923,18 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                           "/lib/chatgpt")))))
           (add-after 'patch-installed-node-shebangs 'patch-bundled-mcp-shells
             (lambda* (#:key inputs outputs #:allow-other-keys)
-              (let ((sh (string-append (assoc-ref inputs "bash-minimal")
+              (let ((node-wrapper
+                     (string-append (assoc-ref outputs "out")
+                                    "/lib/chatgpt/resources/cua_node/bin/node-guix"))
+                    (sh (string-append (assoc-ref inputs "bash-minimal")
                                        "/bin/sh")))
                 (for-each
                  (lambda (file)
                    (substitute* file
                      (("\"command\": \"/bin/sh\"")
-                      (string-append "\"command\": \"" sh "\""))))
+                      (string-append "\"command\": \"" sh "\""))
+                     (("\"command\": \"node\"")
+                      (string-append "\"command\": \"" node-wrapper "\""))))
                  (find-files (string-append (assoc-ref outputs "out")
                                             "/lib/chatgpt")
                              "\\.mcp\\.json$"))))))))
