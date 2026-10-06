@@ -409,7 +409,6 @@
         tesseract-ocr
         pdfgrep
         pdf2svg
-        pdf2djvu
         djvu2pdf))
 
 ;; Documentation and Documents
