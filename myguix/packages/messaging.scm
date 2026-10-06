@@ -95,7 +95,7 @@ its core.")
 (define-public signal-desktop
   (package
     (name "signal-desktop")
-    (version "8.27.0")
+    (version "8.29.0")
     (source
      (origin
        (method url-fetch)
@@ -107,7 +107,7 @@ its core.")
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "00gf2ccxk5qbd50ib9154yky9nfm0p6yrpxbyyp9cm3j56fkqf74"))))
+        (base32 "0l6m2dhmdg4ayk5zm1wnip9vcy2cjhmw5zklbgca5n4czq3mx5rw"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments

@@ -94,7 +94,9 @@
                   (substitute* (string-append usr/share
                                               "/applications/google-"
                                               #$appname ".desktop")
-                    (("^Exec=.*")
+                    (("^Exec=[^ ]*")
+                     (string-append "Exec=" exe))
+                    (("^Exec=[^ ]*$")
                      (string-append "Exec=" exe "\n")))
                   (substitute* (string-append usr/share
                                 "/gnome-control-center/default-apps/google-"
@@ -185,17 +187,17 @@
 ;; TODO: write a nice importer for this in Scheme.
 
 (define-public google-chrome-stable
-  (make-google-chrome "stable" "152.0.7977.82"
-                      "0im4mm196nczjcs3wzjyb72jqy9lyb152db823lpm2n752hf89ad"))
+  (make-google-chrome "stable" "154.0.8037.97"
+                      "0lq0x2z5j6xcmc3dy82n5cv1inhy28ii6ykxp74vc7dhx6avxvd4"))
 
 (define-public google-chrome-beta
-  (make-google-chrome "beta" "154.0.8037.0"
-                      "1skr110j0s26vj6a85abdinp34did4wdmvh6zd9anh9xxvr69m25"))
+  (make-google-chrome "beta" "156.0.8078.4"
+                      "1sspbzbdysqj3yic1xvyhjp04q7axv3qyhd56sgwgcqiqphbx0r0"))
 
 (define-public google-chrome-unstable
-  (make-google-chrome "unstable" "154.0.8025.0"
-                      "0sfwq4gfqr889ic2j411ppb16g47r26p277g3f5xysq6gz2mm8vi"))
+  (make-google-chrome "unstable" "157.0.8081.0"
+                      "0cnll8dryhm8nqhs50h9dpz22swbi2j8lpvhrdpxzgk9i8k6dh2b"))
 
 (define-public google-chrome-canary
-  (make-google-chrome "canary" "155.0.8041.0"
-                      "0j33ahh5abj0qjwkm9mzk8llklm2zap7cnzbwz2r5cdzvgkamhy4"))
+  (make-google-chrome "canary" "157.0.8088.0"
+                      "01w23jpzxz2ha9q65ijbx4phasz1mlk32rs5ipqpgfvdpb9npb7a"))
