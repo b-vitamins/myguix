@@ -6652,9 +6652,8 @@ package tracks the upstream Ultralytics fork used widely by Ultralytics
             (lambda _
               (when (file-exists? "setup.py")
                 (substitute* "setup.py"
-                  ;; Relax Ray upper bound to allow newer Ray.
-                  (("ray>=1\\.13\\.0, <=2\\.6\\.3")
-                   "ray>=1.13.0")
+                  ((".*ray>=1\\.13\\.0, <=2\\.6\\.3.*\n")
+                   "")
                   (("colorama==0\\.4\\.4")
                    "colorama>=0.4.4")
                   (("colorlog==4\\.7\\.2")
@@ -6666,7 +6665,6 @@ package tracks the upstream Ultralytics fork used widely by Ultralytics
                              python-plotly
                              python-psutil
                              python-pyyaml
-                             python-ray
                              python-scikit-learn
                              python-scipy
                              python-tabulate
@@ -6877,7 +6875,6 @@ library.")
                          python-pytest
                          python-pytest-cov
                          python-pytorch-lightning
-                         python-ray
                          python-ruff
                          python-scipy
                          python-setuptools
