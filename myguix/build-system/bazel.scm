@@ -141,12 +141,22 @@
                                                    (string-append
                                                     %build-directory
                                                     "/source")))
+                                              (define (make-file-writable/safe file)
+                                                (catch 'system-error
+                                                  (lambda ()
+                                                    (unless (eq? 'symlink
+                                                                 (stat:type
+                                                                  (lstat file)))
+                                                      (make-file-writable
+                                                       file)))
+                                                  (lambda _
+                                                    #f)))
                                               (copy-recursively #$source
                                                                 source-directory
                                                                 #:log
                                                                 (%make-void-port
                                                                  "w"))
-                                              (for-each make-file-writable
+                                              (for-each make-file-writable/safe
                                                         (cons source-directory
                                                               (find-files
                                                                source-directory
