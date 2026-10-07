@@ -19196,13 +19196,36 @@ characters using Unicode emoji modifier bases.")
                         (find-files "vendor" "^rg$")) #t))
           (add-after 'strip 'replace-vendored-zsh
             (lambda* (#:key inputs outputs #:allow-other-keys)
-              ;; Replace bundled dynamic zsh with the Guix build.
+              ;; Replace bundled dynamic zsh with the Guix build.  Use a copy:
+              ;; daemon startup rejects package-local symlinks to the store.
               (for-each (lambda (file)
                           (delete-file file)
-                          (symlink (search-input-file inputs "/bin/zsh")
-                                   file))
+                          (copy-file (search-input-file inputs "/bin/zsh")
+                                     file)
+                          (chmod file #o555))
                         (find-files (assoc-ref outputs "out")
-                                    "^zsh$")) #t)))))
+                                    "^zsh$")) #t))
+          (add-after 'replace-vendored-zsh 'replace-vendored-ripgrep
+            (lambda* (#:key outputs #:allow-other-keys)
+              ;; Daemon mode validates this package-local asset path at
+              ;; startup and rejects links escaping the package root.  Keep the
+              ;; expected layout, but install Guix's rg instead of the bundled
+              ;; binary.
+              (let ((root (string-append (assoc-ref outputs "out")
+                                         "/lib/node_modules/@openai/codex")))
+                (for-each
+                 (lambda (metadata)
+                   (let* ((platform-dir (dirname metadata))
+                          (path-dir (string-append platform-dir
+                                                   "/codex-path"))
+                          (rg (string-append path-dir "/rg")))
+                     (mkdir-p path-dir)
+                     (when (file-exists? rg)
+                       (delete-file rg))
+                     (copy-file #$(file-append ripgrep "/bin/rg") rg)
+                     (chmod rg #o555)))
+                 (find-files (string-append root "/vendor")
+                             "^codex-package\\.json$"))))))))
     (propagated-inputs (list node ripgrep))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (home-page "https://github.com/openai/codex")
