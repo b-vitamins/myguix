@@ -90,7 +90,13 @@
                                               #$appname "/google-"
                                               #$appname)
                     (("CHROME_WRAPPER")
-                     "WRAPPER"))
+                     "WRAPPER")
+                    (("exec -a \"\\$0\" \"\\$HERE/chrome\" \"\\$@\"")
+                     (string-append
+                      "exec -a \"$0\" \"$HERE/chrome\" "
+                      "--ozone-platform-hint=auto "
+                      "--enable-features=WebRTCPipeWireCapturer "
+                      "\"$@\"")))
                   (substitute* (string-append usr/share
                                               "/applications/google-"
                                               #$appname ".desktop")
@@ -138,7 +144,9 @@
                   (symlink chrome-target exe)
                   (wrap-program exe
                     '("CHROME_WRAPPER" =
-                      (#$appname)))))))))
+                      (#$appname))
+                    '("GTK_USE_PORTAL" =
+                      ("1")))))))))
       (inputs (list bzip2
                     curl
                     flac

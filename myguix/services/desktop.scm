@@ -19,6 +19,7 @@
   #:use-module (gnu system privilege)
   #:use-module (guix gexp)
   #:use-module (myguix services base)
+  #:use-module (myguix services vpn)
   #:export (%my-desktop-services
             %my-network-manager-configuration))
 
@@ -89,6 +90,7 @@
                            (list network-manager-applet))
            (service modem-manager-service-type)
            (service usb-modeswitch-service-type)
+           (service tailscale-service-type)
 
            ;; The D-Bus clique.
            (service avahi-service-type)

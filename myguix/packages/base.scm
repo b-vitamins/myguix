@@ -118,6 +118,7 @@
   #:use-module ((myguix packages video)
                 #:hide (ffmpeg-nvidia ffmpeg-6-nvidia
                         nv-codec-headers nvidia-vaapi-driver))
+  #:use-module (myguix packages vpn)
   #:export ( ;Core System Bundles
              %core-minimal
             %core-extended
@@ -313,7 +314,7 @@
 
 ;; Networking Bundles
 (define %network-core
-  (list curl wget network-manager-applet sshpass))
+  (list curl wget network-manager-applet sshpass tailscale))
 
 (define %network-diagnostics
   (list nmap tcpdump traceroute mtr))
@@ -326,7 +327,10 @@
   (list firefox google-chrome-stable))
 
 (define %desktop-core
-  (list fontconfig))
+  (list fontconfig
+        xdg-desktop-portal
+        xdg-desktop-portal-gnome
+        xdg-desktop-portal-gtk))
 
 (define %intel-media-runtime
   (list intel-media-driver/nonfree

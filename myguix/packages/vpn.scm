@@ -4,10 +4,70 @@
 (define-module (myguix packages vpn)
   #:use-module (guix build-system gnu)
   #:use-module (guix download)
+  #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
+  #:use-module (guix utils)
+  #:use-module (ice-9 match)
+  #:use-module ((guix licenses)
+                #:prefix license:)
   #:use-module ((myguix licenses)
-                #:prefix license:))
+                #:prefix myguix-license:))
+
+(define-public tailscale
+  (package
+    (name "tailscale")
+    (version "1.102.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://pkgs.tailscale.com/stable/tailscale_"
+             version "_"
+             (match (or (%current-target-system)
+                        (%current-system))
+               ("x86_64-linux" "amd64")
+               ("aarch64-linux" "arm64")
+               (system (error "unsupported system for tailscale" system)))
+             ".tgz"))
+       (file-name (string-append name "-" version ".tgz"))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "04ld2hf0wn9n8nq59bwpp1f7k5layf91x8n241ywiqfpkbqxgrk5")
+                  ("aarch64-linux"
+                   "12cbl4hrzy9ax2zyhmq33kx2irbq9qdizp3aqqc7629xwc4h3mk0")
+                  (_ "0000000000000000000000000000000000000000000000000000"))))))
+    (supported-systems '("x86_64-linux" "aarch64-linux"))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'build)
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                (invoke "./tailscale" "version")
+                (invoke "./tailscaled" "--version"))))
+          (replace 'install
+            (lambda _
+              (let* ((out #$output)
+                     (bin (string-append out "/bin"))
+                     (sbin (string-append out "/sbin"))
+                     (systemd (string-append out "/share/tailscale/systemd")))
+                (install-file "tailscale" bin)
+                (install-file "tailscaled" sbin)
+                (copy-recursively "systemd" systemd)))))))
+    (home-page "https://tailscale.com")
+    (synopsis "Mesh VPN client")
+    (description
+     "Tailscale is a WireGuard-based mesh VPN client.  This package installs
+the @command{tailscale} CLI and the @command{tailscaled} daemon from
+Tailscale's upstream static Linux tarballs.")
+    (license license:bsd-3)))
 
 (define-public zerotier
   (package
@@ -80,4 +140,4 @@ peer to peer network (termed VL1) with an Ethernet emulation layer somewhat
 similar to VXLAN (termed VL2).  Our VL2 Ethernet virtualization layer includes
 advanced enterprise SDN features like fine grained access control rules for
 network micro-segmentation and security monitoring.")
-    (license (license:nonfree "https://mariadb.com/bsl11/"))))
+    (license (myguix-license:nonfree "https://mariadb.com/bsl11/"))))
