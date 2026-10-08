@@ -258,7 +258,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                              "https://antigravity.google/assets/image/antigravity-logo.png")
                             (file-name "antigravity-logo.png")
                             (sha256 (base32
-                                     "169766fbb91klrpaa6kk1a83wrq58pf2y3hh9l5r7gqxsb99a2wg")))))
+                                     "0wzdxxdzw2hhcrvny3rmay7711m8l0mgj7bs1k6j6771bn0a2fqr")))))
     (package
       (name "google-antigravity")
       (version "2.19.1")
