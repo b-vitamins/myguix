@@ -740,9 +740,11 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display "#!")
                     (display sh)
                     (display "\n")
+                    ;; Avoid Electron's portal-backed folder picker, which can
+                    ;; leave the local project Add folder action inert.
                     (display "exec \"")
                     (display chatgpt-binary)
-                    (display "\" \"$@\"\n")))
+                    (display "\" --xdg-portal-required-version=999 \"$@\"\n")))
                 (chmod target #o555)
                 (mkdir-p runtime-bin)
                 (symlink node-wrapper (string-append runtime-bin "/node"))
