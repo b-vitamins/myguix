@@ -429,7 +429,7 @@
   (list hunspell hunspell-dict-en-us hunspell-dict-en-gb-ize))
 
 (define %note-taking
-  (list anytype obsidian discord zotero))
+  (list anytype obsidian discord webex zotero))
 
 ;; Media Bundles
 (define %media-players
