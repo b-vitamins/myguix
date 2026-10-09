@@ -115,6 +115,7 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
+  #:use-module (myguix packages remote-desktop)
   #:use-module ((myguix packages video)
                 #:hide (ffmpeg-nvidia ffmpeg-6-nvidia
                         nv-codec-headers nvidia-vaapi-driver))
@@ -166,6 +167,7 @@
             %network-core
             %network-diagnostics
             %network-performance
+            %remote-access
             ;; File Management
             %filesystem-core
             %filesystem-advanced
@@ -321,6 +323,9 @@
 
 (define %network-performance
   (list iperf socat libnatpmp))
+
+(define %remote-access
+  (list anydesk))
 
 ;; Desktop Bundles
 (define %desktop-browsers
