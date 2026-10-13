@@ -98,7 +98,7 @@ its core.")
 (define-public signal-desktop
   (package
     (name "signal-desktop")
-    (version "8.29.0")
+    (version "8.30.0")
     (source
      (origin
        (method url-fetch)
@@ -110,7 +110,7 @@ its core.")
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "0l6m2dhmdg4ayk5zm1wnip9vcy2cjhmw5zklbgca5n4czq3mx5rw"))))
+        (base32 "0jg5rd0347rg9lspp3h6g4yywnc2sw08hp2yx0cb7x2riybbhp34"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
@@ -154,7 +154,7 @@ or iOS.")
 (define-public discord
   (package
     (name "discord")
-    (version "1.0.153")
+    (version "1.0.161")
     (source
      (origin
        (method url-fetch)
@@ -164,7 +164,7 @@ or iOS.")
                            version
                            ".deb"))
        (sha256
-        (base32 "1zzclkg95nf3v9j3xm7wh5v0gsk7j2d2w2w7bza5i8lpp9qmrw63"))))
+        (base32 "0gg61jns4dxz1v81qdqxip14sqd8c7ixakdiaawpj3nws066lj0s"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
@@ -202,7 +202,7 @@ communities and friends.")
 (define-public webex
   (package
     (name "webex")
-    (version "46.8.0.35631")
+    (version "46.10.0.36042")
     (source
      (origin
        (method url-fetch)
@@ -212,7 +212,7 @@ communities and friends.")
         "https://binaries.webex.com/WebexDesktop-Ubuntu-Official-Package/Webex.deb")
        (file-name (string-append name "-" version ".deb"))
        (sha256
-        (base32 "1lrwjvq8s2yvf9p6bfgrd7kpm1jk2007pfsxwf5imrh7fimdn6m1"))))
+        (base32 "1205ck8ghh7s0rra9hl8l0hzzr1qx2p87ykkwl6ivvwgssindm69"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
