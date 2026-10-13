@@ -44,7 +44,7 @@
 (define-public anytype
   (package
     (name "anytype")
-    (version "0.52.4")
+    (version "0.57.4")
     (source
      (origin
        (method url-fetch)
@@ -53,7 +53,7 @@
              "_" version "_amd64.deb"))
        (file-name (string-append "anytype-" version ".deb"))
        (sha256
-        (base32 "0b6x20wqi428qki6379sjrvq7xfp7g4ghcxc0d2j9nv7vspqmyy6"))))
+        (base32 "131sp1zgfjaq5j8h362rz9pffk0r3xg0j2r3i0an9ws6kk69az7x"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
@@ -70,8 +70,7 @@
                "libGLESv2.so"
                "libvk_swiftshader.so"
                "libvulkan.so.1"
-               "resources/app.asar.unpacked/node_modules/keytar/build/Release/keytar.node"
-               "resources/app.asar.unpacked/node_modules/keytar/build/Release/obj.target/keytar.node"))
+               "resources/app.asar.unpacked/node_modules/keytar/build/Release/keytar.node"))
       #:install-plan
       #~'(("opt/" "/share")
           ("usr/share/" "/share"))
@@ -89,9 +88,11 @@
                                         "node_modules/regedit"))))
           (add-after 'binary-unpack 'strip-python
             (lambda _
-              (delete-file (string-append
-                            "opt/Anytype/resources/app.asar.unpacked/"
-                            "node_modules/keytar/build/node_gyp_bins/python3"))))
+              (let ((python (string-append
+                             "opt/Anytype/resources/app.asar.unpacked/"
+                             "node_modules/keytar/build/node_gyp_bins/python3")))
+                (when (file-exists? python)
+                  (delete-file python)))))
           (add-before 'install 'patch-assets
             (lambda _
               (let* ((bin (string-append #$output "/bin"))
@@ -142,7 +143,7 @@ synchronization.")
 (define-public obsidian
   (package
     (name "obsidian")
-    (version "1.12.4")
+    (version "1.14.4")
     (source
      (origin
        (method url-fetch)
@@ -164,9 +165,9 @@ synchronization.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "1pn8hk09q7dribjn9zn13v3h1x25l17zg0w0pq3qwgqjrzgjdsvj")
+                   "080ir1nbgscqzgl15xnkgf3r2ss4bhzlbv2gm2cggrw76zb7q2z7")
                   ("aarch64-linux"
-                   "1n7vn74f5vgjnj3gqlz5x63cacn86y206kklyb904kna449qj83w")
+                   "0bd4wbp1v5qlri7vxi27330bqwlq015vrxayzs2ys4spa422h8gw")
                   ;; We need a valid base case for base32
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (build-system chromium-binary-build-system)
@@ -261,7 +262,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "0wzdxxdzw2hhcrvny3rmay7711m8l0mgj7bs1k6j6771bn0a2fqr")))))
     (package
       (name "google-antigravity")
-      (version "2.19.1")
+      (version "2.23.0")
       (source
        (origin
          (method url-fetch)
@@ -275,7 +276,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-6046815158665216/"
+                 "-5238607586394112/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -283,9 +284,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "1bx4bza8qlcwsh9j6w7c12fq92vljws6hksfw8ji4niy3i3zls3h")
+                     "046zvjxa8hgwf9ha2is5lcn7aaa2va83wr4avnmjpqqya1ky5mlm")
                     ("aarch64-linux"
-                     "1a611f0f1d5h5rpjdi0v3hy073bj9mp1jphmlqqlmvnw4sgf6m7c")
+                     "15a793vynzvqfg9r59dxkdg19671h53ipvap42maq6vg06mfrbwm")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -445,7 +446,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.1002.52244")
+    (version "26.1007.21434")
     (source
      (origin
        (method url-fetch)
@@ -467,9 +468,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "12il9ngp90mpw09h7z3sy4rd7h2js9sn5zxz6p78n9qs2cby964l")
+                   "1vgkn6cl1d8clki7yxp485lf1pbyzbvhc8fm78fjcjypqd0m6sr7")
                   ("aarch64-linux"
-                   "1ybg1r8csjd8d219bzvkqbxx02l2dvy8c0jh0bqd0y9kg6piwf79")
+                   "0jdg3f579iic51z1akb0alibzy6w6w3ygs900slnjq0xzgiy3yjm")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
