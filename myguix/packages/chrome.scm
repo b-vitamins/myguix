@@ -199,13 +199,13 @@
                       "0f0bxnsn11a9wgz76z1bijgrpai75n42q1hf0ngrq5v6rpra12n5"))
 
 (define-public google-chrome-beta
-  (make-google-chrome "beta" "156.0.8078.4"
-                      "1sspbzbdysqj3yic1xvyhjp04q7axv3qyhd56sgwgcqiqphbx0r0"))
+  (make-google-chrome "beta" "156.0.8078.12"
+                      "1yaqrhqh5gdzpi84ms11nsnjfy0gwghmi8qfwf20wcjb25iv7y7d"))
 
 (define-public google-chrome-unstable
-  (make-google-chrome "unstable" "157.0.8081.0"
-                      "0cnll8dryhm8nqhs50h9dpz22swbi2j8lpvhrdpxzgk9i8k6dh2b"))
+  (make-google-chrome "unstable" "157.0.8092.0"
+                      "0qmzfbkh8fal199vr9rn3qbl23bckpk18ddf46vsabsy2x1kpv39"))
 
 (define-public google-chrome-canary
-  (make-google-chrome "canary" "157.0.8088.0"
-                      "01w23jpzxz2ha9q65ijbx4phasz1mlk32rs5ipqpgfvdpb9npb7a"))
+  (make-google-chrome "canary" "157.0.8102.0"
+                      "1cxh6y5r15l7hi2g7kvarflscyqp0k8j2v1486g1s5z3aqp6dqis"))
