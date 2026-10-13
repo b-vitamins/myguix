@@ -713,14 +713,14 @@ mainly used as a dependency of other packages.  For user-facing purpose, use
   (package
     (inherit nvidia-driver-595)
     (name "nvidia-driver-new-feature")
-    (version "615.71.09")
+    (version "615.78.08")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://download.nvidia.com/XFree86/Linux-x86_64/"
              version "/NVIDIA-Linux-x86_64-" version ".run"))
        (file-name (string-append "NVIDIA-Linux-x86_64-" version))
-       (sha256 (base32 "1zkh7f7w5zfjr0dfg3k905jklgk7jqjvrskd3a6j8qgbpcifvknd"))
+       (sha256 (base32 "1zkzs219fn946pg2v3b9fv76wa6bwdxsy02k3047lxpfqbfnsgry"))
        (modules '((guix build utils)))
        (snippet (make-nvidia-driver-snippet %nvidia-unbundle-libraries-590))))))
 
@@ -1017,7 +1017,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
   (package
     (inherit nvidia-module-open-595)
     (name "nvidia-module-open-new-feature")
-    (version "615.71.09")
+    (version "615.78.08")
     (source
      (origin
        (method git-fetch)
@@ -1027,7 +1027,7 @@ add @code{nvidia_drm.modeset=1} to @code{kernel-arguments} as well.")
        (file-name (git-file-name "nvidia-module-open" version))
        (sha256
         (base32
-         "1cwaacb9sjq9yk35ibj3292qmsqh0axgminh5md385rhh8qp406y"))))))
+         "0pn0b26h0sbinv7h6dzd8n0z068wb2038ph2415r5lfbx240s4hw"))))))
 
 (define-public nvidia-module-open nvidia-module-open-580)
 
@@ -1127,7 +1127,7 @@ configuration, creating application profiles, gpu monitoring and more.")
   (package
     (inherit nvidia-settings-595)
     (name "nvidia-settings-new-feature")
-    (version "615.71.09")
+    (version "615.78.08")
     (source
      (origin
        (method git-fetch)
@@ -1137,7 +1137,7 @@ configuration, creating application profiles, gpu monitoring and more.")
        (file-name (git-file-name name version))
        (modules '((guix build utils)))
        (snippet '(delete-file-recursively "src/jansson"))
-       (sha256 (base32 "064fzi2v16kr4v054675zwh6f7v6ivdhd3qjapbwz443r59lpb9c"))))))
+       (sha256 (base32 "1xqb8qcpd5wc47cmgdsfawwbq0mjqgpq4sk93vhd1c9ndnjd2w4a"))))))
 
 (define-public nvidia-settings-beta
   (package
@@ -3589,7 +3589,7 @@ See also
   (package
     (inherit nvidia-modprobe-595)
     (name "nvidia-modprobe-new-feature")
-    (version "615.71.09")
+    (version "615.78.08")
     (source
      (origin
        (method git-fetch)
@@ -3598,7 +3598,7 @@ See also
              (commit version)))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1swl10a00al1sq3v2ismk1p2afafqjknmr11rmzpxaai0xw0cgva"))))))
+        (base32 "1bp0j7xi15nizpnirzqxr7k09d8zs9nm9ww78g4mss4fcyh2h1v4"))))))
 
 (define-public nvidia-modprobe-beta
   (package
