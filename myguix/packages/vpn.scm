@@ -17,7 +17,7 @@
 (define-public tailscale
   (package
     (name "tailscale")
-    (version "1.102.5")
+    (version "1.104.1")
     (source
      (origin
        (method url-fetch)
@@ -35,9 +35,9 @@
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "04ld2hf0wn9n8nq59bwpp1f7k5layf91x8n241ywiqfpkbqxgrk5")
+                   "0a257b9wcrx12k4qk6wsj5qghf3hy8b3a5qyaw2x647lxjb1v38h")
                   ("aarch64-linux"
-                   "12cbl4hrzy9ax2zyhmq33kx2irbq9qdizp3aqqc7629xwc4h3mk0")
+                   "01m8v907ka42mgg8sfiy28ny7z3c9m3vvfsprzcdzwv794vr80pn")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system gnu-build-system)
