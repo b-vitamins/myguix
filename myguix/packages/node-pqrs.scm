@@ -11,6 +11,8 @@
   #:use-module (gnu packages icu4c)
   #:use-module (gnu packages image)
   #:use-module (gnu packages libevent)
+  #:use-module ((gnu packages networking)
+                #:select (socat))
   #:use-module (gnu packages node-xyz)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
@@ -22,6 +24,8 @@
   #:use-module (gnu packages sqlite)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages version-control)
+  #:use-module ((gnu packages virtualization)
+                #:select (bubblewrap))
   #:use-module (gnu packages node)
   #:use-module (guix build-system cmake)
   #:use-module (guix build-system copy)
@@ -19094,14 +19098,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.162.1")
+    (version "0.163.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "1sk55ga8bzdnd0054krjig5v6w3pvpc88d4hkkvf90sqlqrjwjqb"))))
+        (base32 "1d2mclz5vcniz0rsb373mhw8q0d3qisycfp6qb94dd0baqvdnw8s"))))
     (build-system node-build-system)
     (native-inputs
      (list `("patchelf" ,patchelf)
@@ -19131,9 +19135,9 @@ characters using Unicode emoji modifier bases.")
                                     (%current-system))))
                     (cond
                      ((string=? system "x86_64-linux")
-                      "17y0ym7y0mjby5qhxni8556cicwbx0wnw4k40vkywr5lg0b725vl")
+                      "156y51snpbimxia7v01jnx0418sz27m9p6mmg06r8xdr71vwkvrh")
                      ((string=? system "aarch64-linux")
-                      "0jxd1jkai7hrw9zgq8z2jqppy0agyymwwnp5887davi91hfhamd3")
+                      "08imfs24nf5db06n68kgnwazdvppgxby418dysh26777dm6pqvnw")
                      (else
                       (error "unsupported system for node-openai-codex"
                              system))))))))))
@@ -19238,13 +19242,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-pyright
   (package
     (name "node-pyright")
-    (version "1.1.412")
+    (version "1.1.414")
     (source
      (origin
        (method url-fetch)
-       (uri "https://registry.npmjs.org/pyright/-/pyright-1.1.412.tgz")
+       (uri (string-append "https://registry.npmjs.org/pyright/-/pyright-"
+                           version ".tgz"))
        (sha256
-        (base32 "02nmmfidrnc4gik4ila2bh95pb6vh5sz23ma3hqkw7rx4nvmqd5n"))))
+        (base32 "0hpslgijhlp131nc1qand6d4id43sxik4b29fm0x3h37c4zlfpxz"))))
     (build-system node-build-system)
     (arguments
      (list
@@ -19272,28 +19277,65 @@ characters using Unicode emoji modifier bases.")
 (define-public node-anthropic-ai-claude-code
   (package
     (name "node-anthropic-ai-claude-code")
-    (version "2.0.0")
+    (version "2.1.302")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-"
-             version ".tgz"))
+       (uri
+        (let* ((system (or (%current-target-system) (%current-system)))
+               (arch (cond
+                      ((string=? system "x86_64-linux") "x64")
+                      ((string=? system "aarch64-linux") "arm64")
+                      (else (error "unsupported system for Claude Code" system)))))
+          (string-append
+           "https://registry.npmjs.org/@anthropic-ai/claude-code-linux-" arch
+           "/-/claude-code-linux-" arch "-" version ".tgz")))
        (sha256
-        (base32 "1qsh2sa95ykqpgrccj9z5pw179v5q5nz4sq5182p7pcx868x2fbc"))))
-    (build-system node-build-system)
+        (base32
+         (let ((system (or (%current-target-system) (%current-system))))
+           (cond
+            ((string=? system "x86_64-linux")
+             "1qi5izf6im8kpb1x6xlggx4jicimvydrham0w35qjl0p0xr83i9v")
+            ((string=? system "aarch64-linux")
+             "0csyv9d5yrsb1jkkd82476cnl3180r4wcky19sibnyfnn8by2fwa")
+            (else (error "unsupported system for Claude Code" system))))))))
+    (build-system copy-build-system)
     (arguments
      (list
-      #:tests? #f
+      ;; Bun stores its application payload after the ELF sections.
+      #:strip-binaries? #f
+      #:install-plan #~'(("claude" "bin/")
+                          ("LICENSE.md" "share/doc/claude-code/"))
       #:phases
       #~(modify-phases %standard-phases
-          (delete 'build)
-          (add-after 'unpack 'remove-precompiled-binaries
-            (lambda _
-              (delete-file-recursively "vendor/ripgrep")
-              (delete-file-recursively "vendor/claude-code-jetbrains-plugin")
-              #t)))))
-    (propagated-inputs (list node))
+          (add-after 'install 'patch-binary
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let ((claude (string-append (assoc-ref outputs "out")
+                                           "/bin/claude")))
+                ;; Reordering Bun's ELF sections corrupts loader version data.
+                (invoke "patchelf" "--no-sort" "--set-rpath"
+                        (string-append (assoc-ref inputs "glibc") "/lib")
+                        "--set-interpreter"
+                        (search-input-file inputs #$(glibc-dynamic-linker))
+                        claude))))
+          (add-after 'patch-binary 'wrap-runtime-tools
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (wrap-program (string-append (assoc-ref outputs "out")
+                                            "/bin/claude")
+                `("PATH" ":" prefix
+                  ,(map (lambda (name)
+                          (string-append (assoc-ref inputs name) "/bin"))
+                        '("bash-minimal" "bubblewrap" "git-minimal"
+                          "ripgrep" "socat")))
+                '("DISABLE_AUTOUPDATER" = ("1"))
+                '("USE_BUILTIN_RIPGREP" = ("0")))))
+          (add-after 'wrap-runtime-tools 'check-version
+            (lambda* (#:key outputs #:allow-other-keys)
+              (invoke (string-append (assoc-ref outputs "out") "/bin/claude")
+                      "--version"))))))
+    (native-inputs (list patchelf))
+    (inputs (list bash-minimal bubblewrap git-minimal glibc ripgrep socat))
+    (supported-systems '("x86_64-linux" "aarch64-linux"))
     (home-page "https://github.com/anthropics/claude-code")
     (synopsis
      "Use Claude, Anthropic's AI assistant, right from your terminal. Claude can understand your codebase, edit files, run terminal commands, and handle entire workflows for you.")
