@@ -920,8 +920,8 @@ package contains nonfree firmware for the following chips:
   (deprecated-package "rtl-bt-firmware" realtek-firmware))
 
 (define-public rtl8192eu-linux-module
-  (let ((commit "ed045d0e04303dce7b7b174abcb27bd24d207ee6")
-        (revision "9"))
+  (let ((commit "0c01d67c609de752ac0b80a7e7152a3fa42b7234")
+        (revision "10"))
     (package
       (name "rtl8192eu-linux-module")
       (version (git-version "5.11.2.3" revision commit))
@@ -933,7 +933,7 @@ package contains nonfree firmware for the following chips:
                (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "0lklpn1gl202i49xjrd735pl595ynh2wpkdk1nlpcvxssi3qi0l7"))))
+          (base32 "19qhagr9p30ah4dg88vls74n51q2mhbgkiiiyjbndd3vi9v435fm"))))
       (build-system linux-module-build-system)
       (arguments
        (list #:tests? #f                ; no test suite
@@ -1005,8 +1005,8 @@ network adapters.")
       (license license:gpl2))))
 
 (define-public rtl8821cu-linux-module
-  (let ((commit "7f63a9da2e8ed83403f6f920e9b1628a37b38ef4")
-        (revision "4"))
+  (let ((commit "bda65aac150d2cde0df9603206eec23a6f3b77c4")
+        (revision "5"))
     (package
       (name "rtl8821cu-linux-module")
       (version (git-version "0.0.0" revision commit))
@@ -1018,10 +1018,11 @@ network adapters.")
                 (commit commit)))
          (file-name (git-file-name name version))
          (sha256
-          (base32 "1ril9xnv3bbmfj9yynm3nzpdgjyh0a93rag51hia7ix6ppm8w0a6"))))
+          (base32 "1pfgjmz3gyw2aq6ayhhhw0rdbvgrxq8r42bjbrks1qfbymv919pn"))))
       (build-system linux-module-build-system)
       (arguments
        (list #:tests? #f                     ; no test suite
+             #:linux linux-libre-lts
              #:make-flags
              #~(list (string-append "CC=" #$(cc-for-target)))
              #:phases
@@ -1059,11 +1060,10 @@ to disable the conflicting rtw88 driver:
       (license (nonfree
                 "https://github.com/morrownr/8821cu-20210916/blob/main/LICENSE")))))
 
-(define-public rtl8812au-aircrack-ng-linux-module
+(define-deprecated/public rtl8812au-aircrack-ng-linux-module #f
   (let ((commit "c3fb89a2f7066f4bf4e4d9d85d84f9791f14c83e")
         (revision "14"))
     (package
-      (inherit rtl8821ce-linux-module)
       (name "rtl8812au-aircrack-ng-linux-module")
       (version (git-version "5.6.4.2" revision commit))
       (source
@@ -1081,6 +1081,34 @@ to disable the conflicting rtw88 driver:
                       ;; and other unnecessary unlicenced things.
                       (for-each delete-file-recursively
                                 (list "android" "docs" "tools"))))))
+      (build-system linux-module-build-system)
+      (arguments
+       (list #:tests? #f                ; no test suite
+             ;; Keep the retired driver on an LTS with its legacy timer API.
+             #:linux linux-libre-6.12
+             #:make-flags
+             #~(list (string-append "CC=" #$(cc-for-target)))
+             #:phases
+             #~(modify-phases %standard-phases
+                 (add-after 'unpack 'fix-backported-monitor-channel-api
+                   (lambda _
+                     ;; Linux 6.12.105 has the newer cfg80211 callback signature.
+                     (substitute* "os_dep/linux/ioctl_cfg80211.c"
+                       (("KERNEL_VERSION\\(6, 13, 0\\)")
+                        "KERNEL_VERSION(6, 12, 105)"))))
+                 (replace 'build
+                   (lambda* (#:key (make-flags '()) (parallel-build? #t) inputs
+                             #:allow-other-keys)
+                     (let ((kernel-dir
+                            (search-input-directory inputs "lib/modules/build")))
+                       (apply invoke "make"
+                              (string-append "KSRC=" kernel-dir)
+                              (format #f "KCFLAGS=-ffile-prefix-map=~a=" kernel-dir)
+                              `(,@(if parallel-build?
+                                      `("-j" ,(number->string
+                                               (parallel-job-count)))
+                                      '())
+                                ,@make-flags))))))))
       (supported-systems '("x86_64-linux" "i686-linux"))
       (home-page "https://github.com/aircrack-ng/rtl8812au")
       (synopsis "Linux driver for Realtek USB wireless network adapters")
@@ -1372,7 +1400,7 @@ chipsets from Broadcom:
 (define-public facetimehd
   (package
     (name "facetimehd")
-    (version "0.6.13")
+    (version "0.7.2")
     (source
      (origin
        (method git-fetch)
@@ -1381,7 +1409,7 @@ chipsets from Broadcom:
              (commit version)))
        (file-name (git-file-name "facetimehd" version))
        (sha256
-        (base32 "0vv6f8k9p6kp9fgm1iwfagkdnbmvfi1049s8p1rfcd8xsd0ch46w"))))
+        (base32 "136hcwp95kmfk20zv0hhv61ry9n5q2w3y010lzbk9ap391pfcilp"))))
     (build-system linux-module-build-system)
     (arguments
      '(#:tests? #f))
