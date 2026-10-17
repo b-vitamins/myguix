@@ -157,9 +157,11 @@
              (pam-limits-entry "*"
                                'both
                                'nofile 524288) ;512K file descriptors
+             ;; Linux counts threads against nproc.  Browsers and local agent
+             ;; runtimes can exhaust 4096 and fail to start new workers.
              (pam-limits-entry "*"
                                'hard
-                               'nproc 4096) ;Process limit
+                               'nproc 32768)
              (pam-limits-entry "*"
                                'soft
-                               'nproc 4096)))))
+                               'nproc 32768)))))
