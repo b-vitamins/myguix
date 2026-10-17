@@ -262,7 +262,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "0wzdxxdzw2hhcrvny3rmay7711m8l0mgj7bs1k6j6771bn0a2fqr")))))
     (package
       (name "google-antigravity")
-      (version "2.23.0")
+      (version "2.24.0")
       (source
        (origin
          (method url-fetch)
@@ -276,7 +276,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-5238607586394112/"
+                 "-5780333019398144/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -284,9 +284,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "046zvjxa8hgwf9ha2is5lcn7aaa2va83wr4avnmjpqqya1ky5mlm")
+                     "1inwmhb84k62nwjgrnd0bx5g0x3lydpydqa2a4vd3i9k01cby248")
                     ("aarch64-linux"
-                     "15a793vynzvqfg9r59dxkdg19671h53ipvap42maq6vg06mfrbwm")
+                     "1c0af7p9h6qkqvg7cjxhsbq7jf3gxa0z928iy029apc8ryaldbjz")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -446,7 +446,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.1007.21434")
+    (version "26.1013.40934")
     (source
      (origin
        (method url-fetch)
@@ -468,9 +468,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "1vgkn6cl1d8clki7yxp485lf1pbyzbvhc8fm78fjcjypqd0m6sr7")
+                   "1mx1ydfvw3ia47xihx7z4s0apdc46xl81mlszgibjhb6k9zrx99w")
                   ("aarch64-linux"
-                   "0jdg3f579iic51z1akb0alibzy6w6w3ygs900slnjq0xzgiy3yjm")
+                   "16v23kryb506wh0bz5qdga96z4r8h6vwmdbfw2hymsrwyfxcpcls")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
@@ -743,9 +743,10 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (display "\n")
                     ;; Avoid Electron's portal-backed folder picker, which can
                     ;; leave the local project Add folder action inert.
+                    ;; Upstream uses XWayland while native Wayland is experimental.
                     (display "exec \"")
                     (display chatgpt-binary)
-                    (display "\" --xdg-portal-required-version=999 \"$@\"\n")))
+                    (display "\" --ozone-platform=x11 --xdg-portal-required-version=999 \"$@\"\n")))
                 (chmod target #o555)
                 (mkdir-p runtime-bin)
                 (symlink node-wrapper (string-append runtime-bin "/node"))
