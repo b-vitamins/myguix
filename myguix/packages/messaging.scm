@@ -98,7 +98,7 @@ its core.")
 (define-public signal-desktop
   (package
     (name "signal-desktop")
-    (version "8.30.0")
+    (version "8.31.0")
     (source
      (origin
        (method url-fetch)
@@ -110,7 +110,7 @@ its core.")
                            version
                            "_amd64.deb"))
        (sha256
-        (base32 "0jg5rd0347rg9lspp3h6g4yywnc2sw08hp2yx0cb7x2riybbhp34"))))
+        (base32 "15jrwyzzbyhd26g1pcd9748m4p53w2wwidwdvkcvc1pb4rdki3xb"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments
@@ -154,7 +154,7 @@ or iOS.")
 (define-public discord
   (package
     (name "discord")
-    (version "1.0.161")
+    (version "1.0.162")
     (source
      (origin
        (method url-fetch)
@@ -164,7 +164,7 @@ or iOS.")
                            version
                            ".deb"))
        (sha256
-        (base32 "0gg61jns4dxz1v81qdqxip14sqd8c7ixakdiaawpj3nws066lj0s"))))
+        (base32 "1k1ry4wd2mix97kcxvv3q33qdxmy23c5ih1hlpm4gvw4jxb4dwz7"))))
     (supported-systems '("x86_64-linux"))
     (build-system chromium-binary-build-system)
     (arguments

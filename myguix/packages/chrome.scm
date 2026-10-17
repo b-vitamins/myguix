@@ -195,17 +195,17 @@
 ;; TODO: write a nice importer for this in Scheme.
 
 (define-public google-chrome-stable
-  (make-google-chrome "stable" "155.0.8059.39"
-                      "0f0bxnsn11a9wgz76z1bijgrpai75n42q1hf0ngrq5v6rpra12n5"))
+  (make-google-chrome "stable" "155.0.8059.84"
+                      "1pp9qg81s2gk1mcxspv2z1sgj1jygdm3khqkfn5yjznzkkk2mgcg"))
 
 (define-public google-chrome-beta
-  (make-google-chrome "beta" "156.0.8078.12"
-                      "1yaqrhqh5gdzpi84ms11nsnjfy0gwghmi8qfwf20wcjb25iv7y7d"))
+  (make-google-chrome "beta" "157.0.8103.6"
+                      "1v01i7ga9zsj4ijm2k132gzafqc4vdd63rzg3zqpxl6ia3w1wn87"))
 
 (define-public google-chrome-unstable
-  (make-google-chrome "unstable" "157.0.8092.0"
-                      "0qmzfbkh8fal199vr9rn3qbl23bckpk18ddf46vsabsy2x1kpv39"))
+  (make-google-chrome "unstable" "158.0.8106.0"
+                      "06j0j0dmp375qkg6id0vz1mqms7075qiz4zzwm1jh7y7j2mk5zia"))
 
 (define-public google-chrome-canary
-  (make-google-chrome "canary" "157.0.8102.0"
-                      "1cxh6y5r15l7hi2g7kvarflscyqp0k8j2v1486g1s5z3aqp6dqis"))
+  (make-google-chrome "canary" "158.0.8110.0"
+                      "1cnrw1jhp7r9kyghfs10v8a8l3vmc7pcv8695a6vs9drzf2mh6r8"))
