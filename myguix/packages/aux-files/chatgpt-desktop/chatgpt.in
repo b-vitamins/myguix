@@ -1,0 +1,102 @@
+#!@SH@
+# ChatGPT launcher for Guix.
+
+out=@OUT@
+coreutils=@COREUTILS@/bin
+resources=$out/lib/chatgpt/resources
+
+guix_profile_path=
+if [ -n "${HOME:-}" ]; then
+  guix_profile_path=$HOME/.guix-home/profile/bin:$HOME/.guix-home/profile/sbin:$HOME/.config/guix/current/bin:$HOME/.guix-profile/bin
+fi
+system_profile_path=/run/privileged/bin:/run/current-system/profile/bin:/run/current-system/profile/sbin
+export PATH=@PACKAGE_PATH@${guix_profile_path:+:$guix_profile_path}:$system_profile_path${PATH:+:$PATH}
+export SHELL=@BASH@
+
+if [ -n "${XDG_CACHE_HOME:-}" ]; then
+  cache_home=$XDG_CACHE_HOME
+elif [ -n "${HOME:-}" ]; then
+  cache_home=$HOME/.cache
+else
+  cache_home=
+fi
+
+# Stage a writable copy of the bundled plugin resources, one directory per
+# store item.  Bundled MCP definitions embed store file names, so a rebuild
+# must never reuse a copy made by another build, and a running instance must
+# never see its copy replaced.  The Guix suffix on .bundle-id makes the
+# application rematerialize its plugin marketplace after each rebuild.
+link_entries() {
+  # Symlink the entries of directory $1 into $2, except those named in $3.
+  for entry in "$1"/*; do
+    name=${entry##*/}
+    case " $3 " in
+      *" $name "*) ;;
+      *) "$coreutils/ln" -s "$entry" "$2/$name" ;;
+    esac
+  done
+}
+
+stage_resources() {
+  target=$1
+  staging=$("$coreutils/mktemp" -d "$resources_root/.staging-XXXXXX") || return 1
+  link_entries "$resources" "$staging" "cua_node plugins"
+  "$coreutils/mkdir" -p "$staging/cua_node/bin"
+  link_entries "$resources/cua_node" "$staging/cua_node" "bin"
+  link_entries "$resources/cua_node/bin" "$staging/cua_node/bin" "node"
+  "$coreutils/ln" -s "$resources/cua_node/bin/node-guix" "$staging/cua_node/bin/node"
+  if [ -d "$resources/plugins/openai-bundled" ]; then
+    "$coreutils/mkdir" -p "$staging/plugins"
+    "$coreutils/cp" -R --no-preserve=ownership "$resources/plugins/openai-bundled" "$staging/plugins/" &&
+      "$coreutils/chmod" -R u+rwX "$staging/plugins" || {
+        "$coreutils/rm" -rf "$staging"
+        return 1
+      }
+    bundle_id=$("$coreutils/cat" "$staging/plugins/openai-bundled/.bundle-id" 2>/dev/null)
+    printf '%s-guix-%s\n' "${bundle_id:-bundle}" "$hash" \
+      > "$staging/plugins/openai-bundled/.bundle-id"
+  fi
+  printf '%s\n' "$out" > "$staging/.guix-source"
+  # Another launcher may have won the race; keep its copy.
+  "$coreutils/mv" -T "$staging" "$target" 2>/dev/null || "$coreutils/rm" -rf "$staging"
+}
+
+if [ -n "$cache_home" ]; then
+  hash=${out#/gnu/store/}
+  hash=${hash%%-*}
+  resources_root=$cache_home/chatgpt-desktop/bundled-plugin-resources
+  resources_copy=$resources_root/$hash
+  "$coreutils/mkdir" -p "$resources_root"
+  # Drop copies whose store item was garbage collected, and the flat layout
+  # used by earlier versions of this package.
+  for entry in "$resources_root"/* "$resources_root"/.staging-*; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    case $entry in
+      "$resources_copy") continue ;;
+      */.staging-*)
+        mtime=$("$coreutils/stat" -c %Y "$entry" 2>/dev/null) || continue
+        [ $(( $("$coreutils/date" +%s) - mtime )) -gt 3600 ] || continue ;;
+      *)
+        source=$("$coreutils/cat" "$entry/.guix-source" 2>/dev/null)
+        [ -n "$source" ] && [ -e "$source" ] && continue ;;
+    esac
+    "$coreutils/rm" -rf "$entry"
+  done
+  [ -e "$resources_copy/.guix-source" ] || stage_resources "$resources_copy"
+  if [ -e "$resources_copy/.guix-source" ]; then
+    export CODEX_ELECTRON_BUNDLED_PLUGINS_RESOURCES_PATH=$resources_copy
+  fi
+fi
+
+: "${CODEX_ELECTRON_RESOURCES_PATH:=$resources}"
+export CODEX_ELECTRON_RESOURCES_PATH
+: "${CODEX_CLI_PATH:=$resources/codex}"
+export CODEX_CLI_PATH
+: "${CODEX_BROWSER_USE_NODE_PATH:=$resources/cua_node/bin/node-guix}"
+export CODEX_BROWSER_USE_NODE_PATH
+: "${CODEX_MCP_NODE_PATH:=$resources/cua_node/bin/node-guix}"
+export CODEX_MCP_NODE_PATH
+: "${CODEX_NODE_REPL_PATH:=$resources/cua_node/bin/node_repl}"
+export CODEX_NODE_REPL_PATH
+
+exec "$out/lib/chatgpt/codex-launcher" "$@"
