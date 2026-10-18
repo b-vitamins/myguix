@@ -38,9 +38,16 @@
   #:use-module (guix download)
   #:use-module (guix gexp)
   #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (ice-9 match)
   #:use-module (myguix build-system chromium-binary)
   #:use-module (myguix build-system binary)
+  #:use-module ((gnu packages admin)
+                #:select (libcap-ng))
+  #:use-module ((gnu packages firmware)
+                #:select (ovmf-x86-64))
+  #:use-module ((myguix packages node-pqrs)
+                #:select (node-anthropic-ai-claude-code))
   #:use-module ((myguix licenses)
                 #:prefix license:)
   #:use-module ((guix licenses)
@@ -920,6 +927,217 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
      "ChatGPT Desktop is OpenAI's Electron-based desktop application for
 ChatGPT, including local Codex integration for software development workflows.")
     (license (license:nonfree "https://openai.com/policies/terms-of-use"))))
+
+(define-public claude-desktop
+  (package
+    (name "claude-desktop")
+    (version "2.42304.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (let ((arch (match (or (%current-target-system)
+                                   (%current-system))
+                          ("x86_64-linux" "amd64")
+                          ("aarch64-linux" "arm64")
+                          (_ "unsupported"))))
+              (string-append
+               "https://downloads.claude.ai/claude-desktop/apt/stable/"
+               "pool/main/c/claude-desktop/claude-desktop_"
+               version
+               "_"
+               arch
+               ".deb")))
+       (file-name (string-append name "-" version ".deb"))
+       (sha256
+        (base32 (match (or (%current-target-system)
+                           (%current-system))
+                  ("x86_64-linux"
+                   "192adlb8jpz940sfg0rv4r5a5hkc5j3vqp259qa6ahfj5762rkbl")
+                  ("aarch64-linux"
+                   "0j466bbnckgdmsc9pqwisrnacgbx1hsjz0ncg81jz22k7qhc9cwg")
+                  (_ "0000000000000000000000000000000000000000000000000000"))))))
+    (supported-systems '("x86_64-linux" "aarch64-linux"))
+    (build-system chromium-binary-build-system)
+    (arguments
+     (list
+      #:substitutable? #f
+      #:validate-runpath? #f ;bundled node modules and wrapped binaries
+      #:wrapper-plan
+      #~(let ((rpath '(("out" "/lib/claude-desktop")
+                       ("nss" "/lib/nss")))
+              (arch #$(if (target-aarch64?) "arm64" "x64")))
+          (map (lambda (file)
+                 (list (string-append "usr/lib/claude-desktop/" file) rpath))
+               (list "claude-desktop"
+                     "chrome-sandbox"
+                     "chrome_crashpad_handler"
+                     "libffmpeg.so"
+                     "libvk_swiftshader.so"
+                     "libvulkan.so.1"
+                     "resources/chrome-native-host"
+                     "resources/disclaimer"
+                     "resources/virtiofsd"
+                     (string-append "resources/app.asar.unpacked/node_modules/"
+                                    "@ant/claude-native/"
+                                    "claude-native-binding.node")
+                     (string-append "resources/app.asar.unpacked/node_modules/"
+                                    "node-pty/prebuilds/linux-" arch
+                                    "/pty.node"))))
+      #:install-plan
+      #~'(("usr/lib/" "/lib")
+          ("usr/share/applications" "/share/")
+          ("usr/share/icons" "/share/")
+          ("usr/share/doc" "/share/"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'patchelf 'patch-app-asar
+            (lambda* (#:key inputs #:allow-other-keys)
+              (define any (@ (srfi srfi-1) any))
+              (define get-string-all (@ (ice-9 textual-ports) get-string-all))
+              (define (contents file)
+                (call-with-input-file file get-string-all))
+              (let* ((python (search-input-file inputs "/bin/python3"))
+                     (asar-tool #$(local-file "aux-files/asar.py"))
+                     (lib "usr/lib/claude-desktop")
+                     (asar (string-append lib "/resources/app.asar"))
+                     (tree "app-asar")
+                     (ovmf (string-append #$output
+                                          "/share/claude-desktop/ovmf"))
+                     ;; FHS executables absent from Guix System.
+                     (programs
+                      `(("\"/bin/ps\"" . ,(string-append "\"" #$procps
+                                                         "/bin/ps\""))
+                        ("\"/usr/bin/pgrep\"" . ,(string-append "\"" #$procps
+                                                                "/bin/pgrep\""))
+                        ("\"/usr/bin/secret-tool\""
+                         . ,(string-append "\"" #$libsecret
+                                           "/bin/secret-tool\""))
+                        ("\"/usr/bin/busctl\"" . "\"busctl\"")))
+                     ;; Let CLAUDE_CODE_LOCAL_BINARY select the Claude Code
+                     ;; executable; release builds compile this out, leaving
+                     ;; the downloaded, unpatched CLI as the only choice.
+                     (local-binary
+                      (string-append
+                       "process.env.CLAUDE_CODE_LOCAL_BINARY&&("
+                       "this.localBinaryInitPromise=this.initLocalBinary("
+                       "process.env.CLAUDE_CODE_LOCAL_BINARY))"))
+                     (firmware "\"/usr/share/OVMF/OVMF_CODE_4M.fd\""))
+                (invoke python asar-tool "extract" asar tree)
+                (let ((files (filter (lambda (file)
+                                       (any (lambda (needle)
+                                              (string-contains (contents file)
+                                                               needle))
+                                            (cons* "CLAUDE_CODE_LOCAL_BINARY}"
+                                                   firmware
+                                                   "\"/usr/libexec/virtiofsd\""
+                                                   (map car programs))))
+                                     (find-files (string-append tree
+                                                                "/.vite/build")
+                                                 "\\.js$"))))
+                  (substitute* files
+                    (((string-append "process\\.env\\.CLAUDE_CODE_LOCAL_BINARY"
+                                     "\\}async initLocalBinary\\("))
+                     (string-append local-binary "}async initLocalBinary("))
+                    (("\"/bin/ps\"")
+                     (assoc-ref programs "\"/bin/ps\""))
+                    (("\"/usr/bin/pgrep\"")
+                     (assoc-ref programs "\"/usr/bin/pgrep\""))
+                    (("\"/usr/bin/secret-tool\"")
+                     (assoc-ref programs "\"/usr/bin/secret-tool\""))
+                    (("\"/usr/bin/busctl\"")
+                     "\"busctl\"")
+                    ;; Cowork boots its VM with OVMF; offer the Guix build
+                    ;; under the names the application expects.
+                    (("\"/usr/share/OVMF/OVMF_CODE_4M\\.fd\"")
+                     (string-append "\"" ovmf "/OVMF_CODE.fd\"," firmware))
+                    ;; Outside Ubuntu 22.04 Cowork ignores its bundled,
+                    ;; patched virtiofsd and requires one in /usr.
+                    (("\"/usr/libexec/virtiofsd\"" all)
+                     (string-append "\"" #$output "/lib/claude-desktop/"
+                                    "resources/virtiofsd\"," all)))
+                  (when (any (lambda (file)
+                               (any (lambda (needle)
+                                      (string-contains (contents file) needle))
+                                    (map car programs)))
+                             files)
+                    (error "failed to patch FHS paths in app.asar"))
+                  (unless (any (lambda (file)
+                                 (string-contains (contents file) local-binary))
+                               files)
+                    (error "failed to enable CLAUDE_CODE_LOCAL_BINARY")))
+                (invoke python asar-tool "pack" asar tree)
+                (delete-file-recursively tree))))
+          (add-before 'install 'patch-integration-files
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((exe (string-append #$output "/bin/claude-desktop"))
+                    (provider "usr/lib/claude-desktop/resources/gnome-search-provider"))
+                (substitute* "usr/share/applications/com.anthropic.Claude.desktop"
+                  (("^Exec=claude-desktop")
+                   (string-append "Exec=" exe)))
+                (substitute* (string-append provider "/searchProvider.js")
+                  (("const EXECUTABLE = \"claude-desktop\";")
+                   (string-append "const EXECUTABLE = \"" exe "\";")))
+                (substitute* (string-append
+                              provider
+                              "/com.anthropic.Claude.SearchProvider.service")
+                  (("^Exec=.*$")
+                   (string-append "Exec=" #$(file-append gjs "/bin/gjs")
+                                  " -m " #$output "/lib/claude-desktop/"
+                                  "resources/gnome-search-provider/"
+                                  "searchProvider.js\n"))))))
+          (add-after 'install 'install-integration-files
+            (lambda _
+              (let ((resources (string-append #$output
+                                              "/lib/claude-desktop/resources"))
+                    (share (string-append #$output "/share")))
+                (install-file (string-append resources "/linux-mime/"
+                                             "com.anthropic.Claude.xml")
+                              (string-append share "/mime/packages"))
+                (install-file (string-append resources
+                                             "/gnome-search-provider/com."
+                                             "anthropic.Claude.search-provider.ini")
+                              (string-append share
+                                             "/gnome-shell/search-providers"))
+                (install-file (string-append resources
+                                             "/gnome-search-provider/com."
+                                             "anthropic.Claude.SearchProvider.service")
+                              (string-append share "/dbus-1/services")))
+              (when #$(target-x86-64?)
+                (let ((ovmf (string-append #$output
+                                           "/share/claude-desktop/ovmf"))
+                      (firmware #$(file-append ovmf-x86-64 "/share/firmware")))
+                  (mkdir-p ovmf)
+                  (symlink (string-append firmware "/ovmf_code_x64.bin")
+                           (string-append ovmf "/OVMF_CODE.fd"))
+                  (symlink (string-append firmware "/ovmf_vars_x64.bin")
+                           (string-append ovmf "/OVMF_VARS.fd"))))))
+          (add-before 'install-wrapper 'install-entrypoint
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((bin (string-append #$output "/bin"))
+                    (sh (search-input-file inputs "/bin/sh")))
+                (mkdir-p bin)
+                (with-output-to-file (string-append bin "/claude-desktop")
+                  (lambda _
+                    (format #t "#!~a~%" sh)
+                    ;; Run Claude Code from Guix rather than an unpatched
+                    ;; download.
+                    (format #t ": \"${CLAUDE_CODE_LOCAL_BINARY:=~a}\"~%"
+                            #$(file-append node-anthropic-ai-claude-code
+                                           "/bin/claude"))
+                    (display "export CLAUDE_CODE_LOCAL_BINARY\n")
+                    (format #t "exec \"~a/lib/claude-desktop/claude-desktop\" \"$@\"~%"
+                            #$output)))
+                (chmod (string-append bin "/claude-desktop") #o555)))))))
+    (native-inputs (list python-minimal))
+    (inputs (list libcap-ng libseccomp pipewire))
+    (home-page "https://claude.com/download")
+    (synopsis "Anthropic Claude desktop application")
+    (description
+     "Claude Desktop is Anthropic's Electron-based desktop application for
+Claude, including chat, Claude Code and Cowork.  This package runs Claude Code
+sessions with the Guix @code{node-anthropic-ai-claude-code} package; Cowork
+additionally needs QEMU in @env{PATH} and access to @file{/dev/kvm}.")
+    (license (license:nonfree "https://www.anthropic.com/legal/consumer-terms"))))
 
 (define-public zotero
   (package
