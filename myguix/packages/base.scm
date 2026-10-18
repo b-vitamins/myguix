@@ -251,7 +251,11 @@
   (list alacritty tmux))
 
 (define %text-editors
-  (list neovim google-antigravity chatgpt-desktop))
+  (list neovim
+        google-antigravity
+        google-antigravity-ide
+        chatgpt-desktop
+        claude-desktop))
 
 (define %security-essentials
   (list clamav
