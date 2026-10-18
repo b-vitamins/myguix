@@ -239,7 +239,8 @@
                                    ("vm.vfs_cache_pressure" . "50"))
                                  %default-sysctl-settings))))
      
-     ;; Wayland environment preferences
+     ;; Wayland environment preferences.  Leave GDK_BACKEND unset; forcing it
+     ;; disables xdg-desktop-portal-gnome dialogs.
      (simple-service 'wayland-environment
                      session-environment-service-type
                      '(("MOZ_ENABLE_WAYLAND" . "1")
@@ -248,8 +249,7 @@
                        ("QT_QPA_PLATFORM" . "wayland;xcb")
                        ("CLUTTER_BACKEND" . "wayland")
                        ("SDL_VIDEODRIVER" . "wayland")
-                       ("_JAVA_AWT_WM_NONREPARENTING" . "1")
-                       ("GDK_BACKEND" . "wayland,x11"))))
+                       ("_JAVA_AWT_WM_NONREPARENTING" . "1"))))
     
     ;; Modify desktop services for laptop
     (modify-services %my-desktop-services

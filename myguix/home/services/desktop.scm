@@ -28,15 +28,16 @@
 
 ;;; Environment variables
 
-;; Wayland-specific variables
+;; Wayland-specific variables.  Leave GDK_BACKEND unset: GTK already prefers
+;; Wayland, and forcing it makes xdg-desktop-portal-gnome expose only the
+;; Settings portal, so portal file choosers cancel immediately.
 (define-public %wayland-environment-variables
   `(("MOZ_ENABLE_WAYLAND" . "1")
     ("QT_QPA_PLATFORM" . "wayland;xcb")
     ("_JAVA_AWT_WM_NONREPARENTING" . #t)
     ;; Additional Wayland hints
     ("SDL_VIDEODRIVER" . "wayland")
-    ("CLUTTER_BACKEND" . "wayland")
-    ("GDK_BACKEND" . "wayland,x11")))
+    ("CLUTTER_BACKEND" . "wayland")))
 
 ;;; XDG Directories
 
