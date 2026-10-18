@@ -451,6 +451,119 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
        "Google Antigravity is an AI-powered development environment and code editor.")
       (license (license:nonfree "https://antigravity.google/terms")))))
 
+(define-public google-antigravity-ide
+  (let ((build "4923483625488384"))
+    (package
+      (name "google-antigravity-ide")
+      (version "2.5.5")
+      (source
+       (origin
+         (method url-fetch)
+         (uri (string-append
+               "https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/"
+               "stable/" version "-" build "/"
+               (match (or (%current-target-system)
+                          (%current-system))
+                 ("x86_64-linux" "linux-x64")
+                 ("aarch64-linux" "linux-arm")
+                 (_ "unsupported"))
+               "/Antigravity%20IDE.tar.gz"))
+         (file-name (string-append name "-" version ".tar.gz"))
+         (sha256
+          (base32 (match (or (%current-target-system)
+                             (%current-system))
+                    ("x86_64-linux"
+                     "0cgq2xln7444jwbbnphs6qyrbhhj82aghjdgc6xsxcyjjyr36lhc")
+                    ("aarch64-linux"
+                     "17m473y9z3k9l8sh55f31hgwdpplmak0lzwd78i3mhw0i486ghc8")
+                    (_ "0000000000000000000000000000000000000000000000000000"))))))
+      (supported-systems '("x86_64-linux" "aarch64-linux"))
+      (build-system chromium-binary-build-system)
+      (arguments
+       (list
+        #:substitutable? #f
+        #:validate-runpath? #f ;bundled node modules and wrapped binaries
+        ;; The command-line launcher runs the binary with
+        ;; ELECTRON_RUN_AS_NODE, bypassing the wrapper, so the binary must
+        ;; find NSS through its RUNPATH.
+        #:wrapper-plan
+        #~(let ((rpath '(("out" "/share/antigravity-ide")
+                         ("nss" "/lib/nss"))))
+            (map (lambda (file)
+                   (list file rpath))
+                 (list "antigravity-ide"
+                       "chrome-sandbox"
+                       "chrome_crashpad_handler"
+                       "libEGL.so"
+                       "libGLESv2.so"
+                       "libffmpeg.so"
+                       "libvk_swiftshader.so"
+                       "libvulkan.so.1"
+                       (string-append "resources/app/extensions/antigravity/"
+                                      "bin/language_server_linux_"
+                                      #$(if (target-aarch64?) "arm" "x64")))))
+        #:install-plan
+        #~'(("." "/share/antigravity-ide"))
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'binary-unpack 'disable-update-service
+              (lambda _
+                ;; Guix manages updates.
+                (substitute* "resources/app/product.json"
+                  (("^[[:space:]]*\"updateUrl\": .*$") ""))))
+            (add-before 'install-wrapper 'install-entrypoint
+              (lambda _
+                (let ((bin (string-append #$output "/bin")))
+                  (mkdir-p bin)
+                  (with-output-to-file (string-append bin "/antigravity-ide")
+                    (lambda _
+                      (display "#!/bin/sh\n")
+                      (format #t "exec \"~a/share/antigravity-ide/bin/~
+                                  antigravity-ide\" \"$@\"~%"
+                              #$output)))
+                  (chmod (string-append bin "/antigravity-ide") #o555))))
+            (add-after 'install 'install-desktop-entries
+              (lambda _
+                (let ((applications (string-append #$output
+                                                   "/share/applications"))
+                      (pixmaps (string-append #$output "/share/pixmaps"))
+                      (exe (string-append #$output "/bin/antigravity-ide")))
+                  (mkdir-p applications)
+                  (mkdir-p pixmaps)
+                  (copy-file (string-append #$output "/share/antigravity-ide/"
+                                            "resources/app/resources/linux/"
+                                            "code.png")
+                             (string-append pixmaps "/antigravity-ide.png"))
+                  (make-desktop-entry-file
+                   (string-append applications "/antigravity-ide.desktop")
+                   #:name "Antigravity IDE"
+                   #:generic-name "Text Editor"
+                   #:comment "AI-powered code editor"
+                   #:exec (string-append exe " %F")
+                   #:icon "antigravity-ide"
+                   #:categories '("Development" "IDE" "TextEditor")
+                   #:mime-type '("text/plain" "inode/directory")
+                   #:startup-w-m-class "antigravity-ide")
+                  ;; The Antigravity agent manager opens the IDE through
+                  ;; antigravity-ide:// links.
+                  (make-desktop-entry-file
+                   (string-append applications
+                                  "/antigravity-ide-url-handler.desktop")
+                   #:name "Antigravity IDE - URL Handler"
+                   #:exec (string-append exe " --open-url %U")
+                   #:icon "antigravity-ide"
+                   #:no-display #t
+                   #:categories '("Development" "IDE")
+                   #:mime-type "x-scheme-handler/antigravity-ide"
+                   #:startup-w-m-class "antigravity-ide")))))))
+      (home-page "https://antigravity.google")
+      (synopsis "AI-powered code editor")
+      (description
+       "Antigravity IDE is Google's AI-powered code editor based on Visual
+Studio Code.  It complements the Antigravity agent manager, which opens
+projects in it.")
+      (license (license:nonfree "https://antigravity.google/terms")))))
+
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
