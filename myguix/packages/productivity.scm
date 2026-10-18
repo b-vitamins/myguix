@@ -300,7 +300,11 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
         #:substitutable? #f
         #:validate-runpath? #f ;TODO: fails on wrapped binaries and bundled node modules
         #:wrapper-plan
-        #~(let ((rpath '(("out" "/share/antigravity"))))
+        ;; The application runs Node.js sidecars by invoking its own binary
+        ;; with ELECTRON_RUN_AS_NODE, bypassing the wrapper, so the binary
+        ;; must find NSS through its RUNPATH.
+        #~(let ((rpath '(("out" "/share/antigravity")
+                         ("nss" "/lib/nss"))))
             (map (lambda (file)
                    (list file rpath))
                  '("antigravity" "chrome-sandbox"
@@ -317,77 +321,71 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
             (add-after 'binary-unpack 'disable-auto-updates
               (lambda _
                 (delete-file "resources/app-update.yml")))
-            (add-after 'disable-auto-updates 'disable-protocol-registration
+            (add-after 'disable-auto-updates 'patch-app-asar
+              (lambda* (#:key native-inputs inputs #:allow-other-keys)
+                (define get-string-all
+                  (@ (ice-9 textual-ports) get-string-all))
+                (define (ensure-patched file text)
+                  (unless (string-contains
+                           (call-with-input-file file get-string-all) text)
+                    (error "failed to patch app.asar:" file)))
+                (let ((python (search-input-file (or native-inputs inputs)
+                                                 "/bin/python3"))
+                      (asar-tool #$(local-file "aux-files/asar.py"))
+                      (asar "resources/app.asar")
+                      (tree "app-asar"))
+                  (invoke python asar-tool "extract" asar tree)
+                  (with-directory-excursion (string-append tree "/dist")
+                    ;; Guix installs the scheme handler through the desktop
+                    ;; file; avoid Electron invoking xdg-mime at startup.
+                    (substitute* "main.js"
+                      (("app\\.setAsDefaultProtocolClient\\(PROTOCOL\\);")
+                       "app.isDefaultProtocolClient(PROTOCOL);"))
+                    (ensure-patched "main.js"
+                                    "app.isDefaultProtocolClient(PROTOCOL);\n")
+                    ;; Guix manages updates; electron-updater only warns
+                    ;; hourly that this is not an AppImage.
+                    (substitute* "updater.js"
+                      (("^function startAutoUpdateChecks\\(\\) \\{" all)
+                       (string-append all "\n    return;")))
+                    (ensure-patched "updater.js" "{\n    return;")
+                    ;; The IDE installer unpacks a binary that cannot run on
+                    ;; Guix System; never offer it.
+                    (substitute* "ideInstall/constants.js"
+                      (("^async function shouldShowIdeInstallWizard\\(.*\\{"
+                        all)
+                       (string-append all "\n    return false;")))
+                    (ensure-patched "ideInstall/constants.js"
+                                    "{\n    return false;"))
+                  (invoke python asar-tool "pack" asar tree)
+                  (delete-file-recursively tree))))
+            (add-after 'patch-app-asar 'patch-chrome-locations
               (lambda _
-                ;; Guix installs the scheme handler through the desktop file.
-                ;; Avoid Electron invoking xdg-mime during startup.  Patch the
-                ;; asar payload in place with a same-length replacement so the
-                ;; archive offsets remain valid.
-                (use-modules (rnrs bytevectors)
-                             (rnrs io ports))
-                (let* ((file "resources/app.asar")
-                       (needle (string->utf8
-                                "electron_1.app.setAsDefaultProtocolClient(PROTOCOL);"))
-                       (replacement (string->utf8
-                                     "electron_1.app.isDefaultProtocolClient(PROTOCOL);   "))
-                       (data (call-with-input-file file
-                               get-bytevector-all
-                               #:binary #t)))
-                  (define (match-at? offset)
-                    (let loop
-                      ((index 0))
-                      (or (= index
-                             (bytevector-length needle))
-                          (and (= (bytevector-u8-ref data
-                                                     (+ offset index))
-                                  (bytevector-u8-ref needle index))
-                               (loop (+ index 1))))))
-                  (define (find-needle)
-                    (let ((limit (- (bytevector-length data)
-                                    (bytevector-length needle))))
-                      (let loop
-                        ((offset 0))
-                        (cond
-                          ((> offset limit)
-                           #f)
-                          ((match-at? offset)
-                           offset)
-                          (else (loop (+ offset 1)))))))
-                  (let ((offset (find-needle)))
-                    (unless offset
-                      (error
-                       "Antigravity protocol registration hook not found"))
-                    (bytevector-copy! replacement 0 data offset
-                                      (bytevector-length replacement))
-                    (call-with-output-file file
-                      (lambda (port)
-                        (put-bytevector port data))
-                      #:binary #t)))
-                #t))
-            (add-after 'disable-protocol-registration 'patch-browser-launcher
-              (lambda _
-                (let ((launcher
-                       "resources/app/extensions/antigravity-browser-launcher/dist/extension.js"))
-                  ;; The browser launcher extension was removed/moved in newer
-                  ;; upstream releases.
-                  (when (file-exists? launcher)
-                    (substitute* launcher
-                      (("\"/opt/google/chrome/chrome\"")
-                       "\"/opt/google/chrome/chrome\",\"/run/current-system/profile/bin/google-chrome\""))))
-                #t))
-            (add-after 'patch-browser-launcher 'patch-workbench-folder-picker
-              (lambda _
-                ;; The welcome screen's Open Folder action routes through the
-                ;; workbench file-dialog service and can stall on Linux when it
-                ;; tries to use the native picker path.  Force the simplified
-                ;; in-app picker instead.
-                (let ((workbench
-                       "resources/app/out/vs/workbench/workbench.desktop.main.js"))
-                  (when (file-exists? workbench)
-                    (substitute* workbench
-                      (("this\\.g\\.getValue\\(\"files\\.simpleDialog\\.enable\"\\)===!0")
-                       "!0"))))
-                #t))
+                ;; Let the Chrome DevTools MCP server find Chrome in Guix
+                ;; profiles as well as under /opt/google.
+                (define (locations name)
+                  (string-append
+                   ",...[process.env.HOME+'/.guix-home/profile/bin',"
+                   "process.env.HOME+'/.guix-profile/bin',"
+                   "'/run/current-system/profile/bin']"
+                   ".map(directory=>directory+'/" name "')"))
+                (let ((file (string-append
+                             "resources/app.asar.unpacked/node_modules/"
+                             "chrome-devtools-mcp/build/src/third_party/"
+                             "index.js")))
+                  (substitute* file
+                    (("'/opt/google/chrome/chrome'" all)
+                     (string-append all (locations "google-chrome")))
+                    (("'/opt/google/chrome-beta/chrome'" all)
+                     (string-append all (locations "google-chrome-beta")))
+                    (("'/opt/google/chrome-unstable/chrome'" all)
+                     (string-append all
+                                    (locations "google-chrome-unstable"))))
+                  (unless (string-contains
+                           (call-with-input-file file
+                             (@ (ice-9 textual-ports) get-string-all))
+                           "/.guix-profile/bin")
+                    (error "failed to patch Chrome locations:" file)))))
             (add-before 'install-wrapper 'install-entrypoint
               (lambda _
                 (let* ((bin (string-append #$output "/bin"))
@@ -427,8 +425,6 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
             (add-after 'install-wrapper 'configure-runtime-wrapper
               (lambda _
                 (substitute* (string-append #$output "/bin/.antigravity-real")
-                  ;; Avoid Electron's portal-backed folder picker, which can
-                  ;; leave the welcome screen's Open Folder action inert.
                   (("^exec .*$")
                    (string-append
                     "if [ -z \"${PLAYWRIGHT_NODEJS_PATH:-}\" ] && command -v node >/dev/null 2>&1; then"
@@ -439,8 +435,8 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     "\n"
                     "exec \""
                     #$output
-                    "/share/antigravity/antigravity\""
-                    " --xdg-portal-required-version=999 \"$@\""))) #t)))))
+                    "/share/antigravity/antigravity\" \"$@\""))) #t)))))
+      (native-inputs (list python-minimal))
       (inputs (list node))
       (home-page "https://antigravity.google")
       (synopsis "AI-powered development environment")
