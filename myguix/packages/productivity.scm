@@ -361,9 +361,23 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     (substitute* "ideInstall/constants.js"
                       (("^async function shouldShowIdeInstallWizard\\(.*\\{"
                         all)
-                       (string-append all "\n    return false;")))
+                       (string-append all "\n    return false;"))
+                      ;; Detect google-antigravity-ide through PATH.
+                      (((string-append
+                         "return (path\\.join\\(os\\.homedir\\(\\), "
+                         "'\\.local', 'share', 'antigravity-ide'\\));")
+                        _ default)
+                       (string-append
+                        "return (process.env.PATH || '')"
+                        ".split(path.delimiter)"
+                        ".map((directory) => path.join(directory, "
+                        "'antigravity-ide'))"
+                        ".find((file) => fs.existsSync(file)) || "
+                        default ";")))
                     (ensure-patched "ideInstall/constants.js"
-                                    "{\n    return false;"))
+                                    "{\n    return false;")
+                    (ensure-patched "ideInstall/constants.js"
+                                    "'antigravity-ide')).find("))
                   (invoke python asar-tool "pack" asar tree)
                   (delete-file-recursively tree))))
             (add-after 'patch-app-asar 'patch-chrome-locations
