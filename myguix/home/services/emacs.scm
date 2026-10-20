@@ -193,7 +193,6 @@
         emacs-prettier
         emacs-projectile
         emacs-pulseaudio-control
-        emacs-pyenv-mode
         emacs-pytest
         emacs-python-black
         emacs-racket-mode
