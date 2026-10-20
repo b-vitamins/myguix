@@ -138,7 +138,6 @@
         emacs-latex-preview-pane
         emacs-ligature
         emacs-lispy
-        emacs-lua-mode
         emacs-llm
         emacs-magit
         emacs-magit-todos
@@ -225,7 +224,6 @@
         emacs-transient
         emacs-typescript-mode
         emacs-undo-tree
-        emacs-use-package
         emacs-vertico
         emacs-visual-fill-column
         emacs-vterm
