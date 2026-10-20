@@ -549,6 +549,7 @@
         tree-sitter-cuda
         tree-sitter-python
         tree-sitter-javascript
+        tree-sitter-jsdoc
         tree-sitter-typescript
         tree-sitter-rust
         tree-sitter-go
