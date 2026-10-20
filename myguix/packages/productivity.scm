@@ -1058,7 +1058,7 @@ ChatGPT, including local Codex integration for software development workflows.")
 (define-public claude-desktop
   (package
     (name "claude-desktop")
-    (version "2.42304.0")
+    (version "2.42304.2")
     (source
      (origin
        (method url-fetch)
@@ -1079,9 +1079,9 @@ ChatGPT, including local Codex integration for software development workflows.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "192adlb8jpz940sfg0rv4r5a5hkc5j3vqp259qa6ahfj5762rkbl")
+                   "143znpk91dvjim30zqwa7157rj02mkvs5sjjls6chxm9b25xb9rq")
                   ("aarch64-linux"
-                   "0j466bbnckgdmsc9pqwisrnacgbx1hsjz0ncg81jz22k7qhc9cwg")
+                   "1fryzsvjbp28yqax0cj69w4g2kkplnwnpw1j3nqqcq0mr9j8byq0")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)

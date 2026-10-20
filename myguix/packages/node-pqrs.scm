@@ -19277,7 +19277,7 @@ characters using Unicode emoji modifier bases.")
 (define-public node-anthropic-ai-claude-code
   (package
     (name "node-anthropic-ai-claude-code")
-    (version "2.1.302")
+    (version "2.1.304")
     (source
      (origin
        (method url-fetch)
@@ -19295,9 +19295,9 @@ characters using Unicode emoji modifier bases.")
          (let ((system (or (%current-target-system) (%current-system))))
            (cond
             ((string=? system "x86_64-linux")
-             "1qi5izf6im8kpb1x6xlggx4jicimvydrham0w35qjl0p0xr83i9v")
+             "05fdi9mg054j61s5f56615g828nasfvw5nbvvw9y7hii8vjlxnhy")
             ((string=? system "aarch64-linux")
-             "0csyv9d5yrsb1jkkd82476cnl3180r4wcky19sibnyfnn8by2fwa")
+             "07l1ln7vb1m64b8yq5mfwy1ynyknp16k0ck3lfa37xia4d4cp0l9")
             (else (error "unsupported system for Claude Code" system))))))))
     (build-system copy-build-system)
     (arguments
@@ -19312,10 +19312,13 @@ characters using Unicode emoji modifier bases.")
             (lambda* (#:key inputs outputs #:allow-other-keys)
               (let ((claude (string-append (assoc-ref outputs "out")
                                            "/bin/claude")))
-                ;; Reordering Bun's ELF sections corrupts loader version data.
+                ;; Reordering Bun's ELF sections corrupts loader version data,
+                ;; and since 2.1.304 the binary segfaults unless RPATH is
+                ;; written before the interpreter, in a separate pass.
                 (invoke "patchelf" "--no-sort" "--set-rpath"
                         (string-append (assoc-ref inputs "glibc") "/lib")
-                        "--set-interpreter"
+                        claude)
+                (invoke "patchelf" "--no-sort" "--set-interpreter"
                         (search-input-file inputs #$(glibc-dynamic-linker))
                         claude))))
           (add-after 'patch-binary 'wrap-runtime-tools
