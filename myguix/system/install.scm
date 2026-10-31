@@ -31,7 +31,6 @@
   #:use-module (myguix packages base)
   #:use-module (myguix packages linux)
   #:use-module (myguix system linux-initrd)
-  #:use-module (ice-9 textual-ports)
   #:export (%my-channels 
             my-installation-os))
 
@@ -99,18 +98,12 @@
     (services
      (cons* (simple-service 'myguix-config-templates
                            special-files-service-type
-                           `(("/etc/configuration/workstation.scm" 
-                              ,(plain-file "workstation.scm"
-                                          (call-with-input-file
-                                            (string-append (dirname (current-filename))
-                                                           "/examples/workstation.tmpl")
-                                            get-string-all)))
+                           `(("/etc/configuration/workstation.scm"
+                              ,(local-file "examples/workstation.tmpl"
+                                           "workstation.scm"))
                              ("/etc/configuration/laptop.scm"
-                              ,(plain-file "laptop.scm"
-                                          (call-with-input-file
-                                            (string-append (dirname (current-filename))
-                                                           "/examples/laptop.tmpl")
-                                            get-string-all)))))
+                              ,(local-file "examples/laptop.tmpl"
+                                           "laptop.scm"))))
             (modify-services (operating-system-user-services installation-os)
               (guix-service-type config =>
                                  (guix-configuration (inherit config)
