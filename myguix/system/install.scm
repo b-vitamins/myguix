@@ -24,7 +24,6 @@
   #:use-module (gnu packages vim)
   #:use-module (gnu packages wget)
   #:use-module (myguix packages linux)
-  #:use-module (myguix system linux-initrd)
   #:use-module (gnu services)
   #:use-module (gnu services base)
   #:use-module (gnu system)
@@ -34,7 +33,6 @@
   #:use-module (guix gexp)
   #:use-module (myguix packages base)
   #:use-module (myguix packages linux)
-  #:use-module (myguix system linux-initrd)
   #:export (%my-channels 
             my-installation-os))
 
@@ -56,7 +54,9 @@
     (kernel linux)
     (kernel-arguments %default-kernel-arguments)
     (firmware (list linux-firmware sof-firmware))
-    (initrd microcode-initrd)
+    ;; Keep the default initrd: the ISO builder zisofs-compresses every file
+    ;; not named like a kernel or '*.gz', and GRUB cannot read the resulting
+    ;; 'initrd.img' of 'microcode-initrd'.
     (keyboard-layout (keyboard-layout "us"
                                       "altgr-intl"
                                       #:model "thinkpad"
