@@ -5,9 +5,15 @@
 ;;; Copyright © 2024 Hilton Chain <hako@ultrarare.space>
 ;;; Copyright © 2024 Ayan Das <ayan@iisc.ac.in>
 ;;
-;; Generate a bookable image (e.g. for USB sticks, etc.) with:
+;; Generate a bootable image (e.g. for USB sticks, etc.) from the repository
+;; root with:
 ;;
-;; $ guix system image --image-type=iso9660 myguix/system/install.scm
+;; $ guix system image --image-type=iso9660 --no-grafts -L . \
+;;     myguix/system/install.scm
+;;
+;; '--no-grafts' avoids a Guix bug: when grafting needs builds while the
+;; system is being lowered, parts of it can end up both grafted and ungrafted
+;; and the build fails.
 
 (define-module (myguix system install)
   #:use-module (gnu packages base)
