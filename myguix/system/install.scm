@@ -16,9 +16,13 @@
   #:use-module (gnu packages disk)
   #:use-module (gnu packages file-systems)
   #:use-module (gnu packages emacs)
+  #:use-module (gnu packages gnupg)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages package-management)
+  #:use-module (gnu packages tmux)
   #:use-module (gnu packages version-control)
+  #:use-module (gnu packages vim)
+  #:use-module (gnu packages wget)
   #:use-module (myguix packages linux)
   #:use-module (myguix system linux-initrd)
   #:use-module (gnu services)
@@ -58,29 +62,23 @@
                                       #:model "thinkpad"
                                       #:options '("ctrl:nocaps"
                                                   "altwin:swap_alt_win")))
+    ;; Console installation and rescue only; desktop applications and font
+    ;; bundles would not fit on a typical USB stick.
     (packages (append %core-minimal
                       %core-extended
                       %shell-modern
-                      %terminal-essentials
-                      %text-editors
-                      %security-essentials
                       %version-control
                       %compression-tools
-                      %network-core
                       %network-diagnostics
-                      %network-performance
-                      ;; File Management
-                      %filesystem-core
-                      %filesystem-advanced
-                      %cloud-sync
                       %backup-tools
-                      %file-sharing
-                      %download-tools
-                      ;; Fonts
-                      %fonts-essential
-                      %fonts-programming
-                      %fonts-document
-                      %fonts-international
+                      ;; Rescue utilities
+                      (list neovim
+                            tmux
+                            gnupg
+                            curl
+                            wget
+                            sshfs
+                            efibootmgr)
                       ;; Installation utilities
                       (list parted
                             gptfdisk
