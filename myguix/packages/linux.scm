@@ -200,6 +200,10 @@ some freedo package or an output of package-version procedure."
                                    name)))
     (and variable (variable-ref variable))))
 
+(define-public linux-7.3
+  (let ((freedo (%gnu-linux-package 'linux-libre-7.3)))
+    (and freedo (corrupt-linux freedo))))
+
 (define-public linux-7.2
   (let ((freedo (%gnu-linux-package 'linux-libre-7.2)))
     (and freedo (corrupt-linux freedo))))
@@ -395,14 +399,14 @@ stable, responsive and smooth desktop experience.")))
 (define-public linux-firmware
   (package
     (name "linux-firmware")
-    (version "20260916")
+    (version "20261019")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "mirror://kernel.org/linux/kernel/firmware/"
                            "linux-firmware-" version ".tar.xz"))
        (sha256
-        (base32 "1ifcj0fdlx7s6ldz6r29nnv6ziw83878xh004akfsgb2g9swn3gq"))))
+        (base32 "1jnl1kblhpkrvc0dz9nzplk6qsciwq9z6z4c5sllpizjpasil3d1"))))
     (build-system gnu-build-system)
     (arguments
      (list
