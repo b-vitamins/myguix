@@ -274,7 +274,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "0wzdxxdzw2hhcrvny3rmay7711m8l0mgj7bs1k6j6771bn0a2fqr")))))
     (package
       (name "google-antigravity")
-      (version "2.24.0")
+      (version "2.29.0")
       (source
        (origin
          (method url-fetch)
@@ -288,7 +288,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-5780333019398144/"
+                 "-5723181030440960/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -296,9 +296,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "1inwmhb84k62nwjgrnd0bx5g0x3lydpydqa2a4vd3i9k01cby248")
+                     "0r4n32zw5kg9jiacc5fd452zafh46cshvmf00q70g8xkp425frrs")
                     ("aarch64-linux"
-                     "1c0af7p9h6qkqvg7cjxhsbq7jf3gxa0z928iy029apc8ryaldbjz")
+                     "01zn2839z1mjz3p430jv8cxmrbbwc3q8iy2jkaffqwc7qm9w56w4")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -346,10 +346,12 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                     ;; Guix installs the scheme handler through the desktop
                     ;; file; avoid Electron invoking xdg-mime at startup.
                     (substitute* "main.js"
-                      (("app\\.setAsDefaultProtocolClient\\(PROTOCOL\\);")
-                       "app.isDefaultProtocolClient(PROTOCOL);"))
+                      (((string-append
+                         "app\\.setAsDefaultProtocolClient\\(PROTOCOL, "
+                         "\\.\\.\\.protocolClientArgs\\);"))
+                       "app.isDefaultProtocolClient(PROTOCOL, ...protocolClientArgs);"))
                     (ensure-patched "main.js"
-                                    "app.isDefaultProtocolClient(PROTOCOL);\n")
+                                    "app.isDefaultProtocolClient(PROTOCOL, ...protocolClientArgs);\n")
                     ;; Guix manages updates; electron-updater only warns
                     ;; hourly that this is not an AppImage.
                     (substitute* "updater.js"
@@ -466,10 +468,10 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
       (license (license:nonfree "https://antigravity.google/terms")))))
 
 (define-public google-antigravity-ide
-  (let ((build "4923483625488384"))
+  (let ((build "5526304964083712"))
     (package
       (name "google-antigravity-ide")
-      (version "2.5.5")
+      (version "2.6.0")
       (source
        (origin
          (method url-fetch)
@@ -487,9 +489,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "0cgq2xln7444jwbbnphs6qyrbhhj82aghjdgc6xsxcyjjyr36lhc")
+                     "0mj3z6k6xdbl34qx81yjlx0x5388lgkqwbvm36vb40wicz3sfq5h")
                     ("aarch64-linux"
-                     "17m473y9z3k9l8sh55f31hgwdpplmak0lzwd78i3mhw0i486ghc8")
+                     "1pjjl3mf5iwbzyz7x8amwmgv9vs0sqkdv8qi2wm5h2gr5fswqls9")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -512,10 +514,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                        "libGLESv2.so"
                        "libffmpeg.so"
                        "libvk_swiftshader.so"
-                       "libvulkan.so.1"
-                       (string-append "resources/app/extensions/antigravity/"
-                                      "bin/language_server_linux_"
-                                      #$(if (target-aarch64?) "arm" "x64")))))
+                       "libvulkan.so.1")))
         #:install-plan
         #~'(("." "/share/antigravity-ide"))
         #:phases
@@ -581,7 +580,7 @@ projects in it.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.1013.40934")
+    (version "26.1029.61003")
     (source
      (origin
        (method url-fetch)
@@ -603,9 +602,9 @@ projects in it.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "1mx1ydfvw3ia47xihx7z4s0apdc46xl81mlszgibjhb6k9zrx99w")
+                   "0b8vs1rx5pm18l0zyamlwjjprshgvv7xknzlns724p6jqpz8mbzk")
                   ("aarch64-linux"
-                   "16v23kryb506wh0bz5qdga96z4r8h6vwmdbfw2hymsrwyfxcpcls")
+                   "0axw89998akwvrk9kap3nzmrg8j5b7m9q5mqrnzffs7y6gxss6a7")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
@@ -701,11 +700,12 @@ projects in it.")
                        "\"Guix runtime fixup failed:\",error.message,stderr)}"
                        "resolve()}));runs.set(key,run)}return run})())")))
                 (invoke python asar-tool "extract" asar tree)
-                (let ((startup (find-files tree
-                                           "^application-network-startup-.*\\.js$"))
-                      (sources (find-files tree "^src-.*\\.js$"))
-                      (hosts (find-files (string-append tree "/webview")
-                                         "^host-.*\\.js$")))
+                (let* ((main (find-files tree "^early-bootstrap.*\\.js$"))
+                       (startup (filter (contains? "runtimeRoot:") main))
+                       (sources (filter (contains? "\"/bin/cat\"") main))
+                       (hosts (filter (contains? "\"/usr/bin/head\"")
+                                      (find-files (string-append tree "/webview")
+                                                  "\\.js$"))))
                   (substitute* startup
                     ((runtime-resolver _ head root metadata)
                      (string-append head ";await(" hook ")(" root ","
@@ -714,13 +714,15 @@ projects in it.")
                   ;; Guix System has no /bin/cat, /usr/bin/head or
                   ;; /usr/bin/git; let PATH, local or remote, resolve them.
                   (substitute* sources
-                    (("\\[`/bin/cat`,") "[`cat`,"))
-                  (ensure-patched sources "`/bin/cat`" "[`cat`,")
+                    (("\\[\"/bin/cat\",") "[\"cat\",")
+                    (("'/bin/cat >") "'cat >"))
+                  (ensure-patched sources "\"/bin/cat\"" "[\"cat\",")
+                  (ensure-patched sources "'/bin/cat >" "'cat >")
                   (substitute* hosts
-                    (("\\[`/usr/bin/head`,") "[`head`,")
-                    ((":`/usr/bin/git`") ":`git`"))
-                  (ensure-patched hosts "`/usr/bin/head`" "[`head`,")
-                  (ensure-patched hosts "`/usr/bin/git`" ":`git`")
+                    (("\\[\"/usr/bin/head\",") "[\"head\",")
+                    ((":\"/usr/bin/git\"") ":\"git\""))
+                  (ensure-patched hosts "\"/usr/bin/head\"" "[\"head\",")
+                  (ensure-patched hosts "\"/usr/bin/git\"" ":\"git\"")
                   (for-each (lambda (file)
                               (invoke node "--check" file))
                             (append startup sources hosts)))
@@ -1058,7 +1060,7 @@ ChatGPT, including local Codex integration for software development workflows.")
 (define-public claude-desktop
   (package
     (name "claude-desktop")
-    (version "2.42304.2")
+    (version "4.16336.0")
     (source
      (origin
        (method url-fetch)
@@ -1079,9 +1081,9 @@ ChatGPT, including local Codex integration for software development workflows.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "143znpk91dvjim30zqwa7157rj02mkvs5sjjls6chxm9b25xb9rq")
+                   "1g343998g02qy0bk3hlxrsywc71xwl9ms5r1x7m70bvrjcz7641q")
                   ("aarch64-linux"
-                   "1fryzsvjbp28yqax0cj69w4g2kkplnwnpw1j3nqqcq0mr9j8byq0")
+                   "0hrmkdja78dzv76s652dnyq5v4px0wj5dyp4795njl9pzs9gk16b")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
@@ -1154,7 +1156,7 @@ ChatGPT, including local Codex integration for software development workflows.")
                                        (any (lambda (needle)
                                               (string-contains (contents file)
                                                                needle))
-                                            (cons* "CLAUDE_CODE_LOCAL_BINARY}"
+                                            (cons* "}async initLocalBinary("
                                                    firmware
                                                    "\"/usr/libexec/virtiofsd\""
                                                    (map car programs))))
@@ -1162,9 +1164,8 @@ ChatGPT, including local Codex integration for software development workflows.")
                                                                 "/.vite/build")
                                                  "\\.js$"))))
                   (substitute* files
-                    (((string-append "process\\.env\\.CLAUDE_CODE_LOCAL_BINARY"
-                                     "\\}async initLocalBinary\\("))
-                     (string-append local-binary "}async initLocalBinary("))
+                    (("\\}async initLocalBinary\\(")
+                     (string-append ";" local-binary "}async initLocalBinary("))
                     (("\"/bin/ps\"")
                      (assoc-ref programs "\"/bin/ps\""))
                     (("\"/usr/bin/pgrep\"")
