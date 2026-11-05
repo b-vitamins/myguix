@@ -19098,14 +19098,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.163.0")
+    (version "0.166.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "1d2mclz5vcniz0rsb373mhw8q0d3qisycfp6qb94dd0baqvdnw8s"))))
+        (base32 "1dzmhwdp7by19sgsyn4h2lrr4di05hhaqm0z81b8jcnrd506zvk7"))))
     (build-system node-build-system)
     (native-inputs
      (list `("patchelf" ,patchelf)
@@ -19135,9 +19135,9 @@ characters using Unicode emoji modifier bases.")
                                     (%current-system))))
                     (cond
                      ((string=? system "x86_64-linux")
-                      "156y51snpbimxia7v01jnx0418sz27m9p6mmg06r8xdr71vwkvrh")
+                      "14zx0702nxh8wc5bqxdind4y7w8ym3w9325yqkpwxqnhsck0mh6b")
                      ((string=? system "aarch64-linux")
-                      "08imfs24nf5db06n68kgnwazdvppgxby418dysh26777dm6pqvnw")
+                      "1kba81alayxzp9n3clskbnrsn9pv4ndp24wxadngqr3q750fhi4h")
                      (else
                       (error "unsupported system for node-openai-codex"
                              system))))))))))
@@ -19277,7 +19277,7 @@ characters using Unicode emoji modifier bases.")
 (define-public node-anthropic-ai-claude-code
   (package
     (name "node-anthropic-ai-claude-code")
-    (version "2.1.304")
+    (version "2.1.318")
     (source
      (origin
        (method url-fetch)
@@ -19295,15 +19295,18 @@ characters using Unicode emoji modifier bases.")
          (let ((system (or (%current-target-system) (%current-system))))
            (cond
             ((string=? system "x86_64-linux")
-             "05fdi9mg054j61s5f56615g828nasfvw5nbvvw9y7hii8vjlxnhy")
+             "0ksmklpyizh0mvf926b8cbqpmxcpxacvsm8rpdcjkggms0xmwk9a")
             ((string=? system "aarch64-linux")
-             "07l1ln7vb1m64b8yq5mfwy1ynyknp16k0ck3lfa37xia4d4cp0l9")
+             "12kc86pgriabgxphkpp6cpfyq1j9jb213h6iqv5si0lpdsig97s2")
             (else (error "unsupported system for Claude Code" system))))))))
     (build-system copy-build-system)
     (arguments
      (list
       ;; Bun stores its application payload after the ELF sections.
       #:strip-binaries? #f
+      ;; Use the loader's default glibc directories without rewriting RPATH.
+      ;; Validate dependencies with the loader itself in 'patch-binary'.
+      #:validate-runpath? #f
       #:install-plan #~'(("claude" "bin/")
                           ("LICENSE.md" "share/doc/claude-code/"))
       #:phases
@@ -19311,16 +19314,15 @@ characters using Unicode emoji modifier bases.")
           (add-after 'install 'patch-binary
             (lambda* (#:key inputs outputs #:allow-other-keys)
               (let ((claude (string-append (assoc-ref outputs "out")
-                                           "/bin/claude")))
-                ;; Reordering Bun's ELF sections corrupts loader version data,
-                ;; and since 2.1.304 the binary segfaults unless RPATH is
-                ;; written before the interpreter, in a separate pass.
-                (invoke "patchelf" "--no-sort" "--set-rpath"
-                        (string-append (assoc-ref inputs "glibc") "/lib")
-                        claude)
+                                           "/bin/claude"))
+                    (interpreter (search-input-file inputs
+                                                    #$(glibc-dynamic-linker))))
+                ;; Bun's embedded payload breaks when its RPATH is rewritten.
+                ;; All NEEDED libraries are supplied by glibc; its loader
+                ;; already searches the matching store library directory.
                 (invoke "patchelf" "--no-sort" "--set-interpreter"
-                        (search-input-file inputs #$(glibc-dynamic-linker))
-                        claude))))
+                        interpreter claude)
+                (invoke interpreter "--list" claude))))
           (add-after 'patch-binary 'wrap-runtime-tools
             (lambda* (#:key inputs outputs #:allow-other-keys)
               (wrap-program (string-append (assoc-ref outputs "out")
