@@ -77,7 +77,8 @@
   #:use-module (myguix packages)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module (myguix utils)
+  #:use-module ((myguix utils)
+                #:select (package-input-grafting with-transformation/myguix))
   #:use-module (myguix packages linux)
   #:use-module (myguix packages python-pqrs)
   #:use-module (ice-9 match)
@@ -1451,7 +1452,7 @@ variables @code{__GLX_VENDOR_LIBRARY_NAME=nvidia} and
              #:name "nvdb"))
 
 (define* (replace-mesa obj #:key (driver nvda))
-  (with-transformation
+  (with-transformation/myguix
       (package-input-grafting
        `((,mesa . ,driver)
          (,nvidia-driver . ,driver)

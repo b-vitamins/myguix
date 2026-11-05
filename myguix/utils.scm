@@ -10,11 +10,14 @@
   #:use-module (ice-9 popen)
   #:use-module (guix utils)
   #:use-module (guix packages)
+  #:use-module (gnu home)
   #:use-module (gnu services)
+  #:use-module (gnu system)
   #:use-module ((myguix packages rust-crates-pqrs)
                 #:select (lookup-myguix-cargo-inputs))
-  #:export (package-input-grafting package-with-alias with-transformation
-                                   myguix-cargo-inputs))
+  #:export (package-input-grafting package-with-alias
+                                   with-transformation/myguix
+                                   with-transformation myguix-cargo-inputs))
 
 (define-public (to32 package64)
   "Build package for i686-linux.
@@ -61,8 +64,8 @@ requirement."
 
 ;; For concerns and direction of improvement, see this thread:
 ;; https://lists.gnu.org/archive/html/guix-devel/2024-06/msg00275.html
-(define* (with-transformation proc obj
-                              #:optional (pred package?))
+(define* (with-transformation/myguix proc obj
+                                     #:optional (pred package?))
   "Recursing into child elements, apply PROC to every element of OBJ that
 matches PRED."
   (match obj
@@ -71,15 +74,15 @@ matches PRED."
     ((? procedure?)
      (lambda args
        (apply values
-              (map (cut with-transformation proc <> pred)
+              (map (cut with-transformation/myguix proc <> pred)
                    (call-with-values (lambda ()
                                        (apply obj args)) list)))))
-    ((a . b) (cons (with-transformation proc a pred)
-                   (with-transformation proc b pred)))
+    ((a . b) (cons (with-transformation/myguix proc a pred)
+                   (with-transformation/myguix proc b pred)))
     ((_ ...)
-     (map (cut with-transformation proc <> pred) obj))
+     (map (cut with-transformation/myguix proc <> pred) obj))
     (#(_ ...) (vector-map (lambda (vec elt)
-                            (with-transformation proc elt pred)) obj))
+                            (with-transformation/myguix proc elt pred)) obj))
     ;; `<service-type>' and `<origin>' record types are expected to not be
     ;; modified. Altering them causes very difficult to debug run-time errors.
     ((or (? service-type?)
@@ -87,13 +90,28 @@ matches PRED."
      obj)
     ((? record?)
      (let* ((record-type (record-type-descriptor obj))
-            (record-fields (record-type-fields record-type)))
+            (record-fields (record-type-fields record-type))
+            ;; Older Guix records do not have a transformation field.
+            (deferred? (and (or (operating-system? obj)
+                                (home-environment? obj))
+                            (memq 'transformation record-fields))))
        (apply (record-constructor record-type)
               (map (lambda (field)
                      (let* ((accessor (record-accessor record-type field))
                             (obj (accessor obj)))
-                       (with-transformation proc obj pred))) record-fields))))
+                       (if deferred?
+                           (if (eq? field
+                                    'transformation)
+                               (compose (lambda (value)
+                                          (if (pred value)
+                                              (proc value) value)) obj) obj)
+                           (with-transformation/myguix proc obj pred))))
+                   record-fields))))
     (_ obj)))
+
+;; Retain the old public name for callers which explicitly select it.
+(define with-transformation
+  with-transformation/myguix)
 
 (define (package-with-alias alias pkg)
   "Return a copy of package PKG called ALIAS."
