@@ -3249,6 +3249,8 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          ;; The custom install phase already creates the CLI links.
+          (delete 'link-bins)
           (replace 'configure
             (lambda _
               #t))
@@ -3471,6 +3473,7 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (delete 'link-bins)
           (replace 'configure
             (lambda _
               #t))
@@ -7455,6 +7458,7 @@
       #:phases
       #~(modify-phases %standard-phases
           (delete 'build)
+          (delete 'link-bins)
           (replace 'configure
             (lambda _
               #t))
@@ -10833,6 +10837,21 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
             (lambda _
               (setenv "CC" "gcc")
               (setenv "CXX" "g++")))
+          (add-after 'strip 'remove-gyp-stamps
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              ;; GYP places dependency stamps outside the package directory.
+              ;; Guix would mistake that directory for another npm module.
+              (let ((stamps (string-append
+                             (assoc-ref outputs "out") "/lib/node_modules/"
+                             (basename (assoc-ref inputs "node-node-addon-api")))))
+                (when (file-exists? stamps)
+                  (delete-file-recursively stamps)))))
+          (add-after 'remove-gyp-stamps 'check-native-binding
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (invoke (search-input-file inputs "/bin/node") "-e"
+                      "const Parser = require(process.argv[1]); new Parser();"
+                      (string-append (assoc-ref outputs "out")
+                                     "/lib/node_modules/tree-sitter"))))
           (add-after 'patch-dependencies 'delete-dev-dependencies
             (lambda _
               (modify-json (delete-dependencies '("@types/node" "@types/tmp"
@@ -10884,6 +10903,28 @@ bundle identifier.  For example, it converts 'com.apple.Safari' to 'Safari'.")
             (lambda _
               (setenv "CC" "gcc")
               (setenv "CXX" "g++")))
+          (add-after 'strip 'remove-gyp-stamps
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let ((stamps (string-append
+                             (assoc-ref outputs "out") "/lib/node_modules/"
+                             (basename (assoc-ref inputs "node-node-addon-api")))))
+                (when (file-exists? stamps)
+                  (delete-file-recursively stamps)))))
+          (add-after 'remove-gyp-stamps 'check-bash-parser
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (invoke (search-input-file inputs "/bin/node") "-e"
+                      (string-append
+                       "const assert = require('node:assert/strict');"
+                       "const Parser = require('tree-sitter');"
+                       "const parser = new Parser();"
+                       "parser.setLanguage(require(process.argv[1]));"
+                       "const tree = parser.parse('if true; then echo hello; fi');"
+                       "assert.equal(tree.rootNode.type, 'program');"
+                       "assert.equal(tree.rootNode.hasError, false);"
+                       "assert.equal(tree.rootNode.firstNamedChild.type, 'if_statement');"
+                       "assert.equal(parser.parse('if true; then').rootNode.hasError, true);")
+                      (string-append (assoc-ref outputs "out")
+                                     "/lib/node_modules/tree-sitter-bash"))))
           (add-after 'patch-dependencies 'delete-scripts
             (lambda _
               (modify-json
