@@ -6,7 +6,11 @@
   #:use-module (guix download)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages emacs-build)
-  #:use-module (gnu packages emacs-xyz)
+  #:use-module ((gnu packages emacs-xyz)
+                #:hide (emacs-sly emacs-sly-asdf emacs-sly-quicklisp))
+  #:use-module ((gnu packages emacs-xyz)
+                #:select (emacs-sly emacs-sly-asdf emacs-sly-quicklisp)
+                #:prefix upstream:)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages pkg-config)
   #:use-module (gnu packages sqlite)
@@ -252,6 +256,28 @@ All available commands are listed in a hydra help menu accessible by pressing `?
      "LaTeX YASnippet collection (not only) following the 'Short Math Guide for LaTeX' by Michael Downes and Barbara Beeton.")
     (license license:gpl3+)))
 
+
+(define-public emacs-sly
+  (package
+    (inherit upstream:emacs-sly)
+    (arguments
+     (substitute-keyword-arguments (package-arguments upstream:emacs-sly)
+       ;; Both suites compile Slynk into the same HOME/.sly/fasl cache.
+       ((#:parallel-tests? _ #t) #f)))))
+
+(define-public emacs-sly-asdf
+  (package
+    (inherit upstream:emacs-sly-asdf)
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs upstream:emacs-sly-asdf)
+       (replace "emacs-sly" emacs-sly)))))
+
+(define-public emacs-sly-quicklisp
+  (package
+    (inherit upstream:emacs-sly-quicklisp)
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs upstream:emacs-sly-quicklisp)
+       (replace "emacs-sly" emacs-sly)))))
 
 (define-public emacs-sly-repl-ansi-color
   (package
