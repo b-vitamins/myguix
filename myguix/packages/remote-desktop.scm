@@ -44,9 +44,9 @@
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "07ick86npvja00js59jm2ak15lfd1d67c7zj1z7wbcx0yv1hr1kp")
+                   "1czaqh00byrq9yc5ln3cni5664awh3sfdwj9mlazb311ihabyc3m")
                   ("aarch64-linux"
-                   "1hld31yqsngvyvjbx16kz91rr1fw2g045bilvsvj9261gb8xr3ms")
+                   "1s06p6r9wqnp15zia1rp23ipj9kdhq635iq64rgk7c488q3aal4y")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system binary-build-system)

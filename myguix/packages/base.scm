@@ -115,7 +115,6 @@
   #:use-module (myguix packages nvidia)
   #:use-module (myguix packages productivity)
   #:use-module (myguix packages python-pqrs)
-  #:use-module (myguix packages remote-desktop)
   #:use-module ((myguix packages video)
                 #:hide (ffmpeg-nvidia ffmpeg-6-nvidia
                         nv-codec-headers nvidia-vaapi-driver))
@@ -329,7 +328,8 @@
   (list iperf socat libnatpmp))
 
 (define %remote-access
-  (list anydesk))
+  ;; Retain the bundle for existing machine configurations.
+  '())
 
 ;; Desktop Bundles
 (define %desktop-browsers
