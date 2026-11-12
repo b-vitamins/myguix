@@ -4,6 +4,7 @@
   #:use-module (gnu services dbus)
   #:use-module (gnu services configuration)
   #:use-module (gnu system pam)
+  #:use-module (srfi srfi-1)
   #:export (fprintd-service-type))
 
 (define-configuration/no-serialization fprintd-configuration
@@ -37,28 +38,38 @@ This depends on your desktop configuration. For example, if you want GNOME promp
     (pam-extension
      (transformer
       (lambda (pam)
-        (if (member (pam-service-name pam) service-names)
-            (pam-service (inherit pam)
-                         (auth (cons (fprintd-pam-entry fprintd-module)
-                                     (pam-service-auth pam))))
-            pam))))))
+        (cond ((and (fprintd-configuration-unlock-gdm? config)
+                    (string=? (pam-service-name pam) "gdm-fingerprint"))
+               (fprintd-gdm-fingerprint-pam-service pam fprintd-module))
+              ((member (pam-service-name pam) service-names)
+               (pam-service (inherit pam)
+                            (auth (cons (fprintd-pam-entry fprintd-module)
+                                        (pam-service-auth pam)))))
+              (else pam)))))))
 
-(define (fprintd-gdm-fingerprint-pam-service fprintd-module)
-  ;; GDM may look for a dedicated "gdm-fingerprint" service.  Provide it
-  ;; explicitly, but transform existing GDM PAM services in place to avoid
-  ;; colliding with Guix's own gdm-password and gdm-launch-environment files.
-  (pam-service (inherit (unix-pam-service "gdm-fingerprint"
-                                          #:login-uid? #t))
-               (auth (list (pam-entry (control "required")
-                                      (module fprintd-module))))))
+(define (fprintd-gdm-fingerprint-pam-service pam fprintd-module)
+  ;; GDM's service type provides a "gdm-fingerprint" service that accepts
+  ;; passwords.  Adding a second one would collide in /etc/pam.d, so turn
+  ;; GDM's own into one that accepts fingerprints only and records the login
+  ;; UID like "gdm-password" does, keeping the session entries other services
+  ;; add.
+  (let ((session (pam-service-session pam)))
+    (pam-service (inherit pam)
+                 (auth (list (pam-entry (control "required")
+                                        (module fprintd-module))))
+                 (session (if (any (lambda (entry)
+                                     (equal? (pam-entry-module entry)
+                                             "pam_loginuid.so"))
+                                   session)
+                              session
+                              (cons (pam-entry (control "required")
+                                               (module "pam_loginuid.so"))
+                                    session))))))
 
 (define (fprintd-pam-extensions config)
   (let ((fprintd-module (file-append (fprintd-configuration-fprintd config)
                                      "/lib/security/pam_fprintd.so")))
-    (append (list (fprintd-pam-transformer config fprintd-module))
-            (if (fprintd-configuration-unlock-gdm? config)
-                (list (fprintd-gdm-fingerprint-pam-service fprintd-module))
-                '()))))
+    (list (fprintd-pam-transformer config fprintd-module))))
 
 (define (fprintd-dbus-service config)
   (list (fprintd-configuration-fprintd config)))
