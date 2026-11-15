@@ -56,7 +56,7 @@
 (define-public anytype
   (package
     (name "anytype")
-    (version "0.57.4")
+    (version "0.57.7")
     (source
      (origin
        (method url-fetch)
@@ -65,7 +65,7 @@
              "_" version "_amd64.deb"))
        (file-name (string-append "anytype-" version ".deb"))
        (sha256
-        (base32 "131sp1zgfjaq5j8h362rz9pffk0r3xg0j2r3i0an9ws6kk69az7x"))))
+        (base32 "0jlqk8x264jah6n8g63kb6pq1vz8kjznk1ds75kw31nmc89q1g0n"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
@@ -155,7 +155,7 @@ synchronization.")
 (define-public obsidian
   (package
     (name "obsidian")
-    (version "1.14.4")
+    (version "1.15.1")
     (source
      (origin
        (method url-fetch)
@@ -177,9 +177,9 @@ synchronization.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "080ir1nbgscqzgl15xnkgf3r2ss4bhzlbv2gm2cggrw76zb7q2z7")
+                   "06c5xghfrki6879scvf6pjh8f6n00vn0z3c0glq6dwzc6l34y1q9")
                   ("aarch64-linux"
-                   "0bd4wbp1v5qlri7vxi27330bqwlq015vrxayzs2ys4spa422h8gw")
+                   "0w2f5c3ssj694n66zrn20bm6f8dnf9ji4mbnds9w8c16gvjikhmc")
                   ;; We need a valid base case for base32
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (build-system chromium-binary-build-system)
@@ -274,7 +274,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "0wzdxxdzw2hhcrvny3rmay7711m8l0mgj7bs1k6j6771bn0a2fqr")))))
     (package
       (name "google-antigravity")
-      (version "2.29.0")
+      (version "2.32.0")
       (source
        (origin
          (method url-fetch)
@@ -288,7 +288,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-5723181030440960/"
+                 "-6141816156848128/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -296,9 +296,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "0r4n32zw5kg9jiacc5fd452zafh46cshvmf00q70g8xkp425frrs")
+                     "0xa29x2nf3bh3xv6jp74w2hl6187x8r8zvky5vfsfk5xy9qi72nr")
                     ("aarch64-linux"
-                     "01zn2839z1mjz3p430jv8cxmrbbwc3q8iy2jkaffqwc7qm9w56w4")
+                     "1vs8zhk9jqzcxvykl33w516xq4r0lvq44ic5m0haqkkkx4rrhk01")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -468,10 +468,10 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
       (license (license:nonfree "https://antigravity.google/terms")))))
 
 (define-public google-antigravity-ide
-  (let ((build "5526304964083712"))
+  (let ((build "4507555968450560"))
     (package
       (name "google-antigravity-ide")
-      (version "2.6.0")
+      (version "2.7.0")
       (source
        (origin
          (method url-fetch)
@@ -489,9 +489,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "0mj3z6k6xdbl34qx81yjlx0x5388lgkqwbvm36vb40wicz3sfq5h")
+                     "0pbsdy9rb4slpiwa2rfzpa77c0rj3wxp8jr58s44krf345jshq4k")
                     ("aarch64-linux"
-                     "1pjjl3mf5iwbzyz7x8amwmgv9vs0sqkdv8qi2wm5h2gr5fswqls9")
+                     "1fsy78f5g9xwfbax6pdqnwb8nyk27wz31zyg58x3v3202n497hbh")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -580,7 +580,7 @@ projects in it.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.1029.61003")
+    (version "26.1111.21308")
     (source
      (origin
        (method url-fetch)
@@ -602,9 +602,9 @@ projects in it.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "0b8vs1rx5pm18l0zyamlwjjprshgvv7xknzlns724p6jqpz8mbzk")
+                   "0li3an5smnyklna7qkyrnngkrsn90zibmwf27ccin2imaz2kni2b")
                   ("aarch64-linux"
-                   "0axw89998akwvrk9kap3nzmrg8j5b7m9q5mqrnzffs7y6gxss6a7")
+                   "09cskndmvbjcxca8hxjhh9y9v23l6g8d7bkwn8l7mvv8144smif5")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
@@ -703,9 +703,11 @@ projects in it.")
                 (let* ((main (find-files tree "^early-bootstrap.*\\.js$"))
                        (startup (filter (contains? "runtimeRoot:") main))
                        (sources (filter (contains? "\"/bin/cat\"") main))
-                       (hosts (filter (contains? "\"/usr/bin/head\"")
-                                      (find-files (string-append tree "/webview")
-                                                  "\\.js$"))))
+                       (host-sources (find-files tree "\\.js$"))
+                       (heads (filter (contains? "\"/usr/bin/head\"")
+                                      host-sources))
+                       (gits (filter (contains? "\"/usr/bin/git\"")
+                                     host-sources)))
                   (substitute* startup
                     ((runtime-resolver _ head root metadata)
                      (string-append head ";await(" hook ")(" root ","
@@ -718,14 +720,18 @@ projects in it.")
                     (("'/bin/cat >") "'cat >"))
                   (ensure-patched sources "\"/bin/cat\"" "[\"cat\",")
                   (ensure-patched sources "'/bin/cat >" "'cat >")
-                  (substitute* hosts
-                    (("\\[\"/usr/bin/head\",") "[\"head\",")
-                    ((":\"/usr/bin/git\"") ":\"git\""))
-                  (ensure-patched hosts "\"/usr/bin/head\"" "[\"head\",")
-                  (ensure-patched hosts "\"/usr/bin/git\"" ":\"git\"")
+                  ;; Some releases no longer contain these absolute paths.
+                  (substitute* heads
+                    (("\"/usr/bin/head\"") "\"head\""))
+                  (substitute* gits
+                    (("\"/usr/bin/git\"") "\"git\""))
+                  (unless (null? heads)
+                    (ensure-patched heads "\"/usr/bin/head\"" "\"head\""))
+                  (unless (null? gits)
+                    (ensure-patched gits "\"/usr/bin/git\"" "\"git\""))
                   (for-each (lambda (file)
                               (invoke node "--check" file))
-                            (append startup sources hosts)))
+                            (append startup sources heads gits)))
                 (invoke python asar-tool "pack" asar tree)
                 (delete-file-recursively tree))))
           (add-after 'strip 'patch-native-node-modules
@@ -1060,7 +1066,7 @@ ChatGPT, including local Codex integration for software development workflows.")
 (define-public claude-desktop
   (package
     (name "claude-desktop")
-    (version "4.16336.0")
+    (version "5.11492.5")
     (source
      (origin
        (method url-fetch)
@@ -1081,9 +1087,9 @@ ChatGPT, including local Codex integration for software development workflows.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "1g343998g02qy0bk3hlxrsywc71xwl9ms5r1x7m70bvrjcz7641q")
+                   "1kv42lhfii4ib5adszfkygkq1vbz0zv09qyvyx0bfl740yr0hqmr")
                   ("aarch64-linux"
-                   "0hrmkdja78dzv76s652dnyq5v4px0wj5dyp4795njl9pzs9gk16b")
+                   "0sjsbxvxnb0ww6xhyfhkrvsayspfz8630ixnwss6xfcn1ykxhv7y")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
