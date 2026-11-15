@@ -19139,14 +19139,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.166.0")
+    (version "0.169.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "1dzmhwdp7by19sgsyn4h2lrr4di05hhaqm0z81b8jcnrd506zvk7"))))
+        (base32 "1012l3jcdayafaxpkm8y8z2aj9a98dqz0bjm87i9whrry1p0ca2r"))))
     (build-system node-build-system)
     (native-inputs
      (list `("patchelf" ,patchelf)
@@ -19176,9 +19176,9 @@ characters using Unicode emoji modifier bases.")
                                     (%current-system))))
                     (cond
                      ((string=? system "x86_64-linux")
-                      "14zx0702nxh8wc5bqxdind4y7w8ym3w9325yqkpwxqnhsck0mh6b")
+                      "1aiz2lfspk50n7s24h37pscr7iws2lrsiq0gp0p5dfpsjx5ip049")
                      ((string=? system "aarch64-linux")
-                      "1kba81alayxzp9n3clskbnrsn9pv4ndp24wxadngqr3q750fhi4h")
+                      "1zy1vfx46ng17b4fvspnbdldmblfx4azz135fcyp0glisf55qmf1")
                      (else
                       (error "unsupported system for node-openai-codex"
                              system))))))))))
@@ -19193,7 +19193,11 @@ characters using Unicode emoji modifier bases.")
             (lambda* (#:key inputs #:allow-other-keys)
               (invoke "tar" "-xf"
                       (assoc-ref inputs "platform-source")
-                      "--strip-components=1" "package/vendor") #t))
+                      "--strip-components=1" "package/vendor")
+              ;; Guix repacks with npm's file list before installation.
+              (modify-json
+               (lambda (pkg-meta)
+                 (assoc-set! pkg-meta "files" #("bin/codex.js" "vendor"))))))
           (add-after 'add-platform-vendor 'patch-voice-host-elf
             (lambda _
               (define glibc-lib #$(file-append glibc "/lib"))
@@ -19256,8 +19260,12 @@ characters using Unicode emoji modifier bases.")
               ;; startup and rejects links escaping the package root.  Keep the
               ;; expected layout, but install Guix's rg instead of the bundled
               ;; binary.
-              (let ((root (string-append (assoc-ref outputs "out")
-                                         "/lib/node_modules/@openai/codex")))
+              (let* ((root (string-append (assoc-ref outputs "out")
+                                          "/lib/node_modules/@openai/codex"))
+                     (metadata (find-files (string-append root "/vendor")
+                                           "^codex-package\\.json$")))
+                (when (null? metadata)
+                  (error "Codex platform metadata is missing"))
                 (for-each
                  (lambda (metadata)
                    (let* ((platform-dir (dirname metadata))
@@ -19269,7 +19277,17 @@ characters using Unicode emoji modifier bases.")
                        (delete-file rg))
                      (copy-file #$(file-append ripgrep "/bin/rg") rg)
                      (chmod rg #o555)))
-                 (find-files (string-append root "/vendor")
+                 metadata))))
+          (add-after 'replace-vendored-ripgrep 'check-installed-codex
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let ((out (assoc-ref outputs "out")))
+                (invoke (string-append out "/bin/codex") "--version")
+                (for-each
+                 (lambda (metadata)
+                   (invoke (string-append (dirname metadata) "/codex-path/rg")
+                           "--version"))
+                 (find-files (string-append out
+                                            "/lib/node_modules/@openai/codex/vendor")
                              "^codex-package\\.json$"))))))))
     (propagated-inputs (list node ripgrep))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
@@ -19318,7 +19336,7 @@ characters using Unicode emoji modifier bases.")
 (define-public node-anthropic-ai-claude-code
   (package
     (name "node-anthropic-ai-claude-code")
-    (version "2.1.318")
+    (version "2.1.325")
     (source
      (origin
        (method url-fetch)
@@ -19336,9 +19354,9 @@ characters using Unicode emoji modifier bases.")
          (let ((system (or (%current-target-system) (%current-system))))
            (cond
             ((string=? system "x86_64-linux")
-             "0ksmklpyizh0mvf926b8cbqpmxcpxacvsm8rpdcjkggms0xmwk9a")
+             "07f35b9qibmk8rihdhkjbwgnvgmsr30dip63clfw6j8za8vmswz8")
             ((string=? system "aarch64-linux")
-             "12kc86pgriabgxphkpp6cpfyq1j9jb213h6iqv5si0lpdsig97s2")
+             "1vww8lcp5v49ynnmyyzjmn14qbw1srkapb0vh0mbclr5vr7202pm")
             (else (error "unsupported system for Claude Code" system))))))))
     (build-system copy-build-system)
     (arguments
