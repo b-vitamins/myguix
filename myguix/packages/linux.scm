@@ -228,7 +228,7 @@ some freedo package or an output of package-version procedure."
   (corrupt-linux linux-libre-6.1))
 
 (define-public linux
-  linux-7.2)
+  (or linux-7.3 linux-7.2))
 
 ;; linux-lts points to the *newest* released long-term support version.
 (define-public linux-lts
