@@ -566,7 +566,7 @@ Interchange Format (SARIF)} file format.")
                           #$(this-package-input "python-wrapper")
                           "/bin/python"))
         #:vendored-inputs-hash
-        "1v321yfzrf6qv6af6rn8fdvgih55gr3y43xr7v1wi61iis5n43id"
+        "1cndmj44874gg2875iqch6z83576nkabckm8cm8vwvbsmd6qkgb8"
         #:phases
         #~(modify-phases (@ (myguix build bazel-build-system) %standard-phases)
             (add-after 'unpack 'patch-python-build-system
