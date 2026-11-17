@@ -412,6 +412,8 @@ Interchange Format (SARIF)} file format.")
          (file-name (git-file-name name version))
          (sha256
           (base32 "1dp188j50vq6cjg77hla7n6yd0q5iqivw0bx6ryc15riw6qdp8xc"))
+         (patches (myguix-patches
+                   "tensorstore-reproducible-pypa-repositories.patch"))
          (modules '((guix build utils)
                     (ice-9 textual-ports)
                     (srfi srfi-13)))
@@ -493,7 +495,7 @@ Interchange Format (SARIF)} file format.")
                      #:prefix pyproject:)
                     (guix build utils))
         #:imported-modules `(,@%bazel-build-system-modules ,@%pyproject-build-system-modules)
-        #:tests? #f ;there are none
+        #:tests? #t
         #:bazel bazel-8.5.1
         #:jdk openjdk21
         #:fetch-targets '(list
@@ -566,9 +568,15 @@ Interchange Format (SARIF)} file format.")
                           #$(this-package-input "python-wrapper")
                           "/bin/python"))
         #:vendored-inputs-hash
-        "1cndmj44874gg2875iqch6z83576nkabckm8cm8vwvbsmd6qkgb8"
+        "0rq44zb0q9gjr4j6ybxc2livml42v90icd65zn3gsjcgfgish4fc"
         #:phases
         #~(modify-phases (@ (myguix build bazel-build-system) %standard-phases)
+            (replace 'check
+              (lambda* (#:key tests? #:allow-other-keys)
+                (when tests?
+                  (invoke "python" "-m" "unittest" "discover"
+                          "-s" "bazel/repo_rules"
+                          "-p" "pypa_postinstall_fix_test.py" "-v"))))
             (add-after 'unpack 'patch-python-build-system
               (lambda _
                 (substitute* "python/tensorstore/numpy.h"

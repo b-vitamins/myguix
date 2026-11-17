@@ -1,0 +1,114 @@
+Keep TensorStore's vendored PyPI repositories independent of Python's store path.
+
+Bazel uses console_scripts_for_bazel, so omit pip's duplicate launchers and
+installation records, which embed interpreter paths and script checksums.
+Wheel download hashes and Bazel's entry points are unchanged.  Add regression
+checks for host-path independence and preservation of headers and licenses.
+
+--- a/bazel/repo_rules/pypa_postinstall_fix.py
++++ b/bazel/repo_rules/pypa_postinstall_fix.py
+@@ -28,6 +28,7 @@
+ import os
+ import pathlib
+ import re
++import shutil
+ 
+ 
+ def create_init_files():
+@@ -83,6 +84,17 @@
+     )
+ 
+ 
++def remove_pip_installation_artifacts():
++  # Bazel uses console_scripts_for_bazel instead of pip's launchers, whose
++  # shebangs and RECORD checksums capture the build interpreter's path.
++  scripts = pathlib.Path("bin")
++  if scripts.exists():
++    shutil.rmtree(scripts)
++  for record in pathlib.Path(".").glob("*.dist-info/RECORD"):
++    record.unlink()
++
++
+ if __name__ == "__main__":
+   create_init_files()
+   create_entrypoint_scripts()
++  remove_pip_installation_artifacts()
+
+--- /dev/null
++++ b/bazel/repo_rules/pypa_postinstall_fix_test.py
+@@ -0,0 +1,75 @@
++# SPDX-License-Identifier: Apache-2.0
++
++import pathlib
++import subprocess
++import sys
++import tempfile
++import unittest
++
++
++SCRIPT = pathlib.Path(__file__).with_name("pypa_postinstall_fix.py").resolve()
++
++
++class PostinstallFixTest(unittest.TestCase):
++
++  def prepare(self, root, interpreter=None):
++    files = {
++        "numpy/__init__.py": "# numpy fixture\n",
++        "numpy/_core/include/numpy/arrayobject.h": "/* headers */\n",
++        "numpy-2.3.5.dist-info/METADATA": "Name: numpy\nVersion: 2.3.5\n",
++        "numpy-2.3.5.dist-info/LICENSE.txt": "license fixture\n",
++        "numpy-2.3.5.dist-info/entry_points.txt": (
++            "[console_scripts]\nf2py = numpy.f2py.f2py2e:main\n"
++            "numpy-config = numpy._configtool:main\n"
++        ),
++    }
++    if interpreter is not None:
++      files.update({
++          "bin/f2py": f"#!{interpreter}\n",
++          "bin/numpy-config": f"#!{interpreter}\n",
++          "numpy-2.3.5.dist-info/RECORD": f"generated for {interpreter}\n",
++      })
++    for name, content in files.items():
++      path = root / name
++      path.parent.mkdir(parents=True, exist_ok=True)
++      path.write_text(content, encoding="utf-8")
++
++  def run_helper(self, root):
++    subprocess.run([sys.executable, str(SCRIPT)], cwd=root, check=True)
++
++  def test_host_python_does_not_change_vendored_files(self):
++    snapshots = []
++    for version in ("3.12.12", "3.12.15"):
++      with tempfile.TemporaryDirectory() as directory:
++        root = pathlib.Path(directory)
++        self.prepare(root, f"/gnu/store/fixture-python-{version}/bin/python3")
++        self.run_helper(root)
++        self.assertFalse((root / "bin").exists())
++        self.assertFalse((root / "numpy-2.3.5.dist-info/RECORD").exists())
++        for name in ("f2py.py", "numpy-config.py"):
++          self.assertTrue((root / "console_scripts_for_bazel" / name).is_file())
++        self.assertEqual(
++            (root / "numpy/_core/include/numpy/arrayobject.h").read_text(),
++            "/* headers */\n",
++        )
++        self.assertEqual(
++            (root / "numpy-2.3.5.dist-info/LICENSE.txt").read_text(),
++            "license fixture\n",
++        )
++        snapshots.append({
++            str(path.relative_to(root)): path.read_bytes()
++            for path in root.rglob("*") if path.is_file()
++        })
++    self.assertEqual(*snapshots)
++
++  def test_missing_pip_artifacts_are_supported(self):
++    with tempfile.TemporaryDirectory() as directory:
++      root = pathlib.Path(directory)
++      self.prepare(root)
++      self.run_helper(root)
++      self.assertTrue((root / "console_scripts_for_bazel/f2py.py").is_file())
++      self.assertTrue((root / "numpy-2.3.5.dist-info/METADATA").is_file())
++
++
++if __name__ == "__main__":
++  unittest.main()
