@@ -3357,8 +3357,7 @@ learning research in IPython notebooks.")
     (build-system pyproject-build-system)
     (arguments
      (list
-      #:test-flags '(list "--pyargs"
-                          "tests"
+      #:test-flags '(list "tests"
                           ;; We don't have tensorboard
                           "--ignore=tests/tensorboard_test.py"
                           ;; This imports tensorflow at collection time.
