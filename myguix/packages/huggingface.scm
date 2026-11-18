@@ -30,6 +30,7 @@
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (guix utils)
+  #:use-module (myguix packages)
   #:use-module (myguix packages python-pqrs)
   #:use-module ((myguix packages rust-crates-pqrs)
                 #:select (lookup-myguix-cargo-inputs))
@@ -63,6 +64,16 @@
         (format (current-error-port)
                 "Warning: no Cargo inputs available for '~a'~%" name)
         '())))
+
+(define python-pytest-vcr-fixed
+  (package
+    (inherit python-pytest-vcr)
+    (source
+     (origin
+       (inherit (package-source python-pytest-vcr))
+       (patches
+        (append (origin-patches (package-source python-pytest-vcr))
+                (myguix-patches "pytest-vcr-record-mode-values.patch")))))))
 
 (define-public python-huggingface-hub
   (package
@@ -150,7 +161,7 @@
                          python-pytest-cov
                          python-pytest-env
                          python-pytest-rerunfailures
-                         python-pytest-vcr
+                         python-pytest-vcr-fixed
                          python-pytest-xdist
                          python-setuptools
                          python-types-requests

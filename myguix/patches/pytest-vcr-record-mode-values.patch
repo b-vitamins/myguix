@@ -1,0 +1,68 @@
+From fa8ecb724805d73c6f2fd520d8a8d96e411215b6 Mon Sep 17 00:00:00 2001
+From: Xeonacid <h.dwwwww@gmail.com>
+Date: Mon, 14 Sep 2026 08:35:39 +0000
+Subject: [PATCH] Print VCR.py record mode values in tests
+
+vcrpy 4.1+ stores Cassette.record_mode as a RecordMode enum. On Python
+3.11+, str() of a mixed-in Enum prints "RecordMode.NONE" instead of
+"none", so tests that matched the formatted record mode against the
+legacy string names failed even though the modes themselves were
+applied correctly.
+
+Print getattr(record_mode, "value", record_mode) so the assertions keep
+working with both string modes (older vcrpy) and RecordMode members.
+
+Upstream-Status: Submitted [https://github.com/ktosiek/pytest-vcr/pull/56]
+---
+ tests/test_vcr.py | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tests/test_vcr.py b/tests/test_vcr.py
+index 16a3132..b493f38 100644
+--- a/tests/test_vcr.py
++++ b/tests/test_vcr.py
+@@ -214,7 +214,7 @@ def vcr_config():
+ 
+         @pytest.mark.vcr
+         def test_method(vcr_cassette):
+-            print("Cassette record mode: {}".format(vcr_cassette.record_mode))
++            print("Cassette record mode: {}".format(getattr(vcr_cassette.record_mode, 'value', vcr_cassette.record_mode)))
+     """)
+ 
+     result = testdir.runpytest('-s')
+@@ -232,7 +232,7 @@ def vcr_config():
+ 
+         @pytest.mark.vcr(record_mode='none')
+         def test_method(vcr_cassette):
+-            print("Cassette record mode: {}".format(vcr_cassette.record_mode))
++            print("Cassette record mode: {}".format(getattr(vcr_cassette.record_mode, 'value', vcr_cassette.record_mode)))
+     """)
+ 
+     result = testdir.runpytest('-s')
+@@ -250,7 +250,7 @@ def vcr_config():
+ 
+         @pytest.mark.vcr(record_mode='once')
+         def test_method(vcr_cassette, vcr):
+-            print("Cassette record mode: {}".format(vcr_cassette.record_mode))
++            print("Cassette record mode: {}".format(getattr(vcr_cassette.record_mode, 'value', vcr_cassette.record_mode)))
+     """)
+ 
+     result = testdir.runpytest('-s', '--vcr-record', 'all')
+@@ -268,7 +268,7 @@ def vcr_config():
+ 
+         @pytest.mark.vcr(record_mode='once')
+         def test_method(vcr_cassette):
+-            print("Cassette record mode: {}".format(vcr_cassette.record_mode))
++            print("Cassette record mode: {}".format(getattr(vcr_cassette.record_mode, 'value', vcr_cassette.record_mode)))
+     """)
+ 
+     result = testdir.runpytest('-s', '--vcr-record', 'all')
+@@ -286,7 +286,7 @@ def vcr_config():
+ 
+         @pytest.mark.vcr(record_mode='once')
+         def test_method(vcr_cassette):
+-            print("Cassette record mode: {}".format(vcr_cassette.record_mode))
++            print("Cassette record mode: {}".format(getattr(vcr_cassette.record_mode, 'value', vcr_cassette.record_mode)))
+     """)
+ 
+     result = testdir.runpytest('-s', '--vcr-record-mode', 'all')
