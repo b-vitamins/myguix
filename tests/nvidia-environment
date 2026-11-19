@@ -1,5 +1,6 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
-;;; Run with: guix repl -L . tests/nvidia-environment.scm
+;;; Standalone runner: channel compilation loads every .scm file.
+;;; Run with: guix repl -L . tests/nvidia-environment
 
 (use-modules (guix build utils)
              (guix derivations)
