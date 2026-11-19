@@ -1,0 +1,102 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Run with: guix repl -L . tests/nvidia-environment.scm
+
+(use-modules (guix build utils)
+             (guix derivations)
+             (guix gexp)
+             (guix monads)
+             (guix store)
+             ((guix utils) #:select (with-environment-variables))
+             (myguix services nvidia)
+             (ice-9 popen)
+             (ice-9 textual-ports)
+             (srfi srfi-13)
+             (srfi srfi-64))
+
+(define runner (test-runner-simple))
+(test-runner-current runner)
+
+(define profile-configuration
+  (@@ (myguix services nvidia) nvidia-profile-configuration))
+(define session-environment
+  (@@ (myguix services nvidia) nvidia-session-environment))
+
+(define fake-driver
+  (computed-file "test-nvidia-driver"
+                 #~(begin
+                     (mkdir #$output)
+                     (mkdir (string-append #$output "/lib")))))
+(define fake-profile
+  (computed-file "test-merged-profile"
+                 #~(begin
+                     (mkdir #$output)
+                     (mkdir (string-append #$output "/lib"))
+                     (mkdir (string-append #$output "/lib64"))
+                     (call-with-output-file
+                         (string-append #$output "/manifest")
+                       (lambda (port) (display "profile marker" port))))))
+
+(with-store store
+  (define (build-file file)
+    (let ((lowered (run-with-store store (lower-object file))))
+      (if (derivation? lowered)
+          (begin
+            (build-derivations store (list lowered))
+            (derivation->output-path lowered))
+          lowered)))
+  (let* ((config (nvidia-configuration (driver fake-driver)))
+         (hook (build-file (cadar (profile-configuration config))))
+         (driver-lib (string-append (build-file fake-driver) "/lib"))
+         (pam-environment
+          (build-file ((@@ (gnu system pam) environment-variables->environment-file)
+                       (session-environment config))))
+         (profile (build-file fake-profile))
+         (profile-lib (string-append profile "/lib"))
+         (profile-lib64 (string-append profile "/lib64"))
+         (custom "/custom project/[driver]/lib"))
+    (define* (evaluate path #:optional (twice? #f))
+      (with-environment-variables (list (list "LD_LIBRARY_PATH" path))
+        (let* ((port (open-pipe* OPEN_READ "/bin/sh" "-uc"
+                                 (string-append
+                                  "old_ifs=$IFS; . \"$1\"; "
+                                  (if twice? ". \"$1\"; " "")
+                                  "[ \"$IFS\" = \"$old_ifs\" ] || exit 2; "
+                                  "[ -z \"${_guix_nvidia_path+x}\" ] || exit 3; "
+                                  "printf '%s\\n' \"$LD_LIBRARY_PATH\"")
+                                 "nvidia-environment-test" hook))
+               (output (get-string-all port))
+               (status (close-pipe port)))
+          (unless (zero? status)
+            (error "profile hook failed" status output))
+          (string-trim-right output #\newline))))
+    (test-begin "nvidia-environment")
+    (test-equal "hook destination" "profile.d/nvidia.sh"
+      (caar (profile-configuration config)))
+    (test-equal "PAM uses the configured driver's library directory"
+      (string-append "LD_LIBRARY_PATH=" driver-lib "\n")
+      (call-with-input-file pam-environment get-string-all))
+    (test-equal "unset path" driver-lib (evaluate #f))
+    (test-equal "empty path" driver-lib (evaluate ""))
+    (test-equal "merged profile removed" driver-lib (evaluate profile-lib))
+    (test-equal "merged lib64 removed" driver-lib (evaluate profile-lib64))
+    (test-equal "duplicate merged profiles removed" driver-lib
+      (evaluate (string-append profile-lib ":" profile-lib)))
+    (test-equal "custom directory retained literally"
+      (string-append driver-lib ":" custom) (evaluate custom))
+    (test-equal "custom directory deduplicated"
+      (string-append driver-lib ":" custom)
+      (evaluate (string-append custom ":" custom)))
+    (test-equal "existing driver directory deduplicated" driver-lib
+      (evaluate (string-append driver-lib ":" driver-lib)))
+    (test-equal "empty components do not add current directory"
+      driver-lib (evaluate ":::"))
+    (test-equal "custom order preserved around profile directories"
+      (string-append driver-lib ":" custom ":/other/lib")
+      (evaluate (string-append profile-lib ":" custom ":"
+                              profile-lib64 ":/other/lib:")))
+    (test-equal "idempotent under repeated sourcing"
+      (string-append driver-lib ":" custom)
+      (evaluate (string-append profile-lib ":" custom) #t))
+    (test-end "nvidia-environment")))
+
+(exit (if (zero? (test-runner-fail-count runner)) 0 1))

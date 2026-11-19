@@ -12,6 +12,7 @@
   #:use-module (gnu services dbus)
   #:use-module (gnu services linux)
   #:use-module (gnu services shepherd)
+  #:use-module (gnu system pam)
   #:use-module (myguix packages nvidia)
   #:export (nvidia-configuration nvidia-configuration?
                                  nvidia-configuration-record?
@@ -32,6 +33,48 @@
                    (default #f)) ;boolean
   (non-admin-profiling? nvidia-configuration-non-admin-profiling?
                         (default #t)))
+
+;; Keep driver discovery separate from merged profiles, whose other libraries
+;; can override the RUNPATHs of unrelated applications such as Node.js.
+(define (nvidia-session-environment config)
+  `(("LD_LIBRARY_PATH" . ,(file-append (nvidia-configuration-driver config)
+                                     "/lib"))))
+
+(define (nvidia-profile-configuration config)
+  (list
+   `("profile.d/nvidia.sh"
+     ,(mixed-text-file
+       "nvidia-profile.sh"
+       "# Use driver libraries, not every library in a merged Guix profile.
+_guix_nvidia_path='" (file-append (nvidia-configuration-driver config) "/lib") "'
+_guix_nvidia_remaining=${LD_LIBRARY_PATH-}
+while [ -n \"$_guix_nvidia_remaining\" ]; do
+    case $_guix_nvidia_remaining in
+        *:*)
+            _guix_nvidia_entry=${_guix_nvidia_remaining%%:*}
+            _guix_nvidia_remaining=${_guix_nvidia_remaining#*:}
+            ;;
+        *)
+            _guix_nvidia_entry=$_guix_nvidia_remaining
+            _guix_nvidia_remaining=
+            ;;
+    esac
+    [ -n \"$_guix_nvidia_entry\" ] || continue
+    case $_guix_nvidia_entry in
+        */lib|*/lib64)
+            if [ -f \"$_guix_nvidia_entry/../manifest\" ]; then
+                continue
+            fi
+            ;;
+    esac
+    case :$_guix_nvidia_path: in
+        *:\"$_guix_nvidia_entry\":*) continue ;;
+    esac
+    _guix_nvidia_path=$_guix_nvidia_path:$_guix_nvidia_entry
+done
+export LD_LIBRARY_PATH=$_guix_nvidia_path
+unset _guix_nvidia_path _guix_nvidia_remaining _guix_nvidia_entry
+"))))
 
 (define (nvidia-modprobe-configuration config)
   (if (nvidia-configuration-non-admin-profiling? config)
@@ -119,7 +162,12 @@
                                                      (compose list
                                                       nvidia-configuration-firmware))
                                   (service-extension etc-service-type
-                                                     nvidia-modprobe-configuration)
+                                                     (lambda (config)
+                                                       (append
+                                                        (nvidia-modprobe-configuration config)
+                                                        (nvidia-profile-configuration config))))
+                                  (service-extension session-environment-service-type
+                                                     nvidia-session-environment)
                                   (service-extension
                                    linux-loadable-module-service-type
                                    (compose list nvidia-configuration-module))
