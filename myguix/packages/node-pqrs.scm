@@ -7745,7 +7745,7 @@
 (define-public node-opencode-bin
   (package
     (name "node-opencode-bin")
-    (version "1.15.10")
+    (version "1.19.6")
     (source
      (origin
        (method url-fetch)
@@ -7766,9 +7766,9 @@
         (base32 (let ((system (or (%current-target-system) (%current-system))))
                   (cond
                    ((string=? system "x86_64-linux")
-                    "1zp2rkq09q4nnmgbd6caliadzly9shqygy3fl0jyz4iqcr7cdq6k")
+                    "1gm5131ssqvnqc1hqpwiwp1dzwgp40p5yz40wfjzl0nijqdkqjcr")
                    ((string=? system "aarch64-linux")
-                    "12gj5wda5vgn7386k4x0wm0nimzyxb4zw5iqmkm233nyxv779f9h")
+                    "1qrjh8cyw9556xip726haiph40i9fnvlcbkfjqmxgpd28yzir4x5")
                    (else (error "unsupported system for node-opencode-bin"
                                 system))))))))
     (build-system copy-build-system)
@@ -7805,7 +7805,13 @@
                   `("PATH" ":" prefix
                     ,(map (lambda (name)
                             (string-append (assoc-ref inputs name) "/bin"))
-                          '("git-minimal" "ripgrep" "sqlite"))))))))))
+                          '("git-minimal" "ripgrep" "sqlite")))))))
+          (add-after 'wrap-runtime-tools 'check-version
+            (lambda* (#:key outputs #:allow-other-keys)
+              (setenv "HOME" (string-append (getcwd) "/opencode-home"))
+              (mkdir-p (getenv "HOME"))
+              (invoke (string-append (assoc-ref outputs "out") "/bin/opencode")
+                      "--version"))))))
     (native-inputs (list patchelf))
     (inputs (list bash-minimal git-minimal glibc ripgrep sqlite))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
@@ -19139,14 +19145,14 @@ characters using Unicode emoji modifier bases.")
 (define-public node-openai-codex
   (package
     (name "node-openai-codex")
-    (version "0.169.0")
+    (version "0.170.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://registry.npmjs.org/@openai/codex/-/codex-"
              version ".tgz"))
        (sha256
-        (base32 "1012l3jcdayafaxpkm8y8z2aj9a98dqz0bjm87i9whrry1p0ca2r"))))
+        (base32 "081pk2pxwwxx8qgl18zibvfvyzx1xi57w8jfr205dv8m036bsl6h"))))
     (build-system node-build-system)
     (native-inputs
      (list `("patchelf" ,patchelf)
@@ -19176,9 +19182,9 @@ characters using Unicode emoji modifier bases.")
                                     (%current-system))))
                     (cond
                      ((string=? system "x86_64-linux")
-                      "1aiz2lfspk50n7s24h37pscr7iws2lrsiq0gp0p5dfpsjx5ip049")
+                      "0cncs8bl6ixd6i3nnpnqih5pxb7gw186fn0fmsws5hz6x36bri37")
                      ((string=? system "aarch64-linux")
-                      "1zy1vfx46ng17b4fvspnbdldmblfx4azz135fcyp0glisf55qmf1")
+                      "0fk1jb1dhgf5g50gac6643dava3d0lk0vmkam5bppsr2wmgb18bj")
                      (else
                       (error "unsupported system for node-openai-codex"
                              system))))))))))
@@ -19336,7 +19342,7 @@ characters using Unicode emoji modifier bases.")
 (define-public node-anthropic-ai-claude-code
   (package
     (name "node-anthropic-ai-claude-code")
-    (version "2.1.325")
+    (version "2.1.328")
     (source
      (origin
        (method url-fetch)
@@ -19354,9 +19360,9 @@ characters using Unicode emoji modifier bases.")
          (let ((system (or (%current-target-system) (%current-system))))
            (cond
             ((string=? system "x86_64-linux")
-             "07f35b9qibmk8rihdhkjbwgnvgmsr30dip63clfw6j8za8vmswz8")
+             "1jzdjgxshzsaczi85kiv59c077031m0qcw3wg4888fc2z9jhjwh7")
             ((string=? system "aarch64-linux")
-             "1vww8lcp5v49ynnmyyzjmn14qbw1srkapb0vh0mbclr5vr7202pm")
+             "10vpgavb9i3381922jya5yfldl8pyl4x18hi10qrsm89q1nncqzc")
             (else (error "unsupported system for Claude Code" system))))))))
     (build-system copy-build-system)
     (arguments
