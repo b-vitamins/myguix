@@ -274,7 +274,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                                      "0wzdxxdzw2hhcrvny3rmay7711m8l0mgj7bs1k6j6771bn0a2fqr")))))
     (package
       (name "google-antigravity")
-      (version "2.32.0")
+      (version "2.33.0")
       (source
        (origin
          (method url-fetch)
@@ -288,7 +288,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                  "https://storage.googleapis.com/antigravity-public/"
                  "antigravity-hub/"
                  version
-                 "-6141816156848128/"
+                 "-4731201358004224/"
                  arch
                  "/Antigravity.tar.gz")))
          (file-name (string-append name "-" version ".tar.gz"))
@@ -296,9 +296,9 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
           (base32 (match (or (%current-target-system)
                              (%current-system))
                     ("x86_64-linux"
-                     "0xa29x2nf3bh3xv6jp74w2hl6187x8r8zvky5vfsfk5xy9qi72nr")
+                     "0l2hafldhb03cpc9dvga80riavmjqlri2wv0i0lgbcf656r8fcx7")
                     ("aarch64-linux"
-                     "1vs8zhk9jqzcxvykl33w516xq4r0lvq44ic5m0haqkkkx4rrhk01")
+                     "04v0r9kwxw6lxhx5v4i0ld3igviw0v11k5rydrvcy0r4hgcincpv")
                     (_ "0000000000000000000000000000000000000000000000000000"))))))
       (supported-systems '("x86_64-linux" "aarch64-linux"))
       (build-system chromium-binary-build-system)
@@ -319,8 +319,7 @@ files.  Obsidian also has a plugin system to expand its capabilities.")
                    "libffmpeg.so"
                    "libvk_swiftshader.so"
                    "libvulkan.so.1"
-                   "resources/bin/language_server"
-                   "resources/bin/webm_encoder")))
+                   "resources/bin/language_server")))
         #:install-plan
         #~'(("." "/share/antigravity"))
         #:phases
@@ -580,7 +579,7 @@ projects in it.")
 (define-public chatgpt-desktop
   (package
     (name "chatgpt-desktop")
-    (version "26.1111.21308")
+    (version "26.1111.71704")
     (source
      (origin
        (method url-fetch)
@@ -602,9 +601,9 @@ projects in it.")
         (base32 (match (or (%current-target-system)
                            (%current-system))
                   ("x86_64-linux"
-                   "0li3an5smnyklna7qkyrnngkrsn90zibmwf27ccin2imaz2kni2b")
+                   "1906z2my4835p39vswv5qvb1jk4a2wlirfljzcd7wpw3gk3zgvh1")
                   ("aarch64-linux"
-                   "09cskndmvbjcxca8hxjhh9y9v23l6g8d7bkwn8l7mvv8144smif5")
+                   "0h7ph13pl2nh0pqx4a3pssdx8my577vswq6pg8sps4lr3zp0smgh")
                   (_ "0000000000000000000000000000000000000000000000000000"))))))
     (supported-systems '("x86_64-linux" "aarch64-linux"))
     (build-system chromium-binary-build-system)
